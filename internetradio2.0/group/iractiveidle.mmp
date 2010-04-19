@@ -1,0 +1,97 @@
+/*
+* Copyright (c) 2006-2007 Nokia Corporation and/or its subsidiary(-ies). 
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:  ?Description
+*
+*/
+
+
+/* ---------------------------------------------------------------------------
+*  Version history:
+*  Template version:
+*  <ccm_history>
+*
+*  Version: 21, Tue Mar 11 20:00:00 2008 by Rohit
+*  Ref:
+*  Merged IRv1.0 Engine code changes
+*
+*  </ccm_history>
+* ============================================================================
+*/
+
+#include 		<platform_paths.hrh>
+ 
+#include <data_caging_paths.hrh>
+
+
+
+TARGET iractiveidle.dll
+TARGETTYPE PLUGIN
+
+// ECom Dll recognition UID followed by the unique UID for this dll
+UID 0x10009D8D 0x2000B4AB
+//VENDORID 
+
+PAGED
+
+//source file
+SOURCEPATH        ../activeidlesrc	
+SOURCE		iractiveidle.cpp
+SOURCE		iractiveidlemain.cpp
+SOURCE          iractiveidlestatedetector.cpp
+
+//user include
+USERINCLUDE    ../activeidleinc
+USERINCLUDE	   ../include
+USERINCLUDE    ../uiinc
+USERINCLUDE    ../activeidleenginc
+USERINCLUDE    ../resources
+USERINCLUDE    ../group
+USERINCLUDE    ../streamsourceinc
+
+APP_LAYER_SYSTEMINCLUDE
+SYSTEMINCLUDE   OS_LAYER_PUBLIC_EXPORT_PATH(ecom)
+
+SOURCEPATH        ../resources
+
+//resource file
+START RESOURCE  2000B4AB.rss
+TARGET IRActiveIdle.rsc
+end
+
+SOURCEPATH          ../resources
+START RESOURCE      iractiveidle.rss
+LANG SC 01 02 03 04 05 06 07 08 09 10 13 14 15 16 17 18 25 26 27 28 29 30 31 32 33 37 39 42 44 45 49 50 51 54 57 58 59 67 68 70 76 78 79 83 93 94 96 129 157 158 159 160 161 326 327 401 402
+
+HEADER
+TARGETPATH          RESOURCE_FILES_DIR
+end
+LIBRARY 				eikcore.lib
+LIBRARY                 aiutils.lib
+LIBRARY                 apgrfx.lib
+LIBRARY                 apparc.lib
+LIBRARY                 avkon.lib
+LIBRARY                 bafl.lib
+LIBRARY                 commonengine.lib 
+LIBRARY                 cone.lib
+LIBRARY                 ecom.lib
+LIBRARY                 efsrv.lib
+LIBRARY                 euser.lib
+LIBRARY                 iractiveidleengine.lib
+LIBRARY featmgr.lib 
+
+LIBRARY            flogger.lib
+
+//capability
+//CAPABILITY LocalServices Location NetworkServices PowerMgmt ProtServ ReadDeviceData ReadUserData SurroundingsDD SwEvent TrustedUI UserEnvironment WriteDeviceData WriteUserData
+CAPABILITY              CAP_ECOM_PLUGIN		

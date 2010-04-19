@@ -1,0 +1,5 @@
+#qtinternetradio
+qtinternetradio.exe
+irqutility.dll
+irqisdsclient.dll
+irqmediaplayer.dll

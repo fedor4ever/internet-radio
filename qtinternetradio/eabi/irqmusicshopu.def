@@ -1,0 +1,7 @@
+EXPORTS
+	_ZN12IRQMusicShop12launchShazamEv @ 1 NONAME
+	_ZN12IRQMusicShop12openInstanceEv @ 2 NONAME
+	_ZN12IRQMusicShop13closeInstanceEv @ 3 NONAME
+	_ZN12IRQMusicShop15findInMusicShopERK7QStringS2_S2_ @ 4 NONAME
+	_ZN12IRQMusicShop15launchMusicShopEv @ 5 NONAME
+

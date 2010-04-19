@@ -1,0 +1,1059 @@
+* {
+	nav-index: none;
+}
+/* Hide western triggers. Only class="arabic" are shown */
+trigger.western {
+   display: none;
+}
+
+view { /* main_idle_act2_pane */
+	display: block; 
+	position: static; 	
+	width: 100%;
+	height: 100%;
+	direction: rtl;
+	block-progression: lr;
+	background-image: wallpaper;
+}
+
+menuitem#SK2{
+	_s60-longtap: true;
+}
+/**************************************
+	NAVI BAR
+***************************************/
+
+box#pluginIconArea { /* popup_ai2_link_window */
+	display: block; 
+	visibility: visible;
+	position: absolute; 	
+	width: 7.25u;	
+	height: 28.75u;	
+	right: 1.0u;	
+	top: 1.5u;		
+	padding-left: 0.85u;	
+	padding-right: 0.65u;	
+	padding-top: 1.00u;	
+	padding-bottom: 1.00u;
+	block-progression: tb;
+	direction: ltr;
+	background-color:"SKIN(268458534 8448)";
+	z-index: 1;
+}
+
+
+image.pluginAreaIcon { /* grid_ai2_link_window_g1 */
+	display: block; 
+	visibility: visible;
+	position: static; 
+	width: 5.75u;
+	/*height: 20%;*/	/* with NewsTicker */
+	height: 5.75u;
+	margin-left: 0.75u;
+	margin-right: 0.75u;
+	block-progression: tb;
+	z-index: 1;
+}
+
+image.pluginAreaIcon:focus {
+	background-image: "SKIN(268458534 24576)";
+	background-color: "SKIN(268458534 5136)";
+}
+
+image#shortcutPluginIcon {
+    nav-index: 1;
+/* Block with flag '__NEWSTICKER' skipped. */
+}
+image#organizerPluginIcon {
+    nav-index: 2;
+}
+image#musicPlayerPluginIcon {
+    nav-index: 3;
+}
+image#radioPluginIcon {
+    nav-index: 4;
+}
+image#personalizationPluginIcon {
+    nav-index: 5;
+/* Block with flag '__NEWSTICKER' skipped. */
+}
+
+/**************************************
+	SAT AREA
+***************************************/
+
+box#SATPluginContainer {
+	display: block;
+	visibility: visible;
+	position: absolute;
+	left: auto;
+	margin-left: 1.0u;
+/* left: 100%; */
+/*	right: 9.75u; */
+	margin-right: 9.75u;
+	top: 1.0u;
+	width: auto;
+	height: 4.0u;
+	background-image: auto;
+	direction: rtl;
+	block-progression: rl;
+}
+
+text.satText	{
+	display: block;
+	visibility: visible;
+	position: static;
+	width: auto;
+	height: 4.0u;
+	left: auto;
+	margin-left: 1.0u;
+	font-family: EAknLogicalFontSecondaryFont;
+	font-size: 3.5u;         /* TODO: check */
+	text-align: left;
+	/*color: auto;*/
+	color: "SKIN(268458534 13056 19)";
+}
+
+image.satIcon	{
+	display: block;
+	visibility: visible;
+	position: static;
+	top: 0.25u;
+   /*left: auto;*/
+   right: auto;
+/*margin-left: 1.0u;*/
+	width: 3.5u;
+	height: 3.5u;
+}
+
+/**************************************
+	PLUGIN AREA
+***************************************/
+
+box#pluginContainerArea { /* popup_ai2_data_window */
+	display: block;
+	visibility: visible;
+	position: absolute;
+	width: auto;	
+	height: auto;	
+	left: 4.5u;
+	right: 4.5u;
+	top: 1.5u;
+	margin-left: 1.0u;
+	margin-right: 1.80u;
+	margin-bottom: 1.5u;
+	/*padding-left: 
+	padding-right:*/
+	block-progression: lr;
+	direction: ltr;
+	z-index: 0;
+}
+
+
+/*********
+	GENERAL
+**********/
+
+box.pluginContainer { /*  popup_ai2_data_window  */
+	display: none;
+	visibility: visible;
+	position: static;
+	width: 100%;
+	height: 100%;
+	block-progression: tb;
+	background-color:"SKIN(268458534 8448)";
+	z-index: 1;
+}
+/* There seems to be a bug in the animation system that doesn't start
+the animation correctly. This is to go around it. */
+
+box#shortcutPluginAnimationFixButton { 
+	display: none;
+	visibility: hidden;
+	width: 0%;
+	height: 0%;
+}
+
+button.fakeButton { 
+	display: none;
+	visibility: hidden;
+	width: 0%;
+	height: 0%;
+}
+
+text.titleText{ /* heading_ai2_ gene_pane */
+	display: block;
+	visibility: visible;
+	position: static;
+	block-progression: lr;
+	width: auto;
+	height: 14.4%;	
+	padding-left: 1.2u;
+	padding-right: 1.1u;
+	margin-left: 0.7u;
+	margin-right: 0.9u;
+	padding-bottom: 0.5u;
+	border-bottom-width: thin;
+	border-bottom-style: dotted;
+	border-bottom-color: auto;
+	nav-index: auto;
+	font-family: EAknLogicalFontPrimaryFont; 
+	font-size: 4.0u;      
+	text-align: right;
+	color: "SKIN(268458534 13056 19)";
+}
+
+text.titleText:focus{
+	background-image: "SKIN(268458534 24576)";
+	background-color: "SKIN(268458534 5120 9)";
+	color: "SKIN(268458534 13056 9)";
+}
+
+text.genericButtonText { /* ai2_gene_pane_t1 */
+	display: block;
+	visibility: visible;
+	position: static;
+	width: auto;
+	height: auto;
+	padding-left: 1.0u;
+	padding-right: 1.0u;
+	margin-right: 0.9u;
+	margin-left: 0.7u;
+	padding-bottom: 0.6u;
+	padding-top: -0.3u;
+	font-family: EAknLogicalFontSecondaryFont; 
+	font-size: 3.5u;        
+	color: "SKIN(268458534 13056 19)";
+	nav-index: auto;  
+ 	border-top-width: thin;
+	border-top-style: dotted;
+	border-top-color: auto;
+	text-align: right;
+}
+
+
+text.genericButtonText:focus{
+	/*color: EAknsCIQsnTextColorsCG10;*/
+	color: "SKIN(268458534 13056 9)";
+	background-image: "SKIN(268458534 24576)";
+	background-color: "SKIN(268458534 5120 9)";
+}
+
+
+/************************
+	SHORTCUT PLUGIN AREA 
+*************************/
+
+image#shortcutPluginIcon { _s60-initial-focus: 1; }
+
+
+/************************
+	CALENDAR PLUGIN AREA 
+*************************/
+box#organizerPluginContainer { /*  popup_ai2_data_window  */
+	display: none;
+	visibility: visible;
+	position: static;
+	width: 100%;
+	height: 100%;
+	block-progression: tb;
+	background-color:"SKIN(268458534 8448)";
+	z-index: 1;
+}
+/* Organiser items are buttons because they contain 1-2 textelements
+   and an image element */
+button.organizerButton { /* ai2_gene_pane */
+	display: none;
+	visibility: visible;
+	position: static;
+	width: auto;
+	height: 13.5%;
+	margin-left: 0.75u;
+	margin-right: 0.75u;
+	nav-index: auto;  
+ 	border-top-width: 0.5%;
+	border-top-style: dotted;
+	border-top-color: auto;
+}
+
+button.organizerButtonLastPosition { /* ai2_gene_pane */
+	display: block;
+	visibility: visible;
+	position: static;
+	width: auto;
+	height: 12.5%;
+	margin-left: 0.75u;
+	margin-right: 0.75u;
+	margin-bottom: 0.65u;
+	nav-index: auto;  
+ 	border-top-width: 0.5%;
+	border-top-style: dotted;
+	border-top-color: auto;
+}
+
+button.organizerButton:focus {
+	background-image: "SKIN(268458534 24576)";
+	background-color: "SKIN(268458534 5120 9)";
+}
+
+button.organizerButtonLastPosition:focus {
+	background-image: "SKIN(268458534 24576)";
+	background-color: "SKIN(268458534 5120 9)";
+}
+
+
+button#eventButton4 { 	display: none; 	nav-index: none; }
+button#eventButton5 { 	display: none; 	nav-index: none; }
+button#eventButton6 { 	display: none; 	nav-index: none; }
+
+image.eventIcon { /* ai2_gene_pane_g2 */
+	display: block;
+	visibility: visible;
+	position: absolute;
+	top: 0.75u;
+	right: 5.25u;
+	left: 100%;
+	width: 4.0u;
+	height: 4.0u;
+}
+
+text.eventText1 { /* ai2_gene_pane_t1  */
+	display: block;
+	visibility: visible;
+	position: absolute;
+	width: auto;
+	height: 4.0u;
+	left: 5.5u;
+	right: 3.0u;
+	/*top: 0.75u;*/
+	top: 6%;
+	font-family: EAknLogicalFontSecondaryFont; 
+	font-size: 3.5u;
+	/*color: auto;*/
+	color: "SKIN(268458534 13056 19)";
+	text-align: right;
+	
+}
+
+
+text.eventText2 { /* ai2_gene_pane_t1  */
+	display: block;
+	visibility: visible;
+	position: absolute;
+	width: auto;
+	height: 4.0u;
+	/*top: 4.5u;	*/
+	top: auto;
+	bottom: 6%;
+	left: 5.5u;
+	right: 3.0u;
+	font-family: EAknLogicalFontSecondaryFont; 
+	font-size: 3.5u;
+	/*color: auto;*/
+	color: "SKIN(268458534 13056 19)";
+	text-align: right;
+}
+
+/*********************
+	PLAYER PLUGIN AREA 
+**********************/
+
+box#volumeIndicator { /* ai2_mp_volume_pane */
+	display: none;
+	visibility: visible;
+	position: absolute;
+	block-progression: rl;
+	top: 15.5%;
+	width: auto;
+	height: 14%;
+	margin-left: 0.75u;
+	margin-right: 0.75u;	
+/*left: auto;*/
+	/*padding-left: 30%;*/
+	border-top-width: 0.5%;
+	border-top-style: dotted;
+	border-top-color: auto;
+	nav-index: auto;
+}
+
+
+box#volumeIndicator:focus {
+	background-image: "SKIN(268458534 24576)";
+	background-color: "SKIN(268458534 5120 9)";
+}
+
+
+
+image#musicPlayerVolumeDownIcon { 
+	display: none;
+	visibility: visible;
+	position: absolute;
+	left: 100%;
+	right: 31.5u;
+	width: 1.0u;
+	height: 4.0u;
+	margin-top: auto;
+	margin-bottom: auto;
+}
+image#musicPlayerVolumeDownIconHighlight { 
+	display: none;
+	visibility: hidden;
+	position: absolute;
+	left: 100%;
+	right: 31.5u;
+	width: 1.0u;
+	height: 4.0u;
+	margin-top: auto;
+	margin-bottom: auto;
+}
+
+
+
+image#musicPlayerSpeakerIcon { 
+	display: block;
+	visibility: visible;
+	position: absolute;
+	left: 100%;
+	right: 28.5u;
+	width: 4u;
+	height: 4u;
+	margin-top: auto;
+	margin-bottom: auto;
+}
+image#musicPlayerSpeakerIconHighlight { 
+	display: block;
+	visibility: hidden;
+	position: absolute;
+	left: 100%;
+	right: 28.5u;
+	width: 4u;
+	height: 4u;
+	margin-top: auto;
+	margin-bottom: auto;
+}
+
+image#musicPlayerSpeakerMutedIcon { 
+	display: none;
+	visibility: visible;
+	position: absolute;
+	left: 100%;
+	right: 28.5u;
+	width: 4u;
+	height: 4u;
+	margin-top: auto;
+	margin-bottom: auto;
+}
+image#musicPlayerSpeakerMutedIconHighlight { 
+	display: none;
+	visibility: hidden;
+	position: absolute;
+	left: 100%;
+	right: 28.5u;
+	width: 4u;
+	height: 4u;
+	margin-top: auto;
+	margin-bottom: auto;
+}
+
+/*
+image#musicPlayerVolumeIcon { 
+	display: block;
+	visibility: visible;
+	position: absolute;
+	left: 100%;
+	right: 23.5u;
+	width: 20.0u;
+	height: 4.0u;
+	margin-top: auto;
+	margin-bottom: auto;
+}
+*/
+
+volumecontrol#musicPlayerVolumeIcon	{
+	display: block;
+	visibility: visible;
+	position: absolute;
+	left: 100%;
+	right: 23.5u;
+	width: 20.0u;
+	height: 4.0u;
+	margin-top: auto;
+	margin-bottom: auto;
+	focusable: true;	
+	direction: ltr;
+	block-progression: lr;
+}
+
+
+slider	{
+	focusable: false;
+	value: 5;
+	minrange: 0;	
+	maxrange: 10;	
+	z-index: 0;
+}
+
+image#musicPlayerVolumeUpIcon { 
+	display: none;
+	visibility: visible;
+	position: absolute;
+	left: 100%;
+	right: 2.5u;
+	width: 1.0u;
+	height: 4.0u;
+	margin-top: auto;
+	margin-bottom: auto;
+}
+
+image#musicPlayerVolumeUpIconHighlight { 
+	display: none;
+	visibility: hidden;
+	position: absolute;
+	left: 100%;
+	right: 2.5u;
+	width: 1.0u;
+	height: 4.0u;
+	margin-top: auto;
+	margin-bottom: auto;
+}
+
+/*image#musicPlayerInactiveVolumeUpIcon { 
+	display: none;
+	visibility: visible;
+	position: absolute;
+	left: 100%;
+	right: 2.5u;
+	width: 1.0u;
+	height: 4.0u;
+	margin-top: auto;
+	margin-bottom: auto;
+}*/
+
+
+/* Replaces volume control and playback info when player is inactive */
+box#playerInActive	{
+	display: block;
+	visibility: visible;
+	position: static;
+	width: auto;
+	height: auto;
+	margin-left: 0.75u;
+	margin-right: 0.75u;
+	border-top-width: 0.5%;
+	border-top-style: dotted;
+	border-top-color: auto;
+	nav-index: auto;
+}
+
+
+text#musicPlayerInActive	{
+	display: block;
+	visibility: visible;
+	position: static;
+	text-align: center;
+	margin-top: auto;
+	margin-bottom: 45.0%;
+	font-family: EAknLogicalFontSecondaryFont; 
+	font-size: 3.5u;
+	/*color: auto;	*/
+	color: "SKIN(268458534 13056 19)";	
+}
+
+
+box#infoArea {
+	display: none;
+	visibility: visible;
+	position: absolute;
+	width: auto;
+	height: auto;
+	top: 29.5%;
+	margin-left: 1.1u;
+	margin-right: 1.1u;
+	border-top-width: 0.4%;
+	border-top-style: dotted;
+	border-top-color: auto;	
+}
+
+/* A box around the artist and track name */
+/* the idea here is to display max 6 rows (max-line-amount). */
+/* The track has higher display-prio so it will be displayed first. */
+/* The track will get all the lines (max 6) it needs in order to display its name */
+/* Whats left of the 6 lines from track name will be used for artist */
+box#trackAndArtist{
+	display: block;
+	visibility: visible;
+	position: absolute;
+	width: auto;
+	/* For landscape orientation. This way we get the */
+	/* last line out of sight */	
+	height: 100%;
+	margin-bottom: 10.5u;	
+}
+
+box#artistLine {
+	display: block;
+	visibility: visible;
+	position: static;
+	height: adaptive;
+	_s60-display-priority: 11;
+}
+
+
+box#trackLine {
+	display: block;
+	visibility: visible;
+	position: static;
+	height: adaptive;
+	_s60-display-priority: 10;
+}
+
+
+box#durationLine {
+	display: block;
+	visibility: visible;
+	position: static;
+	height: 4.0u;
+	margin-top: auto;
+	margin-bottom: 2.0u;
+}
+
+
+image.playerStatusIcon { 
+	display: block;
+	visibility: visible;
+	position: absolute;
+	width: 3.5u;
+	height: 3.5u;
+	left: 100%;
+	right: 4.3u;
+	top: 1.0u;
+}
+
+text#time{
+	display: block;
+	visibility: visible;
+	position: absolute;
+	width: 100%;
+	height: 4.0u;
+	left: 1.75u;
+	right: 7.75u;
+	top: 0.25u;
+	font-family: EAknLogicalFontSecondaryFont; 
+	font-size: 3.5u;
+	/*color: auto;*/
+	color: "SKIN(268458534 13056 19)";
+	margin-left: 1.0u;
+	margin-right: 1.0u;
+	margin-top: 0.25u;
+	text-align: right;		
+}
+
+text.playerTextLine {
+	display: block;
+	visibility: visible;
+	position: static;
+	width: 100%;
+	margin-left: 3.5u;
+	height: adaptive;
+	margin-left: 1.0u;
+	margin-right: 1.5u;
+	margin-top: 0.25u;
+	font-family: EAknLogicalFontSecondaryFont; 
+	font-size: 3.5u;
+	/*color: auto;*/
+	color: "SKIN(268458534 13056 19)";
+	text-overflow-mode: wrap;
+	max-line-amount: 6;	 
+	text-align: right;
+}
+
+
+/*********************
+	VISUAL/INTERNET RADIO PLUGIN AREA 
+**********************/
+
+button.radioTitleButton { /* heading_ai2_ gene_pane */
+	display: block;
+	visibility: visible;
+	position: static;
+	block-progression: lr;
+	width: auto;
+	height: 14.4%;	
+	padding-left: 1.2u;
+	padding-right: 1.1u;
+	margin-left: 0.7u;
+	margin-right: 0.9u;
+	padding-bottom: 0.5u;
+	border-bottom-width: thin;
+	border-bottom-style: dotted;
+	border-bottom-color: auto;
+	nav-index: auto;
+}
+
+button.radioTitleButton:focus {
+	background-image: "SKIN(268458534 24576)";
+	background-color: "SKIN(268458534 5120 9)";
+}
+
+text.radioTitleText { /* heading_ai2_gene_pane_t1 */
+	display: block;
+	visibility: visible;
+	position: static;
+	width: auto;
+	height: auto;
+	font-family: EAknLogicalFontPrimaryFont; 
+	font-size: 4.0u;      
+	color: "SKIN(268458534 13056 19)";
+	text-align: right;
+}
+
+/* Invisible icon that is used to switch correct layout */
+image.invisibleRadioTitleIcon {
+	display: none;
+	visibility: visible;
+	position: absolute;
+	left: 100%;
+	right: 4.25u;
+	top: 0.25u;
+	width: 4.0u;
+	height: 4.0u;
+}
+
+box#radioVolumeIndicator {
+	display: none;
+	visibility: visible;
+	position: absolute;
+	block-progression: rl;
+	top: 15.5%;
+	width: auto;
+	height: 14%;
+	margin-left: 0.75u;
+	margin-right: 0.75u;	
+/*left: auto;*/
+	/*padding-left: 30%;*/
+	border-top-width: 0.5%;
+	border-top-style: dotted;
+	border-top-color: auto;
+	nav-index: auto;
+}
+
+
+box#radioVolumeIndicator:focus {
+	background-image: "SKIN(268458534 24576)";
+	background-color: "SKIN(268458534 5120 9)";
+}
+
+
+
+image#radioVolumeDownIcon { 
+	display: none;
+	visibility: visible;
+	position: absolute;
+	left: 100%;
+	right: 31.5u;
+	width: 1.0u;
+	height: 4.0u;
+	margin-top: auto;
+	margin-bottom: auto;
+}
+image#radioVolumeDownIconHighlight { 
+	display: none;
+	visibility: hidden;
+	position: absolute;
+	left: 100%;
+	right: 31.5u;
+	width: 1.0u;
+	height: 4.0u;
+	margin-top: auto;
+	margin-bottom: auto;
+}
+
+
+
+image#radioSpeakerIcon { 
+	display: block;
+	visibility: visible;
+	position: absolute;
+	left: 100%;
+	right: 28.5u;
+	width: 4u;
+	height: 4u;
+	margin-top: auto;
+	margin-bottom: auto;
+}
+image#radioSpeakerIconHighlight { 
+	display: block;
+	visibility: hidden;
+	position: absolute;
+	left: 100%;
+	right: 28.5u;
+	width: 4u;
+	height: 4u;
+	margin-top: auto;
+	margin-bottom: auto;
+}
+
+image#radioSpeakerMutedIcon { 
+	display: none;
+	visibility: visible;
+	position: absolute;
+	left: 100%;
+	right: 28.5u;
+	width: 4u;
+	height: 4u;
+	margin-top: auto;
+	margin-bottom: auto;
+}
+image#radioSpeakerMutedIconHighlight { 
+	display: none;
+	visibility: hidden;
+	position: absolute;
+	left: 100%;
+	right: 28.5u;
+	width: 4u;
+	height: 4u;
+	margin-top: auto;
+	margin-bottom: auto;
+}
+
+
+volumecontrol#radioVolumeIcon	{
+	display: block;
+	visibility: visible;
+	position: absolute;
+	left: 100%;
+	right: 23.5u;
+	width: 20.0u;
+	height: 4.0u;
+	margin-top: auto;
+	margin-bottom: auto;
+	focusable: true;	
+	direction: ltr;
+	block-progression: lr;
+}
+
+
+slider#radioSlider	{
+	focusable: false;
+	value: 5;
+	minrange: 0;	
+	maxrange: 10;	
+	z-index: 0;
+}
+
+image#radioVolumeUpIcon { 
+	display: none;
+	visibility: visible;
+	position: absolute;
+	left: 100%;
+	right: 2.5u;
+	width: 1.0u;
+	height: 4.0u;
+	margin-top: auto;
+	margin-bottom: auto;
+}
+
+image#radioVolumeUpIconHighlight { 
+	display: none;
+	visibility: hidden;
+	position: absolute;
+	left: 100%;
+	right: 2.5u;
+	width: 1.0u;
+	height: 4.0u;
+	margin-top: auto;
+	margin-bottom: auto;
+}
+
+
+
+/* Replaces volume control and playback info when radio is inactive */
+box#radioInactive	{
+	display: block;
+	visibility: visible;
+	position: static;
+	width: auto;
+	height: auto;
+	margin-left: 0.75u;
+	margin-right: 0.75u;
+	border-top-width: 0.5%;
+	border-top-style: dotted;
+	border-top-color: auto;
+	nav-index: auto;
+}
+
+
+text#radioInactiveText	{
+	display: block;
+	visibility: visible;
+	position: static;
+	text-align: center;
+	margin-top: auto;
+	margin-bottom: 45.0%;
+	font-family: EAknLogicalFontSecondaryFont; 
+	font-size: 3.5u;
+	color: "SKIN(268458534 13056 19)";	
+}
+
+
+box#visualRadioInfoArea {
+	display: none;
+	visibility: visible;
+	position: absolute;
+	width: auto;
+	height: auto;
+	top: 29.5%;
+	margin-left: 1.1u;
+	margin-right: 1.1u;
+	border-top-width: 0.4%;
+	border-top-style: dotted;
+	border-top-color: auto;	
+}
+
+
+box#visualRadioNameLine {
+	display: block;
+	visibility: visible;
+	position: static;
+	height: 4.5u;
+	margin-top: 0.25u;
+	block-progression: lr;
+}
+
+
+box#visualRadioLocationLine {
+	display: block;
+	visibility: visible;
+	position: static;
+	height: 4.5u;
+	margin-top: 0.25u;
+}
+
+
+box#visualRadioFrequencyLine {
+	display: block;
+	visibility: visible;
+	position: static;
+	height: 4.5u;
+	margin-top: 0.25u;
+	margin-bottom: auto;
+}
+
+
+text#visualRadioNumberTextLine {
+	width: 4.0u;
+	height:	4.0u;
+	left: 100%;
+	right: 6.75u;
+	top: 0.25u;
+	font-weight: bold;
+	text-align: left;
+}
+
+
+text#visualRadioNameTextLine {
+	font-weight: bold;
+}
+
+
+text.visualRadioTextLine {
+	display: block;
+	visibility: visible;
+	position: absolute;
+	width: auto;
+	height:	4.0u;
+	left: 9.0u;
+	right: 3.75u;
+	top: 0.25u;
+	font-family: EAknLogicalFontSecondaryFont; 
+	font-size: 3.5u;
+	color: "SKIN(268458534 13056 19)";
+	text-overflow-mode: wrap;
+	max-line-amount: 1;	 
+	text-align: right;
+}
+
+
+box#inetRadioInfoArea {
+	display: none;
+	visibility: visible;
+	position: absolute;
+	width: auto;
+	height: auto;
+	top: 29.5%;
+	margin-left: 1.1u;
+	margin-right: 1.1u;
+	border-top-width: 0.4%;
+	border-top-style: dotted;
+	border-top-color: auto;	
+}
+
+
+box#inetRadioPresetLine {
+	display: block;
+	visibility: visible;
+	position: static;
+	height: 4.5u;
+	margin-top: 2.0u;
+}
+
+
+box#inetRadioArtistLine {
+	display: block;
+	visibility: visible;
+	position: static;
+	height: 4.5u;
+}
+
+
+box#inetRadioTrackLine {
+	display: block;
+	visibility: visible;
+	position: static;
+	height: 4.5u;
+}
+
+
+text.inetRadioTextLine {
+	display: block;
+	visibility: visible;
+	position: absolute;
+	width: 100%;
+	height:	4.0u;
+	left: 1.75u;
+	right: 2.75u;
+	top: 0.25u;
+	font-family: EAknLogicalFontSecondaryFont; 
+	font-size: 3.5u;
+	color: "SKIN(268458534 13056 19)";
+	text-overflow-mode: wrap;
+	max-line-amount: 1;	 
+	text-align: right;
+}
+
+
+text#inetRadioPresetTextLine {
+	font-weight: bold;
+}
+
+
+/****************************
+	PERSONALIZATION PLUGIN AREA 
+*****************************/
+
+/* Defined in "General" definitions */
+
+
+/*********************************
+	WRAPPER BOX FOR SAT & NEWSTICKER
+**********************************/
+
+box#SATAndNewstickerBox {
+	display: block;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	z-index: 0;
+}
+
+/* Block with flag '__NEWSTICKER' skipped. */

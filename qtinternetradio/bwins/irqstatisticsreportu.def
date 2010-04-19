@@ -1,0 +1,14 @@
+EXPORTS
+	?closeInstance@IRQStatisticsReporter@@QAEXXZ @ 1  NONAME ; void IRQStatisticsReporter::closeInstance(void)
+	?logNmsEvent@IRQStatisticsReporter@@QAEXW4IRQNmsType@@H@Z @ 2  NONAME ; void IRQStatisticsReporter::logNmsEvent(enum IRQNmsType, int)
+	?logServerResult@IRQStatisticsReporter@@QAEXABVQString@@W4IRQError@@@Z @ 3  NONAME ; void IRQStatisticsReporter::logServerResult(class QString const &, enum IRQError)
+	?logSongRecogEvent@IRQStatisticsReporter@@QAEXXZ @ 4  NONAME ; void IRQStatisticsReporter::logSongRecogEvent(void)
+	?markSessionStart@IRQStatisticsReporter@@QAEXXZ @ 5  NONAME ; void IRQStatisticsReporter::markSessionStart(void)
+	?openInstance@IRQStatisticsReporter@@SAPAV1@PAVIRQIsdsClient@@@Z @ 6  NONAME ; class IRQStatisticsReporter * IRQStatisticsReporter::openInstance(class IRQIsdsClient *)
+	?restartSession@IRQStatisticsReporter@@QAEXXZ @ 7  NONAME ; void IRQStatisticsReporter::restartSession(void)
+	?sessionEnded@IRQStatisticsReporter@@QAEXW4IRQTerminatedType@@@Z @ 8  NONAME ; void IRQStatisticsReporter::sessionEnded(enum IRQTerminatedType)
+	?sessionStarted@IRQStatisticsReporter@@QAE_NHW4IRQConnectedFrom@@@Z @ 9  NONAME ; bool IRQStatisticsReporter::sessionStarted(int, enum IRQConnectedFrom)
+	?suspendSession@IRQStatisticsReporter@@QAEXXZ @ 10  NONAME ; void IRQStatisticsReporter::suspendSession(void)
+	?updateCurrentNetwork@IRQStatisticsReporter@@QAEXABVQString@@0@Z @ 11  NONAME ; void IRQStatisticsReporter::updateCurrentNetwork(class QString const &, class QString const &)
+	?updateHomeOperator@IRQStatisticsReporter@@QAEXABVQString@@0@Z @ 12  NONAME ; void IRQStatisticsReporter::updateHomeOperator(class QString const &, class QString const &)
+

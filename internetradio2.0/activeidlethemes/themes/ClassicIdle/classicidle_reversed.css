@@ -1,0 +1,616 @@
+
+/* What's this? */
+* {
+	nav-index: none;
+}
+
+/*******
+	VIEW
+********/
+
+view {
+	display: block; 
+	position: static; 	
+	width: 100%;
+	height: 100%;
+	direction: ltr;
+	block-progression: tb;
+	background-image: wallpaper;
+}
+
+menuitem#Shortcut_SK2{
+	_s60-longtap: true;
+}
+
+/**************************************
+	GENERAL DEFINITIONS FOR PLUGIN BOXES
+***************************************/
+
+box.pluginContainerBox { /* main_idle_act_pane */
+	position: static; 
+	border-top-width: 0.25u;
+	border-top-style: dotted;    /* linestyle of the box */
+	border-top-color: black;
+	width: auto;
+	nav-index: none;
+}
+
+/* everything else but the NT is inside this box */
+box#mainBox{
+	position: static;
+	width: auto;
+/* Block with flag '__NEWSTICKER' skipped. */
+	height: 100%;
+	nav-index: none;
+}
+
+
+/* settings for the pluginContainerBox during focus */
+box.pluginContainerBox:focus {
+  /*background-color: "SKIN(268458534 8448)"; *//* see S60_3_1_Reference_Icons_1.3.doc */
+	background-color: "SKIN(268458534 5120 9)";
+ }
+
+
+/************************
+	SHORTCUT PLUGIN AREA 
+*************************/
+
+/* box where the actual plugin information is shown */
+box#shortcutPluginContainer { /* ai_links_pane*/
+	margin-top: 0.5u;
+	height: 7.5u;
+	padding-left:  2u;
+	padding-right: 2u;
+	padding-top: /*0.7%;*/ 0.5u;
+/*padding-bottom: 0.25u;*/
+	
+	/* Reverse the shortcuts in the reverse layout */
+	block-progression: rl;
+	direction: rtl;
+}
+
+
+button.shortcutButton { /* cell_ai_link_pane */
+	width: auto;
+	height: 7u;
+	nav-index: auto;
+}
+
+
+button.shortcutButton:focus {
+	background-image: "SKIN(268458534 24576)";
+	background-color: "SKIN(268458534 5136)";
+}
+
+/* What's this ? */
+button#shortcutButton1 {  
+	_s60-initial-focus: 100; 
+}
+
+
+image.shortcutIcon { 
+	width: 7u;
+	height: 7u;
+	margin-left: auto;
+	margin-right: auto;
+	_s60-aspect-ratio: preserve;
+}
+
+
+/*
+	Border-style ja -width täytyy olla määriteltynä vaikka käytetään skinistä tulevaa LAF:ia (bg-image:auto;). 
+	Skini koostuu kahdesta osasta ja border-width määrittää myös skiniborderin.
+*/
+tooltip.shortcutTooltip { /* popup_ai_links_title_window */
+	width: 10u; /* any fixed lenghts works here if the owerflow is set to both tooltip and text inside it */
+/*height: 4.9u;*/
+	height: 5.5u;
+	border-style: solid; 
+	border-width: 5px; 
+	_s60-start-delay: 1000000;
+	_s60-display-time: 1000000;
+	background-color:"SKIN(268458534 8480)";	/* TODO: check */
+	overflow: visible;
+}
+
+
+text.shortcutTooltipText { /* popup_ai_links_title_window_t1 */
+	position: static;
+	font-family: EAknLogicalFontSecondaryFont;
+	font-size: 3.5u;
+	width: 100%;
+	height: 85%;
+	text-align: center;
+	/*color: auto;*/
+	color: "SKIN(268458534 13056 19)";
+	overflow: visible;
+	padding-right: 1u;
+	padding-left: 1u;
+	/*padding-top: 1u;*/
+	padding-bottom: 1u;
+}
+
+
+/*********************
+	PLAYER PLUGIN AREA 
+**********************/
+
+box#playerPlugin:focus {
+	background-image: "SKIN(268458534 24576)";
+	background-color: "SKIN(268458534 5120 9)";
+}
+box#playerPlugin{
+	height:5u;
+	display: none;
+	nav-index: none;
+	block-progression: lr;
+}
+
+image#playerStatusIcon {
+	display: block;
+	visibility: visible;
+	position: absolute;
+	margin-top: 0.75u;
+	margin-right: 0.75u;
+	left: 100%;
+	right: 4u;
+	width: 3.5u;
+	height: 3.5u;
+}
+
+text#playerTitleText {
+	display: none;
+	visibility: visible;
+	position: absolute;
+	width: auto;
+	height: 4u;
+	font-family: EAknLogicalFontSecondaryFont;
+	font-size: 3.5u;
+	/*color: auto;*/
+	color: "SKIN(268458534 13056 19)";
+	margin-right: 5.0u;
+	margin-left: 11.0u;
+	text-align: right;
+}
+
+text#playerTitleText:passivefocus {
+	/*color: EAknsCIQsnTextColorsCG10;*/
+	color: "SKIN(268458534 13056 9)";
+}
+
+
+text#playerDurationText {
+	display: block;
+	visibility: visible;
+	position: static;
+	width: 11u;
+	margin-left: 0.75u;
+	text-align:left;
+	height: 4u;
+	font-family: EAknLogicalFontSecondaryFont;
+	font-size: 3.5u;
+	/*color: auto;*/
+	color: "SKIN(268458534 13056 19)";
+}
+
+text#playerDurationText:passivefocus {
+	/*color: EAknsCIQsnTextColorsCG10;*/
+	color: "SKIN(268458534 13056 9)";
+}
+
+/*********************
+	PLAYER VOLUME CONTROLL
+**********************/
+box#mpVolume {
+	display: none;
+	width: 40u;
+	height: 6u;	
+	position: absolute;
+	z-index: 2;
+	left: 5u;
+	top: 4.0u;
+	background-color:"SKIN(268458534 8480)";
+}
+
+image#musicPlayerVolumeDownIcon { 
+	display: none;
+	visibility: visible;
+	position: absolute;
+	margin-top: auto;
+	margin-bottom: auto;
+	left: 2.0u;
+	width: 1.0u;	
+	height: 4.0u;
+}
+
+image#musicPlayerInactiveVolumeDownIcon { 
+	display: none;
+	visibility: visible;
+	position: absolute;
+	margin-top: auto;
+	margin-bottom: auto;
+	left: 2.0u;
+	width: 1.0u;	
+	height: 4.0u;
+}
+
+image#musicPlayerSpeakerIcon { 
+	display: block;
+	visibility: visible;
+	position: absolute;
+	margin-top: auto;
+	margin-bottom: auto;
+	left: 5.u;
+	width: 4.0u;	
+	height: 4.0u;
+}
+
+image#musicPlayerSpeakerMutedIcon { 
+	display: block;
+	visibility: visible;
+	position: absolute;
+	top: 1.00u;
+	left: 5.u;
+	width: 4.0u;	
+	height: 4.0u;
+}
+
+/* 
+image#musicPlayerVolumeIcon { 
+	display: block;
+	visibility: visible;
+	position: absolute;
+	left: 10u;
+	width: 20u;
+	height: 4u;
+	margin-top: auto;
+	margin-bottom: auto;
+}
+*/
+
+
+volumecontrol#musicPlayerVolumeIcon	{
+	display: block;
+	visibility: visible;
+	position: absolute;
+	left: 10.0u;
+	width: 20.0u;
+	height: 4.0u;
+	margin-top: auto;
+	margin-bottom: auto;
+	focusable: true;	
+	direction: ltr;
+	block-progression: lr;
+}
+
+slider	{
+	focusable: false;
+	value: 5;
+	minrange: 0;	
+	maxrange: 10;	
+	z-index: 0;
+}
+
+image#musicPlayerVolumeUpIcon { 
+	display: none;
+	visibility: visible;
+	position: absolute;
+	margin-top: auto;
+	margin-bottom: auto;
+	left: auto;
+	right: 2.0u;
+	width: 1.0u;	
+	height: 4.0u;
+}
+
+image#musicPlayerInactiveVolumeUpIcon { 
+	display: none;
+	visibility: visible;
+	position: absolute;
+	margin-top: auto;
+	margin-bottom: auto;
+	left: auto;
+	right: 2.0u;
+	width: 1.0u;	
+	height: 4.0u;
+}
+
+
+/*********************
+	VISUAL/INTERNET RADIO PLUGIN AREA 
+**********************/
+
+box#radioPlugin:focus {
+	background-image: "SKIN(268458534 24576)";
+	background-color: "SKIN(268458534 5120 9)";
+}
+box#radioPlugin{
+	height:5u;
+	display: none;
+	nav-index: none;
+	block-progression: lr;
+}
+
+image#radioStatusIcon {
+	display: block;
+	visibility: visible;
+	position: absolute;
+	margin-top: 0.75u;
+	margin-right: 0.75u;
+	left: 100%;
+	right: 4u;
+	width: 3.5u;
+	height: 3.5u;
+}
+
+text#radioTitleText {
+	display: none;
+	visibility: visible;
+	position: absolute;
+	width: auto;
+	height: 4u;
+	font-family: EAknLogicalFontSecondaryFont;
+	font-size: 3.5u;
+	color: "SKIN(268458534 13056 19)";
+	margin-right: 5.0u;
+	margin-left: 11.0u;
+	text-align: right;
+}
+
+text#radioTitleText:passivefocus {
+	/*color: EAknsCIQsnTextColorsCG10;*/
+	color: "SKIN(268458534 13056 9)";
+}
+
+/*********************
+	VISUAL/INTERNETRADIO VOLUME CONTROL
+**********************/
+box#radioVolume {
+	display: none;
+	width: 40u;
+	height: 6u;	
+	position: absolute;
+	z-index: 2;
+	left: 5u;
+	top: 4.0u;
+	background-color:"SKIN(268458534 8480)";
+}
+
+image#radioVolumeDownIcon { 
+	display: none;
+	visibility: visible;
+	position: absolute;
+	margin-top: auto;
+	margin-bottom: auto;
+	left: 2.0u;
+	width: 1.0u;	
+	height: 4.0u;
+}
+
+image#radioInactiveVolumeDownIcon { 
+	display: none;
+	visibility: visible;
+	position: absolute;
+	margin-top: auto;
+	margin-bottom: auto;
+	left: 2.0u;
+	width: 1.0u;	
+	height: 4.0u;
+}
+
+image#radioSpeakerIcon { 
+	display: block;
+	visibility: visible;
+	position: absolute;
+	margin-top: auto;
+	margin-bottom: auto;
+	left: 5.u;
+	width: 4.0u;	
+	height: 4.0u;
+}
+
+image#radioSpeakerMutedIcon { 
+	display: block;
+	visibility: visible;
+	position: absolute;
+	top: 1.00u;
+	left: 5.u;
+	width: 4.0u;	
+	height: 4.0u;
+}
+
+
+volumecontrol#radioVolumeIcon	{
+	display: block;
+	visibility: visible;
+	position: absolute;
+	left: 10.0u;
+	width: 20.0u;
+	height: 4.0u;
+	margin-top: auto;
+	margin-bottom: auto;
+	focusable: true;	
+	direction: ltr;
+	block-progression: lr;
+}
+
+slider#radioSlider	{
+	focusable: false;
+	value: 5;
+	minrange: 0;	
+	maxrange: 10;	
+	z-index: 0;
+}
+
+image#radioVolumeUpIcon { 
+	display: none;
+	visibility: visible;
+	position: absolute;
+	margin-top: auto;
+	margin-bottom: auto;
+	left: auto;
+	right: 2.0u;
+	width: 1.0u;	
+	height: 4.0u;
+}
+
+image#radioInactiveVolumeUpIcon { 
+	display: none;
+	visibility: visible;
+	position: absolute;
+	margin-top: auto;
+	margin-bottom: auto;
+	left: auto;
+	right: 2.0u;
+	width: 1.0u;	
+	height: 4.0u;
+}
+
+/* Invisible icon that is used to control volume popup visibility */
+image.invisibleRadioIcon {
+	display: none;
+	visibility: visible;
+	position: absolute;
+	left: 0.25u;
+	top: 0.25u;
+	width: 4.0u;
+	height: 4.0u;
+}
+
+/******************
+	SAT PLUGIN AREA 
+*******************/
+
+
+
+box#SATPluginContainer {
+	display: none;  /*block;*/
+	nav-index: none; /* SAT is not focusable */
+	height: 5u;	
+	width: auto;
+/*	direction: rtl;
+	block-progression: rl;*/
+	block-progression: lr;
+}
+
+
+image.satIcon {
+	display: block;
+	visibility: visible;
+	position: static;
+	margin-top: 0.25u;
+	left: auto;
+	margin-right: 0.7u;
+	width: 4.0u;
+	height: 4.0u;
+}
+
+text.satText {
+	display: block;
+	visibility: visible;
+	position: static;
+	width: auto;
+	text-align: right;
+	margin-top: 0.25u;		
+	margin-right: 0.555u;
+	height: 4.25u;
+	font-family: EAknLogicalFontSecondaryFont;
+	font-size: 3.5u;         /* TODO: check */
+	/*color: auto;*/
+	color: "SKIN(268458534 13056 19)";
+}
+
+
+
+/************************
+	CALENDAR PLUGIN AREA 
+*************************/
+
+box#calendarPluginContainer:focus {
+	background-image: "SKIN(268458534 24576)";
+	background-color: "SKIN(268458534 5120 9)";
+}
+box#calendarPluginContainer {
+	display: block;
+	height: adaptive;
+	padding-bottom: 1u;
+}
+
+
+button.calendarEntryBox {
+	display: none;
+	visibility: visible;
+	height: auto;
+}
+
+
+image.calendarEntryIcon { /* ai_gene_pane_1_g1 */
+	display: block;
+	visibility: visible;
+	position: absolute;
+	top: 0.5u;
+/*left: 0.7u;*/
+   left: 100%;
+   right: 4.7u;
+	width: 4u;
+	height: 4u;
+}
+
+text.calendarEntryText1 { /* ai_gene_pane_1_t1 */
+	display: block;
+	visibility: visible;
+	position: absolute;
+	width: auto;	
+	top: 0.0u;
+/*	left: 5.75u; */
+/*	right: 0.9u; */
+	left: 0.9u;
+	right: 2.5u;
+	height: 4.25u;
+	font-family: EAknLogicalFontSecondaryFont;
+	font-size: 3.5u;
+	/*color: auto;*/
+	color: "SKIN(268458534 13056 19)";
+	text-align: right;
+}
+text.calendarEntryText1:passivefocus { 
+	/*color: EAknsCIQsnTextColorsCG10;*/
+	color: "SKIN(268458534 13056 9)";
+}
+
+text.calendarEntryText2 { /* ai_gene_pane_2_t1 */
+	display: block;
+	visibility: visible;
+	position: absolute;
+	width: auto;	
+	top: 4.25u;
+/*	left: 5.75u; */
+/*	right: 0.9u; */
+	left: 0.9u;
+	margin-right: 5.25u;
+	height: 4.25u;
+	font-family: EAknLogicalFontSecondaryFont;
+	font-size: 3.5u;
+	text-align: right;
+	/*color: auto;*/
+	color: "SKIN(268458534 13056 19)";
+}
+
+text.calendarEntryText2:passivefocus { 
+	/*color: EAknsCIQsnTextColorsCG10;*/
+	color: "SKIN(268458534 13056 9)";
+}
+
+/* priorities for calendar buttons, the lower we go, the less priority the button has --> if it does not fit on the screen it will be dropped*/
+/* please note that the priority ID must be unique for each element defined --> do not use it via class element */
+button#calendarEntryBox1{ _s60-display-priority: 21; }
+button#calendarEntryBox2{ _s60-display-priority: 22; }
+button#calendarEntryBox3{ _s60-display-priority: 23; }
+button#calendarEntryBox4{ _s60-display-priority: 24; }
+button#calendarEntryBox5{ _s60-display-priority: 25; }
+button#calendarEntryBox6{ _s60-display-priority: 26; }
+button#calendarEntryBox7{ _s60-display-priority: 27; }
+button#calendarEntryBox8{ _s60-display-priority: 28; }
+
+/* Block with flag '__NEWSTICKER' skipped. */

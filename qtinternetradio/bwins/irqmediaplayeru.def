@@ -1,0 +1,9 @@
+EXPORTS
+	??0IRQMediaPlayer@@QAE@XZ @ 1 NONAME ; IRQMediaPlayer::IRQMediaPlayer(void)
+	?disableStereoEffect@IRQMediaPlayer@@QAEXXZ @ 2 NONAME ; void IRQMediaPlayer::disableStereoEffect(void)
+	?stop@IRQMediaPlayer@@QAEXXZ @ 3 NONAME ; void IRQMediaPlayer::stop(void)
+	?setVolume@IRQMediaPlayer@@QAEXH@Z @ 4 NONAME ; void IRQMediaPlayer::setVolume(int)
+	?enableStereoEffect@IRQMediaPlayer@@QAEXXZ @ 5 NONAME ; void IRQMediaPlayer::enableStereoEffect(void)
+	?getVolume@IRQMediaPlayer@@QAEHXZ @ 6 NONAME ; int IRQMediaPlayer::getVolume(void)
+	?playStation@IRQMediaPlayer@@QAEXABVQString@@H@Z @ 7 NONAME ; void IRQMediaPlayer::playStation(class QString const &, int)
+

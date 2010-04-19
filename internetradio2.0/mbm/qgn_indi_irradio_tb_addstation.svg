@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1 Tiny//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11-tiny.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" baseProfile="tiny" height="22" viewBox="0 0 22 22" width="22">
+<switch>
+<foreignObject content="structured text" height="1" requiredExtensions="http://ns.adobe.com/AdobeIllustrator/10.0/" width="1" x="0" y="0"/>
+<g>
+<g>
+<rect fill="none" height="22" width="22"/>
+<path d="M11,16c2.762,0,5-2.238,5-5l0,0h-2c0,1.656-1.343,3-3,3V16z M11,8V6l0,0c-2.761,0-5,2.239-5,5h2l0,0       C8,9.344,9.344,8,11,8L11,8z M11,4L11,4V2c-4.97,0-9,4.03-9,9h2l0,0C4,7.134,7.134,4,11,4z M18,11c0,3.866-3.134,7-7,7v2l0,0       c4.971,0,9-4.029,9-9l0,0H18z"/>
+<polygon points="21.5,3 19,3 19,0.5 18,0.5 18,3 15.5,3 15.5,4 18,4 18,6.5 19,6.5 19,4 21.5,4 "/>
+</g>
+</g>
+</switch>
+</svg>

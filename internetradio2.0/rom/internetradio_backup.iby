@@ -1,0 +1,109 @@
+/*
+* Copyright (c) 2006-2007 Nokia Corporation and/or its subsidiary(-ies). 
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:  
+*
+*/
+
+
+#ifndef __INTERNETRADIO_IBY__
+#define __INTERNETRADIO_IBY__
+
+S60_APP_EXE(InternetRadio)
+
+S60_APP_AIF_ICONS(InternetRadio)
+data=DATAZ_\PRIVATE\10003A3F\IMPORT\APPS\InternetRadio_reg.rsc        Private\10003a3f\import\apps\InternetRadio_reg.rsc
+
+SCALABLE_IMAGE(APP_BITMAP_DIR,APP_BITMAP_DIR,InternetRadio)
+SCALABLE_IMAGE(APP_BITMAP_DIR,APP_BITMAP_DIR,InternetRadioEdwinSkin)
+
+ECOM_PLUGIN(IRMediaEngine.dll, 2000B4A8.rsc)
+ECOM_PLUGIN(IRFileRecognizer.dll, 2000B4A9.rsc)
+ECOM_PLUGIN(PresetPlugin.dll, 2000B4AA.rsc)
+//ECOM_PLUGIN(IRActiveIdle.dll, 2000B4AB.rsc)
+ECOM_PLUGIN(irrfsplugin.dll, 2000b4ac.rsc)
+ECOM_PLUGIN(irgeneralsettings200.dll, 2001A930.rsc)
+
+//data=ZPRIVATE\10003A3F\import\apps\InternetRadio_reg.rsc        private\10003A3F\import\apps\InternetRadio_reg.rsc        // this file is very important for displaying IR App in AppShell.
+data=DATAZ_\system\install\InternetRadioStub.sis                    system\install\InternetRadioStub.sis                // used for eclipsing ROM files and upgrading the same.
+data=ZPRIVATE\2000B499\backup_registration.xml                  private\2000B499\backup_registration.xml
+data=ZPRIVATE\10207254\themes\271012080\270513751\271063147\1.0\sources\irclassicidle.mif PRIVATE\10207254\themes\271012080\270513751\271063147\1.0\sources\irclassicidle.mif
+
+data=DATAZ_\RESOURCE_FILES_DIR\irsettings.rsc	                RESOURCE_FILES_DIR\irsettings.rsc
+//data=DATAZ_\RESOURCE_FILES_DIR\iractiveidle.rsc	                RESOURCE_FILES_DIR\iractiveidle.rsc
+
+data=ZPRIVATE\2000b499\terms_01.html                            private\2000b499\terms_01.html
+data=ZPRIVATE\2000b499\terms_02.html                            private\2000b499\terms_02.html
+data=ZPRIVATE\2000b499\terms_03.html                            private\2000b499\terms_03.html
+data=ZPRIVATE\2000b499\terms_04.html                            private\2000b499\terms_04.html
+data=ZPRIVATE\2000b499\terms_05.html                            private\2000b499\terms_05.html
+data=ZPRIVATE\2000b499\terms_06.html                            private\2000b499\terms_06.html
+data=ZPRIVATE\2000b499\terms_07.html                            private\2000b499\terms_07.html
+data=ZPRIVATE\2000b499\terms_08.html                            private\2000b499\terms_08.html
+data=ZPRIVATE\2000b499\terms_09.html                            private\2000b499\terms_09.html
+data=ZPRIVATE\2000b499\terms_10.html                            private\2000b499\terms_10.html
+data=ZPRIVATE\2000b499\terms_13.html                            private\2000b499\terms_13.html
+data=ZPRIVATE\2000b499\terms_14.html                            private\2000b499\terms_14.html
+data=ZPRIVATE\2000b499\terms_15.html                            private\2000b499\terms_15.html
+data=ZPRIVATE\2000b499\terms_16.html                            private\2000b499\terms_16.html
+data=ZPRIVATE\2000b499\terms_17.html                            private\2000b499\terms_17.html
+data=ZPRIVATE\2000b499\terms_18.html                            private\2000b499\terms_18.html
+data=ZPRIVATE\2000b499\terms_25.html                            private\2000b499\terms_25.html
+data=ZPRIVATE\2000b499\terms_26.html                            private\2000b499\terms_26.html
+data=ZPRIVATE\2000b499\terms_27.html                            private\2000b499\terms_27.html
+data=ZPRIVATE\2000b499\terms_28.html                            private\2000b499\terms_28.html
+data=ZPRIVATE\2000b499\terms_29.html                            private\2000b499\terms_29.html
+data=ZPRIVATE\2000b499\terms_30.html                            private\2000b499\terms_30.html
+data=ZPRIVATE\2000b499\terms_31.html                            private\2000b499\terms_31.html
+data=ZPRIVATE\2000b499\terms_32.html                            private\2000b499\terms_32.html
+data=ZPRIVATE\2000b499\terms_33.html                            private\2000b499\terms_33.html
+data=ZPRIVATE\2000b499\terms_37.html                            private\2000b499\terms_37.html
+data=ZPRIVATE\2000b499\terms_39.html                            private\2000b499\terms_39.html
+data=ZPRIVATE\2000b499\terms_42.html                            private\2000b499\terms_42.html
+data=ZPRIVATE\2000b499\terms_44.html                            private\2000b499\terms_44.html
+data=ZPRIVATE\2000b499\terms_45.html                            private\2000b499\terms_45.html
+data=ZPRIVATE\2000b499\terms_49.html                            private\2000b499\terms_49.html
+data=ZPRIVATE\2000b499\terms_50.html                            private\2000b499\terms_50.html
+data=ZPRIVATE\2000b499\terms_51.html                            private\2000b499\terms_51.html
+data=ZPRIVATE\2000b499\terms_54.html                            private\2000b499\terms_54.html
+data=ZPRIVATE\2000b499\terms_57.html                            private\2000b499\terms_57.html
+data=ZPRIVATE\2000b499\terms_59.html                            private\2000b499\terms_59.html
+data=ZPRIVATE\2000b499\terms_67.html                            private\2000b499\terms_67.html
+data=ZPRIVATE\2000b499\terms_68.html                            private\2000b499\terms_68.html
+data=ZPRIVATE\2000b499\terms_70.html                            private\2000b499\terms_70.html
+data=ZPRIVATE\2000b499\terms_76.html                            private\2000b499\terms_76.html
+data=ZPRIVATE\2000b499\terms_78.html                            private\2000b499\terms_78.html
+data=ZPRIVATE\2000b499\terms_79.html                            private\2000b499\terms_79.html
+data=ZPRIVATE\2000b499\terms_83.html                            private\2000b499\terms_83.html
+data=ZPRIVATE\2000b499\terms_93.html                            private\2000b499\terms_93.html
+data=ZPRIVATE\2000b499\terms_94.html                            private\2000b499\terms_94.html
+data=ZPRIVATE\2000b499\terms_96.html                            private\2000b499\terms_96.html
+data=ZPRIVATE\2000b499\terms_401.html                           private\2000b499\terms_401.html
+data=ZPRIVATE\2000b499\terms_402.html                           private\2000b499\terms_402.html
+
+file=ABI_DIR\BUILD_DIR\IRDataStructures.dll                      SHARED_LIB_DIR\IRDataStructures.dll
+file=ABI_DIR\BUILD_DIR\IRCommandChannel.dll                      SHARED_LIB_DIR\IRCommandChannel.dll
+file=ABI_DIR\BUILD_DIR\IRDataProvider.dll			 SHARED_LIB_DIR\IRDataProvider.dll
+file=ABI_DIR\BUILD_DIR\IRXMLParser.dll				 SHARED_LIB_DIR\IRXMLParser.dll
+file=ABI_DIR\BUILD_DIR\isdsclientinterface.dll                   SHARED_LIB_DIR\isdsclientinterface.dll
+file=ABI_DIR\BUILD_DIR\IRStreamSource.dll                        SHARED_LIB_DIR\IRStreamSource.dll
+file=ABI_DIR\BUILD_DIR\IRFavoritesDb.dll                         SHARED_LIB_DIR\IRFavoritesDb.dll
+file=ABI_DIR\BUILD_DIR\IRCacheMgmt.dll                           SHARED_LIB_DIR\IRCacheMgmt.dll
+file=ABI_DIR\BUILD_DIR\IRNetworkController.dll                   SHARED_LIB_DIR\IRNetworkController.dll
+file=ABI_DIR\BUILD_DIR\irsettings.dll                          SHARED_LIB_DIR\irsettings.dll
+file=ABI_DIR\BUILD_DIR\IRSessionLog.dll                          SHARED_LIB_DIR\IRSessionLog.dll
+//file=ABI_DIR\BUILD_DIR\IRActiveIdleEngine.dll                    SHARED_LIB_DIR\IRActiveIdleEngine.dll 
+file=ABI_DIR\BUILD_DIR\IRSongHistory.dll                    SHARED_LIB_DIR\IRSongHistory.dll 
+file=ABI_DIR\BUILD_DIR\IRSettingsView.dll                    SHARED_LIB_DIR\IRSettingsView.dll 
+
+#endif  // __INTERNETRADIO_IBY__

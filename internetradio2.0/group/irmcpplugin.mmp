@@ -1,0 +1,79 @@
+/*
+* Copyright (c) 2008-2008 Nokia Corporation and/or its subsidiary(-ies). 
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:  IR Music Content Publisher Plugin is responsible for publishing content and
+*                actions towards Home screen and Matrix menu.
+*
+*/
+
+#include <platform_paths.hrh>
+#include <data_caging_paths.hrh>
+#include "../resources/irmcpplugin.hrh"	
+
+TARGET          irmcpplugin100.dll
+TARGETTYPE      PLUGIN
+UID             0x10009D8D KIRMCPPluginDllUid
+
+CAPABILITY      CAP_ECOM_PLUGIN
+VENDORID        VID_DEFAULT
+
+PAGED
+
+LANGUAGE_IDS
+
+SOURCEPATH      ../resources
+START RESOURCE 2001A961.rss
+TARGET  irmcpplugin100.rsc
+LANG SC
+END
+
+START RESOURCE  irmcpplugin.rss
+HEADER
+TARGET      irmcpplugin.rsc
+TARGETPATH RESOURCE_FILES_DIR
+END
+
+
+APP_LAYER_SYSTEMINCLUDE
+SYSTEMINCLUDE   OS_LAYER_PUBLIC_EXPORT_PATH(ecom)
+
+USERINCLUDE     ../mcpplugininc
+USERINCLUDE     ../resources
+USERINCLUDE     ../activeidleenginc
+USERINCLUDE     ../include
+USERINCLUDE     ../actionhandlerinc
+USERINCLUDE     ../streamsourceinc
+
+
+SOURCEPATH      ../mcppluginsrc
+SOURCE          irmcpplugin.cpp
+
+LIBRARY         bafl.lib 
+LIBRARY         cone.lib
+LIBRARY         commonengine.lib
+LIBRARY         ecom.lib
+LIBRARY         efsrv.lib
+LIBRARY         euser.lib
+LIBRARY         liwservicehandler.lib
+LIBRARY         psclient100.lib
+LIBRARY         iractiveidleengine.lib
+
+LIBRARY flogger.lib
+
+#if defined( WINSCW )
+deffile ../bwinscw/ 
+#else
+deffile ../bmarm/ 
+#endif
+
+// End of File

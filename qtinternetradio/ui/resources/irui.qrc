@@ -1,0 +1,53 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+	<file>effect/viewchangeeffects_show.fxml</file>   
+	<file>effect/viewchangeeffects_hide.fxml</file>
+	<file>effect/effects_item_select.fxml</file>
+	<file>effect/effects_item_select_end.fxml</file>
+    <file>effect/view_flip_show.fxml</file>
+    <file>effect/view_flip_hide.fxml</file>		      
+</qresource>
+
+<qresource prefix="/playback">
+    <file>icon_musicshop_enable.png</file>
+    <file>icon_musicshop_disable.png</file>
+    <file>icon_favorite.png</file>
+    <file>icon_loudspeaker.png</file>
+	<file>icon_play.png</file>
+    <file>icon_stop.png</file>
+    <file>flip.png</file>
+    <file>volume.png</file>        
+    <file>default_cd.png</file>
+    <file>albumart.jpg</file>
+    <file>search.png</file>
+    <file>ovi.jpg</file>
+</qresource>
+
+<qresource prefix="/mainview">
+	<file>stations.png</file>
+    <file>favorites.png</file>
+    <file>history.png</file>
+    <file>search.png</file>
+    <file>genres.png</file>
+</qresource>
+
+<qresource prefix="/stationlist">
+    <file>icon_stationdefault.png</file>
+</qresource>   
+
+<qresource prefix="/toolBar">
+    <file>icon_songhistory.png</file>
+    <file>history.png</file>
+</qresource>
+
+
+<qresource>
+    <file>layout/abstractlistviewbase.docml</file>
+    <file>layout/searchchannelsview.docml</file>
+    <file>layout/openwebaddressview.docml</file>
+    <file>layout/nowplayingview.docml</file>
+    <file>layout/nowplayingcontainer.docml</file>
+    <file>layout/stationdetailscontainer.docml</file>    
+</qresource>
+
+</RCC>

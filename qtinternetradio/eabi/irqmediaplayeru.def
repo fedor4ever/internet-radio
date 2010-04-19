@@ -1,0 +1,10 @@
+EXPORTS
+	_ZN14IRQMediaPlayer11playStationERK7QStringi @ 1 NONAME
+	_ZN14IRQMediaPlayer18enableStereoEffectEv @ 2 NONAME
+	_ZN14IRQMediaPlayer19disableStereoEffectEv @ 3 NONAME
+	_ZN14IRQMediaPlayer4stopEv @ 4 NONAME
+	_ZN14IRQMediaPlayer9getVolumeEv @ 5 NONAME
+	_ZN14IRQMediaPlayer9setVolumeEi @ 6 NONAME
+	_ZN14IRQMediaPlayerC1Ev @ 7 NONAME
+	_ZN14IRQMediaPlayerC2Ev @ 8 NONAME
+

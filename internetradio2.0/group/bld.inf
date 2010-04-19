@@ -1,0 +1,58 @@
+/*
+* Copyright (c) 2006-2007 Nokia Corporation and/or its subsidiary(-ies). 
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:  Build information file for project InternetRadio
+*
+*/
+
+#include 		<platform_paths.hrh>
+#include        <bldvariant.hrh>
+
+PRJ_PLATFORMS
+WINSCW ARMV5
+
+PRJ_EXPORTS
+
+// Cenrep
+../cenrep/2000b499.txt                          /epoc32/data/z/private/10202be9/2000b499.txt
+../cenrep/2000b499.txt                          /epoc32/release/winscw/udeb/z/private/10202be9/2000b499.txt
+../cenrep/2000b499.txt                          /epoc32/release/winscw/urel/z/private/10202be9/2000b499.txt
+#ifdef __WINS__
+../cenrep/2000b499.txt  		        /epoc32/winscw/c/private/10202be9/2000b499.txt
+#endif
+
+backup_registration.xml                         /epoc32/data/z/private/2000B499/backup_registration.xml
+
+//ROM Build
+// THESE COMMENTED IBYS SHOULD BE EXPORTED BY PRODUCTS
+../rom/internetradio.iby                      CORE_APP_LAYER_IBY_EXPORT_PATH(internetradio.iby)  
+../rom/internetradiosettings.iby              CORE_APP_LAYER_IBY_EXPORT_PATH(internetradiosettings.iby)
+
+
+PRJ_MMPFILES
+
+irsettings.mmp
+irrfsplugin.mmp
+irnetworkcontroller.mmp
+irdatastructures.mmp
+presetplugin.mmp
+ircachemgmt.mmp 
+irxmlparser.mmp
+irfavoritesdb.mmp
+irdataprovider.mmp
+irsessionlog.mmp
+isdsclient.mmp
+irsonghistory.mmp
+irrecognizer.mmp
+
+ 

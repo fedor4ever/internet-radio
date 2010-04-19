@@ -1,0 +1,202 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!--
+============================================================================
+<FileName: "ClassicIdle.dtd">
+<PartOf  : "Active Idle 2">
+
+<FileDescription: "<Description of file>">
+<FileVersion    : "<Version>">
+
+<Copyright:
+"Copyright © 2005 Nokia Corporation.
+This material, including documentation and any related
+computer programs, is protected by copyright controlled by
+Nokia Corporation. All rights are reserved. Copying,
+including reproducing, storing,  adapting or translating, any
+or all of this material requires the prior written consent of
+Nokia Corporation. This material also contains confidential
+information which may not be disclosed to others without the
+prior written consent of Nokia Corporation.">
+============================================================================
+-->
+<!--
+qtn_ai_skin_full_page.attributes
+qtn_ai_skin_full_page.layout "list_single_graphic_pane_t1"
+qtn_ai_skin_full_page.release "3.2"
+qtn_ai_skin_full_page.description "Title of the theme"
+qtn_ai_skin_full_page.parents "list_single_graphic_pane"
+-->
+<!ENTITY qtn_ai_skin_full_page "Full Page">
+
+<!--
+shortcut_EmptyCaption.attributes
+shortcut_EmptyCaption.layout "list_ai2_gene_pane_t1"
+shortcut_EmptyCaption.release "3.2"
+shortcut_EmptyCaption.description "Empty shortcut"
+shortcut_EmptyCaption.parents "list_ai2_gene_pane"
+-->
+<!ENTITY shortcut_EmptyCaption " ">
+
+<!--
+qtn_set_idle_skey_new_msg.attributes
+qtn_set_idle_skey_new_msg.layout "list_ai2_gene_pane_t1"
+qtn_set_idle_skey_new_msg.release "3.2"
+qtn_set_idle_skey_new_msg.description "New message shortcut"
+qtn_set_idle_skey_new_msg.parents "list_ai2_gene_pane"
+-->
+<!ENTITY qtn_set_idle_skey_new_msg "New message">
+
+<!--
+qtn_set_idle_skeys_email_editor.attributes
+qtn_set_idle_skeys_email_editor.layout "list_ai2_gene_pane_t1"
+qtn_set_idle_skeys_email_editor.release "3.2"
+qtn_set_idle_skeys_email_editor.description "New e-mail shortcut"
+qtn_set_idle_skeys_email_editor.parents "list_ai2_gene_pane"
+-->
+<!ENTITY qtn_set_idle_skeys_email_editor "New e-mail">
+
+<!--
+qtn_apps_syncml_mail_gs.attributes
+qtn_apps_syncml_mail_gs.layout "list_ai2_gene_pane_t1"
+qtn_apps_syncml_mail_gs.release "3.2"
+qtn_apps_syncml_mail_gs.description "New SyncML mail shortcut"
+qtn_apps_syncml_mail_gs.parents "list_ai2_gene_pane"
+-->
+<!ENTITY qtn_apps_syncml_mail_gs "New SyncML mail">
+
+<!--
+qtn_apps_mmspostcard_gs.attributes
+qtn_apps_mmspostcard_gs.layout "list_ai2_gene_pane_t1"
+qtn_apps_mmspostcard_gs.release "3.2"
+qtn_apps_mmspostcard_gs.description "New MMS postcard shortcut"
+qtn_apps_mmspostcard_gs.parents "list_ai2_gene_pane"
+-->
+<!ENTITY qtn_apps_mmspostcard_gs "New MMS Postcard">
+
+<!--
+qtn_apps_audio_msg_gs.attributes
+qtn_apps_audio_msg_gs.layout "list_ai2_gene_pane_t1"
+qtn_apps_audio_msg_gs.release "3.2"
+qtn_apps_audio_msg_gs.description "New audio message shortcut"
+qtn_apps_audio_msg_gs.parents "list_ai2_gene_pane"
+-->
+<!ENTITY qtn_apps_audio_msg_gs "New Audio msg">
+
+<!--
+qtn_set_idle_skey_select_msg_type.attributes
+qtn_set_idle_skey_select_msg_type.layout "list_ai2_gene_pane_t1"
+qtn_set_idle_skey_select_msg_type.release "3.2"
+qtn_set_idle_skey_select_msg_type.description "Select message type shortcut"
+qtn_set_idle_skey_select_msg_type.parents "list_ai2_gene_pane"
+-->
+<!ENTITY qtn_set_idle_skey_select_msg_type "Select msg type">
+
+<!--
+qtn_apps_idle_skin_gs.attributes
+qtn_apps_idle_skin_gs.layout "list_single_large_graphic_pane_t1_cp2"
+qtn_apps_idle_skin_gs.release "3.2"
+qtn_apps_idle_skin_gs.description "Change theme shortcut"
+qtn_apps_idle_skin_gs.parents "list_single_large_graphic_pane_cp2"
+-->
+<!ENTITY qtn_apps_idle_skin_gs  "Change idle theme">
+
+<!--
+qtn_idle_skey_new_msg.attributes
+qtn_idle_skey_new_msg.layout "control_pane_t2"
+qtn_idle_skey_new_msg.release "3.2"
+qtn_idle_skey_new_msg.description "New message shortcut"
+qtn_idle_skey_new_msg.parents "control_pane"
+-->
+<!ENTITY qtn_idle_skey_new_msg  "New msg.">
+
+<!--
+qtn_apps_email_skey.attributes
+qtn_apps_email_skey.layout "control_pane_t2"
+qtn_apps_email_skey.release "3.2"
+qtn_apps_email_skey.description "New e-mail shortcut"
+qtn_apps_email_skey.parents "control_pane"
+-->
+<!ENTITY qtn_apps_email_skey  "New mail">
+
+<!--
+qtn_apps_syncml_mail_skey.attributes
+qtn_apps_syncml_mail_skey.layout "control_pane_t2"
+qtn_apps_syncml_mail_skey.release "3.2"
+qtn_apps_syncml_mail_skey.description "New SyncML mail shortcut"
+qtn_apps_syncml_mail_skey.parents "control_pane"
+-->
+<!ENTITY qtn_apps_syncml_mail_skey  "New sync.mail">
+
+<!--
+qtn_apps_mmspostcard_skey.attributes
+qtn_apps_mmspostcard_skey.layout "control_pane_t2"
+qtn_apps_mmspostcard_skey.release "3.2"
+qtn_apps_mmspostcard_skey.description "New MMS postcard shortcut"
+qtn_apps_mmspostcard_skey.parents "control_pane"
+-->
+<!ENTITY qtn_apps_mmspostcard_skey  "New postcard">
+
+<!--
+qtn_apps_audio_msg_skey.attributes
+qtn_apps_audio_msg_skey.layout "control_pane_t2"
+qtn_apps_audio_msg_skey.release "3.2"
+qtn_apps_audio_msg_skey.description "New audio message shortcut"
+qtn_apps_audio_msg_skey.parents "control_pane"
+-->
+<!ENTITY qtn_apps_audio_msg_skey  "New audiomsg">
+
+<!--
+qtn_apps_idle_skin_skey.attributes
+qtn_apps_idle_skin_skey.layout "control_pane_t2"
+qtn_apps_idle_skin_skey.release "3.2"
+qtn_apps_idle_skin_skey.description "Change theme shortcut"
+qtn_apps_idle_skin_skey.parents "control_pane"
+-->
+<!ENTITY qtn_apps_idle_skin_skey  "Idle theme">
+
+<!--
+text_softkey_back.attributes
+text_softkey_back.layout "control_pane_t2"
+text_softkey_back.release "3.2"
+text_softkey_back.description "Back text for SK2"
+text_softkey_back.parents "control_pane"
+-->
+<!ENTITY text_softkey_back  "Back">
+
+<!--
+qtn_msk_select.attributes
+qtn_msk_select.layout "control_pane_t3/opt3"
+qtn_msk_select.release "3.2"
+qtn_msk_select.description "Select text for MSK"
+qtn_msk_select.parents "control_pane"
+-->
+<!ENTITY qtn_msk_select  "Select">
+
+<!--
+qtn_msk_open.attributes
+qtn_msk_open.layout "control_pane_t3/opt3"
+qtn_msk_open.release "3.2"
+qtn_msk_open.description "Open text for MSK"
+qtn_msk_open.parents "control_pane"
+-->
+<!ENTITY qtn_msk_open  "Open">
+
+<!--
+qtn_ai_cale_no_event_today.attributes
+qtn_ai_cale_no_event_today.layout "ai2_gene_pane_t1"
+qtn_ai_cale_no_event_today.release "3.2"
+qtn_ai_cale_no_event_today.description "String for no more calendar events for today"
+qtn_ai_cale_no_event_today.parents "ai2_gene_pane"
+-->
+<!ENTITY qtn_ai_cale_no_event_today  "No calendar events for today">
+
+<!--
+qtn_ai_cale_no_more_ev_td.attributes
+qtn_ai_cale_no_more_ev_td.layout "ai2_gene_pane_t1"
+qtn_ai_cale_no_more_ev_td.release "3.2"
+qtn_ai_cale_no_more_ev_td.description "String for no more events for today"
+qtn_ai_cale_no_more_ev_td.parents "ai2_gene_pane"
+-->
+<!ENTITY qtn_ai_cale_no_more_ev_td  "No more events for Today">
+
+<!-- End of File-->

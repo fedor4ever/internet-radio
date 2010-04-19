@@ -1,0 +1,95 @@
+/*
+* Copyright (c)  Nokia Corporation and/or its subsidiary(-ies). 
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:  Project definition file for project Stream source
+*
+*/
+
+#include 		<platform_paths.hrh>
+
+TARGET          irstreamsource.dll
+TARGETTYPE      dll
+UID             0x1000008d 0x2000B49F
+
+PAGED
+
+SOURCEPATH	../streamsourcesrc
+
+SOURCE          irstreamsource.cpp
+SOURCE          irsockettimeouttimer.cpp
+SOURCE          iricyflowinitiator.cpp
+SOURCE          iricyflowreader.cpp
+SOURCE          irsocketopener.cpp
+SOURCE          irstationconnection.cpp
+SOURCE          irnetworkbuffer.cpp
+SOURCE			irasfplayer.cpp
+
+USERINCLUDE     ../streamsourceinc
+USERINCLUDE     ../include
+USERINCLUDE     ../mediaengineinc
+USERINCLUDE     ../networkcontrollerinc
+USERINCLUDE     ../uiinc
+USERINCLUDE     ../commandchannelinc
+
+// Default system include paths for application layer modules.
+APP_LAYER_SYSTEMINCLUDE
+// TODO will be removed after the changes of /epoc32/include
+SYSTEMINCLUDE   OS_LAYER_PUBLIC_EXPORT_PATH(http)
+SYSTEMINCLUDE   MW_LAYER_PUBLIC_EXPORT_PATH(http)
+
+LIBRARY         esock.lib
+LIBRARY         euser.lib
+LIBRARY         inetprotutil.lib 
+LIBRARY         insock.lib
+LIBRARY         irnetworkcontroller.lib
+LIBRARY			mediaclientaudio.lib 		// CMdaAudioPlayerUtility (ASF streaming)
+LIBRARY	        mmfcontrollerframework.lib  // CMMFMetaDataEntry (ASF streaming)
+
+//test linker error
+LIBRARY cenrepnotifhandler.lib
+LIBRARY	commonengine.lib
+LIBRARY etel.lib
+LIBRARY etel3rdparty.lib
+LIBRARY etelmm.lib
+LIBRARY estor.lib
+LIBRARY efsrv.lib
+LIBRARY xmlframework.lib
+LIBRARY charconv.lib
+
+//LIBRARY avctpplugins.lib
+//LIBRARY eintsock.lib
+LIBRARY impapprotocolcontroller.lib
+LIBRARY imut.lib
+LIBRARY netmsg.lib
+LIBRARY netmeta.lib
+LIBRARY nifman.lib
+LIBRARY pops.lib
+LIBRARY responsemsg.lib
+LIBRARY smts.lib
+
+
+//test end
+
+
+
+LIBRARY        flogger.lib
+
+//CAPABILITY NetworkServices ProtServ ReadDeviceData ReadUserData SwEvent UserEnvironment WriteDeviceData WriteUserData TrustedUI
+CAPABILITY		 CAP_GENERAL_DLL
+
+#if defined( WINSCW )
+DEFFILE          ../bwinscw/ 
+#else
+DEFFILE          ../bmarm/ 
+#endif
+

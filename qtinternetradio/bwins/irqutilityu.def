@@ -1,0 +1,25 @@
+EXPORTS
+	?convertSError2QError@IRQUtility@@SAXHAAH@Z @ 1 NONAME ; void IRQUtility::convertSError2QError(int, int &)
+	?openAdvLink@IRQUtility@@SA_NABVQString@@@Z @ 2 NONAME ; bool IRQUtility::openAdvLink(class QString const &)
+	?getAvailableBitrates@IRQPreset@@QBEXAAV?$QList@H@@@Z @ 3 NONAME ; void IRQPreset::getAvailableBitrates(class QList<int> &) const
+	?convertIRQPreset2CIRIsdsPreset@IRQUtility@@SAXABVIRQPreset@@AAVCIRIsdsPreset@@@Z @ 4 NONAME ; void IRQUtility::convertIRQPreset2CIRIsdsPreset(class IRQPreset const &, class CIRIsdsPreset &)
+	?clearChannelServerList@IRQPreset@@QAEXXZ @ 5 NONAME ; void IRQPreset::clearChannelServerList(void)
+	?insertChannelServer@IRQPreset@@QAEXABVIRQChannelServerURL@@@Z @ 6 NONAME ; void IRQPreset::insertChannelServer(class IRQChannelServerURL const &)
+	?isSorted@IRQPreset@@QBE_NXZ @ 7 NONAME ; bool IRQPreset::isSorted(void) const
+	?getChannelBitrate@IRQPreset@@QBEHHAAH@Z @ 8  NONAME ; int IRQPreset::getChannelBitrate(int, int &) const
+	?convertCIRPreset2IRQPreset@IRQUtility@@SAXABVCIRPreset@@AAVIRQPreset@@@Z @ 9 NONAME ; void IRQUtility::convertCIRPreset2IRQPreset(class CIRPreset const &, class IRQPreset &)
+	?convertCIRIsdsPreset2IRQPrest@IRQUtility@@SAXABVCIRIsdsPreset@@AAVIRQPreset@@@Z @ 10 NONAME ; void IRQUtility::convertCIRIsdsPreset2IRQPrest(class CIRIsdsPreset const &, class IRQPreset &)
+	??0IRQPreset@@QAE@XZ @ 11 NONAME ; IRQPreset::IRQPreset(void)
+	?isValidUrl@IRQUtility@@SA_NABVQString@@@Z @ 12 NONAME ; bool IRQUtility::isValidUrl(class QString const &)
+	?getURLsForBitrate@IRQPreset@@QBEPAV?$QList@VQString@@@@H@Z @ 13 NONAME ; class QList<class QString> * IRQPreset::getURLsForBitrate(int) const
+	??1IRQPreset@@QAE@XZ @ 14 NONAME ; IRQPreset::~IRQPreset(void)
+	?setUrlBitrate@IRQPreset@@QAE_NHH@Z @ 15 NONAME ; bool IRQPreset::setUrlBitrate(int, int)
+	?getChannelUrlAt@IRQPreset@@QBEHHAAVQString@@@Z @ 16 NONAME ; int IRQPreset::getChannelUrlAt(int, class QString &) const
+	?getChannelURLCount@IRQPreset@@QBEHXZ @ 17 NONAME ; int IRQPreset::getChannelURLCount(void) const
+	?sortURLArray@IRQPreset@@QAEXXZ @ 18 NONAME ; void IRQPreset::sortURLArray(void)
+	??4IRQPreset@@QAEAAV0@ABV0@@Z @ 19 NONAME ; class IRQPreset & IRQPreset::operator=(class IRQPreset const &)
+    ?externalize@IRQPreset@@QBEXAAVQDataStream@@@Z @ 20  NONAME ; void IRQPreset::externalize(class QDataStream &) const
+	?internalize@IRQPreset@@QAEXAAVQDataStream@@@Z @ 21  NONAME ; void IRQPreset::internalize(class QDataStream &)
+    ?writeLog2File@IRQUtility@@SAXABVQString@@_N@Z @ 22  NONAME ; void IRQUtility::writeLog2File(class QString const &, bool)
+	 
+

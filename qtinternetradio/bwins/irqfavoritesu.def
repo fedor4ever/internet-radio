@@ -1,0 +1,20 @@
+EXPORTS
+	?makePresetUserDefined@IRQFavoritesDB@@QAEHHH@Z @ 1 NONAME ; int IRQFavoritesDB::makePresetUserDefined(int, int)
+	?addPreset@IRQFavoritesDB@@QAEHABVIRQPreset@@@Z @ 2 NONAME ; int IRQFavoritesDB::addPreset(class IRQPreset const &)
+	?getPresets@IRQFavoritesDB@@QBEPAV?$QList@PAVIRQPreset@@@@XZ @ 3 NONAME ; class QList<class IRQPreset *> * IRQFavoritesDB::getPresets(void) const
+	?emptyPresetCount@IRQFavoritesDB@@QBEHXZ @ 4 NONAME ; int IRQFavoritesDB::emptyPresetCount(void) const
+	?searchPreset@IRQFavoritesDB@@QAEHHH@Z @ 5 NONAME ; int IRQFavoritesDB::searchPreset(int, int)
+	?deletePreset@IRQFavoritesDB@@QAEHH@Z @ 6 NONAME ; int IRQFavoritesDB::deletePreset(int)
+	?maxPresetCount@IRQFavoritesDB@@QAEHXZ @ 7 NONAME ; int IRQFavoritesDB::maxPresetCount(void)
+	?increasePlayedTimes@IRQFavoritesDB@@QAEXABVIRQPreset@@@Z @ 8 NONAME ; void IRQFavoritesDB::increasePlayedTimes(class IRQPreset const &)
+	?getPreviousPreset@IRQFavoritesDB@@QAEHH@Z @ 9 NONAME ; int IRQFavoritesDB::getPreviousPreset(int)
+	?getMoveStatus@IRQFavoritesDB@@QAE_NXZ @ 10 NONAME ; bool IRQFavoritesDB::getMoveStatus(void)
+	?getUniqId@IRQFavoritesDB@@QAEHH@Z @ 11 NONAME ; int IRQFavoritesDB::getUniqId(int)
+	?replaceUserDefinedPreset@IRQFavoritesDB@@QAEHABVIRQPreset@@@Z @ 12 NONAME ; int IRQFavoritesDB::replaceUserDefinedPreset(class IRQPreset const &)
+	?getNextPreset@IRQFavoritesDB@@QAEHH@Z @ 13 NONAME ; int IRQFavoritesDB::getNextPreset(int)
+	?getCIRFavoriteDB@IRQFavoritesDB@@QBEPAVCIRFavoritesDb@@XZ @ 14 NONAME ; class CIRFavoritesDb * IRQFavoritesDB::getCIRFavoriteDB(void) const
+	?replacePreset@IRQFavoritesDB@@QAEHABVIRQPreset@@@Z @ 15 NONAME ; int IRQFavoritesDB::replacePreset(class IRQPreset const &)
+	?addPreset@IRQFavoritesDB@@QAEHABVQString@@0@Z @ 16 NONAME ; int IRQFavoritesDB::addPreset(class QString const &, class QString const &)
+	?setMoveStatus@IRQFavoritesDB@@QAEX_N@Z @ 17 NONAME ; void IRQFavoritesDB::setMoveStatus(bool)
+	??0IRQFavoritesDB@@QAE@XZ @ 18 NONAME ; IRQFavoritesDB::IRQFavoritesDB(void)
+

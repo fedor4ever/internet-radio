@@ -1,0 +1,255 @@
+/*
+* Copyright (c) 2006-2007 Nokia Corporation and/or its subsidiary(-ies). 
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:  ?Description
+*
+*/
+
+
+// To get the APP_LAYER_SYSTEMINCLUDE-definition
+#include 		<platform_paths.hrh>
+#include        <bldvariant.hrh>
+
+#include <data_caging_paths.hrh>
+#include "internetradioconfigurationflags.hrh"
+
+TARGET          internetradio.exe
+TARGETTYPE      exe
+UID             0x100039CE 0x2000B499
+VENDORID        VID_DEFAULT
+CAPABILITY      NetworkServices ProtServ ReadDeviceData ReadUserData  \
+                SwEvent UserEnvironment WriteDeviceData WriteUserData \
+                TrustedUI NetworkControl MultiMediaDD
+
+EPOCSTACKSIZE   0x5000
+EPOCHEAPSIZE    0x8000 0x400000
+
+PAGED
+
+LANGUAGE_IDS
+
+SOURCEPATH      ../uisrc
+SOURCE          ir.cpp
+SOURCE          irapplication.cpp
+SOURCE          irdocument.cpp
+SOURCE          irui.cpp
+SOURCE          irbaseview.cpp
+SOURCE          irnowplayingview.cpp
+SOURCE          irnowplayingviewcontainer.cpp
+SOURCE          irmainview.cpp
+SOURCE          irmaincontainer.cpp
+SOURCE          irhistorylistview.cpp
+SOURCE          irhistorylistcontainer.cpp 
+SOURCE          irsearchresultsview.cpp
+SOURCE          irsearchresultsviewcontainer.cpp
+SOURCE          irisdswrapper.cpp
+SOURCE          irhistory.cpp
+SOURCE          iralarmobserver.cpp
+SOURCE          irmessageobserver.cpp
+SOURCE          irmediaclient.cpp
+SOURCE          irnwinfoobserver.cpp
+SOURCE          irchangeobserver.cpp
+SOURCE          irpropertyobserver.cpp
+SOURCE          irpubsub.cpp
+SOURCE          irviewstack.cpp
+SOURCE          irfirsttimeview.cpp
+SOURCE          irfirsttimecontainer.cpp
+SOURCE          irdialoglauncher.cpp
+SOURCE          iraddmanuallystationview.cpp
+SOURCE          iraddmanuallystationcontainer.cpp
+SOURCE          irstationdirectorycontainer.cpp
+SOURCE          irstationdirectoryview.cpp
+SOURCE          ircostwarningview.cpp
+SOURCE          ircostwarningcontainer.cpp 
+SOURCE          irsettingscontainer.cpp
+SOURCE          irsettingsview.cpp
+SOURCE          irstationsview.cpp
+SOURCE          irstationsviewcontainer.cpp
+SOURCE          ircategoryview.cpp
+SOURCE          ircategoryviewcontainer.cpp
+SOURCE          irtopstationsview.cpp
+SOURCE          irplsplaylistitem.cpp
+SOURCE          irplsplaylist.cpp
+SOURCE          irplsview.cpp 
+SOURCE          irplscontainer.cpp 
+SOURCE          irsystemeventcollector.cpp            //for system events
+SOURCE          iraccessoryobserver.cpp               //for system events
+SOURCE          irsystemeventdetector.cpp             //for system events
+SOURCE          irpropertyobserver2.cpp               //for system events
+SOURCE          irnowplayingwrapper.cpp
+SOURCE          irstationinfoview.cpp
+SOURCE          irstationinfocontainer.cpp
+SOURCE          irstationinfopicture.cpp
+SOURCE          irfilteredmodel.cpp
+SOURCE          mirlistboxarray.cpp
+SOURCE          irradioidle.cpp
+SOURCE			irdiskspacewatcher.cpp
+SOURCE			irdiskspacesession.cpp
+SOURCE			ircontroleventobserver.cpp
+
+#ifdef __IRA_FEATURE_BACKSTEPPING_SERVICE
+SOURCE          irbacksteppingservicewrapper.cpp
+#endif // __IRA_FEATURE_BACKSTEPPING_SERVICE
+
+SOURCEPATH      ../uicontrolssrc
+SOURCE          irimageconverter.cpp
+SOURCE          irimageconverterimpl.cpp
+SOURCE          irstationlogocontrol.cpp
+SOURCE          irstationlogodata.cpp
+SOURCE          irstationinformationdata.cpp
+SOURCE          irstationinformationdisplay.cpp
+SOURCE          irmarqueeclet.cpp
+SOURCE          iriconloader.cpp
+SOURCE          iradvertisinglistbox.cpp
+SOURCE			irlayoututils.cpp
+
+
+
+
+START RESOURCE  ../resources/internetradio.rss
+HEADER
+TARGETPATH APP_RESOURCE_DIR
+END  // RESOURCE
+
+START RESOURCE ../resources/internetradio_reg.rss
+// Do not change the UID below.
+LANG SC
+TARGETPATH /private/10003a3f/import/apps
+END
+
+USERINCLUDE     ../include
+USERINCLUDE     ../group
+USERINCLUDE     ../uiinc
+USERINCLUDE     ../settingsinc
+USERINCLUDE     ../uicontrolsinc
+USERINCLUDE     ../settingsviewinc
+USERINCLUDE     ../datastructuresinc
+USERINCLUDE     ../favoritesdbinc
+USERINCLUDE     ../songhistoryinc
+USERINCLUDE     ../networkcontrollerinc
+USERINCLUDE     ../streamsourceinc
+USERINCLUDE     ../sessionloginc
+USERINCLUDE     ../mediaengineinc
+USERINCLUDE     ../commandchannelinc
+USERINCLUDE     ../isdsclientinc
+USERINCLUDE     ../dataproviderinc
+USERINCLUDE     ../cachemgmtinc
+USERINCLUDE     ../xmlparserinc
+USERINCLUDE     ../presetplugininc
+USERINCLUDE     ../resources
+USERINCLUDE     ../help
+
+// Default system include paths for application layer modules.
+APP_LAYER_SYSTEMINCLUDE
+SYSTEMINCLUDE   OS_LAYER_PUBLIC_EXPORT_PATH(libc)
+SYSTEMINCLUDE   OS_LAYER_PUBLIC_EXPORT_PATH(ecom)
+// TODO will be removed after the changes of /epoc32/include
+SYSTEMINCLUDE   OS_LAYER_PUBLIC_EXPORT_PATH(http)
+SYSTEMINCLUDE   MW_LAYER_PUBLIC_EXPORT_PATH(http)
+SYSTEMINCLUDE   OS_LAYER_PUBLIC_EXPORT_PATH(mmf/common)
+SYSTEMINCLUDE   OS_LAYER_PUBLIC_EXPORT_PATH(xml)
+
+#ifdef MUL_USE_COMMON_COMPONENTS
+LIBRARY gesturehelper.lib
+#endif
+LIBRARY          agentdialog.lib
+LIBRARY          aknicon.lib
+LIBRARY          aknnotify.lib
+LIBRARY          aknlayout2.lib
+LIBRARY          aknlayout2scalable.lib
+LIBRARY          aknskins.lib
+LIBRARY          aknskinsrv.lib
+LIBRARY          alarmclient.lib
+LIBRARY          alfclient.lib 
+LIBRARY          apgrfx.lib
+LIBRARY          apmime.lib
+LIBRARY          apparc.lib
+LIBRARY          apsettingshandlerui.lib
+LIBRARY          avkon.lib
+LIBRARY          bafl.lib
+LIBRARY          bitgdi.lib
+LIBRARY          charconv.lib
+LIBRARY          commdb.lib
+LIBRARY          commonengine.lib
+LIBRARY          commsdat.lib
+LIBRARY          aknlayout.lib
+LIBRARY          cone.lib
+LIBRARY          downloadmgr.lib
+LIBRARY          ecom.lib
+LIBRARY          efsrv.lib
+LIBRARY          egul.lib
+LIBRARY          eikcoctl.lib
+LIBRARY          eikcore.lib
+LIBRARY          estlib.lib
+LIBRARY          estor.lib
+LIBRARY          etel.lib
+LIBRARY          etel3rdparty.lib
+LIBRARY          etelmm.lib
+LIBRARY          etext.lib
+LIBRARY          euser.lib
+LIBRARY          fbscli.lib
+LIBRARY          form.lib
+LIBRARY          fepbase.lib
+LIBRARY          gdi.lib
+LIBRARY          hal.lib
+LIBRARY          hlplch.lib
+LIBRARY          hwrmlightclient.lib
+LIBRARY          inetprotutil.lib
+LIBRARY          ircommandchannel.lib
+LIBRARY          irdatastructures.lib
+LIBRARY          irfavoritesdb.lib
+LIBRARY          irnetworkcontroller.lib
+LIBRARY          irsessionlog.lib
+LIBRARY          irsettings.lib
+LIBRARY          irstreamsource.lib
+LIBRARY          isdsclientinterface.lib
+LIBRARY          psclient100.lib
+LIBRARY          remconcoreapi.lib
+LIBRARY          remconinterfacebase.lib
+LIBRARY          svgengine.lib
+LIBRARY          ws32.lib
+LIBRARY          SWInstCli.lib 
+LIBRARY          imageconversion.lib
+LIBRARY          bitmaptransforms.lib
+LIBRARY          numberconversion.lib
+LIBRARY          irsonghistory.lib
+LIBRARY          eikctl.lib
+LIBRARY          ihl.lib eikdlg.lib
+LIBRARY          dsclient.lib
+LIBRARY          irdataprovider.lib             // for Logo Handling
+LIBRARY          PlatformEnv.lib 
+LIBRARY          gsecomplugin.lib
+LIBRARY          featmgr.lib
+LIBRARY          irsettingsview.lib
+LIBRARY          accclient.lib                  //For Headset Events
+LIBRARY          centralrepository.lib 
+LIBRARY          mediaclientaudio.lib 
+LIBRARY          StereoWideningEffect.lib
+LIBRARY          aknhlist.lib                   //for history's hierarichal list
+LIBRARY          msgs.lib                       //for message handling
+LIBRARY          msgs_autoshutdown.lib 
+LIBRARY          touchfeedback.lib
+LIBRARY          mpxviewplugin.lib
+LIBRARY          profileengine.lib 
+LIBRARY             mmfcontrollerframework.lib //to get the supported MIME types
+
+LIBRARY          flogger.lib
+
+#ifdef FF_IAUPDATE
+LIBRARY          iaupdateapi.lib 
+#endif
+
+#ifdef __IRA_FEATURE_BACKSTEPPING_SERVICE
+LIBRARY 	 liwservicehandler.lib
+#endif
+

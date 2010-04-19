@@ -1,0 +1,63 @@
+/*
+* Copyright (c) 2006-2007 Nokia Corporation and/or its subsidiary(-ies). 
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:  Gives the history data
+*
+*/
+
+#include 		<platform_paths.hrh>
+
+TARGET        irsonghistory.dll
+TARGETTYPE    dll
+UID           0x1000008d 0x2001A92F
+
+PAGED
+
+SOURCEPATH    ../songhistorysrc
+
+SOURCE 		  irsonghistorydb.cpp	
+SOURCE		  irsonghistoryengine.cpp
+SOURCE		  irsonghistoryengpubsub.cpp
+SOURCE        irsonghistoryinfo.cpp
+
+
+USERINCLUDE    ../include
+USERINCLUDE    ../songhistoryinc
+USERINCLUDE    ../streamsourceinc
+USERINCLUDE    ../uiinc
+USERINCLUDE    ../settingsinc
+
+// Default system include paths for application layer modules.
+APP_LAYER_SYSTEMINCLUDE
+
+LIBRARY             bafl.lib
+LIBRARY             charconv.lib
+LIBRARY             efsrv.lib
+LIBRARY             euser.lib
+LIBRARY             edbms.lib  
+LIBRARY             estor.lib
+LIBRARY             irsettings.lib
+
+            
+
+LIBRARY        flogger.lib
+
+#if defined( WINSCW )
+DEFFILE         ../bwinscw/ 
+#else
+DEFFILE         ../bmarm/ 
+#endif
+
+//CAPABILITY NetworkServices ProtServ ReadDeviceData ReadUserData SwEvent UserEnvironment WriteDeviceData WriteUserData TrustedUI
+CAPABILITY				CAP_GENERAL_DLL
+

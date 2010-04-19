@@ -1,0 +1,19 @@
+EXPORTS
+	?getNetworkList@IRQNetworkController@@QAEXAAV?$QList@K@@@Z @ 1 NONAME ; void IRQNetworkController::getNetworkList(class QList<unsigned long> &)
+	?isWlanSupported@IRQNetworkController@@QBE_NXZ @ 2 NONAME ; bool IRQNetworkController::isWlanSupported(void) const
+	?getIAPId@IRQNetworkController@@QBE?AW4IRQError@@AAK@Z @ 3 NONAME ; enum IRQError IRQNetworkController::getIAPId(unsigned long &) const
+	?getApIdList@IRQNetworkController@@QAEXAAV?$QList@K@@@Z @ 4 NONAME ; void IRQNetworkController::getApIdList(class QList<unsigned long> &)
+	?cancelConnecting@IRQNetworkController@@QAEXXZ @ 5 NONAME ; void IRQNetworkController::cancelConnecting(void)
+	?isHandlingOverConnection@IRQNetworkController@@QAE_NXZ @ 6 NONAME ; bool IRQNetworkController::isHandlingOverConnection(void)
+	?getBearerList@IRQNetworkController@@QAEXAAV?$QList@K@@@Z @ 7 NONAME ; void IRQNetworkController::getBearerList(class QList<unsigned long> &)
+	?getAccessPointList@IRQNetworkController@@QAEXAAVQStringList@@@Z @ 8 NONAME ; void IRQNetworkController::getAccessPointList(class QStringList &)
+	?identifyConnectionType@IRQNetworkController@@QBE?AW4IRQConnectionType@@XZ @ 9 NONAME ; enum IRQConnectionType IRQNetworkController::identifyConnectionType(void) const
+	?openInstance@IRQNetworkController@@SAPAV1@XZ @ 10 NONAME ; class IRQNetworkController * IRQNetworkController::openInstance(void)
+	?closeInstance@IRQNetworkController@@QAEXXZ @ 11 NONAME ; void IRQNetworkController::closeInstance(void)
+	?notifyActiveNetworkObservers@IRQNetworkController@@QAEXW4IRQNetworkEvent@@@Z @ 12 NONAME ; void IRQNetworkController::notifyActiveNetworkObservers(enum IRQNetworkEvent)
+	?getNetworkStatus@IRQNetworkController@@QBE_NXZ @ 13 NONAME ; bool IRQNetworkController::getNetworkStatus(void) const
+	?resetConnectionStatus@IRQNetworkController@@QAEXXZ @ 14 NONAME ; void IRQNetworkController::resetConnectionStatus(void)
+	?isOfflineMode@IRQNetworkController@@QAE_NXZ @ 15 NONAME ; bool IRQNetworkController::isOfflineMode(void)
+	?isConnectRequestIssued@IRQNetworkController@@QBE_NXZ @ 16 NONAME ; bool IRQNetworkController::isConnectRequestIssued(void) const
+	?chooseAccessPoint@IRQNetworkController@@QAEXXZ @ 17 NONAME ; void IRQNetworkController::chooseAccessPoint(void)
+

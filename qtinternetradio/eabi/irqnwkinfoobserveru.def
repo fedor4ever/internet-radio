@@ -1,0 +1,6 @@
+EXPORTS
+	_ZN18IRQNwkInfoObserver12openInstanceEv @ 1 NONAME
+	_ZN18IRQNwkInfoObserver13closeInstanceEv @ 2 NONAME
+	_ZN18IRQNwkInfoObserver18stopMonitorNwkInfoEv @ 3 NONAME
+	_ZN18IRQNwkInfoObserver19startMonitorNwkInfoEv @ 4 NONAME
+

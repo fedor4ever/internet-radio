@@ -1,0 +1,7 @@
+EXPORTS
+	?NewL@IRLogger@@SAPAV1@XZ @ 1 NONAME ; class IRLogger * IRLogger::NewL(void)
+	?NewLC@IRLogger@@SAPAV1@XZ @ 2 NONAME ; class IRLogger * IRLogger::NewLC(void)
+	?Version@IRLogger@@QBE?AVTVersion@@XZ @ 3 NONAME ; class TVersion IRLogger::Version(void) const
+	?write@IRLogger@@SAXABVTDesC16@@0000@Z @ 4 NONAME ; void IRLogger::write(class TDesC16 const &, class TDesC16 const &, class TDesC16 const &, class TDesC16 const &, class TDesC16 const &)
+	?write@IRLogger@@SAXABVTDesC16@@0@Z @ 5 NONAME ; void IRLogger::write(class TDesC16 const &, class TDesC16 const &)
+

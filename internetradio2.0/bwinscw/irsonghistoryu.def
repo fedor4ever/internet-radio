@@ -1,0 +1,27 @@
+EXPORTS
+	??1CIRSongHistoryEngine@@UAE@XZ @ 1  NONAME ; CIRSongHistoryEngine::~CIRSongHistoryEngine(void)
+	??1CIRSongHistoryInfo@@UAE@XZ @ 2  NONAME ; CIRSongHistoryInfo::~CIRSongHistoryInfo(void)
+	?ClearAllHistory@CIRSongHistoryEngine@@QAEHXZ @ 3  NONAME ; int CIRSongHistoryEngine::ClearAllHistory(void)
+	?GetAllHistoryL@CIRSongHistoryEngine@@QAEXAAV?$RPointerArray@VCIRSongHistoryInfo@@@@@Z @ 4  NONAME ; void CIRSongHistoryEngine::GetAllHistoryL(class RPointerArray<class CIRSongHistoryInfo> &)
+	?GetArtistInfo@CIRSongHistoryInfo@@QBEABVRBuf16@@XZ @ 5  NONAME ; class RBuf16 const & CIRSongHistoryInfo::GetArtistInfo(void) const
+	?GetChannelDesc@CIRSongHistoryInfo@@QBEABVRBuf16@@XZ @ 6  NONAME ; class RBuf16 const & CIRSongHistoryInfo::GetChannelDesc(void) const
+	?GetChannelId@CIRSongHistoryInfo@@QBEHXZ @ 7  NONAME ; int CIRSongHistoryInfo::GetChannelId(void) const
+	?GetChannelMusicStatus@CIRSongHistoryInfo@@QBEABVRBuf16@@XZ @ 8  NONAME ; class RBuf16 const & CIRSongHistoryInfo::GetChannelMusicStatus(void) const
+	?GetChannelName@CIRSongHistoryInfo@@QBEABVRBuf16@@XZ @ 9  NONAME ; class RBuf16 const & CIRSongHistoryInfo::GetChannelName(void) const
+	?GetChannelType@CIRSongHistoryInfo@@QBEHXZ @ 10  NONAME ; int CIRSongHistoryInfo::GetChannelType(void) const
+	?GetHistoryCount@CIRSongHistoryEngine@@QAEHXZ @ 11  NONAME ; int CIRSongHistoryEngine::GetHistoryCount(void)
+	?GetSongInfo@CIRSongHistoryInfo@@QBEABVRBuf16@@XZ @ 12  NONAME ; class RBuf16 const & CIRSongHistoryInfo::GetSongInfo(void) const
+	?GetStreamUrl@CIRSongHistoryInfo@@QBEABVRBuf16@@XZ @ 13  NONAME ; class RBuf16 const & CIRSongHistoryInfo::GetStreamUrl(void) const
+	?HandleMetaDataReceivedL@CIRSongHistoryEngine@@QAEXABVCIRMetaData@@@Z @ 14  NONAME ; void CIRSongHistoryEngine::HandleMetaDataReceivedL(class CIRMetaData const &)
+	?NewL@CIRSongHistoryEngine@@SAPAV1@AAVMSongHistoryUINotifyHandler@@@Z @ 15  NONAME ; class CIRSongHistoryEngine * CIRSongHistoryEngine::NewL(class MSongHistoryUINotifyHandler &)
+	?NewL@CIRSongHistoryInfo@@SAPAV1@XZ @ 16  NONAME ; class CIRSongHistoryInfo * CIRSongHistoryInfo::NewL(void)
+	?NewLC@CIRSongHistoryEngine@@SAPAV1@AAVMSongHistoryUINotifyHandler@@@Z @ 17  NONAME ; class CIRSongHistoryEngine * CIRSongHistoryEngine::NewLC(class MSongHistoryUINotifyHandler &)
+	?NewLC@CIRSongHistoryInfo@@SAPAV1@XZ @ 18  NONAME ; class CIRSongHistoryInfo * CIRSongHistoryInfo::NewLC(void)
+	?SyncHistory@CIRSongHistoryEngine@@QAEHH@Z @ 19  NONAME ; int CIRSongHistoryEngine::SyncHistory(int)
+	?UpdateSongHistoryDb@CIRSongHistoryEngine@@QAEXHABVTDesC16@@00@Z @ 20  NONAME ; void CIRSongHistoryEngine::UpdateSongHistoryDb(int, class TDesC16 const &, class TDesC16 const &, class TDesC16 const &)
+	?GetBitrate@CIRSongHistoryInfo@@QBEHXZ @ 21  NONAME ; int CIRSongHistoryInfo::GetBitrate(void) const
+	?GetImageUrl@CIRSongHistoryInfo@@QBEABVRBuf16@@XZ @ 22  NONAME ; class RBuf16 const & CIRSongHistoryInfo::GetImageUrl(void) const
+	?SetHistoryInfo@CIRSongHistoryInfo@@QAEXAAVRBuf16@@000HHH000@Z @ 23  NONAME ; void CIRSongHistoryInfo::SetHistoryInfo(class RBuf16 &, class RBuf16 &, class RBuf16 &, class RBuf16 &, int, int, int, class RBuf16 &, class RBuf16 &, class RBuf16 &)
+ 	?DeleteOneHistory@CIRSongHistoryEngine@@QAEHH@Z @ 24  NONAME ; int CIRSongHistoryEngine::DeleteOneHistory(int)
+	_E32Dll=__E32Dll	; Entry point for emulation
+

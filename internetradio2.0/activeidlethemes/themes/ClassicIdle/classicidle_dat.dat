@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<data>
+	<AppUid>102750F0</AppUid>
+	<Provideruid>101FB657</Provideruid>
+	<ThemeUid>1028186B</ThemeUid>
+	<ThemeStatus>ThemeStatusLicenceeRestorable</ThemeStatus>
+	<ThemeFullName>Full Page</ThemeFullName>
+	<ThemeShortName>CI</ThemeShortName>
+	<ThemeVersion>1.0</ThemeVersion>
+	<FileXML>ClassicIdle.xml</FileXML>
+	<FileCSS>ClassicIdle.css</FileCSS>
+	
+	<FileResource CacheType="CacheNone">vrclassicidle.mif</FileResource>
+	<FileResource CacheType="CacheNone">irclassicidle.mif</FileResource>
+
+	<LanguageSpecific Language="1">
+		<FileDTD>ClassicIdle.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_full_page</ThemeFullName><!-- Note: the name is not an entity reference. So no "&" or" ;" -->
+	</LanguageSpecific>
+</data>

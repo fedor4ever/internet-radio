@@ -1,0 +1,105 @@
+/*
+* Copyright (c) 2006-2007 Nokia Corporation and/or its subsidiary(-ies). 
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:  Gives the history data
+*
+*/
+
+#include 		<platform_paths.hrh>
+
+TARGET        irsettingsview.dll
+TARGETTYPE    dll
+UID           0x1000008D 0x10282BAF
+
+PAGED
+
+SOURCEPATH    ../settingsviewsrc
+
+SOURCE 		  ircommonsettingscontainer.cpp
+SOURCE		  irsettingsviewbase.cpp
+//SOURCE		  irsnapsettingitem.cpp
+
+
+USERINCLUDE    ../include
+USERINCLUDE    ../networkcontrollerinc
+USERINCLUDE    ../settingsviewinc
+USERINCLUDE    ../settingsinc
+USERINCLUDE    ../resources
+USERINCLUDE	   ../help
+
+// Default system include paths for application layer modules.
+APP_LAYER_SYSTEMINCLUDE
+SYSTEMINCLUDE   OS_LAYER_PUBLIC_EXPORT_PATH(ecom)
+// TODO will be removed after the changes of /epoc32/include
+SYSTEMINCLUDE   OS_LAYER_PUBLIC_EXPORT_PATH(http)
+SYSTEMINCLUDE   MW_LAYER_PUBLIC_EXPORT_PATH(http)
+SYSTEMINCLUDE   OS_LAYER_PUBLIC_EXPORT_PATH(mmf/common)
+SYSTEMINCLUDE   OS_LAYER_PUBLIC_EXPORT_PATH(xml)
+
+LIBRARY             bafl.lib
+LIBRARY             charconv.lib
+LIBRARY             efsrv.lib
+LIBRARY             euser.lib
+LIBRARY             estor.lib
+LIBRARY             irsettings.lib
+LIBRARY		        irnetworkcontroller.lib
+LIBRARY		        PlatformEnv.lib 
+LIBRARY             gsecomplugin.lib
+LIBRARY             featmgr.lib
+LIBRARY             avkon.lib
+LIBRARY             eikcoctl.lib
+LIBRARY             eikcore.lib
+LIBRARY             cone.lib
+LIBRARY             hlplch.lib
+LIBRARY			    CommonEngine.lib
+LIBRARY 		    cmmanager.lib		
+
+
+
+
+//test linker error
+LIBRARY cenrepnotifhandler.lib
+LIBRARY	commonengine.lib
+LIBRARY etel.lib
+LIBRARY etel3rdparty.lib
+LIBRARY etelmm.lib
+LIBRARY inetprotutil.lib
+LIBRARY xmlframework.lib
+
+
+//LIBRARY avctpplugins.lib
+//LIBRARY eintsock.lib
+LIBRARY impapprotocolcontroller.lib
+LIBRARY imut.lib
+LIBRARY netmsg.lib
+LIBRARY netmeta.lib
+LIBRARY nifman.lib
+LIBRARY pops.lib
+LIBRARY responsemsg.lib
+LIBRARY smts.lib
+
+
+//test end
+
+            
+
+LIBRARY        flogger.lib
+
+#if defined( WINSCW )
+DEFFILE         ../bwinscw/ 
+#else
+DEFFILE         ../bmarm/ 
+#endif
+
+//CAPABILITY NetworkServices ProtServ ReadDeviceData ReadUserData SwEvent UserEnvironment WriteDeviceData WriteUserData TrustedUI CommDD PowerMgmt MultimediaDD DRM DiskAdmin NetworkControl 
+CAPABILITY CAP_GENERAL_DLL

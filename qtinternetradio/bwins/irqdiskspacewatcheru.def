@@ -1,0 +1,10 @@
+EXPORTS
+	?criticalLevel@IRQDiskSpaceWatcher@@QBE_JXZ @ 1 NONAME ; long long IRQDiskSpaceWatcher::criticalLevel(void) const
+	?startMonitorDrive@IRQDiskSpaceWatcher@@QAE_N_J@Z @ 2 NONAME ; bool IRQDiskSpaceWatcher::startMonitorDrive(long long)
+	??0IRQDiskSpaceWatcher@@QAE@XZ @ 3 NONAME ; IRQDiskSpaceWatcher::IRQDiskSpaceWatcher(void)
+	?startMonitorDrive@IRQDiskSpaceWatcher@@QAE_NXZ @ 4 NONAME ; bool IRQDiskSpaceWatcher::startMonitorDrive(void)
+	?isBelowCriticalLevel@IRQDiskSpaceWatcher@@QAE_N_J@Z @ 5 NONAME ; bool IRQDiskSpaceWatcher::isBelowCriticalLevel(long long)
+	?stopMonitorDrive@IRQDiskSpaceWatcher@@QAEXXZ @ 6 NONAME ; void IRQDiskSpaceWatcher::stopMonitorDrive(void)
+	?isBelowCriticalLevel@IRQDiskSpaceWatcher@@QAE_NXZ @ 7 NONAME ; bool IRQDiskSpaceWatcher::isBelowCriticalLevel(void)
+	??1IRQDiskSpaceWatcher@@UAE@XZ @ 8 NONAME ; IRQDiskSpaceWatcher::~IRQDiskSpaceWatcher(void)
+

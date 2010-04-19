@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+============================================================================
+<FileName: "ActiveIdle.dtd">
+<PartOf  : "ActiveIdle2">
+
+<FileDescription: "Localization strings for ActiveIdle2 Navi Bar XUIKON theme">
+<FileVersion    : >
+
+<Copyright:
+"Copyright © 2005 Nokia Corporation.
+This material, including documentation and any related
+computer programs, is protected by copyright controlled by
+Nokia Corporation. All rights are reserved. Copying,
+including reproducing, storing,  adapting or translating, any
+or all of this material requires the prior written consent of
+Nokia Corporation. This material also contains confidential
+information which may not be disclosed to others without the
+prior written consent of Nokia Corporation.">
+============================================================================
+-->
+
+<!-- NOTE: make sure that there is at last one space character (hex 20) after the entity name -->
+
+<!--  LOCALISATION STRINGS  -->
+<!--
+qtn_ai_skin_iconbar.attributes
+qtn_ai_skin_iconbar.layout "list_single_graphic_pane_t1"
+qtn_ai_skin_iconbar.release "3.2"
+qtn_ai_skin_iconbar.description "Title of the theme"
+qtn_ai_skin_iconbar.parents "Theme selection view"
+-->
+<!ENTITY qtn_ai_skin_iconbar "Navigation bar">
+
+<!-- Static UI strings -->
+
+<!--
+qtn_ai_shorts_title.attributes
+qtn_ai_shorts_title.layout "heading_ai2_gene_pane_t1"
+qtn_ai_shorts_title.release "3.2"
+qtn_ai_shorts_title.description "Title of shortcut plugin"
+qtn_ai_shorts_title.grammar "Use shortcuts to launch applications."
+qtn_ai_shorts_title.parents "heading_ai2_gene_pane"
+-->
+<!ENTITY qtn_ai_shorts_title "Shortcuts">
+
+<!--
+qtn_ai_cal_title.attributes
+qtn_ai_cal_title.layout "heading_ai2_gene_pane_t1"
+qtn_ai_cal_title.release "3.2"
+qtn_ai_cal_title.description "Title of calendar plugin"
+qtn_ai_cal_title.grammar "Mark your important notes in calendar."
+qtn_ai_cal_title.parents "heading_ai2_gene_pane"
+-->
+<!ENTITY qtn_ai_cal_title "Calendar">
+
+<!--
+qtn_ai_player_title.attributes
+qtn_ai_player_title.layout "heading_ai2_gene_pane_t1"
+qtn_ai_player_title.release "3.2"
+qtn_ai_player_title.description "Title of music player plugin"
+qtn_ai_player_title.parents "heading_ai2_gene_pane"
+qtn_ai_player_title
+-->
+<!ENTITY qtn_ai_player_title "Music player">
+
+<!--
+qtn_ai_radio_title.attributes
+qtn_ai_radio_title.layout "heading_ai2_gene_pane_t1"
+qtn_ai_radio_title.release "3.2"
+qtn_ai_radio_title.description "Title of FM-radio plugin"
+qtn_ai_radio_title.parents "heading_ai2_gene_pane"
+-->
+<!ENTITY qtn_ai_radio_title "FM Radio">
+
+<!--
+qtn_ai_pers_title.attributes
+qtn_ai_pers_title.layout "heading_ai2_gene_pane_t1"
+qtn_ai_pers_title.release "3.2"
+qtn_ai_pers_title.description "Title of personalization plugin"
+qtn_ai_pers_title.grammar "Personalization is a mighty tool for making your phone unique."
+qtn_ai_pers_title.parents "heading_ai2_gene_pane"
+-->
+<!ENTITY qtn_ai_pers_title "Personalization">
+
+<!--
+qtn_ai_nt_title.attributes
+qtn_ai_nt_title.layout "heading_ai2_gene_pane_t1"
+qtn_ai_nt_title.release "3.2"
+qtn_ai_nt_title.description "Title of news ticker plugin"
+qtn_ai_nt_title.parents "heading_ai2_gene_pane"
+-->
+<!ENTITY qtn_ai_nt_title "News ticker">
+
+
+<!-- Text resources for dynamic UI strings -->
+
+<!-- Shortcut plug-in text resources -->
+
+<!--
+shortcut_EmptyCaption.attributes
+shortcut_EmptyCaption.layout "list_ai2_gene_pane_t1"
+shortcut_EmptyCaption.release "3.2"
+shortcut_EmptyCaption.description "Empty shortcut"
+shortcut_EmptyCaption.parents "list_ai2_gene_pane"
+-->
+<!ENTITY shortcut_EmptyCaption " ">
+
+<!--
+qtn_set_idle_skey_new_msg.attributes
+qtn_set_idle_skey_new_msg.layout "list_ai2_gene_pane_t1"
+qtn_set_idle_skey_new_msg.release "3.2"
+qtn_set_idle_skey_new_msg.description "New message shortcut"
+qtn_set_idle_skey_new_msg.parents "list_ai2_gene_pane"
+-->
+<!ENTITY qtn_set_idle_skey_new_msg "New message">
+
+<!--
+qtn_set_idle_skeys_email_editor.attributes
+qtn_set_idle_skeys_email_editor.layout "list_ai2_gene_pane_t1"
+qtn_set_idle_skeys_email_editor.release "3.2"
+qtn_set_idle_skeys_email_editor.description "New e-mail shortcut"
+qtn_set_idle_skeys_email_editor.parents "list_ai2_gene_pane"
+-->
+<!ENTITY qtn_set_idle_skeys_email_editor "New e-mail">
+
+<!--
+qtn_apps_syncml_mail_gs.attributes
+qtn_apps_syncml_mail_gs.layout "list_ai2_gene_pane_t1"
+qtn_apps_syncml_mail_gs.release "3.2"
+qtn_apps_syncml_mail_gs.description "New SyncML mail shortcut"
+qtn_apps_syncml_mail_gs.parents "list_ai2_gene_pane"
+-->
+<!ENTITY qtn_apps_syncml_mail_gs "New SyncML mail">
+
+<!--
+qtn_apps_mmspostcard_gs.attributes
+qtn_apps_mmspostcard_gs.layout "list_ai2_gene_pane_t1"
+qtn_apps_mmspostcard_gs.release "3.2"
+qtn_apps_mmspostcard_gs.description "New MMS postcard shortcut"
+qtn_apps_mmspostcard_gs.parents "list_ai2_gene_pane"
+-->
+<!ENTITY qtn_apps_mmspostcard_gs "New MMS Postcard">
+
+<!--
+qtn_apps_audio_msg_gs.attributes
+qtn_apps_audio_msg_gs.layout "list_ai2_gene_pane_t1"
+qtn_apps_audio_msg_gs.release "3.2"
+qtn_apps_audio_msg_gs.description "New audio message shortcut"
+qtn_apps_audio_msg_gs.parents "list_ai2_gene_pane"
+-->
+<!ENTITY qtn_apps_audio_msg_gs "New Audio msg">
+
+<!--
+qtn_set_idle_skey_select_msg_type.attributes
+qtn_set_idle_skey_select_msg_type.layout "list_ai2_gene_pane_t1"
+qtn_set_idle_skey_select_msg_type.release "3.2"
+qtn_set_idle_skey_select_msg_type.description "Select message type shortcut"
+qtn_set_idle_skey_select_msg_type.parents "list_ai2_gene_pane"
+-->
+<!ENTITY qtn_set_idle_skey_select_msg_type "Select msg type">
+
+<!--
+qtn_apps_idle_skin_gs.attributes
+qtn_apps_idle_skin_gs.layout "list_single_large_graphic_pane_t1_cp2"
+qtn_apps_idle_skin_gs.release "3.2"
+qtn_apps_idle_skin_gs.description "Change theme shortcut"
+qtn_apps_idle_skin_gs.parents "list_single_large_graphic_pane"
+-->
+<!ENTITY qtn_apps_idle_skin_gs "Change idle theme">
+
+<!--
+qtn_idle_skey_new_msg.attributes
+qtn_idle_skey_new_msg.layout "control_pane_t2"
+qtn_idle_skey_new_msg.release "3.2"
+qtn_idle_skey_new_msg.description "New message shortcut"
+qtn_idle_skey_new_msg.parents "control_pane"
+-->
+<!ENTITY qtn_idle_skey_new_msg "New msg.">
+
+<!--
+qtn_apps_email_skey.attributes
+qtn_apps_email_skey.layout "control_pane_t2"
+qtn_apps_email_skey.release "3.2"
+qtn_apps_email_skey.description "New e-mail shortcut"
+qtn_apps_email_skey.parents "control_pane"
+-->
+<!ENTITY qtn_apps_email_skey "New mail">
+
+<!--
+qtn_apps_syncml_mail_skey.attributes
+qtn_apps_syncml_mail_skey.layout "control_pane_t2"
+qtn_apps_syncml_mail_skey.release "3.2"
+qtn_apps_syncml_mail_skey.description "New SyncML mail shortcut"
+qtn_apps_syncml_mail_skey.parents "control_pane"
+-->
+<!ENTITY qtn_apps_syncml_mail_skey "New sync.mail">
+
+<!--
+qtn_apps_mmspostcard_skey.attributes
+qtn_apps_mmspostcard_skey.layout "control_pane_t2"
+qtn_apps_mmspostcard_skey.release "3.2"
+qtn_apps_mmspostcard_skey.description "New MMS postcard shortcut"
+qtn_apps_mmspostcard_skey.parents "control_pane"
+-->
+<!ENTITY qtn_apps_mmspostcard_skey "New postcard">
+
+<!--
+qtn_apps_audio_msg_skey.attributes
+qtn_apps_audio_msg_skey.layout "control_pane_t2"
+qtn_apps_audio_msg_skey.release "3.2"
+qtn_apps_audio_msg_skey.description "New audio message shortcut"
+qtn_apps_audio_msg_skey.parents "control_pane"
+-->
+<!ENTITY qtn_apps_audio_msg_skey "New audiomsg">
+
+<!--
+qtn_apps_idle_skin_skey.attributes
+qtn_apps_idle_skin_skey.layout "control_pane_t2"
+qtn_apps_idle_skin_skey.release "3.2"
+qtn_apps_idle_skin_skey.description "Change theme shortcut"
+qtn_apps_idle_skin_skey.parents "control_pane"
+-->
+<!ENTITY qtn_apps_idle_skin_skey "Idle theme">
+
+
+<!-- Personalization plug-in text resources -->
+
+<!--
+qtn_ai_pers_all_profiles.attributes
+qtn_ai_pers_all_profiles.layout "list_ai2_gene_pane_t1"
+qtn_ai_pers_all_profiles.release "3.2"
+qtn_ai_pers_all_profiles.description "Open profiles application shortcut"
+qtn_ai_pers_all_profiles.parents "list_ai2_gene_pane"
+-->
+<!ENTITY qtn_ai_pers_all_profiles "All profiles">
+
+<!--
+qtn_ai_pers_change_theme.attributes
+qtn_ai_pers_change_theme.layout "list_ai2_gene_pane_t1"
+qtn_ai_pers_change_theme.release "3.2"
+qtn_ai_pers_change_theme.description "Open personalization application shortcut"
+qtn_ai_pers_change_theme.grammar "Use themes to personalize your phone."
+qtn_ai_pers_change_theme.parents "list_ai2_gene_pane"
+-->
+<!ENTITY qtn_ai_pers_change_theme "Themes">
+
+<!--
+qtn_ai_pers_change_wallpaper.attributes
+qtn_ai_pers_change_wallpaper.layout "list_ai2_gene_pane_t1"
+qtn_ai_pers_change_wallpaper.release "3.2"
+qtn_ai_pers_change_wallpaper.description "Open wallpaper view in personalization application shortcut"
+qtn_ai_pers_change_wallpaper.grammar "Set cool wallpaper to color up your phone."
+qtn_ai_pers_change_wallpaper.parents "list_ai2_gene_pane"
+-->
+<!ENTITY qtn_ai_pers_change_wallpaper "Wallpaper">
+
+<!--
+qtn_apps_sd_list.attributes
+qtn_apps_sd_list.layout "list_single_large_graphic_pane_t1_cp2"
+qtn_apps_sd_list.release "3.2"
+qtn_apps_sd_list.description "Open speed dial application shortcut"
+qtn_apps_sd_list.parents "list_single_large_graphic_pane"
+-->
+<!ENTITY qtn_apps_sd_list "Speed dial">
+
+<!--
+qtn_ai_pers_change_sc.attributes
+qtn_ai_pers_change_sc.layout "list_ai2_gene_pane_t1"
+qtn_ai_pers_change_sc.release "3.2"
+qtn_ai_pers_change_sc.description "Open shortcuts view in general settings shortcut"
+qtn_ai_pers_change_sc.grammar "Use shortcuts to launch applications."
+qtn_ai_pers_change_sc.parents "list_ai2_gene_pane"
+-->
+<!ENTITY qtn_ai_pers_change_sc "Shortcuts">
+
+<!--
+text_softkey_back.attributes
+text_softkey_back.layout "control_pane_t2"
+text_softkey_back.release "3.2"
+text_softkey_back.description "Back text for SK2"
+text_softkey_back.grammar "Click back to return to previous view."
+text_softkey_back.parents "control_pane"
+-->
+<!ENTITY text_softkey_back "Back">
+
+<!-- Middle soft key text resources -->
+
+<!--
+qtn_msk_select.attributes
+qtn_msk_select.layout "control_pane_t3/opt3"
+qtn_msk_select.release "3.2"
+qtn_msk_select.description "Select text for MSK"
+qtn_msk_select.grammar "Click select for previewing content."
+qtn_msk_select.parents "control_pane"
+-->
+<!ENTITY qtn_msk_select "Select">
+
+<!--
+qtn_msk_open.attributes
+qtn_msk_open.layout "control_pane_t3/opt3"
+qtn_msk_open.release "3.2"
+qtn_msk_open.description "Open text for MSK"
+qtn_msk_open.grammar "Click open for opening content."
+qtn_msk_open.parents "control_pane"
+-->
+<!ENTITY qtn_msk_open "Open">
+
+
+<!-- Organizer plug-in text resources -->
+
+<!--
+qtn_ai_cale_no_event_today_short.attributes
+qtn_ai_cale_no_event_today_short.layout "ai2_gene_pane_t1"
+qtn_ai_cale_no_event_today_short.release "3.2"
+qtn_ai_cale_no_event_today_short.description "No events for today"
+qtn_ai_cale_no_event_today_short.parents "ai2_gene_pane"
+-->
+<!ENTITY qtn_ai_cale_no_event_today_short "No events for today">
+
+<!--
+qtn_ai_cale_no_more_ev_td_short.attributes
+qtn_ai_cale_no_more_ev_td_short.layout "ai2_gene_pane_t1"
+qtn_ai_cale_no_more_ev_td_short.release "3.2"
+qtn_ai_cale_no_more_ev_td_short.description "No more events for today"
+qtn_ai_cale_no_more_ev_td_short.parents "ai2_gene_pane"
+-->
+<!ENTITY qtn_ai_cale_no_more_ev_td_short "No more events for Today">
+
+<!--
+qtn_ai_player_no_tracks.attributes
+qtn_ai_player_no_tracks.layout "ai2_gene_pane"
+qtn_ai_player_no_tracks.release "3.2"
+qtn_ai_player_no_tracks.description "[No tracks playing]"
+qtn_ai_player_no_tracks.parents "ai2_gene_pane"
+-->
+<!ENTITY qtn_ai_player_no_tracks "[No tracks playing]">
+
+<!--
+qtn_vr_ai_radiolauncher.attributes
+qtn_vr_ai_radiolauncher.layout "heading_ai2_gene_pane_t1/opt1"
+qtn_vr_ai_radiolauncher.release "3.2"
+qtn_vr_ai_radiolauncher.description "Radio Launcher title in Active Idle 2"
+qtn_vr_ai_radiolauncher.parents "heading_ai2_gene_pane"
+qtn_vr_ai_radiolauncher
+-->
+<!ENTITY qtn_vr_ai_radiolauncher "Radio">
+
+<!--
+qtn_vr_ai_vradio_title.attributes
+qtn_vr_ai_vradio_title.layout "heading_ai2_gene_pane_t1/opt1"
+qtn_vr_ai_vradio_title.release "3.2"
+qtn_vr_ai_vradio_title.description "Visual Radio title in Active Idle 2"
+qtn_vr_ai_vradio_title.parents "heading_ai2_gene_pane"
+qtn_vr_ai_vradio_title
+-->
+<!ENTITY qtn_vr_ai_vradio_title "Visual Radio">
+
+<!--
+qtn_vr_ai_radio_not_active.attributes
+qtn_vr_ai_radio_not_active.layout "ai2_gene_pane"
+qtn_vr_ai_radio_not_active.release "3.2"
+qtn_vr_ai_radio_not_active.description "Text in content area when radio not active"
+qtn_vr_ai_radio_not_active.parents "ai2_gene_pane"
+-->
+<!ENTITY qtn_vr_ai_radio_not_active "Radio not active">
+
+<!--
+qtn_ir_ai_irapp_title.attributes
+qtn_ir_ai_irapp_title.layout "heading_ai2_gene_pane_t1/opt1"
+qtn_ir_ai_irapp_title.release "3.2"
+qtn_ir_ai_irapp_title.description "InternetRadio title in Active Idle"
+qtn_ir_ai_irapp_title.parents "heading_ai2_gene_pane"
+-->
+<!ENTITY qtn_ir_ai_irapp_title "Internet Radio">

@@ -1,0 +1,247 @@
+<?xml version="1.0"?>
+<data>
+	<AppUid>102750F0</AppUid>
+	<Provideruid>101FB657</Provideruid>
+	<ThemeUid>1028186D</ThemeUid>
+	<ThemeStatus>ThemeStatusLicenceeDefault</ThemeStatus>
+	<ThemeFullName>Navigation bar</ThemeFullName>
+	<ThemeShortName>AI</ThemeShortName>
+	<ThemeVersion>1.0</ThemeVersion>
+	<FileXML>ActiveIdle.xml</FileXML>
+	<FileCSS>ActiveIdle.css</FileCSS>
+	
+	<FileResource CacheType="CacheNone">iractiveidle.mif</FileResource>
+	
+	<LanguageSpecific Language="01">
+		<FileDTD>ActiveIdle_01.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="02">
+		<FileDTD>ActiveIdle_02.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="03">
+		<FileDTD>ActiveIdle_03.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="04">
+		<FileDTD>ActiveIdle_04.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="05">
+		<FileDTD>ActiveIdle_05.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="06">
+		<FileDTD>ActiveIdle_06.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="07">
+		<FileDTD>ActiveIdle_07.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="08">
+		<FileDTD>ActiveIdle_08.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="09">
+		<FileDTD>ActiveIdle_09.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="10">
+		<FileDTD>ActiveIdle_10.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="13">
+		<FileDTD>ActiveIdle_13.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="14">
+		<FileDTD>ActiveIdle_14.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="15">
+		<FileDTD>ActiveIdle_15.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="16">
+		<FileDTD>ActiveIdle_16.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="17">
+		<FileDTD>ActiveIdle_17.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="18">
+		<FileDTD>ActiveIdle_18.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="25">
+		<FileDTD>ActiveIdle_25.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="26">
+		<FileDTD>ActiveIdle_26.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="27">
+		<FileDTD>ActiveIdle_27.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="28">
+		<FileDTD>ActiveIdle_28.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="29">
+		<FileDTD>ActiveIdle_29.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="30">
+		<FileDTD>ActiveIdle_30.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="31">
+		<FileDTD>ActiveIdle_31.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="32">
+		<FileDTD>ActiveIdle_32.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="33">
+		<FileDTD>ActiveIdle_33.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="37">
+		<FileDTD>ActiveIdle_37.dtd</FileDTD>
+		<FileCSS>ActiveIdle_reversed.css</FileCSS>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="39">
+		<FileDTD>ActiveIdle_39.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="42">
+		<FileDTD>ActiveIdle_42.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="44">
+		<FileDTD>ActiveIdle_44.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="45">
+		<FileDTD>ActiveIdle_45.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="49">
+		<FileDTD>ActiveIdle_49.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="50">
+		<FileDTD>ActiveIdle_50.dtd</FileDTD>
+		<FileCSS>ActiveIdle_reversed.css</FileCSS>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="51">
+		<FileDTD>ActiveIdle_51.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="54">
+		<FileDTD>ActiveIdle_54.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="57">
+		<FileDTD>ActiveIdle_57.dtd</FileDTD>
+		<FileCSS>ActiveIdle_reversed.css</FileCSS>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="58">
+		<FileDTD>ActiveIdle_58.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="59">
+		<FileDTD>ActiveIdle_59.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="67">
+		<FileDTD>ActiveIdle_67.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="68">
+		<FileDTD>ActiveIdle_68.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="70">
+		<FileDTD>ActiveIdle_70.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="76">
+		<FileDTD>ActiveIdle_76.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="78">
+		<FileDTD>ActiveIdle_78.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="79">
+		<FileDTD>ActiveIdle_79.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="83">
+		<FileDTD>ActiveIdle_83.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="93">
+		<FileDTD>ActiveIdle_93.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="94">
+		<FileDTD>ActiveIdle_94.dtd</FileDTD>
+		<FileCSS>ActiveIdle_reversed.css</FileCSS>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="96">
+		<FileDTD>ActiveIdle_96.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="129">
+		<FileDTD>ActiveIdle_129.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="157">
+		<FileDTD>ActiveIdle_157.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="158">
+		<FileDTD>ActiveIdle_158.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="159">
+		<FileDTD>ActiveIdle_159.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="160">
+		<FileDTD>ActiveIdle_160.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="161">
+		<FileDTD>ActiveIdle_161.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="326">
+		<FileDTD>ActiveIdle_326.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="327">
+		<FileDTD>ActiveIdle_327.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="401">
+		<FileDTD>ActiveIdle_401.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+	<LanguageSpecific Language="402">
+		<FileDTD>ActiveIdle_402.dtd</FileDTD>
+		<ThemeFullName localization="Localizable">qtn_ai_skin_iconbar</ThemeFullName>
+	</LanguageSpecific>
+</data>

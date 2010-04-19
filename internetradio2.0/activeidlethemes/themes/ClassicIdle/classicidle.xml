@@ -1,0 +1,1386 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE xmluiml SYSTEM "ClassicIdle.dtd">
+<xmluiml xmlns="http://www.series60.com/xml/xmluiml/1" version="1.0">
+
+<!-- Block with flag '__NEWSTICKER' skipped. -->
+
+  <!--Application events -->
+  <actions>
+    <action>
+      <trigger name="startup"/>
+      <trigger name="uidefinitionmodificationend"/>
+      <event name="READY"/>
+    </action>
+    <action>
+      <trigger name="shutdown"/>
+      <event name="DOWN"/>
+    </action>
+    <action>
+      <trigger name="uidefinitionmodificationstart"/>
+      <event name="NEW_UI"/>
+    </action>
+    <action>
+      <trigger name="screendevicechange"/>
+      <event name="LAYOUT"/>
+    </action>
+  </actions>
+
+  <!-- UI resources for Shortcut plugin -->
+  <desc id="Shortcut/EmptyCaption">&shortcut_EmptyCaption;</desc>
+  <desc id="Shortcut/BackCaption">&text_softkey_back;</desc>
+  <desc id="Shortcut/NewMessageCaption">&qtn_set_idle_skey_new_msg;</desc>
+  <desc id="Shortcut/NewEmailCaption">&qtn_set_idle_skeys_email_editor;</desc>
+  <desc id="Shortcut/NewSyncMLMailCaption">&qtn_apps_syncml_mail_gs;</desc>
+  <desc id="Shortcut/NewPostcardCaption">&qtn_apps_mmspostcard_gs;</desc>
+  <desc id="Shortcut/NewAudioMsgCaption">&qtn_apps_audio_msg_gs;</desc>
+  <desc id="Shortcut/SelectMsgTypeCaption">&qtn_set_idle_skey_select_msg_type;</desc>
+  <desc id="Shortcut/ChangeThemeCaption">&qtn_apps_idle_skin_gs;</desc>
+  <desc id="Shortcut/NewMessageShortCaption">&qtn_idle_skey_new_msg;</desc>
+  <desc id="Shortcut/NewEmailShortCaption">&qtn_apps_email_skey;</desc>
+  <desc id="Shortcut/NewSyncMLMailShortCaption">&qtn_apps_syncml_mail_skey;</desc>
+  <desc id="Shortcut/NewPostcardShortCaption">&qtn_apps_mmspostcard_skey;</desc>
+  <desc id="Shortcut/NewAudioMsgShortCaption">&qtn_apps_audio_msg_skey;</desc>
+  <desc id="Shortcut/SelectMsgTypeShortCaption">&qtn_set_idle_skey_select_msg_type;</desc>
+  <desc id="Shortcut/ChangeThemeShortCaption">&qtn_apps_idle_skin_skey;</desc>
+
+  <!-- UI resources for MP plugin -->
+  <desc id="MusicPlayer/PauseIcon" path="SKIN(270501603 5182)"/>
+  <desc id="MusicPlayer/PlayIcon" path="SKIN(270501603 5184)"/>
+
+  <desc id="MusicPlayer/Vol0">0</desc>
+  <desc id="MusicPlayer/Vol1">1</desc>
+  <desc id="MusicPlayer/Vol2">2</desc>
+  <desc id="MusicPlayer/Vol3">3</desc>
+  <desc id="MusicPlayer/Vol4">4</desc>
+  <desc id="MusicPlayer/Vol5">5</desc>
+  <desc id="MusicPlayer/Vol6">6</desc>
+  <desc id="MusicPlayer/Vol7">7</desc>
+  <desc id="MusicPlayer/Vol8">8</desc>
+  <desc id="MusicPlayer/Vol9">9</desc>
+  <desc id="MusicPlayer/Vol10">10</desc>
+	
+  <!-- UI resources for Visual/Internet radio plugin -->
+  <desc id="VisualRadio/Vol0">0</desc>
+  <desc id="VisualRadio/Vol1">1</desc>
+  <desc id="VisualRadio/Vol2">2</desc>
+  <desc id="VisualRadio/Vol3">3</desc>
+  <desc id="VisualRadio/Vol4">4</desc>
+  <desc id="VisualRadio/Vol5">5</desc>
+  <desc id="VisualRadio/Vol6">6</desc>
+  <desc id="VisualRadio/Vol7">7</desc>
+  <desc id="VisualRadio/Vol8">8</desc>
+  <desc id="VisualRadio/Vol9">9</desc>
+  <desc id="VisualRadio/Vol10">10</desc>
+  <desc id="VisualRadio/VRPlaying" path="vrclassicidle.mif#0"/>
+  <desc id="VisualRadio/VRInactive" path="vrclassicidle.mif#0"/> <!-- Same icon -->
+
+  <desc id="InetRadio/Vol0">0</desc>
+  <desc id="InetRadio/Vol1">1</desc>
+  <desc id="InetRadio/Vol2">2</desc>
+  <desc id="InetRadio/Vol3">3</desc>
+  <desc id="InetRadio/Vol4">4</desc>
+  <desc id="InetRadio/Vol5">5</desc>
+  <desc id="InetRadio/Vol6">6</desc>
+  <desc id="InetRadio/Vol7">7</desc>
+  <desc id="InetRadio/Vol8">8</desc>
+  <desc id="InetRadio/Vol9">9</desc>
+  <desc id="InetRadio/Vol10">10</desc>
+  <desc id="InetRadio/IRPlaying" path="irclassicidle.mif#0"/>
+  <desc id="InetRadio/IRStopped" path="irclassicidle.mif#2"/>
+
+  <!-- UI resources for Organizer -->
+  <desc id="Organizer/NoEventsForToday">&qtn_ai_cale_no_event_today;</desc>
+  <desc id="Organizer/NoMoreEventsForToday">&qtn_ai_cale_no_more_ev_td;</desc>
+  <desc id="Organizer/IconAnniv" path="SKIN(268458241 2)"/>
+  <desc id="Organizer/IconAppt" path="SKIN(268458241 4)"/>
+  <desc id="Organizer/IconMemo" path="SKIN(268458241 6)"/>
+  <desc id="Organizer/IconTodo" path="SKIN(270501603 5126)"/>
+  <desc id="Organizer/IconMeetAccepted" path="SKIN(270501603 5508)"/>
+  <desc id="Organizer/IconMeetNotAnswered" path="SKIN(270501603 5511)"/>
+  <desc id="Organizer/IconMeetTentative" path="SKIN(270501603 5514)"/>
+  
+  <!-- Views -->
+  <views>
+
+    <!--################################
+        ####         AI plug-ins    ####
+        ################################-->
+    <property class="ContentSource" name="Shortcut" value="0x102750FA" load_ordinal="1"/>
+    <property class="ContentSource" name="Organizer" value="0x102750FE" load_ordinal="2"/>
+    <property class="ContentSource" name="MusicPlayer" value="0x10207B73" load_ordinal="3"/>
+<!-- Block with flag '__NEWSTICKER' skipped. -->
+    <property class="ContentSource" name="SAT" value="0x102078EB" load_ordinal="5"/>
+    <property class="ContentSource" name="VisualRadio" value="0x10208A89" load_ordinal="6"/>
+    <property class="ContentSource" name="InetRadio" value="0x2000B4A7" load_ordinal="7"/>
+
+    <!--###################################
+        ### Plug-in specific settings   ###
+        ###################################-->
+
+    <!--################################
+        ## Shortcut plug-in settings  ##
+        ################################-->
+
+    <!-- Always visible shortcuts -->
+    <!-- NOTE: these indexes start from 1 -->
+    <!-- Shortcut #1, Messaging -->
+    <property class="Settings/Shortcut" name="0x00000001" value="localapp:0x100058C5"/>
+    <!-- Shortcut #2, Phonebook -->
+    <property class="Settings/Shortcut" name="0x00000002" value="localapp:0x101F4CCE"/>
+    <!-- Shortcut #3, Clock -->
+    <property class="Settings/Shortcut" name="0x00000003" value="localapp:0x10005903"/>
+    <!-- Shortcut #4, Media Gallery 2 -->
+    <property class="Settings/Shortcut" name="0x00000004" value="localapp:0x101F8599"/>
+    <!-- Shortcut #5, Browser -->
+    <property class="Settings/Shortcut" name="0x00000005" value="localapp:0x10008D39"/>
+    <!-- Shortcut #6, Change theme -->
+    <property class="Settings/Shortcut" name="0x00000006" value="localapp:0x10005A32?view=0x102750A7"/>
+
+    <!-- Optionally visible shortcuts -->
+    <!-- Soft key #1, Applications -->
+    <property class="Settings/Shortcut" name="0x01000100" value="localapp:0x101F4CD2"/>
+    <!-- Soft key #2, Contacts -->
+    <property class="Settings/Shortcut" name="0x01000101" value="localapp:0x101F4CCE"/>
+
+
+    <!-- #################################
+         ## Organizer plug-in settings  ##
+         ################################# -->
+
+    <!-- Item count and size settings -->
+    <!-- Total line count -->
+    <property class="Settings/Organizer" name="0x01" value="8"/>
+
+    <!-- Timed item line count -->
+    <property class="Settings/Organizer" name="0x02" value="2"/>
+
+    <!-- Non Timed item line count -->
+    <property class="Settings/Organizer" name="0x03" value="1"/>
+
+    <!-- Line count reserved for non timed items -->
+    <property class="Settings/Organizer" name="0x04" value="0"/>
+
+    <!-- Publish end time for upcoming timed items -->
+    <property class="Settings/Organizer" name="0x05" value="1"/>
+
+    <!-- Use alternate publishing for upcoming and ongoing items -->
+    <property class="Settings/Organizer" name="0x06" value="1"/>
+
+    <!-- Open event to viewer 0 / editor 1 -->
+    <property class="Settings/Organizer" name="0x07" value="0"/>
+
+    <!-- Main view -->
+
+    <view id="ActiveIdleView">
+
+      <!-- move focus to 1st SC if END key is pressed -->
+      <actions>
+        <action id="KeyEnd">
+          <trigger name="keyevent">
+            <property name="scancode" value="197"/><!-- End key -->
+            <property name="eventtype" value="1"/>
+          </trigger>
+        <!-- switch the tooltip temporary OFF because we do not want to see it when ENDKEY -->
+        <event name ="system/set">
+          <property name="name" value="display"/>
+          <property name="value" value="none"/>
+          <property name="type" value="string"/>
+          <property name="id" value="shortcutTooltip1"/>
+        </event>          
+          <event name="system/setfocus">
+            <property name="id" value="shortcutButton1"/>
+          </event>
+        <!-- ENDKEY is handled we can turn the tooltip back ON. We could do this also in SC1 and with loseFocus event, but that is very slow and  overloading -->
+        <event name ="system/set">
+          <property name="name" value="display"/>
+          <property name="value" value="block"/>
+          <property name="type" value="string"/>
+          <property name="id" value="shortcutTooltip1"/>
+        </event>
+        </action>
+<!--
+        <action id="FocusToIdle">
+          <trigger name="gainfocus">
+            </trigger>
+          <event name="system/setfocus">
+            <property name="id" value="shortcutButton1"/>
+          </event>
+        </action>
+-->
+
+
+<![CDATA[       <action><!-- This functionality is not yet required so it is left out in reference themes in rel. 3.2 -->
+          <trigger name="keyevent">
+            <property name="scancode" value="19"/><!-- Edit key -->
+          </trigger>
+          <event name="Shortcut/LaunchByValue(localapp:0x10005907)"/><!-- Notepad -->
+        </action>]]>
+      </actions>
+
+    <!--#######################################################################
+        #####      MainBox. Everything but the NT is inside this box      #####
+        #######################################################################-->
+    <box id="mainBox" focusable="false">
+    <!--#####################################
+        #####      Shortcut plugin      #####
+        #####################################-->
+      <box id="shortcutPluginContainer" class="pluginContainerBox" focusable="false">
+<!--
+        <actions>
+          <action>
+            <trigger name="gainfocus"/>
+              <event name="system/setfocus">
+                <property name="id" value="shortcutButton1"/>
+              </event>
+          </action>
+        </actions>
+-->
+        <!-- Shortcut items -->
+
+        <!-- #1 -->
+        <button id="shortcutButton1" class="shortcutButton" focusable="true">
+          <actions>
+            <action>
+              <trigger name="stylus">
+                <property name="eventtype" value="up" />
+              </trigger>
+              <trigger name="activate"/>
+              <event name="Shortcut/LaunchByIndex(0x00000001)"/>
+            </action>
+            <action>
+            <trigger name="up"/><!-- joystick up -->
+              <event name="system/setfocus">
+<!-- Block with flag '__NEWSTICKER' skipped. -->
+                <property name="id" value="calendarPluginContainer"/>
+              </event>
+            </action>
+            <action>
+              <trigger name="down"/><!-- joystick down -->
+              <event name="system/setfocus">
+                <property name="id" value="playerPlugin"/>
+                <property name="id" value="radioPlugin"/>
+                <property name="id" value="calendarPluginContainer"/>
+<!-- Block with flag '__NEWSTICKER' skipped. -->
+              </event>
+            </action>
+          </actions>
+          <image id="Shortcut_shortcutIcon1" class="shortcutIcon" focusable="false">
+            <property class="Shortcut/ShortcutIcon" name="ordinal" value="0x00000001"/>
+          </image>
+          <tooltip id="shortcutTooltip1" class="shortcutTooltip" focusable="false">
+            <text id="Shortcut_shortcutTooltipText1" class="shortcutTooltipText" focusable="false">
+              <property class="Shortcut/ShortcutCaption" name="ordinal" value="0x00000001"/>
+            </text>
+          </tooltip>
+        </button>
+
+        <!-- #2 -->
+        <button id="shortcutButton2" class="shortcutButton" focusable="true">
+          <actions>
+            <action>
+              <trigger name="stylus">
+                <property name="eventtype" value="up" />
+              </trigger>
+              <trigger name="activate"/>
+              <event name="Shortcut/LaunchByIndex(0x00000002)"/>
+            </action>
+            <action>
+            <trigger name="up"/><!-- joystick up -->
+              <event name="system/setfocus">
+<!-- Block with flag '__NEWSTICKER' skipped. -->
+                <property name="id" value="calendarPluginContainer"/>
+              </event>
+            </action>
+            <action>
+              <trigger name="down"/><!-- joystick down -->
+                <event name="system/setfocus">
+                <property name="id" value="playerPlugin"/>
+                <property name="id" value="radioPlugin"/>
+                <property name="id" value="calendarPluginContainer"/>
+<!-- Block with flag '__NEWSTICKER' skipped. -->
+              </event>
+            </action>
+          </actions>
+          <image id="Shortcut_shortcutIcon2" class="shortcutIcon" focusable="false">
+            <property class="Shortcut/ShortcutIcon" name="ordinal" value="0x00000002"/>
+          </image>
+          <tooltip id="Shortcut_shortcutTooltip2" class="shortcutTooltip" focusable="false">
+            <text id="Shortcut_shortcutTooltipText2" class="shortcutTooltipText" focusable="false">
+              <property class="Shortcut/ShortcutCaption" name="ordinal" value="0x00000002"/>
+            </text>
+          </tooltip>
+        </button>
+
+        <!-- #3 -->
+        <button id="shortcutButton3" class="shortcutButton" focusable="true">
+          <actions>
+            <action>
+              <trigger name="stylus">
+                <property name="eventtype" value="up" />
+              </trigger>
+              <trigger name="activate"/>
+              <event name="Shortcut/LaunchByIndex(0x00000003)"/>
+            </action>
+            <action>
+            <trigger name="up"/><!-- joystick up -->
+              <event name="system/setfocus">
+<!-- Block with flag '__NEWSTICKER' skipped. -->
+                <property name="id" value="calendarPluginContainer"/>
+              </event>
+            </action>
+            <action>
+              <trigger name="down"/><!-- joystick down -->
+              <event name="system/setfocus">
+                <property name="id" value="playerPlugin"/>
+                <property name="id" value="radioPlugin"/>
+                <property name="id" value="calendarPluginContainer"/>
+<!-- Block with flag '__NEWSTICKER' skipped. -->
+              </event>
+            </action>
+          </actions>
+          <image id="Shortcut_shortcutIcon3" class="shortcutIcon" focusable="false">
+            <property class="Shortcut/ShortcutIcon" name="ordinal" value="0x00000003"/>
+          </image>
+          <tooltip id="shortcutTooltip3" class="shortcutTooltip" focusable="false">
+            <text id="Shortcut_shortcutTooltipText3" class="shortcutTooltipText" focusable="false">
+              <property class="Shortcut/ShortcutCaption" name="ordinal" value="0x00000003"/>
+            </text>
+          </tooltip>
+        </button>
+
+        <!-- #4 -->
+        <button id="shortcutButton4" class="shortcutButton" focusable="true">
+          <actions>
+            <action>
+              <trigger name="stylus">
+                <property name="eventtype" value="up" />
+              </trigger>
+              <trigger name="activate"/>
+              <event name="Shortcut/LaunchByIndex(0x00000004)"/>
+            </action>
+            <action>
+            <trigger name="up"/><!-- joystick up -->
+              <event name="system/setfocus">
+<!-- Block with flag '__NEWSTICKER' skipped. -->
+                <property name="id" value="calendarPluginContainer"/>
+              </event>
+            </action>
+            <action>
+              <trigger name="down"/><!-- joystick down -->
+              <event name="system/setfocus">
+                <property name="id" value="playerPlugin"/>
+                <property name="id" value="radioPlugin"/>
+                <property name="id" value="calendarPluginContainer"/>
+<!-- Block with flag '__NEWSTICKER' skipped. -->
+              </event>
+            </action>
+          </actions>
+          <image id="Shortcut_shortcutIcon4" class="shortcutIcon" focusable="false">
+            <property class="Shortcut/ShortcutIcon" name="ordinal" value="0x00000004"/>
+          </image>
+          <tooltip id="Shortcut_shortcutTooltip4" class="shortcutTooltip" focusable="false">
+            <text id="Shortcut_shortcutTooltipText4" class="shortcutTooltipText" focusable="false">
+              <property class="Shortcut/ShortcutCaption" name="ordinal" value="0x00000004"/>
+            </text>
+          </tooltip>
+        </button>
+
+        <!-- #5 -->
+        <button id="shortcutButton5" class="shortcutButton" focusable="true">
+          <actions>
+            <action>
+              <trigger name="stylus">
+                <property name="eventtype" value="up" />
+              </trigger>
+              <trigger name="activate"/>
+              <event name="Shortcut/LaunchByIndex(0x00000005)"/>
+            </action>
+            <action>
+            <trigger name="up"/><!-- joystick up -->
+              <event name="system/setfocus">
+<!-- Block with flag '__NEWSTICKER' skipped. -->
+                <property name="id" value="calendarPluginContainer"/>
+              </event>
+            </action>
+            <action>
+              <trigger name="down"/><!-- joystick down -->
+              <event name="system/setfocus">
+                <property name="id" value="playerPlugin"/>
+                <property name="id" value="radioPlugin"/>
+                <property name="id" value="calendarPluginContainer"/>
+<!-- Block with flag '__NEWSTICKER' skipped. -->
+              </event>
+            </action>
+          </actions>
+          <image id="Shortcut_shortcutIcon5" class="shortcutIcon" focusable="false">
+              <property class="Shortcut/ShortcutIcon" name="ordinal" value="0x00000005"/>
+          </image>
+          <tooltip id="shortcutTooltip5" class="shortcutTooltip" focusable="false">
+            <text id="Shortcut_shortcutTooltipText5" class="shortcutTooltipText" focusable="false">
+              <property class="Shortcut/ShortcutCaption" name="ordinal" value="0x00000005"/>
+            </text>
+          </tooltip>
+        </button>
+
+        <!-- #6 -->
+        <button id="shortcutButton6" class="shortcutButton" focusable="true">
+          <actions>
+            <action>
+              <trigger name="stylus">
+                <property name="eventtype" value="up" />
+              </trigger>
+              <trigger name="activate"/>
+              <event name="Shortcut/LaunchByIndex(0x00000006)"/>
+            </action>
+            <action>
+            <trigger name="up"/><!-- joystick up -->
+              <event name="system/setfocus">
+<!-- Block with flag '__NEWSTICKER' skipped. -->
+                <property name="id" value="calendarPluginContainer"/>
+              </event>
+            </action>
+            <action>
+              <trigger name="down"/><!-- joystick down -->
+              <event name="system/setfocus">
+                <property name="id" value="playerPlugin"/>
+                <property name="id" value="radioPlugin"/>
+                <property name="id" value="calendarPluginContainer"/>
+<!-- Block with flag '__NEWSTICKER' skipped. -->
+              </event>
+            </action>
+          </actions>
+          <image id="Shortcut_shortcutIcon6" class="shortcutIcon" focusable="false">
+              <property class="Shortcut/ShortcutIcon" name="ordinal" value="0x00000006"/>
+          </image>
+          <tooltip id="shortcutTooltip6" class="shortcutTooltip" focusable="false">
+            <text id="Shortcut_shortcutTooltipText6" class="shortcutTooltipText" focusable="false">
+              <property class="Shortcut/ShortcutCaption" name="ordinal" value="0x00000006"/>
+            </text>
+          </tooltip>
+        </button>
+      </box>
+      
+    <!--#######################################
+        #####          SAT plugin         #####
+        #######################################-->
+
+      <box id="SATPluginContainer" class="pluginContainerBox" focusable="false">
+
+<!--      
+      <actions>
+          <action>
+            <trigger name="stylus"/>
+            <trigger name="activate"/>
+            <event name="SAT/LaunchSatapp"/>
+          </action>
+
+          <action>
+            <trigger name="losevisualisation"/>
+              <event name="system/setfocus">
+              <property name="id" value="shortcutButton1"/>
+              </event>
+          </action>
+          
+          <action>
+            <trigger name="gainfocus"/>
+            <event name ="system/set">
+              <property name="id" value="MSK"/>
+              <property name="name" value="label"/>
+              <property name="value" value=""/>
+              <property name="type" value="attribute"/>
+            </event>
+          </action>
+
+          <action>
+            <trigger name="losefocus"/>
+            <event name ="system/set">
+              <property name="id" value="MSK"/>
+              <property name="name" value="label"/>
+              <property name="value" value="&qtn_msk_open;"/>
+              <property name="type" value="attribute"/>
+            </event>
+          </action>
+
+          <action>
+          <trigger name="left"/>
+            <event name="system/setfocus">
+            <property name="id" value="calendarPluginContainer"/>
+            </event>
+          </action>
+
+          <action>
+            <trigger name="right"/>
+            <event name="system/setfocus">
+            <property name="id" value="shortcutButton1"/>
+            </event>
+          </action>
+
+      </actions>
+-->
+      
+        <text id="SatIdleModeText" class="satText" focusable="false">
+          <property class="SAT/SatIdleModeText"/>
+          <property class="policy/emptyContent" name="SATPluginContainer" value="display: none;"/>
+          <property class="policy/emptyContent" name="mpVolume" value="top: 4u;"/> <!-- we are not active reset MP pop-up to it's original location -->
+          <property class="policy/emptyContent" name="radioVolume" value="top: 4u;"/> <!-- we are not active reset radio pop-up to it's original location -->
+          <property class="policy/Content" name="SATPluginContainer" value="display: block;"/>
+          <property class="policy/Content" name="SatIdleModeIcon" value="display: block;"/>
+          <property class="policy/Content" name="mpVolume" value="top: 9u;"/> <!-- in case MP is active we need to adjust its pop-up location from here -->
+          <property class="policy/Content" name="radioVolume" value="top: 9u;"/> <!-- in case radio is active we need to adjust its pop-up location from here -->
+        </text>
+      <image id="SatIdleModeIcon" class="satIcon" focusable="false">
+          <property class="SAT/SatIdleModeIcon"/>
+<!--          <property class="policy/Content" name="SatIdleModeText" value="margin-left: 5.25u;"/>
+          <property class="policy/emptyContent" name="SatIdleModeText" value="margin-left: 1.0u;"/>-->
+          <property class="policy/Content" name="SatIdleModeIcon" value="width: 4.0u;"/>
+          <property class="policy/Content" name="SatIdleModeIcon" value="height: 4.0u;"/>
+          <property class="policy/emptyContent" name="SatIdleModeIcon" value="width: 0u;"/>
+          <property class="policy/emptyContent" name="SatIdleModeIcon" value="height: 0u;"/>
+        </image>
+    </box> <!-- SAT plugin -->
+
+    <!--########################################
+        #####         Player plugin         ####
+        ########################################-->
+    <box id="playerPlugin" class="pluginContainerBox" focusable="true">
+      <actions>
+      
+        <action>
+          <!-- if focused and box is hidden move focus to SC1 -->
+          <trigger name="losevisualisation"/>
+          <event name="system/setfocus">
+            <property name="id" value="shortcutButton1"/>
+          </event>
+        </action>
+
+      <action>
+        <trigger name="gainfocus" />
+          <event name="system/set">
+                <property name="id" value="playerTitleText"/>
+                <property name="name" value="color"/>
+                <property name="value" value="SKIN(268458534 13056 9)"/>
+                <property name="type" value="string"/>
+         </event>         
+        <event name="system/set">
+                <property name="id" value="playerDurationText"/>
+                <property name="name" value="color"/>
+                <property name="value" value="SKIN(268458534 13056 9)"/>
+                <property name="type" value="string"/>
+         </event>
+      </action>
+      
+      <action>
+        <trigger name="losefocus" />
+           <event name="system/set">
+                <property name="id" value="playerTitleText"/>
+                <property name="name" value="color"/>
+                <property name="value" value="SKIN(268458534 13056 19)"/>
+                <property name="type" value="string"/>
+            </event>           
+           <event name="system/set">
+                <property name="id" value="playerDurationText"/>
+                <property name="name" value="color"/>
+                <property name="value" value="SKIN(268458534 13056 19)"/>
+                <property name="type" value="string"/>
+            </event>
+      </action>              
+
+        
+        <action>
+          <!-- when focused show the volume controll pop-up -->
+          <trigger name="gainfocus"/>
+          <event name ="system/set">
+            <property name="name" value="display"/>
+            <property name="value" value="block"/>
+            <property name="type" value="string"/>
+            <property name="id" value="mpVolume"/>
+          </event>
+        </action>
+
+        <action>
+          <!-- when focus is lost hide the volume controll pop-up -->
+          <trigger name="losefocus"/>
+          <event name="system/set">
+            <property name="name" value="display"/>
+            <property name="value" value="none"/>
+            <property name="type" value="string"/>
+            <property name="id" value="mpVolume"/>
+          </event>
+        </action>
+
+        <action>
+          <!-- when clicked activate the Music Library -->
+          <trigger name="stylus"/>
+          <trigger name="activate"/>
+          <event name="MusicPlayer/Library"/>
+        </action>
+
+        <action>
+          <!-- decrease volume -->
+          <trigger name="down"/>
+          <event name="MusicPlayer/VolDec"/>
+        </action>
+
+        <action>
+          <!-- increase volume -->
+          <trigger name="up"/>
+          <event name="MusicPlayer/VolInc"/>
+        </action>
+        
+        <!-- navigation out from the box -->
+        <action>
+          <!-- joystick up -->
+          <trigger name="left"/>
+          <event name="system/setfocus">
+            <property name="id" value="shortcutButton1"/>
+          </event>
+        </action>
+          
+        <action>
+          <!-- joystick down -->
+          <trigger name="right"/>
+          <event name="system/setfocus">
+            <property name="id" value="radioPlugin"/>
+            <property name="id" value="calendarPluginContainer"/> <!-- no need to add NT after calendar because calendar is static, allways visible -->
+          </event>
+        </action>
+
+      </actions>
+
+      <image id="playerStatusIcon" focusable="false">
+        <property class="MusicPlayer/Status"/>
+        <property class="policy/emptyContent" name="playerPlugin" value="display:none"/>
+        <property class="policy/Content" name="playerPlugin" value="display:block"/>
+      </image>
+
+      <text id="playerTitleText" focusable="true">
+        <property class="MusicPlayer/Title"/>
+        <property class="policy/Content" name="playerTitleText" value="display: block;"/>
+      </text>
+
+      <text id="playerDurationText" focusable="true">
+        <property class="MusicPlayer/ElapsedTime"/>
+      </text>
+    </box> <!-- playerPlugin-->
+
+    <!--######################################
+        ####       Volume Controll for music player       ####
+        ######################################-->
+    <box id="mpVolume" focusable="false">
+
+      <image id="musicPlayerVolumeDownIcon" path="SKIN(270501603 6419 9)" focusable="false"/>
+  
+      <!-- NOTE! Either speaker icon or muted speaker icon is visible, not both. See policy in volume control below. -->
+      <image id="musicPlayerSpeakerIcon" path="SKIN(270501603 4332 9)" focusable="false"/>
+      <image id="musicPlayerSpeakerMutedIcon" path="SKIN(270501603 4334 9)" focusable="false"/>
+      
+      <image id="musicPlayerVolumeUpIcon" path="SKIN(270501603 6421 9)" focusable="false"/>
+
+      <volumecontrol id="musicPlayerVolumeIcon" focusable="false">
+        <actions>
+         <action>
+           <trigger name="stylus"/>
+           <trigger name="stylus">
+             <property name="clicked" value="down"/>
+           </trigger>                  
+           <trigger name="stylus">
+             <property name="doubleclicked" value="up"/>
+           </trigger>                  
+           <event name="MusicPlayer/VolSet(slider::volume)"/>
+           <event name="system/setfocus">
+           <property name="id" value="volumeIndicator"/>
+           </event>
+         </action>
+        </actions>
+        <slider id="volslider">
+          <property class="MusicPlayer/Volume"/>
+          <property class="policy/Resource" name="musicPlayerSpeakerMutedIcon" value="if (MusicPlayer/Vol0) display:block"/>
+          <property class="policy/Resource" name="musicPlayerSpeakerMutedIcon" value="if !(MusicPlayer/Vol0) display:none"/>
+          <property class="policy/Resource" name="musicPlayerSpeakerIcon" value="if (MusicPlayer/Vol1, MusicPlayer/Vol2, MusicPlayer/Vol3, MusicPlayer/Vol4, MusicPlayer/Vol5, MusicPlayer/Vol6, MusicPlayer/Vol7, MusicPlayer/Vol8, MusicPlayer/Vol9, MusicPlayer/Vol10 ) display:block"/>
+          <property class="policy/Resource" name="musicPlayerSpeakerIcon" value="if (MusicPlayer/Vol0) display:none"/>
+
+          <property class="policy/Resource" name="musicPlayerInactiveVolumeDownIcon" value="if (MusicPlayer/Vol0) display:block"/>
+          <property class="policy/Resource" name="musicPlayerInactiveVolumeDownIcon" value="if !(MusicPlayer/Vol0) display:none"/>
+          <property class="policy/Resource" name="musicPlayerVolumeDownIcon" value="if (MusicPlayer/Vol1, MusicPlayer/Vol2, MusicPlayer/Vol3, MusicPlayer/Vol4, MusicPlayer/Vol5, MusicPlayer/Vol6, MusicPlayer/Vol7, MusicPlayer/Vol8, MusicPlayer/Vol9, MusicPlayer/Vol10 ) display:block"/>
+          <property class="policy/Resource" name="musicPlayerVolumeDownIcon" value="if (MusicPlayer/Vol0) display:none"/>
+          <property class="policy/Resource" name="musicPlayerInactiveVolumeUpIcon" value="if (MusicPlayer/Vol10) display:block"/>
+          <property class="policy/Resource" name="musicPlayerInactiveVolumeUpIcon" value="if !(MusicPlayer/Vol10) display:none"/>
+          <property class="policy/Resource" name="musicPlayerVolumeUpIcon" value="if (MusicPlayer/Vol0, MusicPlayer/Vol1, MusicPlayer/Vol2, MusicPlayer/Vol3, MusicPlayer/Vol4, MusicPlayer/Vol5, MusicPlayer/Vol6, MusicPlayer/Vol7, MusicPlayer/Vol8, MusicPlayer/Vol9 ) display:block"/>
+          <property class="policy/Resource" name="musicPlayerVolumeUpIcon" value="if (MusicPlayer/Vol10) display:none"/>
+        </slider>
+       </volumecontrol>
+
+    </box> <!-- mpVolume -->
+
+	
+    <!--########################################
+        ##### Visual/Internet radio plugin  ####
+        ########################################-->
+    <box id="radioPlugin" class="pluginContainerBox" focusable="true">
+      <actions>
+      
+        <action>
+          <!-- if focused and box is hidden move focus to SC1 -->
+          <trigger name="losevisualisation"/>
+          <event name="system/setfocus">
+            <property name="id" value="shortcutButton1"/>
+          </event>
+        </action>
+
+      <action>
+        <trigger name="gainfocus" />
+          <event name="system/set">
+                <property name="id" value="radioTitleText"/>
+                <property name="name" value="color"/>
+                <property name="value" value="SKIN(268458534 13056 9)"/>
+                <property name="type" value="string"/>
+         </event>
+      </action>
+      
+      <action>
+        <trigger name="losefocus" />
+           <event name="system/set">
+                <property name="id" value="radioTitleText"/>
+                <property name="name" value="color"/>
+                <property name="value" value="SKIN(268458534 13056 19)"/>
+                <property name="type" value="string"/>
+            </event>
+      </action>              
+
+        
+        <action>
+          <!-- when focused show the volume controll pop-up -->
+          <trigger name="gainfocus"/>
+          <event name ="system/set">
+            <property name="name" value="display"/>
+            <property name="value" value="block"/>
+            <property name="type" value="string"/>
+            <property name="id" value="radioVolume"/>
+          </event>
+        </action>
+
+        <action>
+          <!-- when focus is lost hide the volume controll pop-up -->
+          <trigger name="losefocus"/>
+          <event name="system/set">
+            <property name="name" value="display"/>
+            <property name="value" value="none"/>
+            <property name="type" value="string"/>
+            <property name="id" value="radioVolume"/>
+          </event>
+        </action>
+
+        <action>
+          <!-- when clicked activate the radio -->
+          <trigger name="stylus"/>
+          <trigger name="activate"/>
+          <event name="VisualRadio/LaunchRadio"/>
+		  <event name="InetRadio/LaunchRadio"/>
+          <!-- Always let Visual Radio plug-in handle the launch event. It will start Radio Launcher. -->
+        </action>
+
+        <action>
+          <!-- decrease volume -->
+          <trigger name="down"/>
+          <event name="VisualRadio/VolDec"/>
+          <event name="InetRadio/VolDec"/>
+        </action>
+
+        <action>
+          <!-- increase volume -->
+          <trigger name="up"/>
+          <event name="VisualRadio/VolInc"/>
+          <event name="InetRadio/VolInc"/>
+        </action>
+        
+        <!-- navigation out from the box -->
+        <action>
+          <!-- joystick up -->
+          <trigger name="left"/>
+          <event name="system/setfocus">
+            <property name="id" value="playerPlugin"/>
+            <property name="id" value="shortcutButton1"/>
+          </event>
+        </action>
+          
+        <action>
+          <!-- joystick down -->
+          <trigger name="right"/>
+          <event name="system/setfocus">
+            <property name="id" value="calendarPluginContainer"/> <!-- no need to add NT after calendar because calendar is static, allways visible -->
+          </event>
+        </action>
+
+      </actions>
+
+      <image id="radioStatusIcon" focusable="false">
+        <property class="VisualRadio/AppIcon" name="priority" value="0"/>
+        <property class="InetRadio/AppIcon" name="priority" value="1"/>
+        <property class="policy/emptyContent" name="radioPlugin" value="display:none"/>
+        <property class="policy/emptyContent" name="radioVolume" value="visibility: visible"/>
+        <property class="policy/Content" name="radioPlugin" value="display:block"/>
+        <property class="policy/Resource" name="radioVolume" value="if (VisualRadio/VRInactive, InetRadio/IRStopped) visibility:hidden"/>
+        <property class="policy/Resource" name="radioVolume" value="if (VisualRadio/VRPlaying, InetRadio/IRPlaying) visibility: visible"/>
+      </image>
+
+      <text id="radioTitleText" focusable="true">
+        <property class="VisualRadio/OneLineInfo" name="priority" value="0"/>
+        <property class="InetRadio/OneLineInfo" name="priority" value="1"/>
+        <property class="policy/Content" name="radioTitleText" value="display: block;"/>
+      </text>
+
+    </box> <!-- radioPlugin-->
+
+    <!--######################################
+        #### Volume Control for Visual/Internet Radio ####
+        ######################################-->
+    <box id="radioVolume" focusable="false">
+
+      <image id="radioVolumeDownIcon" path="SKIN(270501603 6419 9)" focusable="false"/>
+  
+      <!-- NOTE! Either speaker icon or muted speaker icon is visible, not both. See policy in volume control below. -->
+      <image id="radioSpeakerIcon" path="SKIN(270501603 4332 9)" focusable="false"/>
+      <image id="radioSpeakerMutedIcon" path="SKIN(270501603 4334 9)" focusable="false"/>
+      
+      <image id="radioVolumeUpIcon" path="SKIN(270501603 6421 9)" focusable="false"/>
+
+      <volumecontrol id="radioVolumeIcon" focusable="false">
+        <actions>
+         <action>
+           <trigger name="stylus"/>
+           <trigger name="stylus">
+             <property name="clicked" value="down"/>
+           </trigger>                  
+           <trigger name="stylus">
+             <property name="doubleclicked" value="up"/>
+           </trigger>                  
+           <event name="VisualRadio/VolSet(radioSlider::volume)"/>
+           <event name="InetRadio/VolSet(radioSlider::volume)"/>
+           <event name="system/setfocus">
+           <property name="id" value="volumeIndicator"/>
+           </event>
+         </action>
+        </actions>
+        <slider id="radioSlider">
+          <property class="VisualRadio/Volume" name="priority" value="0"/>
+          <property class="InetRadio/Volume" name="priority" value="1"/>
+          <property class="policy/Resource" name="radioSpeakerMutedIcon" value="if (VisualRadio/Vol0, InetRadio/Vol0) display:block"/>
+          <property class="policy/Resource" name="radioSpeakerMutedIcon" value="if !(VisualRadio/Vol0, InetRadio/Vol0) display:none"/>
+          <property class="policy/Resource" name="radioSpeakerIcon" value="if (VisualRadio/Vol1, VisualRadio/Vol2, VisualRadio/Vol3, VisualRadio/Vol4, VisualRadio/Vol5, VisualRadio/Vol6, VisualRadio/Vol7, VisualRadio/Vol8, VisualRadio/Vol9, VisualRadio/Vol10, InetRadio/Vol1, InetRadio/Vol2, InetRadio/Vol3, InetRadio/Vol4, InetRadio/Vol5, InetRadio/Vol6, InetRadio/Vol7, InetRadio/Vol8, InetRadio/Vol9, InetRadio/Vol10 ) display:block"/>
+          <property class="policy/Resource" name="radioSpeakerIcon" value="if (VisualRadio/Vol0, InetRadio/Vol0) display:none"/>
+
+          <property class="policy/Resource" name="radioInactiveVolumeDownIcon" value="if (VisualRadio/Vol0, InetRadio/Vol0) display:block"/>
+          <property class="policy/Resource" name="radioInactiveVolumeDownIcon" value="if !(VisualRadio/Vol0, InetRadio/Vol0) display:none"/>
+          <property class="policy/Resource" name="radioVolumeDownIcon" value="if (VisualRadio/Vol1, VisualRadio/Vol2, VisualRadio/Vol3, VisualRadio/Vol4, VisualRadio/Vol5, VisualRadio/Vol6, VisualRadio/Vol7, VisualRadio/Vol8, VisualRadio/Vol9, VisualRadio/Vol10, InetRadio/Vol1, InetRadio/Vol2, InetRadio/Vol3, InetRadio/Vol4, InetRadio/Vol5, InetRadio/Vol6, InetRadio/Vol7, InetRadio/Vol8, InetRadio/Vol9, InetRadio/Vol10 ) display:block"/>
+          <property class="policy/Resource" name="radioVolumeDownIcon" value="if (VisualRadio/Vol0, InetRadio/Vol0) display:none"/>
+          <property class="policy/Resource" name="radioInactiveVolumeUpIcon" value="if (VisualRadio/Vol10, InetRadio/Vol10) display:block"/>
+          <property class="policy/Resource" name="radioInactiveVolumeUpIcon" value="if !(VisualRadio/Vol10, InetRadio/Vol10) display:none"/>
+          <property class="policy/Resource" name="radioVolumeUpIcon" value="if (VisualRadio/Vol0, VisualRadio/Vol1, VisualRadio/Vol2, VisualRadio/Vol3, VisualRadio/Vol4, VisualRadio/Vol5, VisualRadio/Vol6, VisualRadio/Vol7, VisualRadio/Vol8, VisualRadio/Vol9, InetRadio/Vol0, InetRadio/Vol1, InetRadio/Vol2, InetRadio/Vol3, InetRadio/Vol4, InetRadio/Vol5, InetRadio/Vol6, InetRadio/Vol7, InetRadio/Vol8, InetRadio/Vol9 ) display:block"/>
+          <property class="policy/Resource" name="radioVolumeUpIcon" value="if (VisualRadio/Vol10, InetRadio/Vol10) display:none"/>
+        </slider>
+       </volumecontrol>
+
+    </box> <!-- radioVolume -->
+
+
+
+
+    <!--######################################
+        ####       Organizer plugin       ####
+        ######################################-->
+      <box id="calendarPluginContainer" class="pluginContainerBox" focusable="true">
+        <actions>
+          <action>
+            <!-- activate organizer -->
+            <trigger name="stylus">
+                <property name="eventtype" value="up" />
+              </trigger>            
+            <trigger name="activate"/>
+            <event name="Organizer/ItemSelected(0)"/>
+          </action>
+
+        <!-- for setting the correct colour group for texts -->
+           <action>
+          <trigger name="gainfocus" />
+           <event name="system/set">
+            <property name="id" value="calendarEntryText1_1"/>
+            <property name="name" value="color"/>
+            <property name="value" value="SKIN(268458534 13056 9)"/>
+            <property name="type" value="string"/>
+        </event>
+        <event name="system/set">
+            <property name="id" value="calendarEntryText1_2"/>
+            <property name="name" value="color"/>
+            <property name="value" value="SKIN(268458534 13056 9)"/>
+            <property name="type" value="string"/>
+          </event>
+        <event name="system/set">
+            <property name="id" value="calendarEntryText2_1"/>
+            <property name="name" value="color"/>
+            <property name="value" value="SKIN(268458534 13056 9)"/>
+            <property name="type" value="string"/>
+          </event>
+        <event name="system/set">
+            <property name="id" value="calendarEntryText2_2"/>
+            <property name="name" value="color"/>
+            <property name="value" value="SKIN(268458534 13056 9)"/>
+            <property name="type" value="string"/>
+          </event>
+        <event name="system/set">
+            <property name="id" value="calendarEntryText3_1"/>
+            <property name="name" value="color"/>
+            <property name="value" value="SKIN(268458534 13056 9)"/>
+            <property name="type" value="string"/>
+          </event>
+        <event name="system/set">
+            <property name="id" value="calendarEntryText3_2"/>
+            <property name="name" value="color"/>
+            <property name="value" value="SKIN(268458534 13056 9)"/>
+            <property name="type" value="string"/>
+          </event>
+        <event name="system/set">
+            <property name="id" value="calendarEntryText4_1"/>
+            <property name="name" value="color"/>
+            <property name="value" value="SKIN(268458534 13056 9)"/>
+            <property name="type" value="string"/>
+          </event>
+        <event name="system/set">
+            <property name="id" value="calendarEntryText4_2"/>
+            <property name="name" value="color"/>
+            <property name="value" value="SKIN(268458534 13056 9)"/>
+            <property name="type" value="string"/>
+          </event>
+        <event name="system/set">
+            <property name="id" value="calendarEntryText5_1"/>
+            <property name="name" value="color"/>
+            <property name="value" value="SKIN(268458534 13056 9)"/>
+            <property name="type" value="string"/>
+          </event>
+        <event name="system/set">
+            <property name="id" value="calendarEntryText5_2"/>
+            <property name="name" value="color"/>
+            <property name="value" value="SKIN(268458534 13056 9)"/>
+            <property name="type" value="string"/>
+          </event>
+        <event name="system/set">
+            <property name="id" value="calendarEntryText6_1"/>
+            <property name="name" value="color"/>
+            <property name="value" value="SKIN(268458534 13056 9)"/>
+            <property name="type" value="string"/>
+          </event>
+        <event name="system/set">
+            <property name="id" value="calendarEntryText6_2"/>
+            <property name="name" value="color"/>
+            <property name="value" value="SKIN(268458534 13056 9)"/>
+            <property name="type" value="string"/>
+          </event>
+        <event name="system/set">
+            <property name="id" value="calendarEntryText7_1"/>
+            <property name="name" value="color"/>
+            <property name="value" value="SKIN(268458534 13056 9)"/>
+            <property name="type" value="string"/>
+          </event>
+        <event name="system/set">
+            <property name="id" value="calendarEntryText7_2"/>
+            <property name="name" value="color"/>
+            <property name="value" value="SKIN(268458534 13056 9)"/>
+            <property name="type" value="string"/>
+          </event>
+        <event name="system/set">
+            <property name="id" value="calendarEntryText8_1"/>
+            <property name="name" value="color"/>
+            <property name="value" value="SKIN(268458534 13056 9)"/>
+            <property name="type" value="string"/>
+          </event>
+        <event name="system/set">
+            <property name="id" value="calendarEntryText8_2"/>
+            <property name="name" value="color"/>
+            <property name="value" value="SKIN(268458534 13056 9)"/>
+            <property name="type" value="string"/>
+          </event>  
+                    
+        </action>
+        
+        <action>
+          <trigger name="losefocus" />
+     <event name="system/set">
+            <property name="id" value="calendarEntryText1_1"/>
+            <property name="name" value="color"/>
+            <property name="value" value="SKIN(268458534 13056 19)"/>
+            <property name="type" value="string"/>
+      </event>
+    <event name="system/set">
+          <property name="id" value="calendarEntryText1_2"/>
+          <property name="name" value="color"/>
+          <property name="value" value="SKIN(268458534 13056 19)"/>
+          <property name="type" value="string"/>
+    </event>
+    <event name="system/set">
+          <property name="id" value="calendarEntryText2_1"/>
+          <property name="name" value="color"/>
+          <property name="value" value="SKIN(268458534 13056 19)"/>
+          <property name="type" value="string"/>
+    </event>
+    <event name="system/set">
+          <property name="id" value="calendarEntryText2_2"/>
+          <property name="name" value="color"/>
+          <property name="value" value="SKIN(268458534 13056 19)"/>
+          <property name="type" value="string"/>
+    </event>
+    <event name="system/set">
+          <property name="id" value="calendarEntryText3_1"/>
+          <property name="name" value="color"/>
+          <property name="value" value="SKIN(268458534 13056 19)"/>
+          <property name="type" value="string"/>
+    </event>
+    <event name="system/set">
+          <property name="id" value="calendarEntryText3_2"/>
+          <property name="name" value="color"/>
+          <property name="value" value="SKIN(268458534 13056 19)"/>
+          <property name="type" value="string"/>
+    </event>
+    <event name="system/set">
+          <property name="id" value="calendarEntryText4_1"/>
+          <property name="name" value="color"/>
+          <property name="value" value="SKIN(268458534 13056 19)"/>
+          <property name="type" value="string"/>
+    </event>
+    <event name="system/set">
+          <property name="id" value="calendarEntryText4_2"/>
+          <property name="name" value="color"/>
+          <property name="value" value="SKIN(268458534 13056 19)"/>
+          <property name="type" value="string"/>
+    </event>
+    <event name="system/set">
+          <property name="id" value="calendarEntryText5_1"/>
+          <property name="name" value="color"/>
+          <property name="value" value="SKIN(268458534 13056 19)"/>
+          <property name="type" value="string"/>
+    </event>
+    <event name="system/set">
+          <property name="id" value="calendarEntryText5_2"/>
+          <property name="name" value="color"/>
+          <property name="value" value="SKIN(268458534 13056 19)"/>
+          <property name="type" value="string"/>
+    </event>
+    <event name="system/set">
+         <property name="id" value="calendarEntryText6_1"/>
+         <property name="name" value="color"/>
+         <property name="value" value="SKIN(268458534 13056 19)"/>
+         <property name="type" value="string"/>
+    </event>
+    <event name="system/set">
+         <property name="id" value="calendarEntryText6_2"/>
+         <property name="name" value="color"/>
+         <property name="value" value="SKIN(268458534 13056 19)"/>
+         <property name="type" value="string"/>
+    </event>
+    <event name="system/set">
+         <property name="id" value="calendarEntryText7_1"/>
+         <property name="name" value="color"/>
+         <property name="value" value="SKIN(268458534 13056 19)"/>
+         <property name="type" value="string"/>
+    </event>
+    <event name="system/set">
+         <property name="id" value="calendarEntryText7_2"/>
+         <property name="name" value="color"/>
+         <property name="value" value="SKIN(268458534 13056 19)"/>
+         <property name="type" value="string"/>
+    </event>
+    <event name="system/set">
+         <property name="id" value="calendarEntryText8_1"/>
+         <property name="name" value="color"/>
+         <property name="value" value="SKIN(268458534 13056 19)"/>
+         <property name="type" value="string"/>
+    </event>
+    <event name="system/set">
+         <property name="id" value="calendarEntryText8_2"/>
+         <property name="name" value="color"/>
+         <property name="value" value="SKIN(268458534 13056 19)"/>
+         <property name="type" value="string"/>
+    </event>
+                      
+        </action>      
+
+          <action>
+            <!-- joystick up -->
+            <trigger name="left"/>
+            <event name="system/setfocus">
+              <property name="id" value="radioPlugin"/>
+              <property name="id" value="playerPlugin"/>			  
+              <property name="id" value="shortcutButton1"/>
+            </event>
+          </action>
+
+          <action>
+            <!-- joystick down -->
+            <trigger name="right"/>
+            <event name="system/setfocus">
+<!-- Block with flag '__NEWSTICKER' skipped. -->
+              <property name="id" value="shortcutButton1"/>
+            </event>
+          </action>
+        </actions>
+
+        <!-- #1 -->
+        <button id="calendarEntryBox1" class="calendarEntryBox" focusable="false">
+          <image id="calendarEntryIcon1" class="calendarEntryIcon" focusable="false">
+            <property class="Organizer/EventIcon" name="ordinal" value="0x01"/>
+            <!-- If there is no image, the left side of the first text line will take the space of the image. -->
+            <property class="policy/emptyContent" name="calendarEntryIcon1" value="display: none;"/>
+            <!-- If image exists, left side of the first text line will be on the right side of the image. -->
+            <property class="policy/Content" name="calendarEntryIcon1" value="display: block;"/>
+          </image>
+          <text id="calendarEntryText1_1" class="calendarEntryText1" focusable="false">
+            <property class="Organizer/Event1stLine" name="ordinal" value="0x01"/>
+            <!-- If there is no text, the entry box is not shown at all -->
+            <property class="policy/emptyContent" name="calendarPluginContainer" value="display: none;"/>
+            <property class="policy/emptyContent" name="calendarEntryBox1" value="display: none;"/>
+            <property class="policy/emptyContent" name="calendarEntryBox1" value="nav-index: none;"/>
+            <property class="policy/Content" name="calendarPluginContainer" value="display: block;"/>
+            <property class="policy/Content" name="calendarEntryBox1" value="display: block;"/>
+            <property class="policy/Content" name="calendarEntryBox1" value="nav-index: auto;"/>
+          </text>
+          <text id="calendarEntryText1_2" class="calendarEntryText2" focusable="false">
+            <property class="Organizer/Event2ndLine" name="ordinal" value="0x01"/>
+            <!-- If there is no second text line, decrease the height of the box -->
+            <property class="policy/emptyContent" name="calendarEntryText1_2" value="display: none;"/>
+            <property class="policy/emptyContent" name="calendarEntryBox1" value="height: 4.5u;"/>
+            <property class="policy/Content" name="calendarEntryText1_2" value="display: block;"/>
+            <property class="policy/Content" name="calendarEntryBox1" value="height: 9.0u;"/>
+          </text>
+        </button>
+
+        <!-- #2 -->
+        <button id="calendarEntryBox2" class="calendarEntryBox" focusable="false">
+          <image id="calendarEntryIcon2" class="calendarEntryIcon" focusable="false">
+            <property class="Organizer/EventIcon" name="ordinal" value="0x02"/>
+            <!-- If there is no image, the left side of the first text line will take the space of the image. -->
+            <property class="policy/emptyContent" name="calendarEntryIcon2" value="display: none;"/>
+            <!-- If image exists, left side of the first text line will be on the right side of the image. -->
+            <property class="policy/Content" name="calendarEntryIcon2" value="display: block;"/>
+          </image>
+          <text id="calendarEntryText2_1" class="calendarEntryText1" focusable="false">
+            <property class="Organizer/Event1stLine" name="ordinal" value="0x02"/>
+            <!-- If there is no text, the entry box is not shown at all -->
+            <property class="policy/emptyContent" name="calendarEntryBox2" value="display: none;"/>
+            <property class="policy/emptyContent" name="calendarEntryBox2" value="nav-index: none;"/>
+            <property class="policy/Content" name="calendarEntryBox2" value="display: block;"/>
+            <property class="policy/Content" name="calendarEntryBox2" value="nav-index: auto;"/>
+          </text>
+          <text id="calendarEntryText2_2" class="calendarEntryText2" focusable="false">
+            <property class="Organizer/Event2ndLine" name="ordinal" value="0x02"/>
+            <!-- If there is no second text line, decrease the height of the box -->
+            <property class="policy/emptyContent" name="calendarEntryText2_2" value="display: none;"/>
+            <property class="policy/emptyContent" name="calendarEntryBox2" value="height: 4.5u;"/>
+            <property class="policy/Content" name="calendarEntryText2_2" value="display: block;"/>
+            <property class="policy/Content" name="calendarEntryBox2" value="height: 9.0u;"/>
+          </text>
+        </button>
+
+        <!-- #3 -->
+        <button id="calendarEntryBox3" class="calendarEntryBox" focusable="false">
+          <property name="calendarEntryBox3" value="background-color: red;"/>
+          <image id="calendarEntryIcon3" class="calendarEntryIcon" focusable="false">
+            <property class="Organizer/EventIcon" name="ordinal" value="0x03"/>
+            <!-- If there is no image, the left side of the first text line will take the space of the image. -->
+            <property class="policy/emptyContent" name="calendarEntryIcon3" value="display: none;"/>
+            <!-- If image exists, left side of the first text line will be on the right side of the image. -->
+            <property class="policy/Content" name="calendarEntryIcon3" value="display: block;"/>
+          </image>
+          <text id="calendarEntryText3_1" class="calendarEntryText1" focusable="false">
+            <property class="Organizer/Event1stLine" name="ordinal" value="0x03"/>
+            <!-- If there is no text, the entry box is not shown at all -->
+            <property class="policy/emptyContent" name="calendarEntryBox3" value="display: none;"/>
+            <property class="policy/emptyContent" name="calendarEntryBox3" value="nav-index: none;"/>
+            <property class="policy/Content" name="calendarEntryBox3" value="display: block;"/>
+            <property class="policy/Content" name="calendarEntryBox3" value="nav-index: auto;"/>
+          </text>
+          <text id="calendarEntryText3_2" class="calendarEntryText2" focusable="false">
+            <property class="Organizer/Event2ndLine" name="ordinal" value="0x03"/>
+            <!-- If there is no second text line, decrease the height of the box -->
+            <property class="policy/emptyContent" name="calendarEntryText3_2" value="display: none;"/>
+            <property class="policy/emptyContent" name="calendarEntryBox3" value="height: 4.5u;"/>
+            <property class="policy/Content" name="calendarEntryText3_2" value="display: block;"/>
+            <property class="policy/Content" name="calendarEntryBox3" value="height: 9.0u;"/>
+          </text>
+        </button>
+
+        <!-- #4 -->
+        <button id="calendarEntryBox4" class="calendarEntryBox" focusable="false">
+          <image id="calendarEntryIcon4" class="calendarEntryIcon" focusable="false">
+            <property class="Organizer/EventIcon" name="ordinal" value="0x04"/>
+            <!-- If there is no image, the left side of the first text line will take the space of the image. -->
+            <property class="policy/emptyContent" name="calendarEntryIcon4" value="display: none;"/>
+            <!-- If image exists, left side of the first text line will be on the right side of the image. -->
+            <property class="policy/Content" name="calendarEntryIcon4" value="display: block;"/>
+          </image>
+          <text id="calendarEntryText4_1" class="calendarEntryText1" focusable="false">
+            <property class="Organizer/Event1stLine" name="ordinal" value="0x04"/>
+            <!-- If there is no text, the entry box is not shown at all -->
+            <property class="policy/emptyContent" name="calendarEntryBox4" value="display: none;"/>
+            <property class="policy/emptyContent" name="calendarEntryBox4" value="nav-index: none;"/>
+            <property class="policy/Content" name="calendarEntryBox4" value="display: block;"/>
+            <property class="policy/Content" name="calendarEntryBox4" value="nav-index: auto;"/>
+          </text>
+          <text id="calendarEntryText4_2" class="calendarEntryText2" focusable="false">
+            <property class="Organizer/Event2ndLine" name="ordinal" value="0x04"/>
+            <!-- If there is no second text line, decrease the height of the box -->
+            <property class="policy/emptyContent" name="calendarEntryText4_2" value="display: none;"/>
+            <property class="policy/emptyContent" name="calendarEntryBox4" value="height: 4.5u;"/>
+            <property class="policy/Content" name="calendarEntryText4_2" value="display: block;"/>
+            <property class="policy/Content" name="calendarEntryBox4" value="height: 9.0u;"/>
+          </text>
+        </button>
+
+        <!-- #5 -->
+        <button id="calendarEntryBox5" class="calendarEntryBox" focusable="false">
+          <image id="calendarEntryIcon5" class="calendarEntryIcon" focusable="false">
+            <property class="Organizer/EventIcon" name="ordinal" value="0x05"/>
+            <!-- If there is no image, the left side of the first text line will take the space of the image. -->
+            <property class="policy/emptyContent" name="calendarEntryIcon5" value="display: none;"/>
+            <!-- If image exists, left side of the first text line will be on the right side of the image. -->
+            <property class="policy/Content" name="calendarEntryIcon5" value="display: block;"/>
+          </image>
+          <text id="calendarEntryText5_1" class="calendarEntryText1" focusable="false">
+            <property class="Organizer/Event1stLine" name="ordinal" value="0x05"/>
+            <!-- If there is no text, the entry box is not shown at all -->
+            <property class="policy/emptyContent" name="calendarEntryBox5" value="display: none;"/>
+            <property class="policy/emptyContent" name="calendarEntryBox5" value="nav-index: none;"/>
+            <property class="policy/Content" name="calendarEntryBox5" value="display: block;"/>
+            <property class="policy/Content" name="calendarEntryBox5" value="nav-index: auto;"/>
+          </text>
+          <text id="calendarEntryText5_2" class="calendarEntryText2" focusable="false">
+            <property class="Organizer/Event2ndLine" name="ordinal" value="0x05"/>
+            <!-- If there is no second text line, decrease the height of the box -->
+            <property class="policy/emptyContent" name="calendarEntryText5_2" value="display: none;"/>
+            <property class="policy/emptyContent" name="calendarEntryBox5" value="height: 4.5u;"/>
+            <property class="policy/Content" name="calendarEntryText5_2" value="display: block;"/>
+            <property class="policy/Content" name="calendarEntryBox5" value="height: 9.0u;"/>
+          </text>
+        </button>
+
+        <!-- #6 -->
+        <button id="calendarEntryBox6" class="calendarEntryBox" focusable="false">
+          <image id="calendarEntryIcon6" class="calendarEntryIcon" focusable="false">
+            <property class="Organizer/EventIcon" name="ordinal" value="0x06"/>
+            <!-- If there is no image, the left side of the first text line will take the space of the image. -->
+            <property class="policy/emptyContent" name="calendarEntryIcon6" value="display: none;"/>
+            <!-- If image exists, left side of the first text line will be on the right side of the image. -->
+            <property class="policy/Content" name="calendarEntryIcon6" value="display: block;"/>
+          </image>
+          <text id="calendarEntryText6_1" class="calendarEntryText1" focusable="false">
+            <property class="Organizer/Event1stLine" name="ordinal" value="0x06"/>
+            <!-- If there is no text, the entry box is not shown at all -->
+            <property class="policy/emptyContent" name="calendarEntryBox6" value="display: none;"/>
+            <property class="policy/emptyContent" name="calendarEntryBox6" value="nav-index: none;"/>
+            <property class="policy/Content" name="calendarEntryBox6" value="display: block;"/>
+            <property class="policy/Content" name="calendarEntryBox6" value="nav-index: auto;"/>
+          </text>
+          <text id="calendarEntryText6_2" class="calendarEntryText2" focusable="false">
+            <property class="Organizer/Event2ndLine" name="ordinal" value="0x06"/>
+            <!-- If there is no second text line, decrease the height of the box -->
+            <property class="policy/emptyContent" name="calendarEntryText6_2" value="display: none;"/>
+            <property class="policy/emptyContent" name="calendarEntryBox6" value="height: 4.5u;"/>
+            <property class="policy/Content" name="calendarEntryText6_2" value="display: block;"/>
+            <property class="policy/Content" name="calendarEntryBox6" value="height: 9.0u;"/>
+          </text>
+        </button>
+        
+        <!-- #7 -->
+        <button id="calendarEntryBox7" class="calendarEntryBox" focusable="false">
+          <image id="calendarEntryIcon7" class="calendarEntryIcon" focusable="false">
+            <property class="Organizer/EventIcon" name="ordinal" value="0x07"/>
+            <!-- If there is no image, the left side of the first text line will take the space of the image. -->
+            <property class="policy/emptyContent" name="calendarEntryIcon7" value="display: none;"/>
+            <!-- If image exists, left side of the first text line will be on the right side of the image. -->
+            <property class="policy/Content" name="calendarEntryIcon7" value="display: block;"/>
+          </image>
+          <text id="calendarEntryText7_1" class="calendarEntryText1" focusable="false">
+            <property class="Organizer/Event1stLine" name="ordinal" value="0x07"/>
+            <!-- If there is no text, the entry box is not shown at all -->
+            <property class="policy/emptyContent" name="calendarEntryBox7" value="display: none;"/>
+            <property class="policy/emptyContent" name="calendarEntryBox7" value="nav-index: none;"/>
+            <property class="policy/Content" name="calendarEntryBox7" value="display: block;"/>
+            <property class="policy/Content" name="calendarEntryBox7" value="nav-index: auto;"/>
+          </text>
+          <text id="calendarEntryText7_2" class="calendarEntryText2" focusable="false">
+            <property class="Organizer/Event2ndLine" name="ordinal" value="0x07"/>
+            <!-- If there is no second text line, decrease the height of the box -->
+            <property class="policy/emptyContent" name="calendarEntryText7_2" value="display: none;"/>
+            <property class="policy/emptyContent" name="calendarEntryBox7" value="height: 4.5u;"/>
+            <property class="policy/Content" name="calendarEntryText7_2" value="display: block;"/>
+            <property class="policy/Content" name="calendarEntryBox7" value="height: 9.0u;"/>
+          </text>
+        </button>
+
+        <!-- #8 -->
+        <button id="calendarEntryBox8" class="calendarEntryBox" focusable="false">
+          <image id="calendarEntryIcon8" class="calendarEntryIcon" focusable="false">
+            <property class="Organizer/EventIcon" name="ordinal" value="0x08"/>
+            <!-- If there is no image, the left side of the first text line will take the space of the image. -->
+            <property class="policy/emptyContent" name="calendarEntryIcon8" value="display: none;"/>
+            <!-- If image exists, left side of the first text line will be on the right side of the image. -->
+            <property class="policy/Content" name="calendarEntryIcon8" value="display: block;"/>
+          </image>
+          <text id="calendarEntryText8_1" class="calendarEntryText1" focusable="false">
+            <property class="Organizer/Event1stLine" name="ordinal" value="0x08"/>
+            <!-- If there is no text, the entry box is not shown at all -->
+            <property class="policy/emptyContent" name="calendarEntryBox8" value="display: none;"/>
+            <property class="policy/emptyContent" name="calendarEntryBox8" value="nav-index: none;"/>
+            <property class="policy/Content" name="calendarEntryBox8" value="display: block;"/>
+            <property class="policy/Content" name="calendarEntryBox8" value="nav-index: auto;"/>
+          </text>
+          <text id="calendarEntryText8_2" class="calendarEntryText2" focusable="false">
+            <property class="Organizer/Event2ndLine" name="ordinal" value="0x08"/>
+            <!-- If there is no second text line, decrease the height of the box -->
+            <property class="policy/emptyContent" name="calendarEntryText8_2" value="display: none;"/>
+            <property class="policy/emptyContent" name="calendarEntryBox8" value="height: 4.5u;"/>
+            <property class="policy/Content" name="calendarEntryText8_2" value="display: block;"/>
+            <property class="policy/Content" name="calendarEntryBox8" value="height: 9.0u;"/>
+          </text>
+        </button>
+      </box>
+    </box> <!-- end MainBox -->
+
+<!-- Block with flag '__NEWSTICKER' skipped. -->
+
+      <!--#################################################
+          ####     Menubar with soft key shortcuts     ####
+          #################################################-->
+      <menubar>
+        <menuitem id="Shortcut_SK1" label="">
+          <!-- ordinal value is the same as in the default settings -->
+          <property class="Shortcut/ShortcutShortCaption" name="ordinal" value="0x01000100"/>
+          <actions>
+            <action>
+              <trigger name="stylus"/>
+              <trigger name="activate"/>
+              <event name="Shortcut/LaunchByIndex(0x01000100)"/>
+            </action>
+          </actions>
+        </menuitem>
+        <menuitem id="Shortcut_SK2" label="">
+          <property class="Shortcut/ShortcutShortCaption" name="ordinal" value="0x01000101"/>
+          <actions>
+            <action>
+              <trigger name="stylus"/>
+              <!-- if using both activate and hold for same SK active trigger need to be specified 
+                  like this (2 = keyup) otherwise hold will not work -->
+              <trigger name="activate">
+                <property name="eventtype" value="2"/>
+              </trigger>
+              <event name="Shortcut/LaunchByIndex(0x01000101)"/>
+            </action>
+            <action>
+              <trigger name="hold"/>
+              <event name="Shortcut/LaunchByValue(localapp:0x10281867)"/>
+            </action>
+          </actions>
+        </menuitem>
+        <menuitem id="MSK" label="&qtn_msk_open;"/>
+      </menubar>
+    </view>
+  </views>
+
+</xmluiml>

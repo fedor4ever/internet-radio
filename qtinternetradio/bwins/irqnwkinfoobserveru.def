@@ -1,0 +1,6 @@
+EXPORTS
+	?closeInstance@IRQNwkInfoObserver@@QAEXXZ @ 1 NONAME ; void IRQNwkInfoObserver::closeInstance(void)
+	?startMonitorNwkInfo@IRQNwkInfoObserver@@QAEXXZ @ 2 NONAME ; void IRQNwkInfoObserver::startMonitorNwkInfo(void)
+	?stopMonitorNwkInfo@IRQNwkInfoObserver@@QAEXXZ @ 3 NONAME ; void IRQNwkInfoObserver::stopMonitorNwkInfo(void)
+	?openInstance@IRQNwkInfoObserver@@SAPAV1@XZ @ 4 NONAME ; class IRQNwkInfoObserver * IRQNwkInfoObserver::openInstance(void)
+
