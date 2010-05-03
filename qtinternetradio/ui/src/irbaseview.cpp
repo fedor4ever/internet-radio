@@ -121,6 +121,17 @@ IRAbstractViewManager* IRBaseView::getViewManager() const
 
 void IRBaseView::popupNote(const QString &aNote, const HbMessageBox::MessageBoxType &aNoteType) const
 {
-    HbMessageBox note(aNote, aNoteType);
-    note.exec();
+    switch (aNoteType)
+    {
+    case HbMessageBox::MessageTypeInformation:
+        HbMessageBox::information(aNote, (QObject*)NULL, NULL);
+        break;
+        
+    case HbMessageBox::MessageTypeWarning:
+        HbMessageBox::warning(aNote, (QObject*)NULL, NULL);
+        break;
+        
+    default:
+        break;
+    }
 }

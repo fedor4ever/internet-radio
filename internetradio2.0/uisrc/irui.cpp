@@ -55,7 +55,6 @@
 #include <apgcli.h>
 #include <apgtask.h>
 #include <bautils.h>
-#include <cmapplicationsettingsui.h>
 #include <featmgr.h>
 #include <features.hrh>
 #include <hlplch.h>
@@ -248,8 +247,7 @@ void CIRUi::ConstructL()
 
 	//Call observer
 
-	iIsdsWrapper->GetISDSInstance()->GetDataProvider()->GetHttpDataProvider()->
-	GetLogoDownloadEngine()->SetFavDbInstance(iFavPresets);
+
 	// Create Channel list view
 	iLastPlayed = CIRLastPlayedStationInfo::NewL();
 	iMainView = CIRMainView::NewL();

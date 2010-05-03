@@ -126,9 +126,7 @@ void FileLogger::installMessageHandler( const QString& aFileName, bool aFilterBy
     gDebugFile.setFileName( aFileName );
     gFilterByLogMarker = aFilterByMarker;
     
-    gDebugFile.open( QIODevice::Text | QIODevice::WriteOnly );
-
-    if ( gDebugFile.isOpen() )
+    if (gDebugFile.open( QIODevice::Text | QIODevice::WriteOnly ))
     {
         qInstallMsgHandler( FileLogger::handleMessage );
     }

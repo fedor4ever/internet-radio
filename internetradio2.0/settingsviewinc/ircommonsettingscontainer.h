@@ -20,11 +20,9 @@
 #define C_CIRCOMMONSETTINGSCONTAINER_H
 
 #include <aknsettingitemlist.h>
-#include <cmapplicationsettingsui.h>
 #include "irsettings.h"
 class CIRNetworkController;
 
-using namespace CMManager;
 
 //Added for ALR/SNAP
 enum TUserSelection
@@ -75,7 +73,6 @@ public:  // Methods
      * GetUserSelectionL()
      * Queries the Settings and returns the user selected IAP/SNAP
      */
-    TCmSettingSelectionMode GetUserSelectionL();
     
     /**
      * SetAccessPointDetailsL()

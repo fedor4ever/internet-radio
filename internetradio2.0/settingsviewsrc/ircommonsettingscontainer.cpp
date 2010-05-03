@@ -24,7 +24,6 @@
 #include <cmdestination.h>
 #include "ircommonsettingscontainer.h"
 #include "ir.hrh"
-#include <internetradio.rsg>
 #include "irnetworkcontroller.h"
 #include "iraap.hlp.hrh"
 #include "irdebug.h" //  PC-Lint comments :: SPP
@@ -32,7 +31,6 @@
 #define KUIDIRAPP 0x2000B499
 const TUid KIRMCVUid = {KUIDIRAPP};
 
-const TInt KBufSize = 256;
 
 // ======== LOCAL FUNCTIONS ========
 
@@ -72,7 +70,6 @@ EXPORT_C void CIRCommonSettingsContainer::BaseConstructL()
     IRLOG_DEBUG( "CIRCommonSettingsContainer::BaseConstructL - Entering" );
     iNetworkController = CIRNetworkController::OpenL();
     iIRSettings = CIRSettings::OpenL();
-    ConstructFromResourceL( R_IR_SETTING_LIST );
     iDestinationSelected = EFalse;
     SetListBoxTextL() ;
     IRLOG_DEBUG( "CIRCommonSettingsContainer::BaseConstructL - Exiting" );
@@ -269,74 +266,6 @@ EXPORT_C void CIRCommonSettingsContainer::SizeChanged()
 void CIRCommonSettingsContainer::ShowConnectionSettingsUiL()
 	{
 	IRLOG_DEBUG( "CIRCommonSettingsContainer::ShowConnectionSettingsUiL - Entering" );
-	TCmSettingSelection userSelection;
-	userSelection.iResult = GetUserSelectionL() ;
-	if(userSelection.iResult == EDestination)
-		{
-		userSelection.iId = iIRSettings->GetDestinationIdL();	
-		}
-	else if(userSelection.iResult == EConnectionMethod)
-		{
-		userSelection.iId = iIRSettings->GetApIdL();	
-		}
-	else
-		{
-		userSelection.iId =0;	
-		}
-
-	CCmApplicationSettingsUi* settings = CCmApplicationSettingsUi::NewL();
-	CleanupStack::PushL( settings );
-
-	TUint listedItems = EShowAlwaysAsk | EShowDefaultConnection |
-						EShowDestinations | EShowConnectionMethods;
-
-	TBearerFilterArray filter;
-	TBool selected = EFalse;
-
-	TRAPD( settingsErr, selected = settings->RunApplicationSettingsL( userSelection, 
-																		listedItems, filter ) );
-
-	CleanupStack::PopAndDestroy( settings );
-
-	if((selected == EFalse) || (settingsErr != KErrNone) )
-		{
-		return;
-		}
-
-	switch ( userSelection.iResult )
-		{
-		case EAlwaysAsk:
-			{
-			iIRSettings->SetUserDefinedSelectionL(EUserSelectionAlwaysAsk);
-			iIRSettings->SetDisplayAccessPointL();
-			break;
-			}
-		case EDefaultConnection:
-			{
-			iIRSettings->SetUserDefinedSelectionL(EUserSelectionDefaultConnection);
-			break;
-			} 
-		
-		case EDestination:
-			{
-			iIRSettings->SetUserDefinedSelectionL(EUserSelectionDestination);
-			iIRSettings->SetDestinationIdL(userSelection.iId);
-			iDestinationSelected = ETrue;
-			break;
-			}
-			
-		case EConnectionMethod:
-			{
-			iIRSettings->SetUserDefinedSelectionL(EUserSelectionConnectionMethod);
-			SetAccessPointDetailsL(userSelection.iId);
-			iDestinationSelected = EFalse;
-			break;
-			}
-		default:
-			{
-			break;
-			} 
-		}
 		SetListBoxTextL();
 		IRLOG_DEBUG( "CIRCommonSettingsContainer::ShowConnectionSettingsUiL - Exiting" );
 	}
@@ -361,44 +290,6 @@ void CIRCommonSettingsContainer::UpdateStatusL()
     IRLOG_DEBUG( "CIRCommonSettingsContainer::UpdateStatusL - Exiting" );
 	}
 
-
-// ---------------------------------------------------------------------------
-// GetUserSelectionL()
-// Queries the Settings and returns the user selected IAP/SNAP
-// ---------------------------------------------------------------------------
-//
-TCmSettingSelectionMode CIRCommonSettingsContainer::GetUserSelectionL()
-	{
-	IRLOG_DEBUG( "CIRCommonSettingsContainer::GetUserSelectionL - Entering" );
-	TUint32 userSelection;
-	userSelection = iIRSettings->GetUserDefinedSelectionL();
-	TCmSettingSelectionMode ret = EAlwaysAsk;	
-	switch(userSelection)
-		{
-		case EUserSelectionAlwaysAsk:
-			ret = EAlwaysAsk;
-			break;
-			
-		case EUserSelectionDefaultConnection:
-			ret = EDefaultConnection ;
-			break;
-			
-		case EUserSelectionDestination:
-			ret = EDestination;
-			break;
-			
-		case EUserSelectionConnectionMethod:
-			ret = EConnectionMethod;
-			break;
-			
-		default:
-			ret = EAlwaysAsk;
-			break;	
-		
-		}
-	    IRLOG_DEBUG( "CIRCommonSettingsContainer::GetUserSelectionL - Exiting" );
-		return ret;
-	}
 
 
 // ---------------------------------------------------------------------------
@@ -429,13 +320,6 @@ void CIRCommonSettingsContainer::SetAccessPointDetailsL(TUint aId)
 	TUint32 networkId = networkIDArray[index];
 	TUint32 accessPointId = accessPointIDArray[index];
 
-	//This stores the settings in Central Repository
-	iIRSettings->SetUserSavedApSettingsL(bearerId, networkId,accessPointId);
-
-	// Save the settings for use by IRNetworkContorller			
-	iIRSettings->SetBearerIdL(bearerId);
-	iIRSettings->SetNetworkIdL(networkId);
-	iIRSettings->SetApIdL(accessPointId);
 	IRLOG_DEBUG( "CIRCommonSettingsContainer::SetAccessPointDetailsL - Exiting" );
 	}
 	
@@ -447,90 +331,7 @@ void CIRCommonSettingsContainer::SetAccessPointDetailsL(TUint aId)
 void CIRCommonSettingsContainer::SetListBoxTextL()
 	{
 	IRLOG_DEBUG( "CIRCommonSettingsContainer::SetListBoxTextL - Entering" );
-	if(SettingItemArray()->Count()>0)
-		    {
-		    switch(GetUserSelectionL())
-				{
-				case EAlwaysAsk:
-					{
-					HBufC* stringholder = StringLoader::LoadLC( R_IR_ACCESS_ASK);
-					SettingItemArray()->At( 0 )->SetEmptyItemTextL(*stringholder);
-					CleanupStack::PopAndDestroy(stringholder);
-					HandleChangeInItemArrayOrVisibilityL();
-					ActivateL();		
-					break;	
-					}
-					
-				case EDefaultConnection:
-					{
-					HBufC* stringholder = StringLoader::LoadLC( R_IR_SETTINGS_SNAP_DEFAULT);
-					SettingItemArray()->At( 0 )->SetEmptyItemTextL(*stringholder);
-					CleanupStack::PopAndDestroy(stringholder);
-					HandleChangeInItemArrayOrVisibilityL();
-					ActivateL();
-					break;
-					}
-					
-				case EDestination:
-					{
-					RCmManager cmManager;
-					cmManager.OpenL();
-			TRAPD(err, RCmDestination dest = cmManager.DestinationL( iIRSettings->GetDestinationIdL() ));
-		    		if (err == KErrNone)
-			    		{
-				RCmDestination dest = cmManager.DestinationL(iIRSettings->GetDestinationIdL());
-						CleanupClosePushL( dest );
-					
-						HBufC* destName = dest.NameLC();
-						TBuf<KBufSize> item;
-						_LIT( KStringFormat, "%S" );
-						item.Format( KStringFormat,destName );
-						
-						SettingItemArray()->At( 0 )->SetEmptyItemTextL(item);
-						HandleChangeInItemArrayOrVisibilityL();
-						ActivateL();
-						CleanupStack::PopAndDestroy( destName ); // destName, dest
-						CleanupStack::PopAndDestroy( &dest);
-			    		}
-			    	cmManager.Close();
-					break;
-					}
-				
-				case EConnectionMethod:
-					{
-					if(!iDestinationSelected)
-						{
-						iIapArray = iNetworkController->GetAccessPointList();
-						const RArray<TUint32>& accessPointIDArray = iNetworkController->GetApList();
-		
-						TInt index = 0;
-						//Get access point index, that matches the access point stored in 
-						// settings previously
-						for(TInt i=0; i<accessPointIDArray.Count(); i++ )
-							{
-					if(accessPointIDArray[i] == iIRSettings->GetApIdL())	
-								{
-								index = i;	
-								}
-							}		
-						TPtrC list;
-						list.Set(iIapArray->MdcaPoint(index));
-						HBufC* itemText = HBufC::NewLC(list.Length());
-						itemText->Des().Copy(list);	
-								
-						SettingItemArray()->At( 0 )->SetEmptyItemTextL(list);
-						HandleChangeInItemArrayOrVisibilityL();
-						ActivateL();
-						CleanupStack::PopAndDestroy(itemText);	
-						}
-			
-					break;
-					}
-				default:
-					break;
-				
-				} 
-		    }
+
 	IRLOG_DEBUG( "CIRCommonSettingsContainer::SetListBoxTextL - Exiting" );
 	}
 

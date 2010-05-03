@@ -153,7 +153,7 @@ private:
     // the URLs of a specific bitrate
     QList<QString> *iUrlArray;
 
-#ifdef __WINS__
+#ifdef Q_CC_NOKIAX86
     QString iLastPlayedChannelName;
 #endif
 

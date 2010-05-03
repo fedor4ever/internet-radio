@@ -39,7 +39,6 @@
 ; DEPLOYMENT
 "r:/epoc32/release/armv5/urel/HbCore.dll"    - "!:\sys\bin\HbCore.dll"
 "r:/epoc32/release/armv5/urel/HbWidgets.dll"    - "!:\sys\bin\HbWidgets.dll"
-"r:/epoc32/release/armv5/urel/HbTools.dll"    - "!:\sys\bin\HbTools.dll"
 "r:/epoc32/release/armv5/urel/HbInput.dll"    - "!:\sys\bin\HbInput.dll"
 "r:/epoc32/release/armv5/urel/HbFeedback.dll"    - "!:\sys\bin\HbFeedback.dll"
 "r:/epoc32/release/armv5/urel/HbTactilePlugin.dll"    - "!:\sys\bin\HbTactilePlugin.dll"

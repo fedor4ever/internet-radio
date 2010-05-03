@@ -594,10 +594,7 @@ void IRViewManager::exitTimeout()
 {
     crossLineReset();
     viewport()->repaint();
-    HbMessageBox exitNote(hbTrId("txt_common_info_exiting"),
-            HbMessageBox::MessageTypeInformation);
-    exitNote.setPrimaryAction(NULL);
-    exitNote.exec();
+    HbMessageBox::information(hbTrId("txt_common_info_exiting"), (QObject*)NULL, NULL);
     qApp->quit();
     iExiting = true;
 }

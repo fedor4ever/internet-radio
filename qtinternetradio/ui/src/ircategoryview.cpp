@@ -343,15 +343,16 @@ void IRCategoryView::dataChanged()
 {
     disconnectIsdsClient();
     iApplication->closeConnectingDialog();
-    if (iWaitDialog)
-    {
-        iWaitDialog->close();
-    }
 
     iListView->reset();
     iListView->setCurrentIndex(iModel->index(iLastSelectItem));
     iListView->scrollTo(iModel->index(iLastSelectItem));
     getViewManager()->activateView(this);
+    
+    if (iWaitDialog)
+    {
+        iWaitDialog->close();
+    }
 }
 
 /*
@@ -401,18 +402,16 @@ void IRCategoryView::createWaitDialog(const QString &aText)
     if (!iWaitDialog)
     {
         iWaitDialog = new HbMessageBox(tr(""), HbMessageBox::MessageTypeInformation);
-        //iWaitDialog->setTimeout(HbPopupBase::NoTimeout);
-        iWaitDialog->setTimeout(HbPopup::NoTimeout); // JM: changed in w47 Orbit
+        iWaitDialog->setTimeout(HbPopup::NoTimeout);
         iWaitDialog->setModal(true);
-        //iWaitDialog->setDismissPolicy(HbPopupBase::NoDismiss);
-        iWaitDialog->setDismissPolicy(HbPopup::NoDismiss); // JM: changed in w47 Orbit
-        HbAction *cancelAction = new HbAction(hbTrId("txt_common_button_cancel"), iWaitDialog);
-        iWaitDialog->setPrimaryAction(cancelAction);
-        connect(cancelAction, SIGNAL(triggered()), this, SLOT(cancelRequest()));
+        iWaitDialog->setDismissPolicy(HbPopup::NoDismiss);
+        QAction *action = iWaitDialog->actions().at(0);
+        action->setText(hbTrId("txt_common_button_cancel"));
+        connect(action, SIGNAL(triggered()), this, SLOT(cancelRequest()));
     }
     
     iWaitDialog->setText(aText);
-    iWaitDialog->exec();
+    iWaitDialog->open();
 }
 
 void IRCategoryView::connectToIsdsClient()

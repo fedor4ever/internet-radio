@@ -17,6 +17,10 @@
 #include <hbprogressdialog.h>
 #include <hbmessagebox.h>
 #include <QTimer>
+#ifdef Q_CC_NOKIAX86
+#include <QFile>
+#include <QTextStream>
+#endif
 
 #include "irplaycontroller.h"
 #include "irapplication.h"
@@ -30,6 +34,11 @@
 #include "irqsettings.h"
 #include "irqfavoritesdb.h"
 #include "irqstatisticsreporter.h"
+
+#ifdef Q_CC_NOKIAX86
+void getRadioServerAddress(QString & aUrl);
+#endif
+
 //                                        public functions
 
 /*
@@ -135,12 +144,13 @@ void IRPlayController::connectToChannel(IRQPreset *aPreset, IRQConnectedFrom aCo
         if (iUrlArray)
         {
             QString url = iUrlArray->at(0);
-#ifdef __WINS__
+#ifdef Q_CC_NOKIAX86
             if (iLastPlayedChannelName != aPreset->name)
             {
                 emit initializeLogo();
             }
-            url = tr("http://172.28.189.104:8000");
+            url = "http://172.28.205.171:8000";
+            getRadioServerAddress(url);
             iLastPlayedChannelName = aPreset->name;
 #else
             if (iLastPlayedUrl != iUrlArray->at(0))
@@ -417,8 +427,7 @@ void IRPlayController::handleError()
 
         if (iResuming)
         {
-            HbMessageBox note(tr("Connecting failed, try next URL"), HbMessageBox::MessageTypeInformation);
-            note.exec();
+            HbMessageBox::information(tr("Connecting failed, try next URL"), (QObject*)NULL, NULL);
             connectToChannel(iNowPlayingPreset,iConnectedFrom);
             iResuming = false;
             return;
@@ -565,9 +574,7 @@ void IRPlayController::cancelBuffering()
  */
 void IRPlayController::createNote(const QString &aNote)
 {
-    HbMessageBox note(aNote, HbMessageBox::MessageTypeWarning);
-	note.setPrimaryAction(NULL);
-    note.exec();
+    HbMessageBox::warning(aNote, (QObject*)NULL, NULL);
 }
 
 /*
@@ -627,8 +634,7 @@ bool IRPlayController::playNextUrl()
             
             if(tryingContinue)
             {
-                HbMessageBox note(tr("Connecting failed, try next URL"), HbMessageBox::MessageTypeInformation);
-                note.exec();  
+                HbMessageBox::information(tr("Connecting failed, try next URL"), (QObject*)NULL, NULL); 
                 delete iUrlArray;
                 iUrlArray = iNowPlayingPreset->getURLsForBitrate(iTryingBitrate);
                 iLastPlayedUrl = iUrlArray->at(0);
@@ -643,9 +649,7 @@ bool IRPlayController::playNextUrl()
         iLastPlayedUrl = iUrlArray->at(0);
         doPlay(iLastPlayedUrl);
 
-        HbMessageBox note(tr("Connecting failed, try next URL"), HbMessageBox::MessageTypeInformation);
-        note.exec();
-
+        HbMessageBox::information(tr("Connecting failed, try next URL"), (QObject*)NULL, NULL);
         return true;
     }
     
@@ -696,3 +700,32 @@ int IRPlayController::bitrateTrying() const
     return iTryingBitrate;
 }
 #endif 
+
+//get IP address configuration of test radio server
+#ifdef Q_CC_NOKIAX86
+void getRadioServerAddress(QString & aUrl)
+{
+    QFile file("C:\\data\\QTIRConfigure.txt");
+    
+    if (file.open(QIODevice::ReadOnly)) 
+    {
+        QTextStream stream(&file);
+        QString line;
+        QStringList parameter;
+        while (!stream.atEnd())
+        {
+            line = stream.readLine();
+            parameter = line.split("=");
+            if (parameter.count() == 2)
+            {
+                if (parameter.first() == "RadioServerAddress")
+                {
+                    aUrl = parameter.last();
+                    break;
+                }
+            }
+        }
+        file.close();
+    }
+}
+#endif

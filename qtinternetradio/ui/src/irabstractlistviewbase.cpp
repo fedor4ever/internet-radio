@@ -129,7 +129,6 @@ void IrAbstractListViewBase::initContentWidget()
 
 void IrAbstractListViewBase::initScrollBar()
 {
-    iListView->setScrollingStyle( HbListView::PanOrFlick );
     HbScrollBar *scrollbar = iListView->verticalScrollBar();
     scrollbar->setVisible(true);
     scrollbar->setInteractive(true);

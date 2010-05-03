@@ -222,14 +222,8 @@ void IRSongHistoryView::clearHisotrySongDB()
 
 void IRSongHistoryView::showPrompt()
 {
-    QString str = hbTrId("txt_irad_info_click_the_song_and_find_it_in_nokia_music_shop");
-    HbMessageBox promptDialog(str, HbMessageBox::MessageTypeInformation);          
-    //promptDialog.setTimeout(HbPopupBase::NoTimeout); 
-    promptDialog.setTimeout(HbPopup::NoTimeout); // JM: changed in w47 Orbit
-    promptDialog.setModal(true);
-    //promptDialog.setDismissPolicy(HbPopupBase::NoDismiss);    
-    promptDialog.setDismissPolicy(HbPopup::NoDismiss);    // JM: changed in w47 Orbit   
-    promptDialog.exec();
+    QString str = hbTrId("txt_irad_info_click_the_song_and_find_it_in_nokia_music_store");
+    popupNote(str, HbMessageBox::MessageTypeInformation);
 }
 
 void IRSongHistoryView::itemAboutToBeSelected(bool& needNetwork)

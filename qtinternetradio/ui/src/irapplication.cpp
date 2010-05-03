@@ -196,10 +196,10 @@ void IRApplication::createConnectingDialog()
     {
         iConnectingNote = new HbMessageBox(HbMessageBox::MessageTypeInformation);
         iConnectingNote->setModal(true);
-        iConnectingNote->setTimeout(HbPopup::NoTimeout);
-        HbAction *cancelAction = new HbAction(hbTrId("txt_common_button_cancel"), iConnectingNote);
-        iConnectingNote->setPrimaryAction(cancelAction);
-        connect(cancelAction, SIGNAL(triggered()), this, SLOT(cancelConnect()));
+        iConnectingNote->setTimeout(HbPopup::NoTimeout);        
+        QAction *action = iConnectingNote->actions().at(0);
+        action->setText(hbTrId("txt_common_button_cancel"));
+        connect(action, SIGNAL(triggered()), this, SLOT(cancelConnect()));
     }
     
     iConnectingNote->setText(iConnectingText);
@@ -500,13 +500,7 @@ void IRApplication::networkEventNotified(IRQNetworkEvent aEvent)
         case EIRQDisplayNetworkMessageNoConnectivity:
             {
                 closeConnectingDialog();
-                HbMessageBox note(hbTrId("txt_irad_info_no_network_connectiion"), HbMessageBox::MessageTypeWarning);
-                note.exec();
-                
-                //reset setting to 'Always ask'
-                iSettings->setUserDefinedSelection(EIRAlwaysAsk);
-                iSettings->setDisplayAccessPoint();        
-
+                HbMessageBox::warning(hbTrId("txt_irad_info_no_network_connectiion"), (QObject*)NULL, NULL);
                 if (!iDisconnected)
                 {
                     /* the handling is up to each view */
@@ -576,11 +570,7 @@ void IRApplication::initApp()
 {
     if (!iIsdsClient->isdsIsConstructSucceed())
     {
-        HbMessageBox note("No available access points, exiting...", HbMessageBox::MessageTypeWarning);
-        note.setPrimaryAction(NULL);
-        note.setTimeout(5000);
-        note.setModal(true);
-        note.exec();
+        HbMessageBox::warning("No available access points, exiting...", (QObject*)NULL, NULL);
         qApp->quit();
     }
     else
@@ -757,7 +747,12 @@ void IRApplication::startLocalServer()
         if (error == QAbstractSocket::AddressInUseError && fileExists) 
         {
             QFile::remove(fullServerName);
-            iLocalServer->listen(serverName);
+            bool ret = iLocalServer->listen(serverName);
+            //following lines aim to fix coverity errors
+            if (!ret)
+            {
+                Q_ASSERT(false);
+            }
         }
     }
 }

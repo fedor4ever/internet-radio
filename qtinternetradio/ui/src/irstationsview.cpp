@@ -267,10 +267,6 @@ void IRStationsView::dataChanged()
 	int currentItem = 0;
     iApplication->closeConnectingDialog();
     iConnectTimer->stop();
-    if (iWaitDialog)
-    {
-        iWaitDialog->close();
-    }
     
     disconnectIsdsClient();
     cleanupResource();
@@ -303,7 +299,11 @@ void IRStationsView::dataChanged()
         }
     }
 
-    getViewManager()->activateView(this);   
+    getViewManager()->activateView(this);
+    if (iWaitDialog)
+    {
+        iWaitDialog->close();
+    }
 }
 
 /*
@@ -543,17 +543,16 @@ void IRStationsView::createWaitDialog(QString aStr)
     if (!iWaitDialog)
     {
         iWaitDialog = new HbMessageBox(aStr, HbMessageBox::MessageTypeInformation);
-        //iWaitDialog->setTimeout(HbPopupBase::NoTimeout); 
-        iWaitDialog->setTimeout(HbPopup::NoTimeout); // JM: changed in w47 Orbit
+        iWaitDialog->setTimeout(HbPopup::NoTimeout);
         iWaitDialog->setModal(true);
-        //iWaitDialog->setDismissPolicy(HbPopupBase::NoDismiss); 
-        iWaitDialog->setDismissPolicy(HbPopup::NoDismiss); // JM: changed in w47 Orbit
-        HbAction *cancelAction = new HbAction(hbTrId("txt_common_button_cancel"), iWaitDialog);
-        iWaitDialog->setPrimaryAction(cancelAction);
-        connect(cancelAction, SIGNAL(triggered()), this, SLOT(cancelRequest()));
+        iWaitDialog->setDismissPolicy(HbPopup::NoDismiss);
+        QList<QAction*> actionsList = iWaitDialog->actions();
+        QAction *action = actionsList.at(0);
+        action->setText(hbTrId("txt_common_button_cancel"));
+        connect(action, SIGNAL(triggered()), this, SLOT(cancelRequest()));
     }
 
-    iWaitDialog->exec();
+    iWaitDialog->open();
 }
 
 void IRStationsView::convertAnother()

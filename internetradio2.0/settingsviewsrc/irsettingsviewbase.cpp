@@ -26,7 +26,6 @@
 #include "ircommonsettingscontainer.h"
 #include "irsettingsviewbase.h"
 #include "irdebug.h"
-#include <internetradio.rsg>
 #include <aknappui.h>
 #include <akntitle.h> 
 
@@ -60,7 +59,6 @@ EXPORT_C void CIRSettingsViewBase::BaseConstructL()
     IRLOG_DEBUG( "CIRSettingsViewBase::BaseConstructL - Entering " );
     FeatureManager::InitializeLibL();
     LoadResourcesL( iSettingsBaseResourceLoader, KIRSettingsViewResourceFile );
-    CAknView::BaseConstructL( R_IR_SETTINGSVIEW );
     IRLOG_DEBUG( "CIRSettingsViewBase::BaseConstructL - Exiting " );
     }
 
