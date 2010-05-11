@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hbdocument context="IRStationDetailsContainer" version="0.9">
+    <widget name="container" type="HbWidget">
+        <widget name="logo" type="HbLabel">
+            <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
+            <sizehint height="15un" type="PREFERRED"/>
+        </widget>
+        <widget name="stationName" type="HbTextItem">
+            <sizehint height="9un" type="PREFERRED"/>
+        </widget>
+        <widget name="description" type="HbTextItem"/>
+        <widget name="genre" type="HbTextItem"/>
+        <widget name="language" type="HbTextItem"/>
+        <widget name="country" type="HbTextItem"/>
+        <widget name="type" type="HbTextItem">
+            <sizehint height="3un" type="MAXIMUM"/>
+        </widget>
+        <widget name="streamList" type="HbListWidget"/>
+        <contentsmargins bottom="0un" left="0un" right="0un" top="0un"/>
+        <layout orientation="Vertical" spacing="1un" type="linear">
+            <linearitem itemname="logo"/>
+            <linearitem itemname="stationName"/>
+            <linearitem itemname="description"/>
+            <linearitem itemname="genre"/>
+            <linearitem itemname="language"/>
+            <linearitem itemname="country"/>
+            <linearitem itemname="type"/>
+            <linearitem itemname="streamList"/>
+        </layout>
+    </widget>
+    <section name="portrait">
+        <widget name="description" type="HbTextItem">
+            <sizehint height="30un" type="PREFERRED" width="50un"/>
+        </widget>
+        <widget name="genre" type="HbTextItem">
+            <sizehint height="30un" type="PREFERRED"/>
+        </widget>
+    </section>
+    <section name="landscape">
+        <widget name="description" type="HbTextItem">
+            <sizehint height="7.5un" type="PREFERRED" width="92un"/>
+        </widget>
+        <widget name="genre" type="HbTextItem">
+            <sizehint height="4un" type="PREFERRED"/>
+        </widget>
+    </section>
+    <metadata activeUIState="portrait" display="NHD portrait" unit="un">
+        <uistate name="Common ui state" sections="#common"/>
+        <uistate name="portrait" sections="#common portrait"/>
+        <uistate name="landscape" sections="#common landscape"/>
+    </metadata>
+</hbdocument>

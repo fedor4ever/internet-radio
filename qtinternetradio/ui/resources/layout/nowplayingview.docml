@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hbdocument context="IRNowPlayingView" version="0.9">
+    <object name="activateStereo" type="HbAction">
+        <string locid="txt_irad_opt_activate_stereo" name="text"/>
+    </object>
+    <object name="openWebAddressAction" type="HbAction">
+        <string locid="txt_irad_opt_go_to_station" name="text"/>
+    </object>
+    <object name="shareStationAction" type="HbAction">
+        <string locid="txt_irad_opt_share_station" name="text"/>
+    </object>
+    <object name="songRecAction" type="HbAction">
+        <string locid="Song Recognition" name="text"/>
+    </object>
+    <object name="gotoMusicStoreAction" type="HbAction">
+        <string locid="txt_irad_menu_search_in_music_store" name="text"/>
+    </object>
+    <object name="settings" type="HbAction">
+        <string locid="txt_irad_opt_network_setting" name="text"/>
+    </object>
+    <object name="help" type="HbAction">
+        <string locid="Help" name="text"/>
+    </object>
+    <object name="exit" type="HbAction">
+        <string locid="txt_common_opt_exit" name="text"/>
+    </object>
+    <object name="musicShop" type="HbAction">
+        <string locid="Find in Muisc Store" name="toolTip"/>
+    </object>
+    <object name="playStop" type="HbAction">
+        <icon iconName="qtg_mono_play" name="icon"/>
+        <string locid="Play/Stop" name="toolTip"/>
+    </object>
+    <object name="addToFav" type="HbAction">
+        <icon iconName="qtg_mono_favourites_add" name="icon"/>
+        <string locid="Add to Fav" name="toolTip"/>
+    </object>
+    <object name="flip" type="HbAction">
+        <icon iconName="qtg_mono_details" name="icon"/>
+        <string locid="Details" name="toolTip"/>
+    </object>
+    <widget name="ex-IRNowPlayingView" type="HbView">
+        <widget name="menu" role="HbView:menu" type="HbMenu">
+            <ref object="activateStereo" role="HbMenu:addAction"/>
+            <ref object="openWebAddressAction" role="HbMenu:addAction"/>
+            <ref object="shareStationAction" role="HbMenu:addAction"/>
+            <ref object="songRecAction" role="HbMenu:addAction"/>
+            <ref object="gotoMusicStoreAction" role="HbMenu:addAction"/>
+            <ref object="settings" role="HbMenu:addAction"/>
+            <ref object="help" role="HbMenu:addAction"/>
+            <ref object="exit" role="HbMenu:addAction"/>
+        </widget>
+        <widget name="toolbar" role="HbView:toolBar" type="HbToolBar">
+            <enums name="orientation" value="Horizontal"/>
+            <ref object="musicShop" role="HbToolBar:addAction"/>
+            <ref object="playStop" role="HbToolBar:addAction"/>
+            <ref object="addToFav" role="HbToolBar:addAction"/>
+            <ref object="flip" role="HbToolBar:addAction"/>
+        </widget>
+        <string locid="txt_irad_title_internet_radio" name="title"/>
+    </widget>
+    <metadata activeUIState="Common ui state" display="NHD portrait" unit="un">
+        <uistate name="Common ui state" sections="#common"/>
+    </metadata>
+</hbdocument>

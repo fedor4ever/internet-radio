@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hbdocument context="IROpenWebAddressView" version="0.9">
+    <widget name="ex-IRQOpenWebAddressView" type="HbView">
+        <widget name="container" role="HbView:widget" type="HbWidget">
+            <widget name="label1" type="HbLabel">
+                <string name="plainText" value="Station URL:"/>
+            </widget>
+            <widget name="streamURL" type="HbLineEdit"/>
+            <widget name="label2" type="HbLabel">
+                <string name="plainText" value="Name:"/>
+            </widget>
+            <widget name="stationName" type="IrLineEditor"/>
+            <widget name="label3" type="HbLabel">
+                <string name="plainText" value="Description:"/>
+            </widget>
+            <widget name="description" type="HbLineEdit"/>
+            <widget name="actionContainer" type="HbWidget">
+                <widget name="playButton" type="HbPushButton">
+                    <bool name="checkable" value="FALSE"/>
+                    <icon iconName="qtg_mono_play" name="icon"/>
+                    <sizehint height="10.5un" type="PREFERRED" width="22un"/>
+                    <string locid="Play" name="toolTipText"/>
+                    <sizehint height="7.5un" type="MINIMUM" width="18un"/>
+                    <string name="state" value="normal"/>
+                </widget>
+                <widget name="add2FavButton" type="HbPushButton">
+                    <bool name="checkable" value="FALSE"/>
+                    <icon iconName="qtg_mono_favourites_add" name="icon"/>
+                    <sizehint height="10.5un" type="PREFERRED" width="22un"/>
+                    <string locid="Add to Fav" name="toolTipText"/>
+                    <sizehint height="7.5un" type="MINIMUM" width="18un"/>
+                    <string name="state" value="normal"/>
+                </widget>
+            </widget>
+            <contentsmargins bottom="0un" left="0un" right="0un" top="0un"/>
+        </widget>
+        <string locid="txt_irad_title_internet_radio" name="title"/>
+    </widget>
+    <section name="portrait">
+        <widget name="container" role="HbView:widget" type="HbWidget">
+            <layout orientation="Vertical" type="linear">
+                <linearitem itemname="label1"/>
+                <linearitem itemname="streamURL"/>
+                <linearitem itemname="label2"/>
+                <linearitem itemname="stationName"/>
+                <linearitem itemname="label3"/>
+                <linearitem itemname="description"/>
+                <stretchitem stretchfactor="1"/>
+                <linearitem itemname="actionContainer"/>
+                <stretchitem stretchfactor="1"/>
+            </layout>
+        </widget>
+        <widget name="actionContainer" type="HbWidget">
+            <layout orientation="Horizontal" type="linear">
+                <stretchitem stretchfactor="1"/>
+                <linearitem itemname="playButton"/>
+                <linearitem itemname="add2FavButton"/>
+                <stretchitem stretchfactor="1"/>
+            </layout>
+        </widget>
+    </section>
+    <section name="landscape">
+        <widget name="actionContainer" type="HbWidget">
+            <layout orientation="Vertical" type="linear">
+                <stretchitem stretchfactor="1"/>
+                <linearitem itemname="playButton"/>
+                <linearitem itemname="add2FavButton"/>
+                <stretchitem stretchfactor="1"/>
+            </layout>
+        </widget>
+        <widget name="container" role="HbView:widget" type="HbWidget">
+            <layout type="grid">
+                <griditem column="0" itemname="label1" row="0"/>
+                <griditem column="0" itemname="streamURL" row="1"/>
+                <griditem column="0" itemname="label2" row="2"/>
+                <griditem column="0" itemname="stationName" row="3"/>
+                <griditem column="0" itemname="label3" row="4"/>
+                <griditem column="0" itemname="description" row="5"/>
+                <griditem column="1" itemname="actionContainer" row="0" row_span="6"/>
+            </layout>
+        </widget>
+    </section>
+    <metadata activeUIState="portrait" display="NHD portrait" unit="un">
+        <uistate name="Common ui state" sections="#common"/>
+        <uistate name="portrait" sections="#common portrait"/>
+        <uistate name="landscape" sections="#common landscape"/>
+    </metadata>
+</hbdocument>
