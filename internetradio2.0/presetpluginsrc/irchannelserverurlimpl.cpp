@@ -96,6 +96,11 @@ void CIRChannelServerUrlImpl::SetBitRate(TInt aBitrate)
 //
 TDesC& CIRChannelServerUrlImpl::GetServerName()
 	{
+    if( NULL == iServerName )
+    {
+        iServerName = HBufC::NewL(0);
+    }
+    
 	return *iServerName;
 	}
 
@@ -106,6 +111,10 @@ TDesC& CIRChannelServerUrlImpl::GetServerName()
 //
 TDesC& CIRChannelServerUrlImpl::GetServerUrl()
 	{
+    if( NULL == iURL )
+    {
+        iURL = HBufC::NewL(0);
+    }
 	return *iURL;
 	}
 	

@@ -16,18 +16,18 @@
 */
 #include <QString>
 #include <QByteArray>
-#include <QPixmap>
+#include <QFile>
+#include <QTextStream>
+#include <QStringList>
+
+#include <xqsettingsmanager.h>
+#include <xqsettingskey.h>
+
 #include <e32err.h>
-#include <fbs.h>
 #include <apmstd.h>
 #include <apgcli.h>
 #include <apgtask.h>
 #include <coemain.h> 
-
-#ifdef _DEBUG
-#include <QFile>
-#include <QTextStream>
-#endif
 
 #include "irqutility.h"
 #include "irchannelserverurl.h"
@@ -39,6 +39,13 @@ _LIT8( KIRHtmlMimeType, "text/html" );
 /** Browser prefix: See browser API specification */
 _LIT( KBrowserPrefix, "4 " );
 
+const long int KCenrepUidInternetRadio = { 0x2000B499 };
+const unsigned long int KSongRecognitionKeyId = { 0x00000035 };
+
+static bool openAdvLinkL(const QString& aUrl);
+static TUid getSongRecognitionAppUid();
+static bool launchAppByUid(const TUid aUid);
+  
 //
 //convert the CIRIsdsPreset to the IRQPreset. 
 //
@@ -198,17 +205,17 @@ EXPORT_C void IRQUtility::convertSError2QError(const int aSError, int& aQError)
  */
 EXPORT_C bool IRQUtility::isValidUrl(const QString& aUrl)
 {
-    if (aUrl.size() < 8)
+    QString temp = aUrl.trimmed();
+    if (temp.size() < 8)
     {
         return false;
     }
 
-    QString prefix7 = aUrl.left(7);
-    QString prefix6 = aUrl.left(6);
-
-    if (0 == prefix7.compare("http://", Qt::CaseInsensitive) ||
-        0 == prefix7.compare("rtsp://", Qt::CaseInsensitive) ||
-        0 == prefix6.compare("mms://", Qt::CaseInsensitive))
+    if ( temp.startsWith("http://", Qt::CaseInsensitive) ||
+         temp.startsWith("rtsp://", Qt::CaseInsensitive) ||
+         temp.startsWith("mms://", Qt::CaseInsensitive) ||
+		 temp.startsWith("mmst://", Qt::CaseInsensitive) ||
+		 temp.startsWith("mmsu://", Qt::CaseInsensitive))
     {
         return true;
     }
@@ -228,38 +235,46 @@ EXPORT_C bool IRQUtility::openAdvLink(const QString& aUrl)
     return retval;
 }
 
-EXPORT_C void IRQUtility::writeLog2File(const QString& aString, bool aDeleteOldFile)
-{       
-#ifdef _DEBUG 
-    QFile file("C:\\data\\QTIRLog.txt");
-    
-    if (file.exists() && aDeleteOldFile)
+EXPORT_C bool IRQUtility::identifySongAvailable()
+{
+    RApaLsSession lsSession;
+    if( lsSession.Connect() != KErrNone )
     {
-        bool ret = file.remove();
-        if (!ret)
+        return false;
+    }
+    
+    bool ret = false;
+    TUid songRecognitionAppUid = getSongRecognitionAppUid();
+    TApaAppInfo appInfo;
+    lsSession.GetAllApps();  
+
+    while( KErrNone == lsSession.GetNextApp(appInfo) )
+    {
+        TBool appIsHidden = EFalse;
+        TApaAppCapabilityBuf capability;
+        if( KErrNone == lsSession.GetAppCapability(capability,appInfo.iUid) )
         {
-            return;
+            appIsHidden = capability().iAppIsHidden;
+        }
+        
+        if(!appIsHidden)
+        {
+            if(songRecognitionAppUid == appInfo.iUid)
+            {
+                ret = true;
+                break;
+            }
         }
     }
-
-    bool ret = file.open(QIODevice::ReadWrite);    
-    if( !ret )
-    {
-        return;
-    }
     
-    QTextStream stream(&file);
-    stream << aString;
-    stream << "\r\n";    
-
-    stream.flush();
-    file.close();
-   
-#else
-    Q_UNUSED(aString);
-    Q_UNUSED(aDeleteOldFile);
-#endif
-
+    lsSession.Close();
+    return ret;         
+}   
+    
+    
+EXPORT_C bool IRQUtility::openSongRecognition()
+{       
+    return launchAppByUid(getSongRecognitionAppUid());
 }
 
 void IRQUtility::appendURLL(const IRQPreset& aQIRPreset, CIRIsdsPreset& aCIRIsdsPreset)
@@ -278,7 +293,7 @@ void IRQUtility::appendURLL(const IRQPreset& aQIRPreset, CIRIsdsPreset& aCIRIsds
     } 
 }
 
-bool IRQUtility::openAdvLinkL(const QString& aUrl)
+bool openAdvLinkL(const QString& aUrl)
 {
     if (aUrl.size() == 0)
     {
@@ -336,6 +351,57 @@ bool IRQUtility::openAdvLinkL(const QString& aUrl)
     CleanupStack::PopAndDestroy( &wsSession );
 
     return ret;
+}
+
+bool launchAppByUid(const TUid aUid)
+{
+    RWsSession wsSession;
+    if(KErrNone != wsSession.Connect())
+    {
+        return false;
+    }
+    
+    bool retVal = false;
+    TApaTaskList tasList(wsSession);
+    TApaTask task = tasList.FindApp(aUid);
+
+    if(task.Exists())
+    {
+        task.BringToForeground();
+        retVal = true;
+    }
+    else
+    {
+        RApaLsSession session;
+        if(KErrNone == session.Connect())
+        {
+            TThreadId threadId;
+            TInt err = session.CreateDocument(KNullDesC, aUid, threadId);
+            if(KErrNone == err)
+            {
+                retVal = true;
+            }
+            session.Close();
+        }      	
+    }
+    
+    wsSession.Flush();    
+    wsSession.Close();
+    return retVal;
+}
+
+TUid getSongRecognitionAppUid()
+{
+    // Create an XQSettingsManager object
+    XQSettingsManager settingsManager;
+    // Create an XQSettingsKey object for a particular central repository item.
+    XQSettingsKey appUidKey(XQSettingsKey::TargetCentralRepository, 
+        KCenrepUidInternetRadio, KSongRecognitionKeyId);
+    
+    // Read the integer value
+    int uidValue = settingsManager.readItemValue(appUidKey, XQSettingsManager::TypeInt).toInt();
+
+    return TUid::Uid(uidValue);
 }
 
 

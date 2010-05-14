@@ -1,7 +1,0 @@
-EXPORTS 
-	??0IRQStationExporter@@QAE@XZ @ 1  NONAME ; IRQStationExporter::IRQStationExporter(void)
-	?sendViaMms@IRQStationExporter@@QAE_NABVIRQPreset@@ABVQString@@@Z @ 2  NONAME ; bool IRQStationExporter::sendViaMms(class IRQPreset const &, class QString const &)
-	?sendViaMms@IRQStationExporter@@QAE_NABV?$QList@PAVIRQPreset@@@@ABVQString@@@Z @ 3  NONAME ; bool IRQStationExporter::sendViaMms(class QList<class IRQPreset *> const &, class QString const &)
-	??1IRQStationExporter@@QAE@XZ @ 4  NONAME ; IRQStationExporter::~IRQStationExporter(void)
-	_E32Dll=__E32Dll	; Entry point for emulation
-

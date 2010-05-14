@@ -30,21 +30,19 @@ INCLUDEPATH += inc \
                ..\irqisdsclient\inc \
                ..\irqmediaplayer\inc \
                ..\irqcommon\inc \
-               ..\irqmusicshop\inc \
-               ..\irqnwkinfoobserver\inc \
-               ..\irqstatisticsreport\inc \
+               ..\irqstatisticsreporter\inc \
                ..\irqfavoritesdb\inc \
                ..\irqnetworkcontroller\inc \
                ..\irqsonghistory\inc \
-               ..\irqsettings\inc    \
-               ..\irqstationexporter\inc \
-               ..\irqdiskspacewatcher\inc \	 
+               ..\irqsettings\inc    \                
                ..\irqlogger\inc \                      
-               ..\..\internetradio2.0\uiinc     #needed by irsystemeventobserver.h
+               ..\irqsystemeventhandler\inc
 
-CONFIG += hb
+CONFIG += hb service
 QT += sql
- 
+
+SERVICE.FILE = service_conf.xml
+
 exists($${OS_LAYER_PLATFORM_EXPORT_PATH(qt/translations/internet_radio_10_1*.ts)}) {           
        TRANSLATIONS = internet_radio_10_1.ts
        message( "LOALIZATION IS TURNED ON" )   
@@ -61,18 +59,18 @@ LIBS += -lirqnetworkcontroller \
         -lirqsettings \	    
         -lremconcoreapi \
         -lremconinterfacebase \
-        -lirqmusicshop \
-        -lirqnwkinfoobserver \
-        -lirqstatisticsreport \
-        -lirqdiskspacewatcher \	
+        -lirqstatisticsreporter \         
         -lirqlogger \
-        -lirqstationexporter
-	
+        -lshareui \
+        -lirqsystemeventhandler \
+	-lxqservice \
+        -lxqserviceutil
+        	
 symbian{
   TARGET.UID3 = 0xE28364bb
   TARGET.EPOCHEAPSIZE = 0x020000 0x2000000
   TARGET.VID = VID_DEFAULT
-  ICON = resources/irqradio.svg
+  ICON = resources/qtg_large_internet_radio.svg
   datatype_list = "datatype_list={DATATYPE{priority=EDataTypePriorityHigh;type=\"audio/x-scpls\";}," \
                                  "DATATYPE{priority=EDataTypePriorityHigh;type=\"audio/x-mpegurl\";}" \
                   "};"
@@ -82,7 +80,6 @@ symbian{
 #input
 #header files list
 HEADERS += inc\irapplication.h \
-           inc\irabstractviewmanager.h \ 
            inc\irviewmanager.h \
            inc\irbaseview.h \
            inc\irmainview.h \
@@ -90,39 +87,33 @@ HEADERS += inc\irapplication.h \
            inc\ircategoryview.h \      
            inc\irstationsview.h \  
            inc\irnowplayingview.h \
-           inc\irnowplayingcontainer.h \
            inc\irplaycontroller.h \
            inc\ircategorymodel.h \
            inc\irchannelmodel.h \
            inc\irabstractlistviewbase.h \
-           inc\irbannerlabel.h \
            inc\irfavoritesview.h \
            inc\irfavoritesmodel.h \
            inc\irhistoryview.h \
            inc\irsonghistoryview.h \
            inc\irsettingsview.h \
            inc\irlastplayedstationinfo.h \
-           inc\irstationdetailscontainer.h \
            inc\iropenwebaddressview.h \
            inc\irhistorymodel.h \
-           inc\irsonghistorymodel.h \
-           inc\irsearchcriteriadb.h \
+           inc\irsonghistorymodel.h \            
            inc\irsearchchannelsview.h \
-           inc\irdocumentloader.h \
-           inc\ircombobox.h \
-           inc\irlineeditor.h \
+           inc\irdocumentloader.h \           
            inc\irmediakeyobserver.h \
-           inc\irsymbianapplication.h \
-           inc\irsymbiandocument.h \
-           inc\irsymbianappui.h \
            inc\irplsmodel.h \
            inc\irplsview.h \
-           inc\irmemorycollector.h
+           inc\irmemorycollector.h \
+           inc\irstationshare.h \
+           inc\irstationdetailsview.h \
+           inc\irtermsconsview.h \
+           inc\irplaylist.h
            
 #source files list
 SOURCES += main.cpp  \
            irapplication.cpp \
-           irabstractviewmanager.cpp \
            irviewmanager.cpp \
            irbaseview.cpp \
            irmainview.cpp \
@@ -130,34 +121,29 @@ SOURCES += main.cpp  \
            ircategoryview.cpp \
            irstationsview.cpp \
            irnowplayingview.cpp \
-           irnowplayingcontainer.cpp \
            irplaycontroller.cpp \
            ircategorymodel.cpp \
            irchannelmodel.cpp \
            irabstractlistviewbase.cpp \
-           irbannerlabel.cpp \
            irfavoritesview.cpp \
            irfavoritesmodel.cpp \
            irhistoryview.cpp \
            irsonghistoryview.cpp \
            irsettingsview.cpp \
            irlastplayedstationinfo.cpp \
-           irstationdetailscontainer.cpp \
            iropenwebaddressview.cpp \
            irhistorymodel.cpp \
-           irsonghistorymodel.cpp \
-           irsearchcriteriadb.cpp \
+           irsonghistorymodel.cpp \                   
            irsearchchannelsview.cpp \
-           irdocumentloader.cpp \
-           ircombobox.cpp \
-           irlineeditor.cpp \
+           irdocumentloader.cpp \            
            irmediakeyobserver.cpp \
-           irsymbianapplication.cpp \
-           irsymbiandocument.cpp \
-           irsymbianappui.cpp \
            irplsmodel.cpp \
            irplsview.cpp \
-           irmemorycollector.cpp
+           irmemorycollector.cpp \
+           irstationshare.cpp \
+           irstationdetailsview.cpp \
+           irtermsconsview.cpp \
+           irplaylist.cpp
           	   
 #resource
 RESOURCES += resources/irui.qrc

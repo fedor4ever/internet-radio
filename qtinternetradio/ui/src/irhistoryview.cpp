@@ -20,7 +20,7 @@
 #include <QPixmap>
 #include <QTimer>
 
-#include "irabstractviewmanager.h"
+#include "irviewmanager.h"
 #include "irapplication.h"
 #include "irqisdsclient.h"
 #include "irplaycontroller.h"
@@ -32,8 +32,14 @@
 #include "irqutility.h"
 #include "irqenums.h"
 #include "irqfavoritesdb.h"
+#include "irstationdetailsview.h"
+#include "iruidefines.h"
+
 
 const int KBitmapSize = 59;
+const QString KActionAddName("Add");
+const QString KActionDeleteName("Delete");
+const QString KActionDetailsName("Details");
 
 //                                         public functions
 
@@ -44,14 +50,16 @@ IRHistoryView::IRHistoryView(IRApplication *aApplication, TIRViewId aViewId) :
     IrAbstractListViewBase(aApplication, aViewId), iClearHistoryAction(NULL),
     iLogoPreset(NULL)
 {
+    //this view won't be starting view, don't need lazy init
+    IrAbstractListViewBase::lazyInit();
+    setInitCompleted(true);
     
     iModel = new IRHistoryModel(this);
     iListView->setModel(iModel);
     iListView->setCurrentIndex(iModel->index(0));
     
     iClearHistoryAction = new HbAction(hbTrId("txt_irad_opt_clear_station_history"), menu());
-    iSongHistoryAction = new HbAction(hbTrId("txt_irad_opt_recently_played_songs"), menu());	 
-    menu()->insertAction(iOpenWebAddressAction, iSongHistoryAction);
+
     
     iConvertTimer = new QTimer(this);
     iConvertTimer->setInterval(10);
@@ -60,7 +68,6 @@ IRHistoryView::IRHistoryView(IRApplication *aApplication, TIRViewId aViewId) :
     connect(iNetworkController, SIGNAL(networkRequestNotified(IRQNetworkEvent)),
     this, SLOT(networkRequestNotified(IRQNetworkEvent)));
     connect(iModel, SIGNAL(modelChanged()), this, SLOT(modelChanged()));
-    connect(iSongHistoryAction, SIGNAL(triggered()), this, SLOT(gotoSongHistory()));
     connect(iConvertTimer, SIGNAL(timeout()), this, SLOT(convertAnother()));
 }
 
@@ -104,6 +111,11 @@ TIRHandleResult IRHistoryView::handleCommand(TIRViewCommand aCommand,
                 this, SLOT(presetLogoDownloadError()));
         
         showHistory();
+        leftCount = iIconIndexArray.count();
+        if( leftCount > 0 )
+        {
+            iConvertTimer->start();
+        }
         ret = EIR_NoDefault;
         break;
 
@@ -126,15 +138,6 @@ TIRHandleResult IRHistoryView::handleCommand(TIRViewCommand aCommand,
         disconnect(iIsdsClient, SIGNAL(presetLogoDownloadError()),
                    this, SLOT(presetLogoDownloadError()));
         ret = EIR_NoDefault;
-        break;
-    
-    case EIR_ViewCommand_EffectFinished:
-        /* when the effect is finished, we start showing the logos  */
-        leftCount = iIconIndexArray.count();
-        if( leftCount > 0 )
-        {
-            iConvertTimer->start();
-        }
         break;
 
     default:
@@ -270,7 +273,6 @@ void IRHistoryView::clearAllList()
     iConvertTimer->stop();
     iIsdsClient->isdsLogoDownCancelTransaction();
     iListView->reset();
-    updateView();
 }
 
 void IRHistoryView::prepareMenu()
@@ -278,9 +280,12 @@ void IRHistoryView::prepareMenu()
     HbMenu *viewMenu = menu();
     
     viewMenu->removeAction(iClearHistoryAction);
+
+    HbAction * settingAction = qobject_cast<HbAction *>(iLoader.findObject(SETTINGS_ACTION));
+
     if (iModel->rowCount() > 0)
     {
-        viewMenu->insertAction(iOpenWebAddressAction, iClearHistoryAction);
+        viewMenu->insertAction(settingAction, iClearHistoryAction);
     }
 } 
 
@@ -363,7 +368,26 @@ void IRHistoryView::modelChanged()
     setHeadingText(headingStr);
 }
  
- 
+void IRHistoryView::actionClicked(HbAction *aAction)
+{
+    if ( aAction )
+    {
+        QString objectName = aAction->objectName();
+        if ( objectName == KActionAddName )
+        {
+            addContextAction();
+        }
+        else if( objectName == KActionDeleteName)
+        {
+            deleteContextAction();
+        }
+        else if( objectName == KActionDetailsName)
+        {
+            detailContextAction();
+        }
+    }
+}
+
 void IRHistoryView::addContextAction()
 {        
     QModelIndex current = iListView->currentIndex();     
@@ -401,35 +425,34 @@ void IRHistoryView::deleteContextAction()
 	    popupNote(hbTrId("txt_irad_info_operation_failed"), HbMessageBox::MessageTypeWarning);
 	  }
 }
- 
- 
- 
+void IRHistoryView::detailContextAction()
+{
+    getViewManager()->activateView(EIRView_StationDetailsView);
+    IRStationDetailsView *channelHistoryView = static_cast<IRStationDetailsView*>(getViewManager()->getView(EIRView_StationDetailsView));
+    int selectedItemIndex = iListView->currentIndex().row();
+    IRQSongHistoryInfo *channelDetailInfo = iModel->getHistoryInfo(selectedItemIndex);
+    channelHistoryView->setDetails(channelDetailInfo);
+}
+
 void IRHistoryView::listViewLongPressed(HbAbstractViewItem *aItem, const QPointF& aCoords)
 {
-    Q_UNUSED(aItem);             
-    HbMenu *contextMenu = 0;
-    HbAction *action = 0;
+    Q_UNUSED(aItem);
+    Q_UNUSED(aCoords);
     
-    contextMenu = new HbMenu();
-    action = contextMenu->addAction(QString(hbTrId("txt_irad_menu_add_to_favorite")));
-    action->setObjectName("add");
-    action = contextMenu->addAction(QString(hbTrId("txt_common_menu_delete")));
-    action->setObjectName("delete");
-    action = contextMenu->exec(aCoords);
+    HbAction *action = NULL;
+    HbMenu *contextMenu = new HbMenu;
+    contextMenu->setAttribute(Qt::WA_DeleteOnClose);
+    connect(contextMenu, SIGNAL(triggered(HbAction*)), this, SLOT(actionClicked(HbAction*)));
     
-    if( action )
-    {
-        QString objectName = action->objectName();
-        if ( objectName == "add" )
-        {
-            addContextAction();                          	        	            
-        }
-        else if( objectName == "delete")
-        {
-            deleteContextAction();                            
-        }
-    }          
-} 
+    action = contextMenu->addAction(hbTrId("txt_irad_menu_add_to_favorite"));
+    action->setObjectName(KActionAddName);
+    action = contextMenu->addAction(hbTrId("txt_common_menu_delete"));
+    action->setObjectName(KActionDeleteName);
+    action = contextMenu->addAction(hbTrId("txt_common_menu_details"));
+    action->setObjectName(KActionDetailsName);
+    
+    contextMenu->open();
+}
 
 void IRHistoryView::convertStationHistory2Preset(const IRQSongHistoryInfo& aHistoryInfo, IRQPreset& aPreset)
 {

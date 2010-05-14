@@ -11,14 +11,13 @@ EXPORTS
 	_ZN21CIRLogoDownloadEngine13GetCacheLogoLERK7TDesC16Ri @ 10 NONAME
 	_ZN21CIRLogoDownloadEngine13SendCacheLogoEv @ 11 NONAME
 	_ZN21CIRLogoDownloadEngine13isLogoCachedLEP13CIRIsdsPresetii @ 12 NONAME
-	_ZN21CIRLogoDownloadEngine16SetFavDbInstanceEP14CIRFavoritesDb @ 13 NONAME
-	_ZN21CIRLogoDownloadEngine17CancelTransactionEv @ 14 NONAME
-	_ZN21CIRLogoDownloadEngine19SendPresetWithLogoLEv @ 15 NONAME
-	_ZN21CIRLogoDownloadEngine4NewLEv @ 16 NONAME
-	_ZN21CIRLogoDownloadEngineD0Ev @ 17 NONAME
-	_ZN21CIRLogoDownloadEngineD1Ev @ 18 NONAME
-	_ZN21CIRLogoDownloadEngineD2Ev @ 19 NONAME
-	_ZNK21CIRLogoDownloadEngine9IsRunningEv @ 20 NONAME
-	_ZTI21CIRLogoDownloadEngine @ 21 NONAME
-	_ZTV21CIRLogoDownloadEngine @ 22 NONAME
+	_ZN21CIRLogoDownloadEngine17CancelTransactionEv @ 13 NONAME
+	_ZN21CIRLogoDownloadEngine19SendPresetWithLogoLEv @ 14 NONAME
+	_ZN21CIRLogoDownloadEngine4NewLEv @ 15 NONAME
+	_ZN21CIRLogoDownloadEngineD0Ev @ 16 NONAME
+	_ZN21CIRLogoDownloadEngineD1Ev @ 17 NONAME
+	_ZN21CIRLogoDownloadEngineD2Ev @ 18 NONAME
+	_ZNK21CIRLogoDownloadEngine9IsRunningEv @ 19 NONAME
+	_ZTI21CIRLogoDownloadEngine @ 20 NONAME
+	_ZTV21CIRLogoDownloadEngine @ 21 NONAME
 

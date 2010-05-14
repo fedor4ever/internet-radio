@@ -32,9 +32,6 @@ protected:
     //only friend class IRViewManager can create this view
     IRMainView(IRApplication *aApplication, TIRViewId aViewId);
     
-    //from base class IRBaseView
-    TIRHandleResult handleCommand(TIRViewCommand aCommand, TIRViewCommandReason aReason);
-    
 private slots:
 	/*
 	 * Description : slot function for active network event
@@ -53,14 +50,16 @@ private:
     //from base class IRBaseView
     void updateView();
     
+    void lazyInit();
+    
 private:
     IRMainModel *iMainModel;
 
     enum TUserSelection
     {
-        ERecentlyPlayedStations,
         EBrowseByCountry,
         EBrowseByLanguage,
+        ERecentlyPlayedStations,
         ESongsPlayed,
         EPlayList
     };

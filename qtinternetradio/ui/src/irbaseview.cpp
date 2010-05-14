@@ -16,7 +16,7 @@
 */
 #include "irapplication.h"
 #include "irbaseview.h"
-#include "irabstractviewmanager.h"
+#include "irviewmanager.h"
 
 /*
  * Description  : constructor
@@ -25,18 +25,11 @@
  * Return       : None
  */
 IRBaseView::IRBaseView(IRApplication* aApplication, TIRViewId aViewId) : iApplication(aApplication),
-                                                                         iLoader(aApplication->getViewManager()),
                                                                          iViewId(aViewId),                                                                         
                                                                          iFlag(0),
-                                                                         iUseNetworkReason(EIR_UseNetwork_NoReason)
+                                                                         iUseNetworkReason(EIR_UseNetwork_NoReason),
+                                                                         iInitCompleted(false)
 {
-    setTitle(hbTrId("txt_irad_title_internet_radio"));
-    
-    iPlayController = iApplication->getPlayController();
-    iIsdsClient = iApplication->getIsdsClient();
-    iNetworkController = iApplication->getNetworkController();
-    iFavorites = iApplication->getFavoritesDB();
-    iSettings = iApplication->getSettings();
 }
 
 TIRViewId IRBaseView::id() const
@@ -51,7 +44,7 @@ TIRViewId IRBaseView::id() const
  * Return      : EIR_DoDefault : caller does default handling
  *               EIR_NoDefault : caller doesn't do default handling
  */
-TIRHandleResult IRBaseView::handleSystemEvent(TIRSystemEventType aEvent)
+TIRHandleResult IRBaseView::handleSystemEvent(int aEvent)
 {
     Q_UNUSED(aEvent);
     
@@ -91,7 +84,7 @@ void IRBaseView::updateView()
 
 void IRBaseView::setFlag(int aFlag)
 {
-    iFlag |= aFlag;
+    iFlag = aFlag;
 }
 
 int IRBaseView::flag() const
@@ -108,13 +101,25 @@ TIRUseNetworkReason IRBaseView::getUseNetworkReason() const
 {
     return iUseNetworkReason;
 }
-    
+ 
+void IRBaseView::lazyInit()
+{
+    if (!initCompleted())
+    {
+        iNetworkController = iApplication->getNetworkController();        
+        iPlayController = iApplication->getPlayController();
+        iIsdsClient = iApplication->getIsdsClient();
+        iFavorites = iApplication->getFavoritesDB();
+        iSettings = iApplication->getSettings();
+    }
+}
+
 /*
  * Description : return the pointer to the view manager object owned by application
  * Parameters  : None
  * Return      : the pointer to the view manager object owned by application
  */
-IRAbstractViewManager* IRBaseView::getViewManager() const
+IRViewManager* IRBaseView::getViewManager() const
 {
     return iApplication->getViewManager();
 }
@@ -134,4 +139,14 @@ void IRBaseView::popupNote(const QString &aNote, const HbMessageBox::MessageBoxT
     default:
         break;
     }
+}
+
+void IRBaseView::setInitCompleted(bool aFlag)
+{
+    iInitCompleted = aFlag;
+}
+
+bool IRBaseView::initCompleted() const
+{
+    return iInitCompleted;
 }

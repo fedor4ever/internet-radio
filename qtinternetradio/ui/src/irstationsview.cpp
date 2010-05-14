@@ -18,8 +18,9 @@
 #include <hblistview.h>
 #include <hbaction.h>
 #include <QTimer>
+#include <hbprogressdialog.h>
 
-#include "irabstractviewmanager.h"
+#include "irviewmanager.h"
 #include "irstationsview.h"
 #include "irapplication.h"
 #include "irplaycontroller.h"
@@ -42,9 +43,13 @@ IRStationsView::IRStationsView(IRApplication* aApplication, TIRViewId aViewId)
                                : IrAbstractListViewBase(aApplication, aViewId),
                                iLogoPreset(NULL),  iPreset(NULL), 
                                iWaitDialog(NULL),
-                               iViewParameter(EIRViewPara_InvalidId),iLastSelectitem(0),
+                               iLastSelectitem(0),
                                iLastPopularItem(0)                          
 {       
+    //this view won't be starting view, don't need lazy init
+    IrAbstractListViewBase::lazyInit();
+    setInitCompleted(true);
+        
     iIconIndexArray.clear();
     iChannelModel = new IrChannelModel(this);
     iListView->setModel(iChannelModel);
@@ -79,16 +84,6 @@ IRStationsView::~IRStationsView()
     
  
  
-}
-
-void IRStationsView::setViewParameter(TIRViewParameter aParameter)
-{
-    iViewParameter = aParameter;
-}
-
-TIRViewParameter IRStationsView::getViewParameter() const
-{
-    return iViewParameter;
 }
 
 void IRStationsView::loadCategoryStations(int aIndex, const QString &aHeadingText)
@@ -177,6 +172,11 @@ TIRHandleResult IRStationsView::handleCommand(TIRViewCommand aCommand, TIRViewCo
         connect(iIsdsClient, SIGNAL(presetLogoDownloadError()),
                 this, SLOT(presetLogoDownloadError()));
         
+        leftCount = iIconIndexArray.count();
+        if( leftCount > 0 )
+        {
+            iConvertTimer->start();
+        }
         ret = EIR_NoDefault;
         break;
         
@@ -198,16 +198,7 @@ TIRHandleResult IRStationsView::handleCommand(TIRViewCommand aCommand, TIRViewCo
                    this, SLOT(presetLogoDownloadError()));        
         ret = EIR_NoDefault;
         break;
-        
-    case EIR_ViewCommand_EffectFinished:
-        /* when the effect is finished, we start showing the logos  */
-        leftCount = iIconIndexArray.count();
-        if( leftCount > 0 )
-        {
-            iConvertTimer->start();
-        }
-        break;
- 
+
     default:
         break;
     }
@@ -538,11 +529,11 @@ void IRStationsView::disconnectIsdsClient()
                this, SLOT(operationException(IRQError)));
 }
 
-void IRStationsView::createWaitDialog(QString aStr)
+void IRStationsView::createWaitDialog(const QString &aStr)
 {
     if (!iWaitDialog)
     {
-        iWaitDialog = new HbMessageBox(aStr, HbMessageBox::MessageTypeInformation);
+        iWaitDialog = new HbProgressDialog(HbProgressDialog::WaitDialog);
         iWaitDialog->setTimeout(HbPopup::NoTimeout);
         iWaitDialog->setModal(true);
         iWaitDialog->setDismissPolicy(HbPopup::NoDismiss);
@@ -552,6 +543,7 @@ void IRStationsView::createWaitDialog(QString aStr)
         connect(action, SIGNAL(triggered()), this, SLOT(cancelRequest()));
     }
 
+    iWaitDialog->setText(aStr);
     iWaitDialog->open();
 }
 

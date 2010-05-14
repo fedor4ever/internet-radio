@@ -76,6 +76,11 @@ private:
 	 * @param aBuffer is buffer containing data to be recognized
 	 */
 	void DoRecognizeL(const TDesC& aName, const TDesC8& aBuffer);
+	
+	/*
+	 * try to recognize a m3u file and decide whether it should be launched by InternetRadio application
+	 */
+	void RecognizeM3uFileL(const TDesC8& aBuffer);
     };
 
 #endif //IRRECOGNIZER_H

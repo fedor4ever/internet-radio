@@ -20,16 +20,16 @@
 #include <hbicon.h>
 #include <QTimer> 
 
-#include "irabstractviewmanager.h"
+#include "irviewmanager.h"
 #include "irapplication.h" 
 #include "irplaycontroller.h"
 #include "irsonghistoryview.h" 
 #include "irsonghistorymodel.h"
 #include "irqsonghistoryinfo.h" 
 #include "irqenums.h"
-#include "irqmusicshop.h"
 #include "irqstatisticsreporter.h"
 #include "irqsettings.h"
+#include "iruidefines.h"
 
  
 
@@ -41,19 +41,19 @@
 IRSongHistoryView::IRSongHistoryView(IRApplication *aApplication, TIRViewId aViewId) :
     IrAbstractListViewBase(aApplication, aViewId), iClearSongHistoryAction(NULL),
     iShowPrompt(false)
-    
 {         
+    //this view won't be starting view, don't need lazy init
+    IrAbstractListViewBase::lazyInit();
+    setInitCompleted(true);
+        
     iModel = new IRSongHistoryModel(this);
+    iModel->setOrientation(getViewManager()->orientation());
     iListView->setModel(iModel);
     iListView->setCurrentIndex(iModel->index(0));
     
     iClearSongHistoryAction = new HbAction(hbTrId("txt_irad_opt_clear_song_history"), this);
-    iMusicShop = iApplication->getMusicShop();
-    iStatisticsReporter = iApplication->getStatisticsReporter();
+    iStatisticsReporter = IRQStatisticsReporter::openInstance();
     
-    iStationHistoryAction = new HbAction(hbTrId("txt_irad_opt_recently_played_stations"), this);	 
-    menu()->insertAction(iOpenWebAddressAction, iStationHistoryAction);
-    connect(iStationHistoryAction, SIGNAL(triggered()), this, SLOT(gotoStationHistory()));
     
     iShowPrompt = iSettings->getSongHistoryShow();    
     if( iShowPrompt )
@@ -70,7 +70,10 @@ IRSongHistoryView::IRSongHistoryView(IRApplication *aApplication, TIRViewId aVie
  */
 IRSongHistoryView::~IRSongHistoryView()
 {
- 
+    if (iStatisticsReporter)
+    {
+        iStatisticsReporter->closeInstance();
+    }
 }
 
 /*
@@ -122,14 +125,7 @@ TIRHandleResult IRSongHistoryView::handleCommand(TIRViewCommand aCommand,
 void IRSongHistoryView::handleItemSelected()
 {     
     int index = iListView->currentIndex().row();
-    IRQSongInfo *hisInfo = iModel->getSongHistoryInfo(index);
-     
-
-    if(NULL == iMusicShop)
-    {
-        popupNote(hbTrId("txt_irad_info_music_shop_not_available"), HbMessageBox::MessageTypeInformation);
-        return;
-    }   
+    IRQSongInfo *hisInfo = iModel->getSongHistoryInfo(index); 
     
     if( (NULL == hisInfo) ||    
         ( hisInfo->getSongName().isEmpty() &&  
@@ -141,19 +137,9 @@ void IRSongHistoryView::handleItemSelected()
         return;
     }
 
-
-    if( iMusicShop->findInMusicShop(hisInfo->getSongName(), hisInfo->getArtistName()))
-    {
-        if(iStatisticsReporter)
-        {
-            //we will add the report in future. Add the channel id in the song info db
-            //iStatisticsReporter->logNmsEvents(EIRQFind,channelId);
-        }
-    }
-    else
-    {
-        popupNote(hbTrId("txt_irad_info_music_shop_not_available"), HbMessageBox::MessageTypeInformation);
-    }     
+    // TODO : Add the report in future. Add the channel id in the song info db
+    // iStatisticsReporter->logNmsEvents(EIRQFind,channelId);
+    popupNote(hbTrId("txt_irad_info_music_store_not_available"), HbMessageBox::MessageTypeInformation);    
 }
    
 
@@ -170,25 +156,17 @@ void IRSongHistoryView::showSongHistory()
     }
 }
 
-// ---------------------------------------------------------------------------
-// IRSongHistoryView::clearAllList()
-// gets the List which was stored earlier
-//---------------------------------------------------------------------------
-void IRSongHistoryView::clearAllList()
-{        
-    iModel->clearAllList();
-    iListView->reset();
-    updateView();     
-}
-
 void IRSongHistoryView::prepareMenu()
 {
     HbMenu *viewMenu = menu();
 
     viewMenu->removeAction(iClearSongHistoryAction);
+
+    HbAction * settingAction = qobject_cast<HbAction *>(iLoader.findObject(SETTINGS_ACTION));
+    
     if (iModel->rowCount() > 0)
     {
-        viewMenu->insertAction(iOpenWebAddressAction, iClearSongHistoryAction);
+        viewMenu->insertAction(settingAction, iClearSongHistoryAction);
     }
 }
     
@@ -196,15 +174,7 @@ void IRSongHistoryView::modelChanged()
 {    
     iListView->reset();
     QString headingStr = hbTrId("txt_irad_list_recently_played_songs") + " (" + QString::number(iModel->rowCount()) + ")";    
-    setHeadingText(headingStr);
- 
-    //the case is that, we active the song history view with no items
-    //but immediately, we get the metadata and show it on the list,
-    //then we need to remove the "no content" label
-    if( 1 == iListView->model()->rowCount())
-    {
-        updateView();
-    }     
+    setHeadingText(headingStr);   
 }
 
 void IRSongHistoryView::newMetadataAdded(IRQMetaData *aMetadata)
@@ -216,8 +186,7 @@ void IRSongHistoryView::newMetadataAdded(IRQMetaData *aMetadata)
 
 void IRSongHistoryView::clearHisotrySongDB()
 {
-    iModel->clearHisotrySongDB(); 
-    updateView();    
+    iModel->clearHisotrySongDB();  
 }
 
 void IRSongHistoryView::showPrompt()
@@ -235,4 +204,11 @@ void IRSongHistoryView::itemAboutToBeSelected(bool& needNetwork)
 void IRSongHistoryView::gotoStationHistory()
 {
 	  getViewManager()->activateView(EIRView_HistoryView);
+}
+
+void IRSongHistoryView::handleOrientationChanged(Qt::Orientation aOrientation)
+{
+    IrAbstractListViewBase::handleOrientationChanged(aOrientation);
+    iModel->setOrientation(aOrientation);
+    iListView->reset();
 }

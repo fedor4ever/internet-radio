@@ -25,7 +25,7 @@
 #include "irplaycontroller.h"
 #include "irapplication.h"
 #include "irqmediaplayer.h"
-#include "irabstractviewmanager.h"
+#include "irviewmanager.h"
 #include "irqisdsdatastructure.h"
 #include "irlastplayedstationinfo.h"
 #include "irqnetworkcontroller.h" 
@@ -34,10 +34,48 @@
 #include "irqsettings.h"
 #include "irqfavoritesdb.h"
 #include "irqstatisticsreporter.h"
+#include "irenummapper.h"
 
 #ifdef Q_CC_NOKIAX86
 void getRadioServerAddress(QString & aUrl);
 #endif
+
+BEGIN_ENUM_MAP( KTerminationTypeMap )
+    ENUM_MAP_ITEM( EIRQUserTerminated, IRQStatisticsReporter::EIRUserTerminated ),
+    ENUM_MAP_ITEM( EIRQNoConnectionToServer, IRQStatisticsReporter::EIRNoConnToServer ),
+    ENUM_MAP_ITEM( EIRQNoConnectionToNetwork, IRQStatisticsReporter::EIRNoConnToNetwork )            
+END_ENUM_MAP( KTerminationTypeMap )
+
+#define MAP_TO_ENGINE_TerminationType(ui_enum) \
+          MAP_TO_ENGINE_ENUM( IRQTerminatedType, \
+             IRQStatisticsReporter::IRTerminatedType, \
+             ui_enum, KTerminationTypeMap )
+    
+BEGIN_ENUM_MAP( KServerResultMap )
+    ENUM_MAP_ITEM( EIRQPlayerErrorServerFull, IRQStatisticsReporter::EIRServerFull ),
+    ENUM_MAP_ITEM( EIRQPlayerErrorTimeOut, IRQStatisticsReporter::EIRTimeOut ),
+    ENUM_MAP_ITEM( EIRQPlayerErrorConnectingFailed, IRQStatisticsReporter::EIRConnectFailed )              
+END_ENUM_MAP( KServerResultMap )
+
+#define MAP_TO_ENGINE_ServerResult(ui_enum) \
+          MAP_TO_ENGINE_ENUM( IRQError, \
+             IRQStatisticsReporter::IRServerResult, \
+             ui_enum, KServerResultMap )
+             
+BEGIN_ENUM_MAP( KConnectedFromMap )
+    ENUM_MAP_ITEM( EIRQIsds, IRQStatisticsReporter::EIRIsds ),
+    ENUM_MAP_ITEM( EIRQPresetAdhoc, IRQStatisticsReporter::EIRPresetAdhoc ),
+    ENUM_MAP_ITEM( EIRQPresetIsds, IRQStatisticsReporter::EIRPresetIsds ),
+    ENUM_MAP_ITEM( EIRQHistoryAdhoc, IRQStatisticsReporter::EIRHistoryAdhoc ),
+    ENUM_MAP_ITEM( EIRQHistoryIsds, IRQStatisticsReporter::EIRHistoryIsds ),
+    ENUM_MAP_ITEM( EIRQAdhocManual, IRQStatisticsReporter::EIRAdhocManual ),                
+    ENUM_MAP_ITEM( EIRQAdhocExternal, IRQStatisticsReporter::EIRAdhocExternal )            
+END_ENUM_MAP( KConnectedFromMap )
+
+#define MAP_TO_ENGINE_ConnectedFrom(ui_enum) \
+          MAP_TO_ENGINE_ENUM( IRQConnectedFrom, \
+             IRQStatisticsReporter::IRConnectedFrom, \
+             ui_enum, KConnectedFromMap )                 
 
 //                                        public functions
 
@@ -49,13 +87,12 @@ IRPlayController::IRPlayController(IRApplication* aApplication) :
     iMediaPlayer(new IRQMediaPlayer()),
     iStatisticsReporter(NULL),
     iConnectedFrom(EIRQIsds),
-    iSessionStarted(false),  
     iGetServerResult(false),
     iBufferingDialog(NULL),
     iNowPlayingPreset(new IRQPreset()),
     iMetaData(NULL),
     iSongHistoryEngine(IRQSongHistoryEngine::openInstance()),
-    iPlayState(EStopped),
+    iPlayState(EIdle),
     iResuming(false),
     iTryingBitrate(0),
     iUrlArray(0),
@@ -64,7 +101,7 @@ IRPlayController::IRPlayController(IRApplication* aApplication) :
     iStopReason(EIRQUnknownTermination)
 {
     connectSignalSlot(); 
-    iStatisticsReporter = iApplication->getStatisticsReporter();
+    iStatisticsReporter = IRQStatisticsReporter::openInstance();
 }
 
 /*
@@ -72,9 +109,6 @@ IRPlayController::IRPlayController(IRApplication* aApplication) :
  */
 IRPlayController::~IRPlayController()
 {
-    iApplication = NULL;
-    iPlayState = EStopped;
-
     delete iBufferingDialog;
     iBufferingDialog = NULL;
 
@@ -88,12 +122,15 @@ IRPlayController::~IRPlayController()
     delete iUrlArray;
     iUrlArray = NULL;
 
-    iMetaData = NULL;
-
     if (iSongHistoryEngine)
     {
         iSongHistoryEngine->closeInstance();
         iSongHistoryEngine = NULL;
+    }
+    
+    if (iStatisticsReporter)
+    {
+        iStatisticsReporter->closeInstance();
     }
 }
 
@@ -217,14 +254,13 @@ void IRPlayController::stop(IRQTerminatedType aStopReason)
  */
 void IRPlayController::endSession(IRQTerminatedType aStopReason)
 {
-    if(iStatisticsReporter && iSessionStarted)
+    if(iStatisticsReporter)
     {
         if(!iGetServerResult)
         {
-            iStatisticsReporter->logServerResult(iLastPlayedUrl,EIRQPlayerErrorConnectingFailed);
+            iStatisticsReporter->logServerResult(iLastPlayedUrl,IRQStatisticsReporter::EIRConnectFailed);
         }
-        iStatisticsReporter->sessionEnded(aStopReason);
-        iSessionStarted = false;
+        iStatisticsReporter->sessionEnded(MAP_TO_ENGINE_TerminationType(aStopReason));
     }
 }
 
@@ -309,6 +345,16 @@ IRQPreset * IRPlayController::getNowPlayingPreset() const
     return iNowPlayingPreset;
 }
 
+QString IRPlayController::getNowPlayingUrl() const
+{
+    return iLastPlayedUrl;
+}
+
+int IRPlayController::getNowPlayingBitRate() const
+{
+    return iRealBitrate;
+}
+
 /*
  * Description : return current metadata
  * Return      : pointer to current metadata
@@ -367,9 +413,9 @@ void IRPlayController::closeBufferingDialog()
  */
 void IRPlayController::connectionEstablished(int aBitrate)
 {
-    if(iStatisticsReporter && iSessionStarted)
+    if(iStatisticsReporter)
     {
-        iStatisticsReporter->logServerResult(iLastPlayedUrl,EIRQErrorNone);
+        iStatisticsReporter->logServerResult(iLastPlayedUrl,IRQStatisticsReporter::EIRConnected);
         iGetServerResult = true;
         iStatisticsReporter->markSessionStart();
     }
@@ -414,14 +460,14 @@ void IRPlayController::handleError()
     case EIRQPlayerErrorConnectingFailed:
         if(iStatisticsReporter)
         {
-            iStatisticsReporter->logServerResult(iLastPlayedUrl,iLastError);
+            iStatisticsReporter->logServerResult(iLastPlayedUrl,MAP_TO_ENGINE_ServerResult(iLastError));
             iGetServerResult = true;
         }
 		
         // if there's NO other URL to try, show warning.
         if (iNowPlayingPreset->getChannelURLCount() == 1)
         {
-		    endSession(EIRQNoConnectionToServer);
+		    stop(EIRQNoConnectionToServer);
             break;
         }
 
@@ -440,7 +486,7 @@ void IRPlayController::handleError()
         }
         else
         {
-            endSession(EIRQNoConnectionToServer);
+            stop(EIRQNoConnectionToServer);
         }
         break;
 
@@ -508,11 +554,8 @@ void IRPlayController::updateProgress(int aProgress)
             tmpMetaData.setBitrate(iRealBitrate);
             tmpMetaData.setStreamUrl(iLastPlayedUrl);
             iSongHistoryEngine->handleMetaDataReceived(tmpMetaData, *iNowPlayingPreset);
-            // open stereo according to settings
-            if (1 == iApplication->getSettings()->getStereoMode())
-            {
-                iMediaPlayer->enableStereoEffect();
-            }
+            // open stereo defaultly
+            iMediaPlayer->enableStereoEffect();
         }
     }
 }
@@ -688,9 +731,9 @@ void IRPlayController::startSession()
         channelId = iNowPlayingPreset->presetId;
     }
 	      
-    if(iStatisticsReporter && !iSessionStarted)
+    if(iStatisticsReporter)
     {
-        iSessionStarted = iStatisticsReporter->sessionStarted(channelId,iConnectedFrom);
+        iStatisticsReporter->sessionStarted(channelId,MAP_TO_ENGINE_ConnectedFrom(iConnectedFrom));
     }
 }
 

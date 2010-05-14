@@ -67,6 +67,9 @@ public:
 
     // Get the preset of now playing
     IRQPreset * getNowPlayingPreset() const;
+    
+    QString getNowPlayingUrl() const;
+    int getNowPlayingBitRate() const;
 
     // Get the meta data
     IRQMetaData * getMetaData() const;
@@ -120,7 +123,6 @@ private:
     
     IRQStatisticsReporter *iStatisticsReporter;
     IRQConnectedFrom iConnectedFrom;
-    bool iSessionStarted;
     bool iGetServerResult;
     
     HbProgressDialog *iBufferingDialog;
@@ -132,7 +134,9 @@ private:
     enum EPlayState
     {
         //initial state
-        EStopped = 0,
+        EIdle = 0,
+        //a station has been stopped
+        EStopped,
         //connecting station and buffering
         EBuffering,
         //playing

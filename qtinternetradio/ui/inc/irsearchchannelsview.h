@@ -14,22 +14,21 @@
 * Description:
 *
 */
-#ifndef IRSEARCHVIEWC_H
-#define IRSEARCHVIEWC_H
+#ifndef IRSEARCHCHANNELSVIEW_H
+#define IRSEARCHCHANNELSVIEW_H
 
- 
 #include "irqevent.h"
-#include "irbaseview.h" 
- 
- 
-class HbPushButton; 
-class HbAction;   
-class HbLabel;  
-class IrComboBox; 
-class IrNowPlayingBannerLabel;
-class IRQMetaData;
-class IRSearchCriteriaDB;
+#include "irbaseview.h"
+#include "irqenums.h"
 
+
+class HbListView;
+class HbSearchPanel;
+class HbAction;
+class IrChannelModel;
+class HbProgressDialog;
+class IRQPreset;
+class QTimer;
 
 class IRSearchChannelsView : public IRBaseView
 {
@@ -37,56 +36,74 @@ class IRSearchChannelsView : public IRBaseView
     
 public:
     
-    ~IRSearchChannelsView();
-    //from base class IRBaseView
-    TIRHandleResult handleCommand(TIRViewCommand aCommand, TIRViewCommandReason aReason);
+    ~IRSearchChannelsView();       
     
 protected:
-    IRSearchChannelsView(IRApplication* aApplication, TIRViewId aViewId);
+    IRSearchChannelsView(IRApplication* aApplication, TIRViewId aViewId);    
+    //from base view
+    TIRHandleResult handleCommand(TIRViewCommand aCommand, TIRViewCommandReason aReason);
     
-private:
+private: //functions
     
-    //move from irabstractlistbaseview
-    void updateView();
+    void connectWidget();     
+    //for connecting and disconnecting isds client's signals
+    void connectIsdsClient();
+    void disconnectIsdsClient();
+    
+    void switch2SearchingState();
+    void switch2InitState();    
+    void switch2SearchedState(); 
+    void startSearchingAnimation();
+    void stopSearchingAnimation();    
+    void loadLayout();   
+    void handleItemSelected();
+    void createSearchingDialog();
+    void closeSearchingDialog();
+    void normalInit();
     void initMenu();
-    void initToolBar();    
-    void initContentWidget();    
-    void addBanner(const QString &aText);
-    void createDB();
+    void lazyInit();
+    void startConvert(int aIndex);   
+    void initTimer();
     
-    
-private slots:
-    
-    void collectionsActionClicked();
-    void favoritesActionClicked();    
- 
-    void startSearch(bool aBool);     
-    void helpAction();        
-    void searchBoxTextChanged(const QString &aString);    
+private slots: //slots
+     
     void cancelRequest();
-    void networkRequestNotified(IRQNetworkEvent aEvent);  
-    void comboboxClicked();
-    void launchSettingsView();
-    void openWebAddress();
-    void gotoNowPlaying();
-    void metaDataAvailable(IRQMetaData* aMetaData);
-    void removeBanner();    
-    void dbDataChanged();
-    
-private: // members    
-    
-    HbAction            *iCollectionsAction;
-    HbAction            *iFavoritesAction;
-    HbAction            *iGenresAction;
-    HbAction            *iSearchAction;             
-    HbPushButton        *iSearchButton;       
-    HbLabel             *iSearchText;
-    HbLabel             *iSearchIconLabel;
-    IrComboBox          *iSearchCombobox;
-    bool                 iFirstTime;
-    IrNowPlayingBannerLabel *iBannerLabel;
-    IRSearchCriteriaDB   *iDB;
+    void networkRequestNotified(IRQNetworkEvent aEvent); 
+    void searchTextAlready(const QString& aSearchCriteria);
+    void dataChanged();     
+    void operationException(IRQError aError);    
+    void clickItem(const QModelIndex&);    
+    //for playing a channel in the search result list
+    void presetResponse(IRQPreset *aPreset);  
+    //to start the convertion 
+    void convertAnother();
+    void presetLogoDownload(IRQPreset* aPreset);
+    void presetLogoDownloadError();
 
+    
+    
+private: // members       
+    
+    enum IRQSearchState
+    {
+        ESearch_init = 0,
+        ESearch_Searching,
+        ESearch_Searched
+    };    
+    
+    HbListView          *iListView;
+    QString              iKeyText;
+    
+    //default searchpanel is not progressive
+    HbSearchPanel       *iSearchPanelWidget;
+    IRQSearchState       iSearchState;
+    IrChannelModel      *iChannelModel;
+    HbProgressDialog    *iSearchingDialog;    
+    //the object is created by IsdsClient, but application is responsible for free
+    IRQPreset           *iPreset;
+    IRQPreset           *iLogoPreset;     
+    QTimer              *iConvertTimer;
+    QList<int>           iIconIndexArray;
     friend class IRViewManager;
 };
-#endif
+#endif //IRSEARCHCHANNELSVIEW_H

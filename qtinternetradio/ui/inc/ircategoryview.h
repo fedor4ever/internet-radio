@@ -22,15 +22,13 @@
 #include "irqisdsclient.h"
 
 class IRCategoryModel;
+class HbProgressDialog;
 
 class IRCategoryView : public IrAbstractListViewBase
 {
 	Q_OBJECT
 public:
 	~IRCategoryView();
-
-    void setViewParameter(TIRViewParameter aParameter);
-    TIRViewParameter getViewParameter() const;
 	 
     void loadCategory(IRQIsdsClient::IRQIsdsClientInterfaceIDs aCategory);
     
@@ -69,11 +67,15 @@ private:
     
     void disconnectIsdsClient();
     
+    void lazyInit();
+    
+    void normalInit();
+    
 private:
-	HbMessageBox *iWaitDialog;
-    TIRViewParameter iViewParameter;
+	HbProgressDialog *iWaitDialog;
     int iLastSelectItem;
     IRCategoryModel *iModel;
+    QString iLoadedSection;
     
     friend class IRViewManager;
 };

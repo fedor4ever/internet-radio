@@ -17,13 +17,15 @@
 
 #include <hbaction.h>
 #include <hblistview.h>
+#include <hbprogressdialog.h>
 
 #include "irapplication.h"
-#include "irabstractviewmanager.h"
+#include "irviewmanager.h"
 #include "ircategoryview.h"
 #include "irstationsview.h"
 #include "irqnetworkcontroller.h"
 #include "ircategorymodel.h"
+#include "iruidefines.h"
 
 //                                    public functions             
 
@@ -33,16 +35,16 @@
 IRCategoryView::IRCategoryView(IRApplication* aApplication, TIRViewId aViewId) 
                                : IrAbstractListViewBase(aApplication, aViewId),
                                  iWaitDialog(NULL),
-                                 iViewParameter(EIRViewPara_InvalidId),
                                  iLastSelectItem(0)
 {	
-    iModel = new IRCategoryModel(this);
-    iListView->setModel(iModel);
+    setViewParameter(EIRViewPara_Genre);
+    setFlag(EViewFlag_ClearStackWhenActivate);
     
-    connect(iModel, SIGNAL(dataChanged()), this, SLOT(dataChanged()));
-    
-    connect(iNetworkController, SIGNAL(networkRequestNotified(IRQNetworkEvent)),
-            this, SLOT(networkRequestNotified(IRQNetworkEvent)));
+    //if this view is not starting view, finish all initialization in constructor
+    if (getViewManager()->views().count() > 0)
+    {
+        normalInit();
+    }
 }
 
 /*
@@ -62,11 +64,37 @@ IRCategoryView::~IRCategoryView()
  */
 TIRHandleResult IRCategoryView::handleCommand(TIRViewCommand aCommand, TIRViewCommandReason aReason)
 {
+    if (!initCompleted())
+    {
+        return EIR_DoDefault;
+    }
+    
     Q_UNUSED(aReason);
     TIRHandleResult ret = IrAbstractListViewBase::handleCommand(aCommand, aReason);
     
     switch (aCommand)
     {
+        case EIR_ViewCommand_TOBEACTIVATED:
+        {
+            if (EIRViewPara_Genre == iViewParameter)
+            {
+                if (ABSTRACT_LIST_VIEW_BASE_WITH_TOOLBAR_SECTION != iLoadedSection)
+                {
+                    iLoader.load(ABSTRACT_LIST_VIEW_BASE_LAYOUT_FILENAME, ABSTRACT_LIST_VIEW_BASE_WITH_TOOLBAR_SECTION);
+                    iLoadedSection = ABSTRACT_LIST_VIEW_BASE_WITH_TOOLBAR_SECTION;
+                }
+            }
+            else
+            {
+                if (ABSTRACT_LIST_VIEW_BASE_NO_TOOLBAR_SECTION != iLoadedSection)
+                {
+                    iLoader.load(ABSTRACT_LIST_VIEW_BASE_LAYOUT_FILENAME, ABSTRACT_LIST_VIEW_BASE_NO_TOOLBAR_SECTION);
+                    iLoadedSection = ABSTRACT_LIST_VIEW_BASE_NO_TOOLBAR_SECTION;
+                }
+            }
+        }
+        break;
+        
         case EIR_ViewCommand_ACTIVATED:
         break;
         
@@ -138,16 +166,6 @@ void IRCategoryView::launchAction()
     }
 }
 
-void IRCategoryView::setViewParameter(TIRViewParameter aParameter)
-{
-    iViewParameter = aParameter;
-}
-
-TIRViewParameter IRCategoryView::getViewParameter() const
-{
-    return iViewParameter;
-}
-
 void IRCategoryView::loadCategory(IRQIsdsClient::IRQIsdsClientInterfaceIDs aCategory)
 {
     connectToIsdsClient();
@@ -156,13 +174,13 @@ void IRCategoryView::loadCategory(IRQIsdsClient::IRQIsdsClientInterfaceIDs aCate
     switch (aCategory)
     {
     case IRQIsdsClient::EGenre : 
-        setHeadingText(tr("Genre"));
         if (EIRViewPara_Genre != getViewParameter())
         {
             //the view is used for other categories other than Genre
             resetCurrentItem();
         }
         setViewParameter(EIRViewPara_Genre);
+        setFlag(EViewFlag_ClearStackWhenActivate);
         iIsdsClient->isdsCategoryRequest(IRQIsdsClient::EGenre, cache);
         break;
         
@@ -174,6 +192,7 @@ void IRCategoryView::loadCategory(IRQIsdsClient::IRQIsdsClientInterfaceIDs aCate
             resetCurrentItem();
         }
         setViewParameter(EIRViewPara_Language);
+        setFlag(EViewFlag_None);
         iIsdsClient->isdsCategoryRequest(IRQIsdsClient::ELanguages, cache);
         break;
         
@@ -185,6 +204,7 @@ void IRCategoryView::loadCategory(IRQIsdsClient::IRQIsdsClientInterfaceIDs aCate
             resetCurrentItem();
         }
         setViewParameter(EIRViewPara_Country);
+        setFlag(EViewFlag_None);
         iIsdsClient->isdsCategoryRequest(IRQIsdsClient::ECountries, cache);
         break;
         
@@ -401,7 +421,7 @@ void IRCategoryView::createWaitDialog(const QString &aText)
 {
     if (!iWaitDialog)
     {
-        iWaitDialog = new HbMessageBox(tr(""), HbMessageBox::MessageTypeInformation);
+        iWaitDialog = new HbProgressDialog(HbProgressDialog::WaitDialog);
         iWaitDialog->setTimeout(HbPopup::NoTimeout);
         iWaitDialog->setModal(true);
         iWaitDialog->setDismissPolicy(HbPopup::NoDismiss);
@@ -448,5 +468,34 @@ void IRCategoryView::setCheckedAction()
         {
             (*it)->setChecked(false);
         }
+    }
+}
+
+void IRCategoryView::lazyInit()
+{  
+    if (!initCompleted())
+    {
+        normalInit();
+
+        //initialization from handleCommand()
+        handleCommand(EIR_ViewCommand_TOBEACTIVATED, EIR_ViewCommandReason_Show);
+        handleCommand(EIR_ViewCommand_ACTIVATED, EIR_ViewCommandReason_Show);
+    }
+}
+
+void IRCategoryView::normalInit()
+{
+    if (!initCompleted())
+    {
+        IrAbstractListViewBase::lazyInit();
+        iModel = new IRCategoryModel(this);
+        iListView->setModel(iModel);
+
+        connect(iModel, SIGNAL(dataChanged()), this, SLOT(dataChanged()));
+
+        connect(iNetworkController, SIGNAL(networkRequestNotified(IRQNetworkEvent)), this,
+                SLOT(networkRequestNotified(IRQNetworkEvent)));
+    
+        setInitCompleted(true);
     }
 }

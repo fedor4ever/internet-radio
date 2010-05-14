@@ -20,9 +20,11 @@
 #include "irbaseview.h"
 #include "irqevent.h"
 
+class HbDataForm;
+class HbDataFormModel;
+class HbDataFormModelItem;
 class IRQPreset;
 class HbLineEdit;
-class IrLineEditor;
 class HbPushButton;
 
 /**
@@ -43,38 +45,36 @@ protected:
     IROpenWebAddressView(IRApplication* aApplication, TIRViewId aViewId);
    
 private:
+    void initMenu();
     void initDetails();
-    void initButtons();
+    void initUrlAndName();
+    void initDataForm();
     bool initPreset(IRQPreset &aPreset);
+    bool eventFilter(QObject *object, QEvent *event);
 
 private slots:
-    // add the station to favorites
-    void add2Fav();
-
     // play this station
     void play();
 
     // get network controller event.
     void networkRequestNotified(IRQNetworkEvent aEvent);
-    
+
     // used to check the url editor status
     void urlEditorTextChanged(const QString &aString);
 
-    // clear name editor
-    void nameEditorClicked();
-    
     void handleOrientationChanged(Qt::Orientation aOrientation);
+    void handleSettingAction();
 
 private:
     // station information
-    HbLineEdit*   iUrl;
-    IrLineEditor* iName;
-    HbLineEdit*   iDescription;
-    bool          iNameClicked;
+    HbDataForm          *iForm;
+    HbDataFormModel     *iModel;
+    HbDataFormModelItem *iUrl;
+    HbDataFormModelItem *iName;
+    HbLineEdit          *iNameEditorPtr;
     
-    HbPushButton* iPlayButton;
-    HbPushButton* iAdd2FavButton;
-    friend class IRViewManager;
+    HbPushButton        *iPlayButton;
+    friend class         IRViewManager;
 };
 
 #endif /* IROPENWEBADDRESSVIEW_H_ */

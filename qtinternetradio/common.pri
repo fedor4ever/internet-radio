@@ -12,10 +12,10 @@
 #
 # Description:
 
-DEFINES += USER_DEFINED_MUSICSHOP
+DEFINES += SONGRECOGNITION_ENABLED
 DEFINES += USER_DEFINED_DISKSPACE
-#DEFINES += USER_DEFINED_ISDSURL
-
+DEFINES += USER_DEFINED_ISDSURL
+#DEFINES += ADV_ENABLED
 
 # ##########################################################
 # Logging flag definitions

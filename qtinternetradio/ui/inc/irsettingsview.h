@@ -34,23 +34,17 @@ public:
 protected:
     IRSettingsView(IRApplication *aApplication, TIRViewId aViewId);
     
-
-
 private slots:
-    void startingViewSelected(int aIndex);
     void preferredQualitySelected(int aIndex);
     
 private:
     void initView();
     void setNetworkChooseList();
-    void setStartingViewList();
     void setPreferredQuality();
-    int getStartingViewSelection();
     
 private:
     HbDataForm *iForm;
     HbDataFormModel *iModel;
-    QStringList iStartingViews;
     QStringList iPreferredQuality;
     friend class IRViewManager;
 };

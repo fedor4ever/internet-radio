@@ -17,37 +17,61 @@
 
 #include <hbapplication.h>
 #include <hbdevicemessagebox.h>
+#include <QLocalSocket>
+
 #include "irviewmanager.h"
 #include "irapplication.h"
-#include "irqdiskspacewatcher.h"
 #include "irmemorycollector.h"
-#include "irsymbianapplication.h"
 #include "irqlogger.h"
+#include "irqsystemeventhandler.h"
 
-bool isDiskSpaceLow();
+#ifdef LOCALIZATION 
+#include <QTranslator> 
+void initLanguage(QTranslator*& aTranslator);
+#endif
+
+bool isDiskSpaceLow(IRQSystemEventHandler* aEventHandler);
+bool isSecondInstance();
 
 int main(int argc, char* argv[])
 {
     INSTALL_MESSAGE_HANDLER;
+    HbApplication app(argc, argv);
     
-    QCoreApplication::setApplicationName("InternetRadioApplication");
-    HbApplication app(newS60Application, argc, argv);
-    if (IRSymbianApplication::getInstance()->getInstanceFlag())
+#ifdef LOCALIZATION    
+    QTranslator* translator = NULL;
+    initLanguage(translator);
+    Q_ASSERT( NULL != translator );
+#endif
+    
+    QCoreApplication::setApplicationName(hbTrId("txt_irad_title_internet_radio"));
+    if (isSecondInstance())
     {
         return 0;
     }
     
-    if(isDiskSpaceLow())
+    //for the note should be translated too     
+    IRQSystemEventHandler *systemEventHandler = new IRQSystemEventHandler();
+    if( isDiskSpaceLow(systemEventHandler) )
     {       
+#ifdef LOCALIZATION   
+        qApp->removeTranslator(translator);
+        delete translator;
+#endif
+        delete systemEventHandler;
         return 0;
-    }  
+    }
 
-    IRViewManager *mainWindow = new IRViewManager;
-    
+    IRViewManager *mainWindow = new IRViewManager;    
     mainWindow->show();
     
-    //when constructing irapp, OpenFileL() has already been called
-    IRApplication *irapp = new IRApplication(mainWindow);
+    //here, we transfer the ownership of the event handler to the irapp
+    IRApplication *irapp = new IRApplication(mainWindow, systemEventHandler);
+    
+#ifdef LOCALIZATION
+    //this function will transfer the ownership of translator to irapp
+    irapp->setTranslator(translator);
+#endif
     
     IRMemoryCollector mc(irapp);
     
@@ -58,10 +82,9 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-bool isDiskSpaceLow()
-{
-    IRQDiskSpaceWatcher diskSpaceWatcher;
-    bool ret = diskSpaceWatcher.isBelowCriticalLevel();
+bool isDiskSpaceLow(IRQSystemEventHandler* aEventHandler)
+{     
+    bool ret = aEventHandler->isBelowCriticalLevel();
     if(ret)
     {
         HbDeviceMessageBox messageBox(hbTrId("txt_irad_info_no_space_on_c_drive_internet_radio_closed"),
@@ -72,3 +95,29 @@ bool isDiskSpaceLow()
     return ret;
 }
 
+#ifdef LOCALIZATION 
+void initLanguage(QTranslator*& aTranslator)
+{
+    aTranslator = new QTranslator();    
+    QString lang = QLocale::system().name();
+    LOG_FORMAT( "Current language is %s", STRING2CHAR(lang) );
+    QString path = "z:/resource/qt/translations/";  //this will be changed to a micro in future
+    bool ret = aTranslator->load(path + "internet_radio_10_1_" + lang);        
+    qApp->installTranslator(aTranslator); 
+}
+#endif
+
+bool isSecondInstance()
+{
+    QLocalSocket socket;
+    QString serverName = QCoreApplication::applicationName();
+    socket.connectToServer(serverName);
+    if (socket.waitForConnected(500))
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}

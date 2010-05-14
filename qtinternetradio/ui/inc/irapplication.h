@@ -17,15 +17,16 @@
 #ifndef IRAPPLICATION_H
 #define IRAPPLICATION_H
 
-#include <QObject>
 #include <QEvent>
 #include <hbglobal.h>
+#include <xqserviceprovider.h>
+
 #include "irqevent.h"
 #include "irviewdefinitions.h"
 
  
 
-class IRAbstractViewManager;
+class IRViewManager;
 class IRQIsdsClient;
 class IRPlayController;     
 class IRQSettings;
@@ -33,24 +34,25 @@ class IRMediaKeyObserver;
 class IRLastPlayedStationInfo;
 class IRQFavoritesDB;
 class IRQNetworkController;
-class IRQNwkInfoObserver;
-class IRQStatisticsReporter;
-class IRQMusicShop;
 class IRQDiskSpaceWatcher;
 class QLocalServer;
 class IRQAdvClient;
-class HbMessageBox;
+class HbProgressDialog;
+class IRQSystemEventHandler;
+class XQSharableFile;
+class IRPlayList;
 
 #ifdef LOCALIZATION
 class QTranslator;
 #endif
 
-class IRApplication : public QObject
+class IRApplication : public XQServiceProvider
 {
     Q_OBJECT
     
 public:
-    explicit IRApplication(IRAbstractViewManager *aViewManager);
+    IRApplication(IRViewManager *aViewManager, IRQSystemEventHandler* aSystemEventHandler);    
+
     ~IRApplication();
     
     bool verifyNetworkConnectivity(const QString &aConnectingText = hbTrId("Connecting to server..."));
@@ -59,7 +61,7 @@ public:
     
     void closeConnectingDialog();
     
-    IRAbstractViewManager* getViewManager() const;
+    IRViewManager* getViewManager() const;
     IRQNetworkController* getNetworkController();
     IRQIsdsClient* getIsdsClient();
     IRPlayController* getPlayController();
@@ -67,10 +69,15 @@ public:
     IRQFavoritesDB* getFavoritesDB();
     IRQSettings *   getSettings();
     IRMediaKeyObserver* getMediaKeyObserver();
-    IRQNwkInfoObserver* getNwkInfoObserver();
-    IRQStatisticsReporter* getStatisticsReporter();
-    IRQMusicShop* getMusicShop();
-    IRQAdvClient* getAdvClient();
+    IRQAdvClient* getAdvClient(); 
+    IRPlayList* getPlayList() const;
+    
+#ifdef LOCALIZATION
+    /*
+     * this function will take ownership of the translator
+     */
+    void setTranslator(QTranslator* aTranslator);
+#endif
 	
     //from QObject
     bool event(QEvent* e);
@@ -80,6 +87,10 @@ public:
     bool iTestPreferredBitrate;
 #endif
 
+public slots:
+    void view(const QString &aFileName);
+    void view(const XQSharableFile &aSharableFile);
+    
 signals:
     void quit();
 
@@ -90,32 +101,31 @@ private slots:
     void loadGenre();
     void newLocalSocketConnection();
     void handleDiskSpaceLow(qint64 aCriticalLevel);
+    void handleTermsConsAccepted();
     
 private:
     void createComponents();
     void destroyComponents();
     void setupConnection();
     void setLaunchView();
-    void launchStartingView();
-    void startMonitoringNwkInfo();
-    void startMonitoringDiskSpace();
+    void launchStartingView(TIRViewId aViewId);
+    void startSystemEventMonitor();
     void initApp();
     void setExitingView();
     
     TIRHandleResult handleConnectionEstablished();
     
     void startLocalServer();
-    
-#ifdef LOCALIZATION
-    void initLanguage();
-#endif
+    bool eventFilter(QObject *object, QEvent *event);
     
 #ifdef _DEBUG
     void readConfiguration();
 #endif
 
 private:
-    IRAbstractViewManager* iViewManager;
+    IRViewManager* iViewManager;
+    
+    TIRViewId   iStartingViewId;
     
     IRQNetworkController* iNetworkController;
     
@@ -130,16 +140,8 @@ private:
     IRMediaKeyObserver *iMediaKeyObserver;
 
     IRLastPlayedStationInfo *iLastPlayedStationInfo;
-
-    IRQNwkInfoObserver *iNwkInfoObserver;
-
-    IRQStatisticsReporter *iStatisticsReporter;
     
-    IRQMusicShop *iMusicShop;
-
-    IRQAdvClient *iAdvertisementClient;
-
-    IRQDiskSpaceWatcher *iDiskSpaceWatcher;
+    IRQAdvClient *iAdvertisementClient;   
 
     bool iEnableGlobalAdv;
 
@@ -153,11 +155,15 @@ private:
     
     QLocalServer *iLocalServer;
     
-    HbMessageBox *iConnectingNote;
+    HbProgressDialog *iConnectingNote;
     
 #ifdef LOCALIZATION
     QTranslator  *iTranslator;
 #endif
+    
+    IRQSystemEventHandler *iSystemEventHandler;
+    
+    IRPlayList *iPlayList;
 };
 
 #endif

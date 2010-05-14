@@ -21,11 +21,12 @@
 #include <hblistview.h>
 #include <hbabstractviewitem.h>
 #include <hbscrollbar.h>
-#include <QTimer>
+#include <HbGroupBox>
+#include <HbMarqueeItem>
+#include <HbLabel>
 
-#include "irabstractviewmanager.h"
+#include "irviewmanager.h"
 #include "irabstractlistviewbase.h"
-#include "irbannerlabel.h"
 #include "irplaycontroller.h"
 #include "irapplication.h"
 #include "irqmetadata.h"
@@ -34,14 +35,18 @@
 #include "irqenums.h"
 #include "iruidefines.h"
  
+const int KAnimationLoopTimes = 2; // Animation loop times
 
 IrAbstractListViewBase::IrAbstractListViewBase(IRApplication *aApplication, TIRViewId aViewId)
     : IRBaseView(aApplication, aViewId),
 	  iListView(NULL),
-      iBannerLabel(NULL),
+      iPlayingBanner(NULL),
+      iStationName(NULL),
+      iArtistSongName(NULL),
       iHeadingLabel(NULL),
       iCollectionsAction(NULL), iFavoritesAction(NULL),
-      iGenresAction(NULL), iSearchAction(NULL),iConvertTimer(NULL), iEffectOnGoing(false)
+      iGenresAction(NULL), iSearchAction(NULL),iConvertTimer(NULL),
+      iViewParameter(EIRViewPara_InvalidId)
 {
     // Create widget hierarchy
     setObjectName( ABSTRACT_LIST_VIEW_BASE_OBJECT_VIEW );
@@ -56,23 +61,10 @@ IrAbstractListViewBase::IrAbstractListViewBase(IRApplication *aApplication, TIRV
     iLoader.load(ABSTRACT_LIST_VIEW_BASE_LAYOUT_FILENAME);
         
     iLoader.load(ABSTRACT_LIST_VIEW_BASE_LAYOUT_FILENAME, ABSTRACT_LIST_VIEW_BASE_NO_PLAYINGBANNER_SECTION);
-    initEffects();
-    initMenu();
-    initContentWidget();
-    initScrollBar();
-    initToolBar();
-
-    connect(iListView, SIGNAL(activated(const QModelIndex&)), this, SLOT(clickItem(const QModelIndex&)));
-    connect(iListView, SIGNAL(longPressed(HbAbstractViewItem *,const QPointF&)), this, SLOT(listViewLongPressed(HbAbstractViewItem *,const QPointF&)));     
-    connect(iBannerLabel, SIGNAL(pressed()), this, SLOT(gotoNowPlaying()));
-    connect(iPlayController, SIGNAL(metaDataAvailable(IRQMetaData*)), this, SLOT(metaDataAvailable(IRQMetaData*)));
-    connect(iPlayController, SIGNAL(playingStopped()), this, SLOT(removeBanner()));
 }
 
 IrAbstractListViewBase::~IrAbstractListViewBase()
 {
-    HbEffect::remove(QString("viewItem"), QString(":/effect/effects_item_selecte.fxml"), QString("chosen") );
-    HbEffect::remove(QString("viewItem"), QString(":/effect/effects_item_select_end.fxml"),QString("chosenEnd"));
 }
 
 void IrAbstractListViewBase::initMenu()
@@ -80,23 +72,19 @@ void IrAbstractListViewBase::initMenu()
     HbMenu *viewMenu = menu();
     connect(viewMenu, SIGNAL(aboutToShow()), this, SLOT(prepareMenu()));
 
-    iOpenWebAddressAction = qobject_cast<HbAction *>(iLoader.findObject(ABSTRACT_LIST_VIEW_BASE_OBJECT_OPEN_WEB_ADDRESS_ACTION));
-    connect(iOpenWebAddressAction, SIGNAL(triggered()), this, SLOT(openWebAddress()));
+    QObject *openWebAddressAction = qobject_cast<HbAction *>(iLoader.findObject(GO_TO_STATION_ACTION));
+    connect(openWebAddressAction, SIGNAL(triggered()), this, SLOT(openWebAddress()));
 
-    QObject *settings = iLoader.findObject(ABSTRACT_LIST_VIEW_BASE_OBJECT_SETTING_ACTION);
-    connect(settings, SIGNAL(triggered()), this, SLOT(launchSettingsView()));
+    QObject *settings = iLoader.findObject(SETTINGS_ACTION);
+    connect(settings, SIGNAL(triggered()), this, SLOT(launchSettingsView())); 
     
-    QObject *helpAction = iLoader.findObject(ABSTRACT_LIST_VIEW_BASE_OBJECT_HELP_ACTION);
-    connect(helpAction, SIGNAL(triggered()), this, SLOT(notReady()));
-    
-    QObject *exitAction = iLoader.findObject(ABSTRACT_LIST_VIEW_BASE_OBJECT_EXIT_ACTION);
+    QObject *exitAction = iLoader.findObject(EXIT_ACTION);
     connect(exitAction, SIGNAL(triggered()), iApplication, SIGNAL(quit()));
 }
 
 void IrAbstractListViewBase::initToolBar()
 {
-    HbToolBar *viewToolBar = qobject_cast<HbToolBar *>(iLoader.findObject(ABSTRACT_LIST_VIEW_BASE_OBJECT_TOOLBAR));
-    QActionGroup *actionGroup = new QActionGroup(viewToolBar);
+    QActionGroup *actionGroup = new QActionGroup(this);
     iCollectionsAction = qobject_cast<HbAction *>(iLoader.findObject(ABSTRACT_LIST_VIEW_BASE_OBJECT_COLLECTION_ACTION));
 	iCollectionsAction->setActionGroup(actionGroup);
 	iFavoritesAction = qobject_cast<HbAction *>(iLoader.findObject(ABSTRACT_LIST_VIEW_BASE_OBJECT_FAVORITE_ACTION));
@@ -116,13 +104,17 @@ void IrAbstractListViewBase::initToolBar()
 
 void IrAbstractListViewBase::initContentWidget()
 {
-    iHeadingLabel = qobject_cast<IrViewBannerLabel *>(iLoader.findWidget(ABSTRACT_LIST_VIEW_BASE_OBJECT_HEADINGTEXTLABEL));
+    iHeadingLabel = qobject_cast<HbGroupBox *>(iLoader.findWidget(ABSTRACT_LIST_VIEW_BASE_OBJECT_HEADINGTEXTLABEL));
     QFont font;
     font.setBold(true);
     iHeadingLabel->setFont(font);
     
-    iBannerLabel = qobject_cast<IrNowPlayingBannerLabel *>(iLoader.findWidget(ABSTRACT_LIST_VIEW_BASE_OBJECT_PLAYINGBANNER)); 
-    iBannerLabel->setFont(font);
+    iPlayingBanner = qobject_cast<HbWidget *>(iLoader.findWidget(ABSTRACT_LIST_VIEW_BASE_OBJECT_PLAYINGBANNER)); 
+    iPlayingBanner->installEventFilter(iApplication);
+    iStationName = qobject_cast<HbLabel *>(iLoader.findWidget(ABSTRACT_LIST_VIEW_BASE_OBJECT_STATIONNAME));
+    iStationName->setFont(font);
+    iArtistSongName = qobject_cast<HbMarqueeItem *>(iLoader.findWidget(ABSTRACT_LIST_VIEW_BASE_OBJECT_ARTISTSONGNAME));
+    iArtistSongName->setLoopCount(KAnimationLoopTimes);
 
     iListView = qobject_cast<HbListView *>(iLoader.findObject(ABSTRACT_LIST_VIEW_BASE_OBJECT_LISTVIEW));
 }
@@ -133,6 +125,17 @@ void IrAbstractListViewBase::initScrollBar()
     scrollbar->setVisible(true);
     scrollbar->setInteractive(true);
     iListView->setVerticalScrollBarPolicy(HbScrollArea::ScrollBarAsNeeded);
+}
+
+
+void IrAbstractListViewBase::setViewParameter(TIRViewParameter aParameter)
+{
+    iViewParameter = aParameter;
+}
+
+TIRViewParameter IrAbstractListViewBase::getViewParameter() const
+{
+    return iViewParameter;
 }
 
 void IrAbstractListViewBase::setCheckedAction()
@@ -149,17 +152,8 @@ void IrAbstractListViewBase::setHeadingText(const QString &aText)
 {
     if (iHeadingLabel)
     {
-        iHeadingLabel->setText(aText);
+        iHeadingLabel->setHeading(aText);
     }
-}
-
-QString IrAbstractListViewBase::getHeadingText() const
-{
-    if (iHeadingLabel)
-    {
-        return iHeadingLabel->text();
-    }
-    return ("");
 }
 
 void IrAbstractListViewBase::resetCurrentItem()
@@ -194,16 +188,25 @@ TIRHandleResult IrAbstractListViewBase::handleCommand(TIRViewCommand aCommand, T
     Q_UNUSED(aReason);
     TIRHandleResult ret = EIR_DoDefault;
 
+    if (!initCompleted())
+    {
+        return ret;
+    }
+    
     switch (aCommand)
     {
-    case EIR_ViewCommand_ACTIVATED:
+    case EIR_ViewCommand_TOBEACTIVATED:
         updateView();
-        iBannerLabel->startAnimation();
+        break;
+        
+    case EIR_ViewCommand_ACTIVATED:
+        iArtistSongName->stopAnimation();
+        iArtistSongName->startAnimation();
         break;
 
     case EIR_ViewCommand_DEACTIVATE:
         storeCurrentItem();
-        iBannerLabel->stopAnimation();
+        iArtistSongName->stopAnimation();
         ret = EIR_NoDefault;
         break;
 
@@ -219,29 +222,34 @@ TIRHandleResult IrAbstractListViewBase::handleCommand(TIRViewCommand aCommand, T
  */
 void IrAbstractListViewBase::updateView()
 {
-    if (iPlayController->isPlaying())
-    {
-        IRQMetaData *metaData = iPlayController->getMetaData();
-        if (metaData && "" != metaData->getArtistSongName().trimmed() &&
-            "-" != metaData->getArtistSongName().trimmed())
-        {
-            //set the banner text as song name
-            addBanner(metaData->getArtistSongName());
-        }
-        else
-        {
-            //set the banner text as station name
-            IRQPreset *nowPlayingPreset = iPlayController->getNowPlayingPreset();
-            Q_ASSERT(nowPlayingPreset);
-            addBanner(nowPlayingPreset->name);
-        }
-    }
-    else
-    {
-        removeBanner();
-    }
-    
+    updateBanner(getViewManager()->orientation());
+  
     setCheckedAction();
+}
+
+void IrAbstractListViewBase::handleOrientationChanged(Qt::Orientation aOrientation)
+{
+    updateBanner(aOrientation);
+}
+
+void IrAbstractListViewBase::lazyInit()
+{
+    if (!initCompleted())
+    {
+        IRBaseView::lazyInit();
+        
+        initMenu();
+        initContentWidget();
+        initScrollBar();
+        initToolBar();
+        
+        connect(iListView, SIGNAL(activated(const QModelIndex&)), this, SLOT(clickItem(const QModelIndex&)));
+        connect(iListView, SIGNAL(longPressed(HbAbstractViewItem *,const QPointF&)), this, SLOT(listViewLongPressed(HbAbstractViewItem *,const QPointF&)));
+        connect(iPlayController, SIGNAL(metaDataAvailable(IRQMetaData*)), this, SLOT(metaDataAvailable(IRQMetaData*)));
+        connect(iPlayController, SIGNAL(playingStopped()), this, SLOT(removeBanner()));
+        connect(getViewManager(), SIGNAL(orientationChanged(Qt::Orientation)),
+                this, SLOT(handleOrientationChanged(Qt::Orientation)));
+    }
 }
 
 void IrAbstractListViewBase::collectionsActionClicked()
@@ -272,11 +280,46 @@ void IrAbstractListViewBase::prepareMenu()
 {
 }
 
-void IrAbstractListViewBase::addBanner(const QString &aText)
+void IrAbstractListViewBase::updateBanner(Qt::Orientation aOrientation)
+{
+    if ((aOrientation == Qt::Vertical) && iPlayController->isPlaying())
+    {
+        IRQMetaData *metaData = iPlayController->getMetaData();
+        if (metaData && "" != metaData->getArtistSongName().trimmed() &&
+            "-" != metaData->getArtistSongName().trimmed())
+        {
+            //set the banner text as song name
+            addBanner(metaData->getArtistSongName(), true);
+        }
+        else
+        {
+            //set the banner text as station name
+            IRQPreset *nowPlayingPreset = iPlayController->getNowPlayingPreset();
+            Q_ASSERT(nowPlayingPreset);
+            addBanner(nowPlayingPreset->name, false);
+        }
+    }
+    else
+    {
+        removeBanner();
+    }
+}
+
+void IrAbstractListViewBase::addBanner(const QString &aText, const bool &aMetaDataFlag)
 {
     iLoader.load(ABSTRACT_LIST_VIEW_BASE_LAYOUT_FILENAME, ABSTRACT_LIST_VIEW_BASE_WITH_PLAYINGBANNER_SECTION);
-    iBannerLabel->setText(aText);
-    iBannerLabel->setLoopCount(-1);
+    iStationName->setPlainText(iPlayController->getNowPlayingPreset()->name);
+    if (aMetaDataFlag)
+    {
+        iArtistSongName->setText(aText);
+        // As the metadata is changed, the animation should be started again.
+        iArtistSongName->stopAnimation();
+        iArtistSongName->startAnimation();
+    }
+    else
+    {
+        iArtistSongName->setText(" ");
+    }
 
 }
 
@@ -287,86 +330,31 @@ void IrAbstractListViewBase::launchSettingsView()
 
 void IrAbstractListViewBase::metaDataAvailable(IRQMetaData* aMetaData)
 {
-    if (!aMetaData)
+    Q_UNUSED(aMetaData);
+
+    if (getViewManager()->currentView() != this)
     {
         return;
     }
-    
-    const QString artistSongName = aMetaData->getArtistSongName();
-    if ("" != artistSongName.trimmed() && "-" != artistSongName.trimmed())
-    {
-        addBanner(aMetaData->getArtistSongName());
-    }
-    else
-    {
-        //set the banner text as station name
-        IRQPreset *nowPlayingPreset = iPlayController->getNowPlayingPreset();
-        Q_ASSERT(nowPlayingPreset);
-        addBanner(nowPlayingPreset->name);
-    }
+
+    updateBanner(getViewManager()->orientation());
 }
 
 void IrAbstractListViewBase::removeBanner()
 {
-    if (getViewManager()->currentView() == this)
-    {
-        iBannerLabel->stopAnimation();
-        iLoader.load(ABSTRACT_LIST_VIEW_BASE_LAYOUT_FILENAME, ABSTRACT_LIST_VIEW_BASE_NO_PLAYINGBANNER_SECTION);
-    }
-}
-
-void IrAbstractListViewBase::notReady()
-{
-	popupNote(tr("Not ready"), HbMessageBox::MessageTypeInformation );
-}
-
-void IrAbstractListViewBase::gotoNowPlaying()
-{
-    Q_ASSERT(iPlayController->isPlaying());
-    
-    getViewManager()->activateView(EIRView_PlayingView);
+    iArtistSongName->stopAnimation();
+    iLoader.load(ABSTRACT_LIST_VIEW_BASE_LAYOUT_FILENAME, ABSTRACT_LIST_VIEW_BASE_NO_PLAYINGBANNER_SECTION);
 }
 
 void IrAbstractListViewBase::listViewLongPressed(HbAbstractViewItem *aItem, const QPointF &aCoords)
 {    
     Q_UNUSED(aItem);
-    Q_UNUSED(aCoords);    
+    Q_UNUSED(aCoords);
 }
 
 void IrAbstractListViewBase::clickItem(const QModelIndex &aIndex)
 {   
-    if (!iEffectOnGoing)
-    {        
-        HbAbstractViewItem *listViewItem = iListView->itemByIndex(aIndex);
-        iEffectOnGoing = true;         
-        iChosenIndex = aIndex;
-        HbEffect::start(listViewItem, "viewItem", "chosen",this, "selectEffectComplete1");
-    } 
-}
-
-void IrAbstractListViewBase::initEffects()
-{
-    HbEffect::add(QString("viewItem"), QString(":/effect/effects_item_select.fxml"),
-        QString("chosen") );
-    HbEffect::add(QString("viewItem"), QString(":/effect/effects_item_select_end.fxml"),QString("chosenEnd"));
-}
-
-void IrAbstractListViewBase::selectEffectComplete1(HbEffect::EffectStatus aStatus )
-{
-    Q_UNUSED(aStatus);
-    HbAbstractViewItem *listViewItem = iListView->itemByIndex(iChosenIndex);     
-    HbEffect::start(listViewItem, QString("viewItem"), QString("chosenEnd"),this, "selectEffectComplete2");
-}
-
-void IrAbstractListViewBase::selectEffectComplete2(HbEffect::EffectStatus aStatus )
-{
-    Q_UNUSED(aStatus);
-    iEffectOnGoing = false;        
-    clickAfterEffects();
-}
-
-void IrAbstractListViewBase::clickAfterEffects()
-{        
+    Q_UNUSED(aIndex);
     bool needNetwork;
     itemAboutToBeSelected(needNetwork);     
     if (needNetwork)

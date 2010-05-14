@@ -27,12 +27,12 @@ enum TIRViewId
     EIRView_FavoritesView,
     EIRView_HistoryView,
     EIRView_StationDetailsView,
+    EIRView_SearchView,
     EIRView_SettingsView,
-	EIRView_OpenWebAddressView,
-	EIRView_SearchView,
-	EIRView_SearchResultView,
+	EIRView_OpenWebAddressView,	 
 	EIRView_SongHistoryView,
 	EIRView_PlsView,
+	EIRView_TermsConsView,
     EIRView_ViewCount
 };
 
@@ -56,9 +56,9 @@ enum TIRHandleResult
 
 enum TIRViewCommand
 {
+    EIR_ViewCommand_TOBEACTIVATED,
     EIR_ViewCommand_ACTIVATED,
     EIR_ViewCommand_DEACTIVATE,
-    EIR_ViewCommand_EffectFinished,
     EIR_ViewCommand_MAX
 };
 

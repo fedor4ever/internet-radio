@@ -19,8 +19,7 @@
 
 #include "irmemorycollector.h"
 #include "irapplication.h"
-#include "irabstractviewmanager.h"
-#include "irplaycontroller.h"
+#include "irviewmanager.h"
 
 IRMemoryCollector::IRMemoryCollector(IRApplication* aApplication) : iApplication(aApplication)
 {
@@ -29,7 +28,7 @@ IRMemoryCollector::IRMemoryCollector(IRApplication* aApplication) : iApplication
 
 void IRMemoryCollector::aboutToQuit()
 {
-    IRAbstractViewManager *viewManager = iApplication->getViewManager();
+    IRViewManager *viewManager = iApplication->getViewManager();
     delete iApplication;
     iApplication = NULL;
         

@@ -78,7 +78,7 @@ public:
    IMPORT_C QList<QString> * getURLsForBitrate(int aBitrate) const;
    /* the following functions may be changed in future */
    IMPORT_C int getChannelUrlAt(int aIndex, QString& aURL) const;   
-   IMPORT_C int getChannelBitrate(int aIndex, int &aBitrate) const;    
+   IMPORT_C int getChannelBitrate(unsigned int aIndex, unsigned int &aBitrate) const;    
    
    /* sort the urlArray with bitrates by ascending. for 
     * there are not many items, here we use bubble sorting.
@@ -96,7 +96,7 @@ public:
    
    IMPORT_C int getChannelURLCount() const;
    
-   IMPORT_C bool setUrlBitrate(const int aUrlIndex, const int aBitrate);
+   IMPORT_C bool setUrlBitrate(const unsigned int aUrlIndex, const unsigned int aBitrate);
   
    int uniqID; //unique id generated for the preset saved at favourite
    

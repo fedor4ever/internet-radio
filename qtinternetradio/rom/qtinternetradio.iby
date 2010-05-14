@@ -29,11 +29,9 @@ file=ABI_DIR\BUILD_DIR\irqutility.dll              SHARED_LIB_DIR\irqutility.dll
 file=ABI_DIR\BUILD_DIR\irqfavorites.dll            SHARED_LIB_DIR\irqfavorites.dll
 file=ABI_DIR\BUILD_DIR\irqsongHistory.dll          SHARED_LIB_DIR\irqsonghistory.dll
 file=ABI_DIR\BUILD_DIR\irqsettings.dll             SHARED_LIB_DIR\irqsettings.dll
-file=ABI_DIR\BUILD_DIR\irqmusicshop.dll            SHARED_LIB_DIR\irqmusicshop.dll
 file=ABI_DIR\BUILD_DIR\irqnwkinfoobserver.dll      SHARED_LIB_DIR\irqnwkinfoobserver.dll
-file=ABI_DIR\BUILD_DIR\irqstatisticsreport.dll     SHARED_LIB_DIR\irqstatisticsreport.dll
-file=ABI_DIR\BUILD_DIR\irqstationexporter.dll      SHARED_LIB_DIR\irqstationexporter.dll 
-file=ABI_DIR\BUILD_DIR\irqdiskspacewatcher.dll     SHARED_LIB_DIR\irqdiskspacewatcher.dll
+file=ABI_DIR\BUILD_DIR\irqstatisticsreporter.dll     SHARED_LIB_DIR\irqstatisticsreporter.dll
+file=ABI_DIR\BUILD_DIR\irqsystemeventhandler.dll     SHARED_LIB_DIR\irqsystemeventhandler.dll
 file=ABI_DIR\BUILD_DIR\irqlogger.dll               SHARED_LIB_DIR\irqlogger.dll
 
 data=ZRESOURCE\apps\internet_radio_10_1.mif    APP_RESOURCE_DIR\internet_radio_10_1.mif

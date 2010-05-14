@@ -22,8 +22,6 @@
 class IRQPreset;
 class CIRPreset;
 class CIRIsdsPreset; 
-class CFbsBitmap;
-class QPixmap;
 class QString;
 
 class IRQUtility 
@@ -47,15 +45,13 @@ public:
 
   IMPORT_C static bool openAdvLink(const QString& aUrl);
   
-  /**
-   * this function is only used when in debug mode, for it's a time costing operation
-   */
-  IMPORT_C static void writeLog2File(const QString& aString, bool aDeleteOldFile = false);
-
+  IMPORT_C static bool openSongRecognition();
+  
+  IMPORT_C static bool identifySongAvailable();
+  
 private:
   
-  void static appendURLL(const IRQPreset& aQIRPreset, CIRIsdsPreset& aCIRIsdsPreset);
-  bool static openAdvLinkL(const QString& aUrl);
+  static void appendURLL(const IRQPreset& aQIRPreset, CIRIsdsPreset& aCIRIsdsPreset);  
 };
 
 #endif

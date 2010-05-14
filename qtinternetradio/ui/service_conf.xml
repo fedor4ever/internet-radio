@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<service>
+ <name>internet_radio_10_1</name>
+ <filepath>No path</filepath>
+ <description>InternetRadio can play .pls file and .m3u file</description>
+ <interface>
+    <name>com.nokia.symbian.IFileView</name>
+    <version>1.0</version>
+    <description>Interface for viewing and playing .pls file and .m3u file</description>
+  </interface>
+</service>

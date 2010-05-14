@@ -18,15 +18,14 @@
 #define IRABSTRACTLISTVIEWBASE_H
 
 
-#include <hbeffect.h>
 #include "irbaseview.h"
 #include "irqenums.h"
 
 class HbListView;
-class IrNowPlayingBannerLabel;
-class IrViewBannerLabel;
-class HbAction;
 class HbLabel;
+class HbMarqueeItem;
+class HbGroupBox;
+class HbAction;
 class IRQMetaData;
 class HbAbstractViewItem;
 
@@ -35,9 +34,11 @@ class IrAbstractListViewBase : public IRBaseView
 	Q_OBJECT
 public:
 	void setHeadingText(const QString &aText);
-	QString getHeadingText() const;
     virtual void resetCurrentItem();
-	
+
+    void setViewParameter(TIRViewParameter aParameter);
+    TIRViewParameter getViewParameter() const;
+    
     ~IrAbstractListViewBase();
     
 protected:    
@@ -58,6 +59,11 @@ protected:
 
     //from base
     TIRHandleResult handleCommand(TIRViewCommand aCommand, TIRViewCommandReason aReason);
+
+    void lazyInit();
+    
+protected slots:
+    virtual void handleOrientationChanged(Qt::Orientation aOrientation);
     
 private slots:
     void clickItem(const QModelIndex &aIndex);
@@ -72,44 +78,35 @@ private slots:
 	
 	void metaDataAvailable(IRQMetaData*);
 	
-	void removeBanner();
-	
-	void notReady();
+	void removeBanner();	 
 
-    void gotoNowPlaying();
-    
     void launchSettingsView();
     
 	void openWebAddress();
 	
 	virtual void listViewLongPressed(HbAbstractViewItem *aItem, const QPointF &aCoords);
 	
-	void selectEffectComplete1(HbEffect::EffectStatus aStatus);
-	
-	void selectEffectComplete2(HbEffect::EffectStatus aStatus);
 private:
     void initMenu();
     void initToolBar();
     void initContentWidget();
-    void initEffects();
     void initScrollBar();
-    void addBanner(const QString &aText);
-    void clickAfterEffects();
-    
-    
+    void updateBanner(Qt::Orientation aOrientation);
+    void addBanner(const QString &aText, const bool &aMetaDataFlag);
     
 protected:
-	HbListView  *iListView;
-	IrNowPlayingBannerLabel *iBannerLabel;
-	IrViewBannerLabel *iHeadingLabel;
-	HbAction      *iOpenWebAddressAction;
+	HbListView    *iListView;
+	HbWidget      *iPlayingBanner;
+	HbLabel       *iStationName;
+	HbMarqueeItem *iArtistSongName;
+	HbGroupBox    *iHeadingLabel;
 	HbAction      *iCollectionsAction;
 	HbAction      *iFavoritesAction;
 	HbAction      *iGenresAction;
 	HbAction      *iSearchAction;
 	QTimer        *iConvertTimer;
-	bool          iEffectOnGoing;
-	QModelIndex   iChosenIndex;
+
+    TIRViewParameter iViewParameter;	
 };
 
 #endif // IRABSTRACTLISTVIEWBASE_H

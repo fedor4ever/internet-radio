@@ -30,8 +30,6 @@
 #include <http.h>
 #include <es_sock.h>
 
-#include <pspresetobserver.h>
-#include "irfavoritesdb.h"
 #include "irisdspreset.h"
 #include "mlogodownloadobserver.h"
 #include "ircacheobserver.h"
@@ -46,7 +44,6 @@ const TInt KMAXHEADERLENGTHS = 255;
 class RHTTPSession;
 class RHTTPTransaction;
 class CIRIsdsPreset;
-class CIRFavoritesDb;
 class CIRNetworkController;
 class MLogoDownloadObserver;
 class CIRCacheMgmt; //for logo cache mgmt
@@ -60,7 +57,6 @@ class MIRActiveNetworkObserver;//for network up and downs
 */
 class CIRLogoDownloadEngine : public CBase,	public MHTTPTransactionCallback,
                               public MHTTPDataSupplier,public MIRCacheObserver,
-                              public MPSPresetObserver,
                               public MIRActiveNetworkObserver
 {
 public:
@@ -80,12 +76,6 @@ public:
 	*/
 	IMPORT_C static CIRLogoDownloadEngine* NewL();
 	
-	/**
-	* void SetFavDbInstance(CIRFavoritesDb* aFavDb)
-	* To set the favorites db instance
-	*/
-    IMPORT_C void SetFavDbInstance(CIRFavoritesDb* aFavDb);
-    
     /**
 	* SendRequestL(CIRIsdsPreset* aPreset)
 	* API is called from the SearchResultsView for to download logo
@@ -201,14 +191,6 @@ public:
      *  Releases the resources held by logo download engine
      */
     void ReleaseResources();
-	
-	/**
-	 * HandlePresetChangedL
-	 * whenever their is any change in preset
-	 * the function will get invoked.
-	 * callback API from MPSPresetObserver
-	 */
-	void HandlePresetChangedL( TInt aId, TUid aDataHandler, MPSPresetObserver::TPSReason aReason );
 	
 	//from MIRActiveNetworkObserver
 	/**
@@ -341,12 +323,7 @@ private:
     * pointer to the logo observer object
     */
 	MLogoDownloadObserver* iCacheTempLogoHandle;
-	
-	/**
-    * pointer to the favorites db object
-    */
-	CIRFavoritesDb* iFavDb;
-	
+		
 	/**
     * pointer to the preset object
     * temporary preset in the logo downloading usecase

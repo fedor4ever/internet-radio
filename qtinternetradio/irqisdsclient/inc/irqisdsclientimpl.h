@@ -23,7 +23,7 @@
 
 
 class CIRIsdsClient;
-class CIRFavoritesDb;
+class IRQFavoritesDB;
 class CIRLogoDownloadEngine;
 class IRQIsdsClientImpl : public QObject,
         public MIsdsResponseObserver,
@@ -33,7 +33,7 @@ Q_OBJECT
 
 public:
     
-    IRQIsdsClientImpl(IRQFavoritesDB *aFavPresets);
+    IRQIsdsClientImpl();
     
     ~IRQIsdsClientImpl();
     
@@ -54,7 +54,7 @@ public:
             false);
 
      
-    int isdsSyncPresetImpl(int aPresetId, const QString& aIfModifySince);   
+    int isdsSyncPresetImpl(int aPresetId, const QString& aIfModifySince, IRQFavoritesDB *aFavPresets);   
      
     void isdsCancelRequestImpl();    
     
@@ -186,7 +186,7 @@ private:
      * iFavPresets
      * Instance of FavoritesDb
      */
-    CIRFavoritesDb *iFavPresets;
+    IRQFavoritesDB *iFavPresets;
 
     /**
      * iChannelBannerUrl

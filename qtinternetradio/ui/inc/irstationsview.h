@@ -24,6 +24,7 @@
 class IRQPreset;
 class IrChannelModel;
 class QTimer;
+class HbProgressDialog;
 
 class IRStationsView : public IrAbstractListViewBase
 {
@@ -31,9 +32,6 @@ class IRStationsView : public IrAbstractListViewBase
     
 public:
     ~IRStationsView();
-
-    void setViewParameter(TIRViewParameter aParameter);
-    TIRViewParameter getViewParameter() const;
     
     void loadCategoryStations(int aIndex, const QString &aHeadingText);
     
@@ -84,13 +82,12 @@ private:
     
     void disconnectIsdsClient();
     
-    void createWaitDialog(QString aStr);   
+    void createWaitDialog(const QString &aStr);   
     
 private:
     IRQPreset *iLogoPreset;
     IRQPreset *iPreset; //the object is created by IsdsClient, but application is responsible for free
-    HbMessageBox *iWaitDialog;
-    TIRViewParameter iViewParameter;
+    HbProgressDialog *iWaitDialog;
     int iLastSelectitem;
     int iLastPopularItem;
     

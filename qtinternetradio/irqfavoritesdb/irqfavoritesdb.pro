@@ -16,36 +16,25 @@ TEMPLATE = lib
 
 TARGET = irqfavorites
 TARGET.CAPABILITY += CAP_GENERAL_DLL
+QT -= gui
+CONFIG += dll
+DEFINES += BUILD_IRQFAVORITES_DLL
 
 MOC_DIR = moc
 DEPENDPATH = src
 
-INCLUDEPATH += $$APP_LAYER_SYSTEMINCLUDE
-
-INCLUDEPATH += $${OS_LAYER_PUBLIC_EXPORT_PATH(ecom)}
-INCLUDEPATH += $${OS_LAYER_PUBLIC_EXPORT_PATH(http)}
-INCLUDEPATH += $${MW_LAYER_PUBLIC_EXPORT_PATH(http)}
-
-INCLUDEPATH += ..\..\internetradio2.0\favoritesdbinc \
-               ..\..\internetradio2.0\include \
-               ..\..\internetradio2.0\settingsinc \
-               ..\..\internetradio2.0\datastructuresinc \
-               ..\..\internetradio2.0\presetplugininc  \
-               ..\..\internetradio2.0\xmlparserinc   \
-               ..\irqcommon\inc
+INCLUDEPATH += ../../internetradio2.0/favoritesdbinc \
+               ../../internetradio2.0/datastructuresinc \
+               ../../internetradio2.0/presetplugininc  \
+               ../irqcommon/inc
              
 
                
                
-LIBS += -lestor \
-        -leuser \
-        -lirdatastructures \
-        -lirsettings \
-        -lpsclient100 \
-        -lirxmlparser \
-        -lflogger \
+LIBS += -lirdatastructures \
         -lirfavoritesdb \
-        -lirqutility
+        -lirqutility \
+        -lpsclient100
 
 symbian{
   TARGET.UID3 = 0xecbde2d8
@@ -54,10 +43,14 @@ symbian{
 
 
 #header files list
-HEADERS += inc\irqfavoritesdb.h  
+HEADERS += inc/irqfavoritesdb.h  \
+           inc/irqfavoritesdb_p.h \
+           inc/irqfavoritesdbexporter.h
+           
 
 #source files list
-SOURCES += irqfavoritesdb.cpp
+SOURCES += irqfavoritesdb.cpp \
+           irqfavoritesdb_p.cpp
 
 SYMBIAN_PLATFORMS = WINSCW ARMV5
 

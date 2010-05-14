@@ -27,7 +27,6 @@
 
 const TInt KNullId = 0;
 const TInt KNineteen = 19;
-const TInt KFifty = 50;
 
 namespace PresetHandler
 {
@@ -106,11 +105,6 @@ CIRFavoritesDb::~CIRFavoritesDb()
     iFavPresetList.Close();
     iServ.Close();
 
-    if (iSettings)
-        {
-    	iSettings->Close();
-        }
-
 	IRLOG_DEBUG( "CIRFavoritesDb::~CIRFavoritesDb - Exiting." );
     }
 
@@ -146,18 +140,17 @@ EXPORT_C void CIRFavoritesDb::AddPresetL(CIRIsdsPreset& aPreset,
     else
     {
         searchResult = SearchPreset( aPreset.GetId(), KNullId );
-    }
-    
-    if( KErrNotFound !=  searchResult)
-    {
-        //Eventhough the preset exists in the favorites db, replace the
-        //same with the new preset i.e. aPreset.  Because the db should 
-        //contain the updated values of the preset.
-        ReplacePresetL(aPreset);
-        
-        aRetVal = KErrAlreadyExists;
+        if( KErrNotFound !=  searchResult)
+        {
+            //Eventhough the preset exists in the favorites db, replace the
+            //same with the new preset i.e. aPreset.  Because the db should 
+            //contain the updated values of the preset.
+            ReplacePresetL(aPreset);
+            
+            aRetVal = KErrAlreadyExists;
 
-        return;
+            return;
+        }
     }
 
     if ( EmptyPresetCount()<=0 )
@@ -237,6 +230,18 @@ EXPORT_C void CIRFavoritesDb::DeletePresetL( TInt aId )
 	IRLOG_DEBUG( "CIRFavoritesDb::DeletePresetL" );
     iMoveStatus=EFalse;
 	iServ.DeletePresetL( aId);
+	
+	TInt count = iFavPresetList.Count();
+	//when we delete one preset in the server's db, we also
+	//need to delete it in the favorite list. 
+	for( TInt i=0; i<count; i++ )
+	{	     
+	    if( aId == iFavPresetList[i]->Id())
+	    {
+	        iFavPresetList.Remove(i);	         
+	        break;
+	    }
+	}
 	IRLOG_DEBUG( "CIRFavoritesDb::DeletePresetL - Exiting." );
 	}
 
@@ -585,15 +590,16 @@ void CIRFavoritesDb::ConstructL()
 	{
 	IRLOG_DEBUG( "CIRFavoritesDb::ConstructL" );
 	//cenrep handle
-    iSettings = CIRSettings::OpenL();
-    iSettings->SetMaxPresetCountL(KFifty);
+    CIRSettings *settings = CIRSettings::OpenL();
+    iMaxPresetCount=settings->MaxPresetCount();
+    settings->Close();
+    
 	User::LeaveIfError( iServ.Connect() );
 	//a session to the client of the preset server
     iServ.GetPresetsL( iFavPresetList, KIRPreset );
     //notifier
     iNotifier = CPSPresetNotifier::NewL( iServ, *this );
-    //cenrep.
-    iMaxPresetCount=iSettings->MaxPresetCount();
+    
     //initialization of the list for UI use
 	//iFavPresetList=new(ELeave)CArrayPtrFlat<CIRPreset>(KGranularity)
 	iMoveStatus=EFalse;

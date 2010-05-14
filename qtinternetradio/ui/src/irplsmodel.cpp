@@ -14,23 +14,18 @@
 * Description:
 *
 */
-
-#include <QBrush>
-
-#include "iruidefines.h"
 #include "irplsmodel.h"
-#include "irsymbiandocument.h"
+#include "irplaylist.h"
 
-
-IRPlsModel::IRPlsModel(QObject *aParent) : QAbstractListModel(aParent), iDocument(NULL)
+IRPlsModel::IRPlsModel(IRPlayList *aPlayList, QObject *aParent) : QAbstractListModel(aParent), iPlayList(aPlayList)
 {
-    iDocument = IRSymbianDocument::getInstance();
+    
 }
 
 int IRPlsModel::rowCount(const QModelIndex &aParent) const
 {
     Q_UNUSED(aParent);
-    return iDocument->getNumberOfEntries();
+    return iPlayList->getNumberOfEntries();
 }
 
 QVariant IRPlsModel::data(const QModelIndex &aIndex, int aRole) const
@@ -45,21 +40,13 @@ QVariant IRPlsModel::data(const QModelIndex &aIndex, int aRole) const
     {
         int row = aIndex.row();
         QVariantList list;
-        IRPlsPlayListItem *item = iDocument->getEntry(row);
-        list.append(item->title());
-        list.append(item->file());
+        IRPlayListItem *item = iPlayList->getEntry(row);
+        if (item)
+        {
+            list.append(item->title());
+            list.append(item->file());
+        }
         return list;
-    }
-    else if (aRole == Qt::BackgroundRole)
-    {
-        if (aIndex.row() % 2 == 0)
-        {
-            return QBrush(KListEvenRowColor);
-        }
-        else
-        {
-            return QBrush(KListOddRowColor);
-        }
     }
     
     return QVariant();
@@ -67,12 +54,12 @@ QVariant IRPlsModel::data(const QModelIndex &aIndex, int aRole) const
 
 const QString& IRPlsModel::getFile(int aIndex) const
 {
-    IRPlsPlayListItem *item = iDocument->getEntry(aIndex);
+    IRPlayListItem *item = iPlayList->getEntry(aIndex);
     return item->file();
 }
 
 const QString& IRPlsModel::getTitle(int aIndex) const
 {
-    IRPlsPlayListItem *item = iDocument->getEntry(aIndex);
+    IRPlayListItem *item = iPlayList->getEntry(aIndex);
     return item->title();
 }

@@ -14,251 +14,151 @@
 * Description:
 *
 */
-#include <e32err.h>
 #include "irqfavoritesdb.h" 
-#include "irqenums.h"
-#include "irqutility.h" 
-#include "irqisdsdatastructure.h"
-#include "irisdspreset.h"
-#include "irpreset.h"
-#include "irfavoritesdb.h"
+#include "irqfavoritesdb_p.h"
 
-EXPORT_C IRQFavoritesDB::IRQFavoritesDB()
-{
-    TRAPD(err, iIRFavoritesDb = CIRFavoritesDb::NewL());
-    if( KErrNone != err)
-        return;
-
-    /* add self to the observers of the CIRFavoritesDb. When the call back function
-     * is called, it means that preset is changed and we send a signal to the uper layer*/
-    iIRFavoritesDb->AddObserver(*this);
+IRQFavoritesDB::IRQFavoritesDB() : d_ptr(new IRQFavoritesDBPrivate(this))
+{    
+    d_ptr->init();
 }
+
 IRQFavoritesDB::~IRQFavoritesDB()
 {
-    delete iIRFavoritesDb;
+    delete d_ptr;
 }
 
 //add a preset 
-//@param CIRIsdsPreset& the isds preset
+//@param IRQPreset& the preset
 //@return  errcode
-EXPORT_C int IRQFavoritesDB::addPreset(const IRQPreset& aPreset)
+int IRQFavoritesDB::addPreset(const IRQPreset& aPreset)
 {
-    int returnCode = 0;
-    TRAPD(err, addPresetL(aPreset, returnCode));
-    RETURN_IF_ERR(err);
-
-    int result = 0;
-    IRQUtility::convertSError2QError(returnCode, result);
-    return result;
+    return d_ptr->addPreset(aPreset);
 }
 
 //add a preset manually
 //@return  errcode
 //@param 
 //
-EXPORT_C int IRQFavoritesDB::addPreset(const QString& aName,
-        const QString& aURL)
+int IRQFavoritesDB::addPreset(const QString& aName, const QString& aURL)
 {
-    
-    if( 0 == aName.size() || 0 == aURL.size())
-        return EIRQErrorBadParameter;
-    
-    TPtrC16 nameptr(reinterpret_cast<const TUint16*> (aName.utf16()));
-    TPtrC16 urlptr(reinterpret_cast<const TUint16*> (aURL.utf16()));
-    int returnCode = 0;
-    TRAPD(err, (iIRFavoritesDb->AddPresetL(nameptr, urlptr, returnCode)));
-    RETURN_IF_ERR(err);
-
-    int result = 0;
-    IRQUtility::convertSError2QError(returnCode, result);
-    return result;
+    return d_ptr->addPreset(aName, aURL);
 }
 
 //get a preset uniq id
 //@return errcode
 //@param
 //
-EXPORT_C int IRQFavoritesDB::getUniqId(int aNum)
+int IRQFavoritesDB::getUniqId(int aNum) const
 {
-    if( aNum < 0 || aNum >= iIRFavoritesDb->iFavPresetList.Count())
-        return EIRQErrorBadParameter;
-    
-    return iIRFavoritesDb->iFavPresetList[aNum]->Id();
+    return d_ptr->getUniqId(aNum);
 }
 
 //delete a preset by uniq id
 //@return errcode
 //@param
 //
-EXPORT_C int IRQFavoritesDB::deletePreset(int aUniqId)
+int IRQFavoritesDB::deletePreset(int aUniqId)
 {
-    TRAPD( err, (iIRFavoritesDb->DeletePresetL(aUniqId)));
-    RETURN_IF_ERR(err);
-    return EIRQErrorNone;
+    return d_ptr->deletePreset(aUniqId);
 }
 
 //search a preset by uniqpresetId / isdspresetid
 //warning: the function needs further checking
 //@return errcode
 //
-EXPORT_C int IRQFavoritesDB::searchPreset(int aUniqPresetId, int aIsdsPresetId)
+int IRQFavoritesDB::searchPreset(int aUniqPresetId, int aIsdsPresetId)
 {
-    int returnCode = 0;
-    int result = 0; //for QT
-    returnCode = iIRFavoritesDb->SearchPreset(aUniqPresetId, aIsdsPresetId);
-    IRQUtility::convertSError2QError(returnCode, result);
-    return result;
+    return d_ptr->searchPreset(aUniqPresetId, aIsdsPresetId);
 }
 
 //
 //get the previouse preset index in the internal list
 //@return the index
 //
-EXPORT_C int IRQFavoritesDB::getPreviousPreset(int aIndex)
+int IRQFavoritesDB::getPreviousPreset(int aIndex)
 {
-    return iIRFavoritesDb->GetPreviousPreset(aIndex);
+    return d_ptr->getPreviousPreset(aIndex);
 }
 
 //
 //get the next preset index
 //@return the index
 //
-EXPORT_C int IRQFavoritesDB::getNextPreset(int aIndex)
+int IRQFavoritesDB::getNextPreset(int aIndex)
 {
-    return iIRFavoritesDb->GetNextPreset(aIndex);
+    return d_ptr->getNextPreset(aIndex);
 }
-
  
 //replace with new preset
 //@return errcode 
 //
-EXPORT_C int IRQFavoritesDB::replacePreset(const IRQPreset& aNewPreset)
+int IRQFavoritesDB::replacePreset(const IRQPreset& aNewPreset)
 {
-    TRAPD(err, replacePresetL(aNewPreset));
-    RETURN_IF_ERR(err);
-    return EIRQErrorNone;
+    return d_ptr->replacePreset(aNewPreset);
 }
 
 //@return errcode
 //
-EXPORT_C int IRQFavoritesDB::replaceUserDefinedPreset(const IRQPreset& aNewPreset)
+int IRQFavoritesDB::replaceUserDefinedPreset(const IRQPreset& aNewPreset)
 {
-    TRAPD(err, replaceUserDefinedPresetL(aNewPreset));
-    RETURN_IF_ERR(err);
-    return EIRQErrorNone;
+    return d_ptr->replaceUserDefinedPreset(aNewPreset);
 }
 
 //change the preset type to user defined
 //@return errcode
 //
-EXPORT_C int IRQFavoritesDB::makePresetUserDefined(int aChannelId,
-        int aUserDefinedChannelId)
+int IRQFavoritesDB::makePresetUserDefined(int aChannelId, int aUserDefinedChannelId)
 {
-    TRAPD(err, (iIRFavoritesDb->MakePresetUserDefinedL(aChannelId, aUserDefinedChannelId)));
-    RETURN_IF_ERR(err);
-    return EIRQErrorNone;
+    return d_ptr->makePresetUserDefined(aChannelId, aUserDefinedChannelId);
 }
 
 //get the empty preset left count
 //@return the count of empty presets left 
 //
-EXPORT_C int IRQFavoritesDB::emptyPresetCount() const
+int IRQFavoritesDB::emptyPresetCount() const
 {
-    return iIRFavoritesDb->EmptyPresetCount();
+    return d_ptr->emptyPresetCount();
 }
 
 //get the max preset count supported now
 //@return errcode 
 //
-EXPORT_C int IRQFavoritesDB::maxPresetCount()
+int IRQFavoritesDB::maxPresetCount()
 {
-    return iIRFavoritesDb->MaxPresetCount();
+    return d_ptr->maxPresetCount();
 }
 
 //the interface is not used currently.
 //
-EXPORT_C void IRQFavoritesDB::setMoveStatus(bool aStatus)
+void IRQFavoritesDB::setMoveStatus(bool aStatus)
 {
-    iIRFavoritesDb->SetMoveStatus(aStatus);    
+    d_ptr->setMoveStatus(aStatus);  
 }
 
 //the interface is not used currently 
 //
-EXPORT_C bool IRQFavoritesDB::getMoveStatus()
+bool IRQFavoritesDB::getMoveStatus()
 {
-    return iIRFavoritesDb->GetMoveStatus();
+    return d_ptr->getMoveStatus();
 }
 
 //for CIRPreset is just an interface so we can wrapper it into the IRQPreset.
 //the interface get the IRQPreset list. The upper layer will free all the items
 //in the list and the list self
 //
-EXPORT_C QList<IRQPreset*>* IRQFavoritesDB::getPresets() const
+QList<IRQPreset*>* IRQFavoritesDB::getPresets() const
 {
-    QList<IRQPreset*> * presetList = new QList<IRQPreset*> ();
-    const RIRPresetArray& cirPresetList = iIRFavoritesDb->GetAllSortedPresets();
-    int counts = cirPresetList.Count();
-    for (int i = 0; i < counts; i++)
-    {
-        IRQPreset *irqPreset = new IRQPreset();
-        IRQUtility::convertCIRPreset2IRQPreset(*(cirPresetList[i]), *irqPreset);
-        presetList->append(irqPreset);
-    }
-    return presetList;
+    return d_ptr->getPresets();
 }
 
 /*
  * Increase the played times of the preset if it's in the favorites
  */
-EXPORT_C void IRQFavoritesDB::increasePlayedTimes(const IRQPreset &aPreset)
+void IRQFavoritesDB::increasePlayedTimes(const IRQPreset &aPreset)
 {
-    TRAP_IGNORE(increasePlayedTimesL(aPreset));
+    d_ptr->increasePlayedTimes(aPreset);
 }
 
-EXPORT_C CIRFavoritesDb * IRQFavoritesDB::getCIRFavoriteDB() const
-{
-    return iIRFavoritesDb;
-}
-
-/*  None export functions */
-
-void IRQFavoritesDB::HandlePresetChangedL(TInt aId, TUid aDataHandler,
-        MPSPresetObserver::TPSReason aType)
-{
-    emit presetChanged(aId, aDataHandler, aType);
-}
-
-void IRQFavoritesDB::addPresetL(const IRQPreset& aPreset, int& aRetValue)
-{
-    CIRIsdsPreset * cirPreset = CIRIsdsPreset::NewLC();
-    IRQUtility::convertIRQPreset2CIRIsdsPreset(aPreset, *cirPreset);
-    iIRFavoritesDb->AddPresetL(*cirPreset, aRetValue);
-    CleanupStack::PopAndDestroy(cirPreset);
-}
-
-void IRQFavoritesDB::replacePresetL(const IRQPreset& aNewPreset)
-{
-    CIRIsdsPreset * cirPreset = CIRIsdsPreset::NewLC();
-    IRQUtility::convertIRQPreset2CIRIsdsPreset(aNewPreset, *cirPreset);
-    iIRFavoritesDb->ReplacePresetL(*cirPreset);
-    CleanupStack::PopAndDestroy(cirPreset);
-}
-
-void IRQFavoritesDB::replaceUserDefinedPresetL(const IRQPreset& aNewPreset)
-{
-    CIRIsdsPreset *cirPreset = CIRIsdsPreset::NewLC();
-    IRQUtility::convertIRQPreset2CIRIsdsPreset(aNewPreset, *cirPreset);
-    iIRFavoritesDb->ReplaceUserDefinedPresetL(*cirPreset);
-    CleanupStack::PopAndDestroy(cirPreset);
-}
-
-void IRQFavoritesDB::increasePlayedTimesL(const IRQPreset &aPreset)
-{
-    CIRIsdsPreset * cirPreset = CIRIsdsPreset::NewLC();
-    IRQUtility::convertIRQPreset2CIRIsdsPreset(aPreset, *cirPreset);
-    iIRFavoritesDb->IncreasePlayedTimesL(*cirPreset);    
-    CleanupStack::PopAndDestroy(cirPreset);
-}
 
 
 

@@ -20,17 +20,14 @@
 //Static function
 //to get an instance of the IRQIsdsClient
 //@return IRQIsdsClient *
-EXPORT_C IRQIsdsClient *IRQIsdsClient::openInstance(IRQFavoritesDB *aFavPresets)
+EXPORT_C IRQIsdsClient *IRQIsdsClient::openInstance()
 {
-    if (NULL == aFavPresets)
-        return NULL;
-
     IRQIsdsClient* irqisdsclient =
             reinterpret_cast<IRQIsdsClient*> (Dll::Tls());
 
     if (NULL == irqisdsclient)
     {
-        irqisdsclient = new IRQIsdsClient(aFavPresets);
+        irqisdsclient = new IRQIsdsClient();
         int result = 0;
         result = Dll::SetTls(irqisdsclient); 
         
@@ -124,10 +121,10 @@ EXPORT_C void IRQIsdsClient::isdsListenRequest(int aCurrentIndex,
 //@param int,QString, the preset id and the last modified tag for the preset   
 //
 EXPORT_C int IRQIsdsClient::isdsSyncPreset(int aPresetId,
-        const QString& aIfModifySince)
+        const QString& aIfModifySince, IRQFavoritesDB *aFavPresets)
 {     
     TInt result = 0;
-    result = iImpl->isdsSyncPresetImpl(aPresetId, aIfModifySince);
+    result = iImpl->isdsSyncPresetImpl(aPresetId, aIfModifySince, aFavPresets);
     return result;
 } 
 
@@ -238,9 +235,9 @@ IRQIsdsClient::~IRQIsdsClient()
 }
 
 
-IRQIsdsClient::IRQIsdsClient(IRQFavoritesDB *aFavPresets)
+IRQIsdsClient::IRQIsdsClient()
 {    
-    iImpl = new IRQIsdsClientImpl(aFavPresets); 
+    iImpl = new IRQIsdsClientImpl(); 
     Q_ASSERT(iImpl);
     
     connect(iImpl, SIGNAL(categoryItemsChangedImpl(QList<IRQBrowseCategoryItem *> *)),

@@ -15,12 +15,13 @@
 *
 */
 #include <hblistview.h>
+#include <hbtoolbar.h>
 #include <hbaction.h>
 #include <hbmenu.h>
 #include <QPixmap>
 #include <QTimer>
 
-#include "irabstractviewmanager.h"
+#include "irviewmanager.h"
 #include "irfavoritesview.h"
 #include "irapplication.h"
 #include "irqfavoritesdb.h"
@@ -31,8 +32,15 @@
 #include "irqenums.h"
 #include "irqisdsdatastructure.h"
 #include "irqutility.h"
+#include "iruidefines.h"
 
 const int KBitmapSize = 59;
+
+const QString KActionShareName("Share");
+const QString KActionDeleteName("Delete");
+const QString KActionRenameName("Rename");
+const QString KActionDetailsName("Details");
+
 //                                        public functions
 
 /*
@@ -40,23 +48,15 @@ const int KBitmapSize = 59;
  */
 IRFavoritesView::IRFavoritesView(IRApplication *aApplication, TIRViewId aViewId) 
                                  : IrAbstractListViewBase(aApplication, aViewId),
-                                   iClearFavoriteAction(NULL),iLogoPreset(NULL)
-								  
+                                   iClearFavoriteAction(NULL),iLogoPreset(NULL)								  
 {    
-    iClearFavoriteAction = new HbAction(hbTrId("txt_irad_opt_clear_favorites"), menu());
-    connect(iClearFavoriteAction, SIGNAL(triggered()), this, SLOT(clearAllFavorites()));    
-  
-    iModel = new IRFavoritesModel(iFavorites, this);
-    iListView->setModel(iModel);
-    iListView->setCurrentIndex(iModel->index(0));
+    setFlag(EViewFlag_ClearStackWhenActivate);
     
-    iConvertTimer = new QTimer(this);
-    iConvertTimer->setInterval(10);
-    
-    connect(iModel, SIGNAL(modelChanged()), this, SLOT(modelChanged()));
-    connect(iNetworkController, SIGNAL(networkRequestNotified(IRQNetworkEvent)),
-            this, SLOT(networkRequestNotified(IRQNetworkEvent))); 
-    connect(iConvertTimer, SIGNAL(timeout()), this, SLOT(convertAnother()));
+    //if this view is not starting view, finish all initialization in constructor
+    if (getViewManager()->views().count() > 0)
+    {
+        normalInit();
+    }
 }
 
 /*
@@ -71,6 +71,12 @@ IRFavoritesView::~IRFavoritesView()
 TIRHandleResult IRFavoritesView::handleCommand(TIRViewCommand aCommand, TIRViewCommandReason aReason)
 {
     Q_UNUSED(aReason);
+    
+    if (!initCompleted())
+    {
+        return EIR_DoDefault;
+    }
+    
     TIRHandleResult ret = IrAbstractListViewBase::handleCommand(aCommand, aReason);
     int leftCount = 0;
     
@@ -82,8 +88,13 @@ TIRHandleResult IRFavoritesView::handleCommand(TIRViewCommand aCommand, TIRViewC
         connect(iIsdsClient, SIGNAL(presetLogoDownloadError()),
                 this, SLOT(presetLogoDownloadError()));
         
+        iModel->checkFavoritesUpdate();
         
-        iModel->checkFavoritesUpdate();          
+        leftCount = iIconIndexArray.count();
+        if( leftCount > 0 )
+        {
+            iConvertTimer->start();
+        }
         ret = EIR_NoDefault;
         break;
 
@@ -103,22 +114,46 @@ TIRHandleResult IRFavoritesView::handleCommand(TIRViewCommand aCommand, TIRViewC
 
         ret = EIR_NoDefault;
         break;
-     
-    case EIR_ViewCommand_EffectFinished:
-        
-        /* when the effect is finished, we start showing the logos  */
-        leftCount = iIconIndexArray.count();
-        if( leftCount > 0 )
-        {
-            iConvertTimer->start();
-        }
-        break;
 
     default:
         break;
     }
 
     return ret;
+}
+
+void IRFavoritesView::lazyInit()
+{
+    if (!initCompleted())
+    {
+        normalInit();
+        
+        //initialization from handleCommand()
+        handleCommand(EIR_ViewCommand_TOBEACTIVATED, EIR_ViewCommandReason_Show);
+        handleCommand(EIR_ViewCommand_ACTIVATED, EIR_ViewCommandReason_Show);
+    }
+}
+
+void IRFavoritesView::normalInit()
+{
+    if (!initCompleted())
+    {
+        IrAbstractListViewBase::lazyInit();
+        initToolBar();
+        
+        iModel = new IRFavoritesModel(iFavorites, this);
+        iListView->setModel(iModel);
+        
+        iConvertTimer = new QTimer(this);
+        iConvertTimer->setInterval(10);
+        
+        connect(iModel, SIGNAL(modelChanged()), this, SLOT(modelChanged()));
+        connect(iNetworkController, SIGNAL(networkRequestNotified(IRQNetworkEvent)),
+                this, SLOT(networkRequestNotified(IRQNetworkEvent))); 
+        connect(iConvertTimer, SIGNAL(timeout()), this, SLOT(convertAnother()));
+        
+        setInitCompleted(true);
+    }
 }
 
 void IRFavoritesView::handleItemSelected()
@@ -148,7 +183,6 @@ void IRFavoritesView::clearAllFavorites()
     iModel->clearFavoriteDB();   
     iIsdsClient->isdsLogoDownCancelTransaction();
     iConvertTimer->stop();
-    updateView();
 }
 
 void IRFavoritesView::networkRequestNotified(IRQNetworkEvent aEvent)
@@ -178,12 +212,21 @@ void IRFavoritesView::networkRequestNotified(IRQNetworkEvent aEvent)
 
 void IRFavoritesView::prepareMenu()
 {
+    if (NULL == iClearFavoriteAction)
+    {
+        iClearFavoriteAction = new HbAction(hbTrId("txt_irad_opt_clear_favorites"), menu());
+        connect(iClearFavoriteAction, SIGNAL(triggered()), this, SLOT(clearAllFavorites()));    
+    }
+    
     HbMenu *viewMenu = menu();
     
     viewMenu->removeAction(iClearFavoriteAction);
+
+    HbAction * settingAction = qobject_cast<HbAction *>(iLoader.findObject(SETTINGS_ACTION));
+    
     if (iModel->rowCount() > 0)
     {
-        viewMenu->insertAction(iOpenWebAddressAction, iClearFavoriteAction);
+        viewMenu->insertAction(settingAction, iClearFavoriteAction);
     }
 }
 
@@ -259,7 +302,7 @@ void IRFavoritesView::convertAnother()
 
 void IRFavoritesView::modelChanged()
 {
-    QString headingStr = tr("Favorites") + " (" + QString::number(iModel->rowCount()) + ")";
+    QString headingStr = QString::number(iModel->rowCount()) + QString(" ") + hbTrId("txt_irad_subtitle_stations");
     setHeadingText(headingStr);
     iIconIndexArray.clear();
     
@@ -275,6 +318,30 @@ void IRFavoritesView::modelChanged()
     iListView->setCurrentIndex(iModel->index(0));
 }
 
+void IRFavoritesView::actionClicked(HbAction *aAction)
+{
+    if ( aAction )
+    {
+        QString objectName = aAction->objectName();
+        if (objectName == KActionShareName)
+        {
+            shareContextAction();
+        }
+        else if ( objectName == KActionDeleteName)
+        {
+            deleteContextAction();                            
+        }
+        else if (objectName == KActionRenameName)
+        {
+            renameContextAction();
+        }
+        else if (objectName == KActionDetailsName)
+        {
+            detailsContextAction();
+        }
+    } 
+}
+
 /*
  * Description : set the checked action in toolbar. for favoritesview, iFavoritesAction should
  *               be checked
@@ -286,32 +353,58 @@ void IRFavoritesView::setCheckedAction()
 
 void IRFavoritesView::listViewLongPressed(HbAbstractViewItem *aItem, const QPointF& aCoords)
 {
-    Q_UNUSED(aItem);             
-    HbMenu *contextMenu = 0;
-    HbAction *action = 0;
+    Q_UNUSED(aItem);         
+    Q_UNUSED(aCoords);
     
-    contextMenu = new HbMenu(); 
-    action = contextMenu->addAction(QString(hbTrId("txt_common_menu_delete")));
-    action->setObjectName("delete");
-    action = contextMenu->exec(aCoords);
+    HbAction *action = NULL;
     
-    if( action )
-    {
-        QString objectName = action->objectName();      
-        if( objectName == "delete")
-        {
-            deleteContextAction();                            
-        }
-    }          
+    HbMenu *contextMenu = new HbMenu(); 
+    contextMenu->setAttribute(Qt::WA_DeleteOnClose);
+    connect(contextMenu, SIGNAL(triggered(HbAction*)), this, SLOT(actionClicked(HbAction*)));
+    
+    action = contextMenu->addAction(hbTrId("txt_irad_opt_share_station"));
+    action->setObjectName(KActionShareName);
+    action = contextMenu->addAction(hbTrId("txt_common_menu_delete"));
+    action->setObjectName(KActionDeleteName);
+    action = contextMenu->addAction(hbTrId("txt_common_menu_rename_item"));
+    action->setObjectName(KActionRenameName);
+    action = contextMenu->addAction(hbTrId("txt_common_menu_details"));
+    action->setObjectName(KActionDetailsName);
+    
+    contextMenu->open();         
 } 
+
+void IRFavoritesView::shareContextAction()
+{
+    
+}
+
+void IRFavoritesView::renameContextAction()
+{
+    
+}
+
+void IRFavoritesView::detailsContextAction()
+{
+    
+}
 
 void IRFavoritesView::deleteContextAction()
 {
     int current = iListView->currentIndex().row();
     bool ret = iModel->deleteOneFavorite(current);   
-	  if( !ret )
-	  {
+	if ( !ret )
+	{
 	    popupNote(hbTrId("txt_irad_info_operation_failed"), HbMessageBox::MessageTypeWarning);
-	  }
+	}
 }
- 
+
+void IRFavoritesView::initToolBar()
+{
+    //add HbActions to the toolbar, the HbActions have been created in IrAbstractListViewBase
+    HbToolBar *viewToolBar = toolBar();
+    viewToolBar->addAction(iGenresAction);
+    viewToolBar->addAction(iCollectionsAction);
+    viewToolBar->addAction(iFavoritesAction);
+    viewToolBar->addAction(iSearchAction);
+}

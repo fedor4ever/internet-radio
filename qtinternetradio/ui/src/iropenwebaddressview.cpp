@@ -14,42 +14,46 @@
 * Description:
 *
 */
-#include <hbapplication.h>
-#include <hbmenu.h>
-#include <hbtoolbar.h>
+
+#include <hbdataform.h>
+#include <hbdataformmodelitem.h>
+#include <hbdataformviewitem.h>
+#include <hbdataformmodel.h>
 #include <hbpushbutton.h>
 #include <hblineedit.h>
-#include <hbinstance.h>
+#include <hbstyleloader.h>
+#include <hbaction.h>
 
-#include "irabstractviewmanager.h"
+#include "irviewmanager.h"
 #include "irapplication.h"
 #include "irplaycontroller.h"
 #include "iropenwebaddressview.h"
 #include "irqisdsdatastructure.h"
-#include "irqfavoritesdb.h"
 #include "irqnetworkcontroller.h"
 #include "irqutility.h"
-#include "irlineeditor.h"
 #include "irqenums.h"
 #include "iruidefines.h"
-
-// Const strings
-const char* OPEN_WEB_ADDRESS_VIEW_OBJECT_NAME = "ex-IRQOpenWebAddressView"; // object name in the XML
+#include "irqsettings.h"
 
 IROpenWebAddressView::IROpenWebAddressView(IRApplication* aApplication, TIRViewId aViewId) :
     IRBaseView(aApplication, aViewId),
+    iForm(NULL),
+    iModel(NULL),
     iUrl(NULL),
     iName(NULL),
-    iDescription(NULL),
-    iNameClicked(false),
-    iPlayButton(NULL),
-    iAdd2FavButton(NULL)
+    iNameEditorPtr(NULL),
+    iPlayButton(NULL)
 {
-    connect( getViewManager(), SIGNAL( orientationChanged(Qt::Orientation) ),
-             this, SLOT( handleOrientationChanged(Qt::Orientation) ) );
+    //this view won't be starting view, don't need lazy init
+    IRBaseView::lazyInit();
+    setInitCompleted(true);
+    
+    // TODO: te be deleted if there's no difference between the landscape and portrait.
+//    connect( getViewManager(), SIGNAL( orientationChanged(Qt::Orientation) ),
+//             this, SLOT( handleOrientationChanged(Qt::Orientation) ) );
     
     // Create widget hierarchy
-    setObjectName(OPEN_WEB_ADDRESS_VIEW_OBJECT_NAME);
+    setObjectName(OPEN_WEB_ADDRESS_VIEW_OBJECT_VIEW);
 
     // List existing root elements - this allows us to refer to objects in the XML 
     // which are created outside the document.
@@ -60,28 +64,48 @@ IROpenWebAddressView::IROpenWebAddressView(IRApplication* aApplication, TIRViewI
     // Load the XML file
     iLoader.load(OPEN_WEB_ADDRESS_VIEW_LAYOUT_FILENAME);
 
-    // Find the HbLineEdit objects
-    iUrl = qobject_cast<HbLineEdit *> (iLoader.findObject("streamURL"));
-    iName = qobject_cast<IrLineEditor *> (iLoader.findObject("stationName"));
-    iDescription = qobject_cast<HbLineEdit *> (iLoader.findObject("description"));
+    // Find the HbDataForm objects
+    iForm = qobject_cast<HbDataForm *> (iLoader.findObject(OPEN_WEB_ADDRESS_VIEW_OBJECT_DATA_FORM));
+    iModel = new HbDataFormModel();
+    initDataForm();
+    initDetails();
+    iForm->setModel(iModel);
+    initMenu();
 
-    initButtons();
+    // get a new instance different from the base class. Because it's used in destructor and 
+    // the viewmanager is destructed after application, the base class iSettings is NULL before
+    // destruct this class.
+    iSettings = IRQSettings::openInstance();
+
+    // Install event filter
+    QModelIndex index = iModel->indexFromItem(iName);
+    HbAbstractViewItem* viewItem = iForm->itemByIndex(index);
+    HbDataFormViewItem* dataformviewitem = static_cast<HbDataFormViewItem *>(viewItem);
+    HbWidget *widget = dataformviewitem->dataItemContentWidget();
+    iNameEditorPtr = static_cast<HbLineEdit *>(widget);
+    iNameEditorPtr->installEventFilter(this);
+
+    // Find the play button objects
+    iPlayButton = qobject_cast<HbPushButton *>(iLoader.findObject(OPEN_WEB_ADDRESS_VIEW_OBJECT_PLAY_BUTTON));
+    connect(iPlayButton, SIGNAL(released()), this, SLOT(play()));
+    HbStyleLoader::registerFilePath(OPEN_WEB_ADDRESS_VIEW_PUSH_BUTTON_CSS);
+    HbStyleLoader::registerFilePath(OPEN_WEB_ADDRESS_VIEW_PUSH_BUTTON_WIDGETML);
 
     // This view need not to be stacked.
     setFlag(EViewFlag_UnStackable);
 
-    connect(iName, SIGNAL(pressed()), this, SLOT(nameEditorClicked()));
     connect(iNetworkController, SIGNAL(networkRequestNotified(IRQNetworkEvent)),
     this, SLOT(networkRequestNotified(IRQNetworkEvent)));
-    
-    connect(iUrl, SIGNAL(textChanged(const QString&)),
-    this, SLOT(urlEditorTextChanged(const QString&)));
 
-    handleOrientationChanged(getViewManager()->orientation());
+    // TODO: te be deleted if there's no difference between the landscape and portrait.
+//    handleOrientationChanged(getViewManager()->orientation());
 }
 
 IROpenWebAddressView::~IROpenWebAddressView()
 {
+    iSettings->setManuallyInputtedStationUrl(iUrl->contentWidgetData(QString("text")).toString());
+    iSettings->setManuallyInputtedStationName(iName->contentWidgetData(QString("text")).toString());    
+    iSettings->closeInstance();
 }
 
 /*
@@ -99,9 +123,7 @@ TIRHandleResult IROpenWebAddressView::handleCommand(TIRViewCommand aCommand,
     switch (aCommand)
     {
     case EIR_ViewCommand_ACTIVATED:
-        initDetails();
-        return EIR_NoDefault;
-
+        initUrlAndName();
     case EIR_ViewCommand_DEACTIVATE:
     default:
         break;
@@ -111,63 +133,80 @@ TIRHandleResult IROpenWebAddressView::handleCommand(TIRViewCommand aCommand,
 }
 
 /*
- * Description : initialize the details.
+ * Description : create menu
+ */
+void IROpenWebAddressView::initMenu()
+{
+    HbAction *settings = qobject_cast<HbAction *> (iLoader.findObject(SETTINGS_ACTION));
+    HbAction *exitAction = qobject_cast<HbAction *> (iLoader.findObject(EXIT_ACTION));
+
+    connect(settings, SIGNAL(triggered()), this, SLOT(handleSettingAction()));
+    connect(exitAction, SIGNAL(triggered()), iApplication, SIGNAL(quit()));
+}
+
+
+/*
+ * Description : initialize the details in constructor.
  */
 void IROpenWebAddressView::initDetails()
 {
     // Set the initial text for line editor.
-    iUrl->setText("http://");
-    iName->setText(hbTrId("txt_irad_info_unnamed"));
-    iDescription->setText("");
-    iNameClicked = false;
-}
+    QString stationUrl, stationName;
+    iSettings->getManuallyInputtedStationUrl(stationUrl);
+    iSettings->getManuallyInputtedStationName(stationName);
 
-/*
- * Description : initialize the buttons.
- */
-void IROpenWebAddressView::initButtons()
-{
-    // Find the HbAction objects
-    iPlayButton = qobject_cast<HbPushButton *> (iLoader.findObject("playButton"));
-    iAdd2FavButton = qobject_cast<HbPushButton *> (iLoader.findObject("add2FavButton"));
-    
-    connect(iPlayButton, SIGNAL(released()), this, SLOT(play()));
-    connect(iAdd2FavButton, SIGNAL(released()), this, SLOT(add2Fav()));
-}
-
-/*
- * Description : add the station to favorites.
- */
-void IROpenWebAddressView::add2Fav()
-{
-    // Create a IRQPreset using the inputted information.
-    IRQPreset preset;
-
-    if (!initPreset(preset))
+    if (0 == stationUrl.size())
     {
-        return;
-    }
-
-    // Add to favorites.
-    int retValue = iFavorites->addPreset(preset);
-
-    // Show the information from favorites.
-    if (EIRQErrorAlreadyExist == retValue)
-    {
-        popupNote(hbTrId("txt_irad_info_favorite_updated"), HbMessageBox::MessageTypeInformation);
-    }
-    else if (EIRQErrorNone == retValue)
-    {
-        popupNote(hbTrId("txt_irad_info_added_to_favorites"), HbMessageBox::MessageTypeInformation);
-    }
-    else if (EIRQErrorOutOfMemory == retValue)
-    {
-        popupNote(hbTrId("txt_irad_info_can_not_add_more"), HbMessageBox::MessageTypeInformation);
+        iUrl->setContentWidgetData(QString("text"), QString("http://"));
     }
     else
     {
-        Q_ASSERT(false);
+        iUrl->setContentWidgetData(QString("text"), stationUrl);
     }
+
+    if (0 == stationName.size())
+    {
+        iName->setContentWidgetData(QString("text"), hbTrId("txt_irad_info_unnamed"));
+    }
+    else
+    {
+        iName->setContentWidgetData(QString("text"), stationName);
+    }
+}
+
+/*
+ * Description : initialize the details when activated.
+ */
+void IROpenWebAddressView::initUrlAndName()
+{
+    QString temp = iUrl->contentWidgetData(QString("text")).toString();
+    if (0 == temp.size())
+    {
+        iUrl->setContentWidgetData(QString("text"), QString("http://"));
+    }
+
+    temp = iName->contentWidgetData(QString("text")).toString();
+    if (0 == temp.size())
+    {
+        iName->setContentWidgetData(QString("text"), hbTrId("txt_irad_info_unnamed"));
+    }
+}
+
+/*
+ * Description : initialize the details.
+ */
+void IROpenWebAddressView::initDataForm()
+{
+    iUrl = new HbDataFormModelItem(
+            HbDataFormModelItem::TextItem, hbTrId("txt_irad_formlabel_station_url"));
+    iModel->appendDataFormItem(iUrl);
+
+    iName = new HbDataFormModelItem(
+            HbDataFormModelItem::TextItem, hbTrId("txt_irad_formlabel_station_name"));
+    iModel->appendDataFormItem(iName);
+
+    iForm->addConnection(iUrl, SIGNAL(textChanged(const QString&)),
+    this, SLOT(urlEditorTextChanged(const QString&)));
 }
 
 /*
@@ -226,18 +265,6 @@ void IROpenWebAddressView::networkRequestNotified(IRQNetworkEvent aEvent)
 }
 
 /*
- * Description : Clear the name editor.
- */
-void IROpenWebAddressView::nameEditorClicked()
-{    
-    if(!iNameClicked)
-    {
-        iName->setText("");
-        iNameClicked = true;
-    }     
-}
-
-/*
  * Description : initialize a preset.
  * return parameter: true, initialization succeeds; vice versa.
  */
@@ -245,7 +272,7 @@ bool IROpenWebAddressView::initPreset(IRQPreset &aPreset)
 {
     IRQChannelServerURL server;
 
-    server.url = iUrl->text();
+    server.url = iUrl->contentWidgetData(QString("text")).toString();
     server.url.remove(" ");
 
     // check the URL
@@ -257,7 +284,7 @@ bool IROpenWebAddressView::initPreset(IRQPreset &aPreset)
 
     // Give it an initial value, supposed to be 32 kbps.
     server.bitrate = 32;
-    server.serverName = iName->text();
+    server.serverName = iName->contentWidgetData(QString("text")).toString();
     if (0 == server.serverName.size())
     {
         server.serverName = hbTrId("txt_irad_info_unnamed");
@@ -265,7 +292,7 @@ bool IROpenWebAddressView::initPreset(IRQPreset &aPreset)
 
     aPreset.insertChannelServer(server);
     aPreset.name = server.serverName;
-    aPreset.description = iDescription->text();
+    aPreset.description = hbTrId("txt_irad_info_added_station_description");
     aPreset.shortDesc = aPreset.description;
     aPreset.type = 0;     
     aPreset.presetId = 0;
@@ -280,17 +307,16 @@ void IROpenWebAddressView::urlEditorTextChanged(const QString &aString)
     if(aString.size() < 8)
     {
         iPlayButton->setEnabled(false);
-        iAdd2FavButton->setEnabled(false);
     }   
     else
     {
         iPlayButton->setEnabled(true);
-        iAdd2FavButton->setEnabled(true);
     }
 }
 
 /*
  * Description : resize the container if the direction changes.
+ * TODO: te be deleted if there's no difference between the landscape and portrait.
  */
 void IROpenWebAddressView::handleOrientationChanged(Qt::Orientation aOrientation)
 {
@@ -303,4 +329,22 @@ void IROpenWebAddressView::handleOrientationChanged(Qt::Orientation aOrientation
     {
         iLoader.load(OPEN_WEB_ADDRESS_VIEW_LAYOUT_FILENAME, "landscape");
     }
+}
+
+void IROpenWebAddressView::handleSettingAction()
+{
+    getViewManager()->activateView(EIRView_SettingsView);
+}
+
+bool IROpenWebAddressView::eventFilter(QObject *object, QEvent *event)
+{
+    if( object == iNameEditorPtr
+        && event->type() == QEvent::FocusIn )
+    {
+        if(hbTrId("txt_irad_info_unnamed") == iName->contentWidgetData(QString("text")).toString())
+        {
+            iName->setContentWidgetData(QString("text"), QString(""));
+        }
+    }
+    return false;
 }

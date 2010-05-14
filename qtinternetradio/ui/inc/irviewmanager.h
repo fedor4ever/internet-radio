@@ -18,42 +18,39 @@
 #define IRVIEWMANAGER_H
 
 #include <QStack>
-#include <hbeffect.h>
+#include <hbmainwindow.h>
 
-#include "irabstractviewmanager.h"
+#include "irviewdefinitions.h"
 
+class IRApplication;
+class IRBaseView;
 class QTimer;
 
-class IRViewManager : public IRAbstractViewManager
+class IRViewManager : public HbMainWindow
 {
     Q_OBJECT
 public:
     IRViewManager();
     ~IRViewManager();
+    void setApplication(IRApplication *aApplication);
     
-    //from base class IRAbstractViewManager
-    IRBaseView* getView(TIRViewId aViewId, bool aCreateIfNotExist);
+    IRBaseView* getView(TIRViewId aViewId, bool aCreateIfNotExist = false);
     
-    //from base class IRAbstractViewManager
     bool isViewInStack(TIRViewId aViewId) const;
     
-    //from base class IRAbstractViewManager
-    void activateView(TIRViewId aViewId, bool aPushCurrentView);
+    void activateView(TIRViewId aViewId, bool aPushCurrentView = true);
     
-    //from base class IRAbstractViewManager
-    void activateView(IRBaseView *aView, bool aPushCurrentView);
+    void activateView(IRBaseView *aView, bool aPushCurrentView = true);
     
-    //from base class IRAbstractViewManager
     void pushViewById(TIRViewId aViewId);
     
-    //from base class IRAbstractViewManager
     TIRViewId currentViewId() const;
-    
-    //from base class IRAbstractViewManager
-    TIRHandleResult handleSystemEvent(TIRSystemEventType aEvent);
     
     bool isExiting() const;
        
+public slots:
+    void backToPreviousView();
+
 protected:
     void mousePressEvent(QMouseEvent *aEvent);
     void mouseReleaseEvent(QMouseEvent *aEvent);
@@ -61,13 +58,8 @@ protected:
     void paintEvent(QPaintEvent *aEvent);
     
 private slots:
-    void backToPreviousView();
-    /*we need to start the logo-down process after the effect for the process
-     * may block some painting event in QT enviroment*/
-    void showEffectFinished(HbEffect::EffectStatus aStatus);
-    void hideEffectFinished(HbEffect::EffectStatus aStatus);
-    void currentViewChanged(HbView *aView);
-    
+    void handleViewReady();
+    void handleCurrentViewChanged(HbView *aView);
     void crossLineReset();
     void exitTimeout();
         
@@ -80,12 +72,12 @@ private:
     bool readyToQuit();
     
     void switchToNextView(IRBaseView *aView);
-        
+ 
 private:
+    IRApplication* iApplication;
     QStack<IRBaseView*> iViewStack;
     HbAction       *iBackAction;
     HbAction       *iExitAction;
-    IRBaseView     *iViewToHide;
     
     bool iCrossLineAReady;
     bool iCrossLineBReady;

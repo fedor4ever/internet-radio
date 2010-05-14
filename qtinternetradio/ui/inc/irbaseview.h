@@ -22,10 +22,10 @@
 
 #include "irdocumentloader.h"
 #include "irviewdefinitions.h"
-#include "irsystemeventobserver.h"   //located in InternetRadio/uiinc
+ 
 
 class IRApplication;
-class IRAbstractViewManager;
+class IRViewManager;
 class IRPlayController;
 class IRQIsdsClient;
 class IRQNetworkController;
@@ -34,6 +34,7 @@ class IRQSettings;
 
 enum TViewFlag
 {
+    EViewFlag_None = 0,
     EViewFlag_UnStackable = 0x01,
     EViewFlag_ClearStackWhenActivate = 0x02
 };
@@ -42,7 +43,8 @@ class IRBaseView : public HbView
 {
 public:
     TIRViewId id() const;
-    virtual TIRHandleResult handleSystemEvent(TIRSystemEventType aEvent);
+    //use a enum to instead in future
+    virtual TIRHandleResult handleSystemEvent(int aEvent);
     virtual TIRHandleResult handleCommand(TIRViewCommand aCommand, TIRViewCommandReason aReason);
     virtual void launchAction();
     virtual void updateView();
@@ -54,13 +56,19 @@ public:
         
     TIRUseNetworkReason getUseNetworkReason() const;
         
+    virtual void lazyInit();
+    
 protected:
     IRBaseView(IRApplication *aApplication, TIRViewId aViewId);
 
-    IRAbstractViewManager* getViewManager() const;
+    IRViewManager* getViewManager() const;
 
     void popupNote(const QString &aNote, const HbMessageBox::MessageBoxType &aNoteType) const;
-
+    
+    void setInitCompleted(bool aFlag);
+    
+    bool initCompleted() const;
+    
 protected:
     IRApplication* iApplication;
     
@@ -71,11 +79,12 @@ protected:
     IRQFavoritesDB       *iFavorites;
     IRQSettings          *iSettings;
     IRDocumentLoader iLoader;
-
+    
 private:
     TIRViewId      iViewId;
     int            iFlag;
     TIRUseNetworkReason iUseNetworkReason;
+    bool iInitCompleted;
 };
 
 #endif

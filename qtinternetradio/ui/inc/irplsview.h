@@ -35,13 +35,13 @@ protected:
     
 private slots:
     void networkRequestNotified(IRQNetworkEvent aEvent);
+    void actionClicked(HbAction *aAction);
     
 private:
     //from base class IrAbstractListViewBase
-    void handleItemSelected();    
-    
-    //from base class IRBaseView
-    void updateView();
+    void handleItemSelected();
+    void listViewLongPressed(HbAbstractViewItem *aItem, const QPointF &aCoords);
+    void launchAction();
     
 private:
     IRPlsModel *iPlsModel;

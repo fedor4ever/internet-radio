@@ -18,13 +18,14 @@
 #include <hblistview.h>
 
 #include "irapplication.h"
-#include "irabstractviewmanager.h"
+#include "irviewmanager.h"
 #include "irmainview.h"
 #include "ircategoryview.h"
 #include "irstationsview.h"
 #include "irqnetworkcontroller.h"
 #include "irmainmodel.h"
 #include "irqenums.h"
+#include "iruidefines.h"
 
 //                                          public functions
 
@@ -36,13 +37,13 @@ IRMainView::IRMainView(IRApplication* aApplication, TIRViewId aViewId) :
                                                       iMainModel(NULL)
 {
     setFlag(EViewFlag_ClearStackWhenActivate);
-    
-	connect(iNetworkController, SIGNAL(networkRequestNotified(IRQNetworkEvent)),
-	        this, SLOT(networkRequestNotified(IRQNetworkEvent)));
-	setHeadingText(tr("Collections"));
+	iLoader.load(ABSTRACT_LIST_VIEW_BASE_LAYOUT_FILENAME, ABSTRACT_LIST_VIEW_BASE_WITH_TOOLBAR_SECTION);
 	
-	iMainModel = new IRMainModel(this);
-	iListView->setModel(iMainModel);
+	//if this view is not starting view, finish all initialization in constructor
+	if (getViewManager()->views().count() > 0)
+	{
+	    lazyInit();
+	}
 }
 
 /*
@@ -50,30 +51,6 @@ IRMainView::IRMainView(IRApplication* aApplication, TIRViewId aViewId) :
  */
 IRMainView::~IRMainView()
 {
-}
-
-/*
- * Description : virtual function from base class IRBaseView.
- *               handle view commands.
- * Parameters  : aCommand : see the definition of TIRViewCommand
- * Return      : EIR_DoDefault : caller does default handling
- *               EIR_NoDefault : caller doesn't do default handling
- */
-TIRHandleResult IRMainView::handleCommand(TIRViewCommand aCommand, TIRViewCommandReason aReason)
-{
-    TIRHandleResult ret = IrAbstractListViewBase::handleCommand(aCommand, aReason);
-    switch (aCommand)
-    {
-    case EIR_ViewCommand_ACTIVATED:
-        updateView();
-        ret = EIR_NoDefault;
-        break;
-        
-    default:
-        break;
-    }
-    
-    return ret;
 }
 
 //                                       slots functions
@@ -194,4 +171,23 @@ void IRMainView::updateView()
 {
     IrAbstractListViewBase::updateView();
     iMainModel->checkUpdate();
+}
+
+void IRMainView::lazyInit()
+{
+    if (!initCompleted())
+    {
+        IrAbstractListViewBase::lazyInit();
+        
+        setCheckedAction();
+        
+        connect(iNetworkController, SIGNAL(networkRequestNotified(IRQNetworkEvent)),
+                this, SLOT(networkRequestNotified(IRQNetworkEvent)));
+        
+        iMainModel = new IRMainModel(iApplication->getPlayList(), this);
+        iMainModel->checkUpdate();
+        iListView->setModel(iMainModel);
+        
+        setInitCompleted(true);
+    }
 }

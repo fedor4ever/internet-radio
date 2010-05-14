@@ -29,6 +29,7 @@ LIBS += -lirdatastructures \
         -lcone \
         -lws32 \
         -lapgrfx \
+        -lxqsettingsmanager \
         -lapmime
         
 symbian{

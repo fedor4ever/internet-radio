@@ -21,7 +21,7 @@
 
 
 #include <e32debug.h>
-
+#include <flogger.h>
 ///////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////
 // Debug usage
@@ -64,10 +64,9 @@
 #endif
 
 #ifdef IRDEBUG_TRACE_TO_FILE
-    #include <flogger.h>
     _LIT( KIRDebugLogDirectory, "internetradio" );
     _LIT( KIRDebugLogFile, "internetradiolog.txt" );
-    const TFileLoggingMode KIRDebugLoggingMode = EFileLoggingModeAppend;
+    const TFileLoggingMode KIRDebugLoggingMode = EFileLoggingModeAppend; // EFileLoggingModeOverwrite
 #endif
 
 #if IR_DEBUG_LEVEL > IR_DEBUG_LEVEL_NONE

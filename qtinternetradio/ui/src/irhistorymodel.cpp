@@ -16,16 +16,14 @@
 */
 
 #include <hbicon.h>
-#include <QBrush>
 
 #include "irqsonghistoryinfo.h"
 #include "irqsonghistoryengine.h"
 #include "irhistorymodel.h"
-#include "iruidefines.h"
 
 IRHistoryModel::IRHistoryModel(QObject *aParent) : QAbstractListModel(aParent)
 {
-    iStationLogo = new HbIcon(":/stationlist/icon_stationdefault.png");
+    iStationLogo = new HbIcon("qtg_large_internet_radio");
 
     iHistoryEngine = IRQSongHistoryEngine::openInstance();
     getAllList();
@@ -84,7 +82,7 @@ QVariant IRHistoryModel::data(const QModelIndex &aIndex, int aRole) const
         QVariantList list;
         
         int row = aIndex.row();
-        QString primaryText = QString::number(row+1) + ". " + iHistoryList.at(row)->getChannelName();
+        QString primaryText = iHistoryList.at(row)->getChannelName();
         list.append(primaryText);
         // fix bug #9888,if left descriptions as blank, only one line appears
         QString tempDes = iHistoryList.at(row)->getChannelDesc();
@@ -111,17 +109,6 @@ QVariant IRHistoryModel::data(const QModelIndex &aIndex, int aRole) const
         }
         
         return list;
-    }
-    else if (aRole == Qt::BackgroundRole)
-    {
-        if (aIndex.row() % 2 == 0)
-        {
-            return QBrush(KListEvenRowColor);
-        }
-        else
-        {
-            return QBrush(KListOddRowColor);
-        }
     }
 
     return QVariant();

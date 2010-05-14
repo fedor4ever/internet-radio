@@ -50,6 +50,8 @@ private slots:
     void modelChanged();
     void gotoSongHistory();
     
+    void actionClicked(HbAction *aAction);
+    
 private:
     void showHistory();
     void handleItemSelected();
@@ -61,6 +63,7 @@ private:
     void convertStationHistory2Preset(const IRQSongHistoryInfo& aHistoryInfo, IRQPreset& aPreset);
     void addContextAction();
     void deleteContextAction();
+    void detailContextAction();
 
 private:  
     IRHistoryModel *iModel;

@@ -24,7 +24,6 @@
 
 class CIRIsdsPreset;
 class CIRPreset;
-class CIRSettings;
 class CPSPresetNotifier;
 
 
@@ -285,8 +284,7 @@ private:
 
     /** The maximum number of supported presets. */
     TInt iMaxPresetCount;
-    /**cenrep handle*/
-    CIRSettings *iSettings;
+
     /**type of presets(source)*/
     enum TChannelType
     {

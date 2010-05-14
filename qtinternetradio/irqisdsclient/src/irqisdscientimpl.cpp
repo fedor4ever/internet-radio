@@ -36,10 +36,9 @@ static const char* KDefaultIsdsUrl = "http://88.114.146.238/isds";
 void getIsdsUrlFromConfiguration(QString & aUrl);
 #endif // USER_DEFINED_ISDSURL
 
-IRQIsdsClientImpl::IRQIsdsClientImpl(IRQFavoritesDB *aFavPresets) : iISDSClient(NULL), iFavPresets(NULL),
+IRQIsdsClientImpl::IRQIsdsClientImpl() : iISDSClient(NULL), iFavPresets(NULL),
                                                                     iLogoDownloadEngine(NULL)
 {
-    iFavPresets = aFavPresets->getCIRFavoriteDB();
 #ifdef USER_DEFINED_ISDSURL
     QString userDefinedIsdsUrl(KDefaultIsdsUrl);
     getIsdsUrlFromConfiguration(userDefinedIsdsUrl);
@@ -55,7 +54,6 @@ IRQIsdsClientImpl::IRQIsdsClientImpl(IRQFavoritesDB *aFavPresets) : iISDSClient(
     
     iLogoDownloadEngine
             = iISDSClient->GetDataProvider()->GetHttpDataProvider()->GetLogoDownloadEngine();
-    iLogoDownloadEngine->SetFavDbInstance(iFavPresets);
 }
 
 IRQIsdsClientImpl::~IRQIsdsClientImpl()
@@ -179,8 +177,9 @@ void IRQIsdsClientImpl::isdsListenRequestImpl(int aCurrentIndex,
 //@param int,QString, the preset id and the last modified tag for the preset   
 //
 int IRQIsdsClientImpl::isdsSyncPresetImpl(int aPresetId,
-        const QString& aIfModifySince)
+        const QString& aIfModifySince, IRQFavoritesDB *aFavPresets)
 {
+    iFavPresets = aFavPresets;
     TPtrC16 modifySinceDes(
             reinterpret_cast<const TUint16*> (aIfModifySince.utf16()));
     TInt result = 0;
@@ -470,7 +469,10 @@ void IRQIsdsClientImpl::IsdsPresetDataReceivedL(
 //
 void IRQIsdsClientImpl::IsdsPresetRemovedL(TInt aId)
 {
-    iFavPresets->MakePresetUserDefinedL(aId, 0);
+    if(iFavPresets)
+    {
+        iFavPresets->makePresetUserDefined(aId, 0);
+    }
     emit
     syncPresetResultImpl(EIRQIsdsSycPresetRemoved, NULL);
 }
@@ -480,10 +482,13 @@ void IRQIsdsClientImpl::IsdsPresetRemovedL(TInt aId)
 //
 void IRQIsdsClientImpl::IsdsPresetChangedL(CIRIsdsPreset& aPreset)
 {
-    iFavPresets->ReplacePresetL(aPreset);
     IRQPreset* qPreset = new IRQPreset();
     IRQUtility::convertCIRIsdsPreset2IRQPrest(aPreset, *qPreset);
     qPreset->type = IRQPreset::EIsds;
+    if(iFavPresets)
+    {        
+        iFavPresets->replacePreset(*qPreset);
+    }
     emit syncPresetResultImpl(EIRQIsdsSycPresetChanged, qPreset);
 }
 

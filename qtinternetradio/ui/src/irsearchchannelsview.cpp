@@ -14,221 +14,241 @@
 * Description:
 *
 */
-#include <hbpushbutton.h>
-#include <hbtoolbar.h>
-#include <hbaction.h> 
-#include <QFont>
-#include <QActionGroup> 
-#include <QSizePolicy> 
-#include <QStringList>
-#include <QStringListModel> 
-#include <QTimer>
 
-#include "irqisdsdatastructure.h"
-#include "irsearchchannelsview.h" 
-#include "irabstractviewmanager.h" 
-#include "irstationsview.h" 
-#include "irqnetworkcontroller.h" 
-#include "irbannerlabel.h"  
-#include "irqmetadata.h"
-#include "irplaycontroller.h"
+#include <qtimer.h>
+#include <hblistview.h>
+#include <hbsearchpanel.h>
+#include <hbaction.h>
+#include <hbprogressdialog.h>
+
+#include "irsearchchannelsview.h"
+#include "iruidefines.h"
 #include "irqisdsclient.h"
-#include "irapplication.h" 
-#include "irsearchcriteriadb.h"
-#include "ircombobox.h"
-#include "iruidefines.h" 
-
-const QString KInitialString = "Input key string";  
+#include "irapplication.h"
+#include "irviewmanager.h"
+#include "irqnetworkcontroller.h"
+#include "irchannelmodel.h"
+#include "irqisdsdatastructure.h"
+#include "irplaycontroller.h"
+ 
+const uint KBitmapSize = 59; 
 
 IRSearchChannelsView::IRSearchChannelsView(IRApplication* aApplication,
-        TIRViewId aViewId): IRBaseView(aApplication, aViewId),iCollectionsAction(NULL),iFavoritesAction(NULL),
-        iGenresAction(NULL),iSearchAction(NULL),iSearchButton(NULL),iSearchText(NULL),iSearchIconLabel(NULL),
-        iSearchCombobox(NULL),iFirstTime(true),iBannerLabel(NULL),iDB(NULL)
+        TIRViewId aViewId): IRBaseView(aApplication, aViewId),
+        iListView(NULL),iSearchPanelWidget(NULL),
+        iSearchState(ESearch_init),iChannelModel(NULL),iSearchingDialog(NULL),
+        iPreset(NULL),iLogoPreset(NULL),iConvertTimer(NULL)
+{
+    //if this view is not starting view, finish all initialization in constructor
+    if (getViewManager()->views().count() > 0)
+    {
+        if (!initCompleted())
+        {            
+            normalInit();             
+        }
+    }
+}
 
+void IRSearchChannelsView::lazyInit()
+{
+    if (!initCompleted())
+    {
+        normalInit();                     
+    }        
+}
+
+void IRSearchChannelsView::normalInit()
+{
+    if (!initCompleted())
+    { 
+        IRBaseView::lazyInit();
+        loadLayout();
+        connectWidget();  
+        switch2InitState();       
+        initMenu();        
+        initTimer();
+        setInitCompleted(true);
+    }
+}
+
+void IRSearchChannelsView::initMenu()
+{
+
+}
+
+void IRSearchChannelsView::initTimer()
+{     
+    iConvertTimer = new QTimer(this);
+    iConvertTimer->setInterval(10); 
+    
+    connect(iConvertTimer, SIGNAL(timeout()), this, SLOT(convertAnother()));
+}
+
+IRSearchChannelsView::~IRSearchChannelsView()
+{
+    if( iSearchingDialog != NULL )
+    {
+        iSearchingDialog->close();
+        delete iSearchingDialog;
+        iSearchingDialog = NULL;
+    }
+    
+    if( iPreset != NULL )
+    {
+        delete iPreset;
+        iPreset = NULL;
+    }
+    
+    if( iLogoPreset != NULL )
+    {
+        delete iLogoPreset;
+        iLogoPreset = NULL;
+    }
+}
+
+void IRSearchChannelsView::loadLayout()
 {
     // Create widget hierarchy
     setObjectName( SEARCH_CHANNELS_VIEW_OBJECT_VIEW );
-
+    iChannelModel = new IrChannelModel(this);
     // List existing root elements - this allows us to refer to objects in the XML 
     // which are created outside the document.
     QObjectList roots;
     roots.append( this );
     iLoader.setObjectTree( roots );
-
     iLoader.load(SEARCH_CHANNELS_VIEW_LAYOUT_FILENAME);
-    iLoader.load(SEARCH_CHANNELS_VIEW_LAYOUT_FILENAME,SEARCH_CHANNELS_VIEW_NO_PLAYINGBANNER_SECTION); 
-
-    iSearchCombobox = qobject_cast<IrComboBox *> (iLoader.findObject(SEARCH_CHANNELS_VIEW_OBJECT_SEARCHKEY_LABEL));       
-    iSearchButton = qobject_cast<HbPushButton *>(iLoader.findObject(SEARCH_CHANNELS_VIEW_OBJECT_SEARCHKEY_BUTTON));    
-    iBannerLabel = qobject_cast<IrNowPlayingBannerLabel *>(iLoader.findObject(SEARCH_CHANNELS_VIEW_OBJECT_PLAYING_BANNER));
-    
-    initContentWidget();
-    initToolBar();    
-    initMenu();        
-    createDB();   
+    iSearchPanelWidget = qobject_cast<HbSearchPanel *>(iLoader.findWidget(SEARCH_CHANNELS_VIEW_SEARCHPANEL_WIDGET));    
+    iListView = qobject_cast<HbListView *>(iLoader.findWidget(SEARCH_CHANNELS_VIEW_SEARCHLISTVIEW_WIDGET));     
+    iListView->setModel(iChannelModel);
 }
 
-IRSearchChannelsView::~IRSearchChannelsView()
-{
-    delete iDB;
-    iDB = NULL;
-}
-
- 
-void IRSearchChannelsView::helpAction()
-{
-    popupNote(tr("Not ready"), HbMessageBox::MessageTypeInformation);
-}
- 
-
-
-TIRHandleResult IRSearchChannelsView::handleCommand(TIRViewCommand aCommand, TIRViewCommandReason aReason)
-{
-    Q_UNUSED(aReason);
-    TIRHandleResult ret = EIR_DoDefault;
-    QString str = "";
-    
-    switch (aCommand)
-    {
-    case EIR_ViewCommand_ACTIVATED:
-        updateView();
-        iBannerLabel->startAnimation();
-        str = iSearchCombobox->currentText();        
-        str = str.trimmed();
-        if( str == KInitialString || "" == str)
-            iSearchButton->setEnabled(false);
-        else
-            iSearchButton->setEnabled(true);        
-             
-        iSearchAction->setChecked(true);
-        break;
-
-    case EIR_ViewCommand_DEACTIVATE:              
-        iBannerLabel->stopAnimation();
-        break;
-    }
-
-    return ret;
-}
-
- 
-void IRSearchChannelsView::initContentWidget()
-{
-    iBannerLabel->setFontSpec(HbFontSpec(HbFontSpec::Primary)); 
-
-    iSearchButton->setEnabled(false);    
-    iSearchCombobox->setEditable(true);
-    iSearchCombobox->setEditText(KInitialString);
-    
-    connect(iSearchButton, SIGNAL(clicked(bool)),this, SLOT(startSearch(bool)));
-    connect(iSearchCombobox, SIGNAL(editTextChanged(const QString&)), this, SLOT(searchBoxTextChanged(const QString&)));   
+void IRSearchChannelsView::connectWidget()
+{     
+    connect(iListView, SIGNAL(activated(const QModelIndex&)), this, SLOT(clickItem(const QModelIndex&)));
+    connect(iChannelModel, SIGNAL(dataAvailable()), this, SLOT(dataChanged()));
     connect(iNetworkController, SIGNAL(networkRequestNotified(IRQNetworkEvent)), this, SLOT(networkRequestNotified(IRQNetworkEvent)));     
-    connect(iSearchCombobox, SIGNAL(pressed()), this, SLOT(comboboxClicked()));    
-    connect(iPlayController, SIGNAL(metaDataAvailable(IRQMetaData*)), this,
-            SLOT(metaDataAvailable(IRQMetaData*)));
-    connect(iPlayController, SIGNAL(playingStopped()), this,
-            SLOT(removeBanner()));
-    connect(iBannerLabel, SIGNAL(pressed()), this, SLOT(gotoNowPlaying()));
+    connect(iSearchPanelWidget,SIGNAL(criteriaChanged(const QString&)),this,SLOT(searchTextAlready(const QString&)));
 }
 
-void IRSearchChannelsView::initMenu()
-{          
-    
-    HbAction *settings = qobject_cast<HbAction *>(iLoader.findObject(SEARCH_CHANNELS_VIEW_OBJECT_SETTING_ACTION));
-    HbAction *openWebAdressAction = qobject_cast<HbAction*>(iLoader.findObject(SEARCH_CHANNELS_VIEW_OBJECT_OPEN_WEB_ADDRESS_ACTION));
-    HbAction *helpAction = qobject_cast<HbAction *>(iLoader.findObject(SEARCH_CHANNELS_VIEW_OBJECT_HELP_ACTION));
-    HbAction *exitAction = qobject_cast<HbAction *>(iLoader.findObject(SEARCH_CHANNELS_VIEW_OBJECT_EXIT_ACTION));    
-     
-    connect(settings, SIGNAL(triggered()), this, SLOT(launchSettingsView()));
-    connect(openWebAdressAction, SIGNAL(triggered()), this, SLOT(openWebAddress()));
-    connect(helpAction, SIGNAL(triggered()), this, SLOT(helpAction()));
-    connect(exitAction, SIGNAL(triggered()), iApplication, SIGNAL(quit()));
-}
-
-
-void IRSearchChannelsView::initToolBar()
+void IRSearchChannelsView::connectIsdsClient()
 {
-    HbToolBar *viewToolBar = qobject_cast<HbToolBar *>(iLoader.findObject(SEARCH_CHANNELS_VIEW_OBJECT_TOOLBAR));
+    connect(iIsdsClient, SIGNAL(channelItemsChanged(QList<IRQChannelItem *> *)),
+            iChannelModel, SLOT(updateData(QList<IRQChannelItem *> *)));    
+    connect(iIsdsClient, SIGNAL(operationException(IRQError)),
+            this, SLOT(operationException(IRQError)));   
+    connect(iIsdsClient, SIGNAL(presetResponse(IRQPreset *)),
+            this, SLOT(presetResponse(IRQPreset *)));    
+    connect(iIsdsClient, SIGNAL(presetLogoDownloaded(IRQPreset* )),
+            this, SLOT(presetLogoDownload(IRQPreset* )));     
+    connect(iIsdsClient, SIGNAL(presetLogoDownloadError()),
+            this, SLOT(presetLogoDownloadError()));
     
-    QActionGroup *actionGroup = new QActionGroup(this);
-
-    iCollectionsAction = qobject_cast<HbAction *>(iLoader.findObject(SEARCH_CHANNELS_VIEW_OBJECT_COLLECTION_ACTION));
-    iCollectionsAction->setActionGroup(actionGroup);
-
-    iFavoritesAction = qobject_cast<HbAction *>(iLoader.findObject(SEARCH_CHANNELS_VIEW_OBJECT_FAVORITES_ACTION));
-    iFavoritesAction->setActionGroup(actionGroup);
-
-    iGenresAction = qobject_cast<HbAction *>(iLoader.findObject(SEARCH_CHANNELS_VIEW_OBJECT_GENRES_ACTION));
-    iGenresAction->setActionGroup(actionGroup);
-
-    iSearchAction = qobject_cast<HbAction *>(iLoader.findObject(SEARCH_CHANNELS_VIEW_OBJECT_SEARCH_ACTION));
-    iSearchAction->setActionGroup(actionGroup);
-    
-    connect(iCollectionsAction, SIGNAL(triggered()), this, SLOT(collectionsActionClicked()));
-    connect(iFavoritesAction, SIGNAL(triggered()), this, SLOT(favoritesActionClicked()));
-    connect(iGenresAction, SIGNAL(triggered()), iApplication, SLOT(loadGenre()));    
-
-    iSearchAction->setChecked(true);
+   
 }
 
-void IRSearchChannelsView::collectionsActionClicked()
-{
-    getViewManager()->activateView(EIRView_MainView);
+void IRSearchChannelsView::disconnectIsdsClient()
+{ 
+    disconnect(iIsdsClient, SIGNAL(channelItemsChanged(QList<IRQChannelItem *> *)),
+            iChannelModel, SLOT(updateData(QList<IRQChannelItem *> *)));
+    disconnect(iIsdsClient, SIGNAL(operationException(IRQError)), this,
+            SLOT(operationException(IRQError))); 
+    disconnect(iIsdsClient, SIGNAL(presetResponse(IRQPreset *)),
+                       this, SLOT(presetResponse(IRQPreset *)));
+    disconnect(iIsdsClient, SIGNAL(presetLogoDownloaded(IRQPreset*)),
+                       this, SLOT(presetLogoDownload(IRQPreset* )));
+    disconnect(iIsdsClient, SIGNAL(presetLogoDownloadError()),
+                       this, SLOT(presetLogoDownloadError()));  
 }
 
-void IRSearchChannelsView::favoritesActionClicked()
+
+void IRSearchChannelsView::switch2InitState()
 {
-    getViewManager()->activateView(EIRView_FavoritesView);
+    iLoader.load(SEARCH_CHANNELS_VIEW_LAYOUT_FILENAME,SEARCH_CHANNELS_VIEW_NO_LISTVIEW_SECTION);    
+    iSearchState = ESearch_init;     
 }
 
-void IRSearchChannelsView::startSearch(bool aBool)
+void IRSearchChannelsView::switch2SearchedState()
 {
-    Q_UNUSED(aBool);
-    setUseNetworkReason(EIR_UseNetwork_StartSearch);
-    if (false == iApplication->verifyNetworkConnectivity())
-    {
-        return;
-    }
-    setUseNetworkReason(EIR_UseNetwork_NoReason);
-    
-    QString str = iSearchCombobox->currentText();   
-    str = str.trimmed();
-    
-    if( "" == str )
-    {         
-        return;
-    }
-
-    bool exists = iDB->isAlreadyExist(str);
-    if (!exists)
-    {
-        iDB->addOneCriteria(str);
-    }
-
-    IRStationsView *searchResultView =
-            static_cast<IRStationsView*> (getViewManager()->getView(
-                    EIRView_SearchResultView, true));
-
-    searchResultView->loadSearchResult(str);     
-} 
+    iLoader.load(SEARCH_CHANNELS_VIEW_LAYOUT_FILENAME,SEARCH_CHANNELS_VIEW_LISTVIEW_SECTION);    
+    iSearchState = ESearch_Searched;     
+}
+void IRSearchChannelsView::switch2SearchingState()
+{    
+    iSearchState = ESearch_Searching;     
+    startSearchingAnimation();
+}
  
- 
-void IRSearchChannelsView::searchBoxTextChanged(const QString &aString)
+void IRSearchChannelsView::createSearchingDialog()
 {
-    QString str = aString.trimmed();
-    if( "" != str )
+    if ( NULL == iSearchingDialog)
     {
-        iSearchButton->setEnabled(true);
-    }   
-    else  
-    {
-        iSearchButton->setEnabled(false);
+        //needs to add this , otherwise memory leak
+        iSearchingDialog = new HbProgressDialog(HbProgressDialog::WaitDialog);
+        iSearchingDialog->setModal(true);
+        iSearchingDialog->setTimeout(HbPopup::NoTimeout);
+        QAction *cancelAction = iSearchingDialog->actions().at(0);
+        cancelAction->setText(hbTrId("txt_common_button_cancel"));
+        connect(cancelAction, SIGNAL(triggered()), this, SLOT(cancelRequest()));
     }
-}  
+    
+    iSearchingDialog->setText(hbTrId("txt_common_info_searching"));
+    iSearchingDialog->show();
+}
+
+void IRSearchChannelsView::closeSearchingDialog()
+{
+    if( iSearchingDialog )
+    {
+        iSearchingDialog->close();
+        iSearchingDialog->deleteLater();
+        iSearchingDialog = NULL;
+    }
+}
+
+void IRSearchChannelsView::startSearchingAnimation()
+{
+    
+}
+
+void IRSearchChannelsView::stopSearchingAnimation()
+{
+    
+}
+
+
+void IRSearchChannelsView::handleItemSelected()
+{
+    if (iListView)
+    {
+        int index = iListView->currentIndex().row();
+        if (index != -1)  
+        {
+            if (iIsdsClient)
+            {              
+                //once an item is selected, we show a dialog to prevent user from clicking the
+                //item again
+                iPlayController->createBufferingDialog(this, SLOT(cancelRequest()));
+                
+                if (iIsdsClient->isdsIsChannelBanner())
+                {
+                    iIsdsClient->isdsListenRequest(index + 1);
+                }
+                else
+                {
+                    iIsdsClient->isdsListenRequest(index);
+                }
+            }
+        }
+    }
+}
 
 void IRSearchChannelsView::cancelRequest()
 {
-    iIsdsClient->isdsCancelRequest();
+    iSearchState = ESearch_init;
+    iIsdsClient->isdsCancelRequest();    
+    stopSearchingAnimation();    
+    //the following will remove into the stopSearchingAnimation() function
+    closeSearchingDialog();
 } 
 
 void IRSearchChannelsView::networkRequestNotified(IRQNetworkEvent aEvent)
@@ -241,144 +261,247 @@ void IRSearchChannelsView::networkRequestNotified(IRQNetworkEvent aEvent)
     switch (aEvent)
     {
     case EIRQNetworkConnectionEstablished:
-        iApplication->closeConnectingDialog();
+         
         if(EIR_UseNetwork_StartSearch == getUseNetworkReason())
         {
-            QString str = iSearchCombobox->currentText();
-            str = str.trimmed();
-
-            if ("" == str)
-            {
-                return;
-            }
-            
-            bool exists = iDB->isAlreadyExist(str);
-            if (!exists)
-            {             
-                iDB->addOneCriteria(str);
-            }
-
-            IRStationsView *searchResultView = static_cast<IRStationsView*> (getViewManager()->getView(
-                            EIRView_SearchResultView, true));
-
-            searchResultView->loadSearchResult(str);
+            Q_ASSERT( !iKeyText.isEmpty() );
+            iIsdsClient->isdsSearchRequest(iKeyText);
         }
-        
+        else if( EIR_UseNetwork_SelectItem == getUseNetworkReason() )
+        {            
+            handleItemSelected();
+        }
         setUseNetworkReason(EIR_UseNetwork_NoReason);
-        break;
-
-    default:
-        iSearchAction->setChecked(true);
+        break;        
+     
+    default:             
+        stopSearchingAnimation();
+        //the following will remove into the stopSearchingAnimation() function
+        closeSearchingDialog();
+        setUseNetworkReason(EIR_UseNetwork_NoReason);
+        iSearchState = ESearch_init;
         break;
     }   
 } 
 
-void IRSearchChannelsView::comboboxClicked()
-{        
-    if( iFirstTime )
-    {
-        iSearchCombobox->clearEditText();
-        iFirstTime = false;        
-    }     
-}
-
-
-void IRSearchChannelsView::launchSettingsView()
+void IRSearchChannelsView::searchTextAlready(const QString& aSearchCriteria)
 {
-    getViewManager()->activateView(EIRView_SettingsView);
-}
-
-void IRSearchChannelsView::openWebAddress()
-{
-    getViewManager()->activateView(EIRView_OpenWebAddressView);
-}
-
-void IRSearchChannelsView::gotoNowPlaying()
-{
-    Q_ASSERT(iPlayController->isPlaying());
+    iKeyText = aSearchCriteria.trimmed();
     
-    getViewManager()->activateView(EIRView_PlayingView);
-}
-
-void IRSearchChannelsView::addBanner(const QString &aText)
-{
-    iLoader.load(SEARCH_CHANNELS_VIEW_LAYOUT_FILENAME, SEARCH_CHANNELS_VIEW_WITH_PLAYINGBANNER_SECTION);
-    iBannerLabel->setText(aText);
-    iBannerLabel->setLoopCount(-1);
-}
-
-void IRSearchChannelsView::metaDataAvailable(IRQMetaData* aMetaData)
-{
-    if (!aMetaData)
+    if( iKeyText.isEmpty() )
     {
+        //show some error info here to let user input some criteria
+        return;
+    }  
+    
+    setUseNetworkReason(EIR_UseNetwork_StartSearch);
+    if (false == iApplication->verifyNetworkConnectivity(hbTrId("txt_common_info_searching")))
+    {        
+        switch2SearchingState();
         return;
     }
     
-    const QString artistSongName = aMetaData->getArtistSongName();
-    if ("" != artistSongName.trimmed() && "-" != artistSongName.trimmed())
+    setUseNetworkReason(EIR_UseNetwork_NoReason);    
+    switch2SearchingState();
+    iIsdsClient->isdsSearchRequest(iKeyText);     
+    createSearchingDialog();
+}
+
+
+
+void IRSearchChannelsView::operationException(IRQError aError)
+{    
+    iApplication->closeConnectingDialog();
+    iPlayController->closeBufferingDialog();    
+    closeSearchingDialog();
+    stopSearchingAnimation();     
+    iSearchState = ESearch_init;
+    
+    QString errStr;
+    
+    switch(aError)
     {
-        addBanner(aMetaData->getArtistSongName());
+    case EIRQErrorNotFound:
+        errStr = hbTrId("txt_irad_info_no_matching_stations_found");
+        break;
+    default:
+        errStr = hbTrId("txt_irad_info_failed_to_connect");
+        break;   
     }
-    else
+    popupNote(errStr, HbMessageBox::MessageTypeWarning);     
+}
+
+void IRSearchChannelsView::clickItem(const QModelIndex&)
+{
+    setUseNetworkReason(EIR_UseNetwork_SelectItem);
+    if (false == iApplication->verifyNetworkConnectivity())
     {
-        //set the banner text as station name
-        IRQPreset *nowPlayingPreset = iPlayController->getNowPlayingPreset();
-        Q_ASSERT(nowPlayingPreset);
-        addBanner(nowPlayingPreset->name);
+        return;
+    }
+    setUseNetworkReason(EIR_UseNetwork_NoReason);
+    handleItemSelected();
+}
+
+
+void IRSearchChannelsView::presetResponse(IRQPreset *aPreset)
+{    
+    delete iPreset;
+    iPreset = aPreset;
+    
+    if (iPreset)
+    {
+        iPlayController->connectToChannel(iPreset,EIRQIsds);
     }
 }
 
-void IRSearchChannelsView::updateView()
+void IRSearchChannelsView::convertAnother()
 {
-    if (iPlayController->isPlaying())
+    iConvertTimer->stop();
+    int leftCount = iIconIndexArray.count();
+    
+    if( leftCount > 0 )
+    { 
+        startConvert(iIconIndexArray[0]);   
+    }
+}
+
+void IRSearchChannelsView::dataChanged()
+{
+    iApplication->closeConnectingDialog();     
+    stopSearchingAnimation();
+    
+    //the following will remove into the stopSearchingAnimation() function
+    closeSearchingDialog();    
+    switch2SearchedState(); 
+    iListView->reset();
+    iListView->setCurrentIndex(iChannelModel->index(0));
+    iListView->scrollTo(iChannelModel->index(0)); 
+    GraphicsItemFlags  flags = iListView->flags();
+    bool focusEnable = flags & QGraphicsItem::ItemIsFocusable;
+    if( focusEnable )
     {
-        IRQMetaData *metaData = iPlayController->getMetaData();
-        if (metaData && "" != metaData->getArtistSongName().trimmed() &&
-            "-" != metaData->getArtistSongName().trimmed())
-        {
-            //set the banner text as song name
-            addBanner(metaData->getArtistSongName());
+        //we move the focus to the listview and the search panel will
+        //hide the virtual keyboard at the same time
+        iListView->setFocus(Qt::OtherFocusReason);            
+    }
+    
+    iIconIndexArray.clear();
+    //initialize the iconindices
+    for (int i = 0; i < iChannelModel->rowCount(); ++i)
+    {
+        if (iChannelModel->imageUrl(i) != "")
+        {            
+            iIconIndexArray.append(i);
         }
-        else
-        {
-            //set the banner text as station name
-            IRQPreset *nowPlayingPreset = iPlayController->getNowPlayingPreset();
-            Q_ASSERT(nowPlayingPreset);
-            addBanner(nowPlayingPreset->name);
-        }
     }
-    else
+    
+    if( iIconIndexArray.count() > 0 )
     {
-        removeBanner();    	 
+        iConvertTimer->start();        
+    } 
+}
+
+void IRSearchChannelsView::startConvert(int aIndex)
+{
+    QString url = iChannelModel->imageUrl(aIndex);
+ 
+    IRQPreset tempPreset;
+    tempPreset.imgUrl = url;
+    tempPreset.type = IRQPreset::EIsds;
+    
+    bool cached = iIsdsClient->isdsIsLogoCached(&tempPreset, KBitmapSize, KBitmapSize);
+    
+    if( !cached )
+    {
+        bool network = iNetworkController->getNetworkStatus();
+        //if the network is not ready, some exception happens and we don't get the logos
+        //for they are not so important.
+        if( !network )
+        {             
+            return;
+        }       
     }
+    
+    iIsdsClient->isdsLogoDownSendRequest(&tempPreset, 0, KBitmapSize, KBitmapSize); 
 }
 
-void IRSearchChannelsView::removeBanner()
+//if the logo is downloaded ok
+void IRSearchChannelsView::presetLogoDownload(IRQPreset* aPreset)
 {
-    iBannerLabel->stopAnimation();
-    iLoader.load(SEARCH_CHANNELS_VIEW_LAYOUT_FILENAME,SEARCH_CHANNELS_VIEW_NO_PLAYINGBANNER_SECTION); 
-}
+    if( NULL == aPreset )
+    {
+        presetLogoDownloadError();
+        return;
+    } 
+    
+ 
+    delete iLogoPreset;            
+    iLogoPreset = aPreset;    
 
-void IRSearchChannelsView::createDB()
-{
-    iDB = new IRSearchCriteriaDB();
-    QStringList strList;
-    iDB->getAllCriteria(strList);
-    QStringListModel* comboboxListModel = new QStringListModel(iSearchCombobox);
-    iSearchCombobox->setModel(comboboxListModel);
-    comboboxListModel->setStringList(strList);
-    connect(iDB, SIGNAL(dataAdded()),this, SLOT(dbDataChanged()));   
-}
-
-void IRSearchChannelsView::dbDataChanged()
-{         
-    QStringList strList;
-    bool ret = iDB->getAllCriteria(strList);
-     
-    if (ret)
+    if (iLogoPreset->logoData != KNullDesC8)
     {         
-        (static_cast<QStringListModel*> (iSearchCombobox->model()))->setStringList(
-                strList);
+        QPixmap tempMap;  
+        const unsigned char * logoData = iLogoPreset->logoData.Ptr();     
+        bool ret = tempMap.loadFromData(logoData, iLogoPreset->logoData.Length());
+        QIcon convertIcon(tempMap);
+       
+        if( ret )
+        {            
+            HbIcon *hbIcon = new HbIcon(convertIcon);
+            int index = iIconIndexArray[0];
+            iChannelModel->setLogo(hbIcon, index);
+            iIconIndexArray.removeAt(0);     
+            int leftCount = iIconIndexArray.count(); 
+            if( leftCount > 0 )
+            {
+                iConvertTimer->start();  
+            }             
+            return;
+        }     
     }    
+    
+    presetLogoDownloadError(); 
 }
+
+//if the logo download fails
+void IRSearchChannelsView::presetLogoDownloadError()
+{
+    // if the logo download fails, try to download the next
+    iIconIndexArray.removeAt(0);
+    int leftCount = iIconIndexArray.count();
+    if( leftCount > 0 )
+    {
+        iConvertTimer->start();
+    }     
+}
+
+TIRHandleResult IRSearchChannelsView::handleCommand(TIRViewCommand aCommand, TIRViewCommandReason aReason)
+{
+    TIRHandleResult ret = IRBaseView::handleCommand(aCommand, aReason);
+    
+    switch (aCommand)
+    {   
+    case EIR_ViewCommand_ACTIVATED:
+        //wether to start logo downloading when activated needs more discussing and testing, future.
+        iIconIndexArray.clear();
+        connectIsdsClient(); 
+        break;
+        
+    case EIR_ViewCommand_DEACTIVATE:     
+        disconnectIsdsClient();
+        iIsdsClient->isdsCancelRequest();            
+        iConvertTimer->stop();
+        iIsdsClient->isdsLogoDownCancelTransaction(); 
+        break;
+
+    default:
+        break;
+    }
+    
+    return ret;
+}
+
+
+ 
+
 

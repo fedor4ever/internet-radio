@@ -21,11 +21,13 @@
 #include <QAbstractListModel>
 #include <QStringList>
 
+class IRPlayList;
+
 class IRMainModel : public QAbstractListModel
 {
     Q_OBJECT
 public:
-    explicit IRMainModel(QObject *aParent = 0);
+    explicit IRMainModel(IRPlayList *aPlayList, QObject *aParent = 0);
     
     int rowCount(const QModelIndex &aParent = QModelIndex()) const;
     QVariant data(const QModelIndex &aIndex, int aRole = Qt::DisplayRole) const;
@@ -36,8 +38,8 @@ private:
     void initModel();
     
 private:
+    IRPlayList *iPlayList;
     QStringList iPrimaryTexts;
-    QStringList iSecondaryTexts;
 };
 
 #endif

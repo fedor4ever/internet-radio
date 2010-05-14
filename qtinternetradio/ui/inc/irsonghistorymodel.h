@@ -38,6 +38,7 @@ public:
     void clearAllList();
     bool checkSongHistoryUpdate();   
     void clearHisotrySongDB();  
+    void setOrientation(Qt::Orientation aOrientation);
     
 signals:
     void modelChanged();   
@@ -46,8 +47,9 @@ private:
     void getAllList();
 
 private:
-    QList<IRQSongInfo *> iSongHistoryList;
-    IRQSongHistoryEngine *iHistoryEngine;  
+    QList<IRQSongInfo *> mSongHistoryList;
+    IRQSongHistoryEngine *mHistoryEngine;  
+    Qt::Orientation mOrientation;
 };
 
 #endif 

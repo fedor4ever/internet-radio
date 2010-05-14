@@ -15,7 +15,5 @@ EXPORTS
 	?SendPresetWithLogoL@CIRLogoDownloadEngine@@QAEXXZ @ 14  NONAME ; void CIRLogoDownloadEngine::SendPresetWithLogoL(void)
 	?SendRequestL@CIRLogoDownloadEngine@@QAEXPAVCIRIsdsPreset@@HH@Z @ 15  NONAME ; void CIRLogoDownloadEngine::SendRequestL(class CIRIsdsPreset *, int, int)
 	?SendRequestL@CIRLogoDownloadEngine@@QAEXPAVCIRIsdsPreset@@PAVMLogoDownloadObserver@@HHH@Z @ 16  NONAME ; void CIRLogoDownloadEngine::SendRequestL(class CIRIsdsPreset *, class MLogoDownloadObserver *, int, int, int)
-	?SetFavDbInstance@CIRLogoDownloadEngine@@QAEXPAVCIRFavoritesDb@@@Z @ 17  NONAME ; void CIRLogoDownloadEngine::SetFavDbInstance(class CIRFavoritesDb *)
-	?isLogoCachedL@CIRLogoDownloadEngine@@QAEHPAVCIRIsdsPreset@@HH@Z @ 18  NONAME ; int CIRLogoDownloadEngine::isLogoCachedL(class CIRIsdsPreset *, int, int)
-	_E32Dll=__E32Dll	; Entry point for emulation
+	?isLogoCachedL@CIRLogoDownloadEngine@@QAEHPAVCIRIsdsPreset@@HH@Z @ 17  NONAME ; int CIRLogoDownloadEngine::isLogoCachedL(class CIRIsdsPreset *, int, int)
 

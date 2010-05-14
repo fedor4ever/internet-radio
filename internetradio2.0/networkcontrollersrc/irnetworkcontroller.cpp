@@ -27,6 +27,7 @@
 #include <httpstringconstants.h>
 #include <StringLoader.h>
 #include <data_caging_path_literals.hrh>
+#include <extendedconnpref.h>
 
 #include "irdebug.h"
 #include "irfilteredapreader.h"
@@ -337,7 +338,13 @@ EXPORT_C void CIRNetworkController::ChooseAccessPointL(TBool aDefaultConnection)
         {
             if (iDefaultConnection)
             {
-                iIRNetworkConnection->Start(iStatus);
+                TConnPrefList prefList;
+                TExtendedConnPref extPrefs;
+
+                extPrefs.SetSnapPurpose(CMManager::ESnapPurposeInternet);
+                extPrefs.SetNoteBehaviour(TExtendedConnPref::ENoteBehaviourConnDisableNotes);
+                prefList.AppendL(&extPrefs);
+                iIRNetworkConnection->Start(prefList, iStatus);
             }
             else
             {

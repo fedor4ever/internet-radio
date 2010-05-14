@@ -43,6 +43,7 @@ private slots:
     void presetLogoDownload(IRQPreset* aPreset);
     void presetLogoDownloadError();	
     void modelChanged();
+    void actionClicked(HbAction *aAction);
     
 private:
     //from IrAbstractListViewBase
@@ -50,11 +51,19 @@ private:
     void handleItemSelected();
     void prepareMenu();
     void startConvert(int aIndex); 
+    void shareContextAction();
     void deleteContextAction();
+    void renameContextAction();
+    void detailsContextAction();
+    
     //from base view 
     void listViewLongPressed(HbAbstractViewItem *aItem, const QPointF& aCoords);
     
+    void initToolBar();
     
+    void lazyInit();
+    
+    void normalInit();
     
 private:
     

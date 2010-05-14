@@ -1,10 +1,10 @@
 EXPORTS
 	_ZN13IRQIsdsClient11isdsGetIRIDEv @ 1 NONAME
 	_ZN13IRQIsdsClient11isdsPostLogERK7QString @ 2 NONAME
-	_ZN13IRQIsdsClient12openInstanceEP14IRQFavoritesDB @ 3 NONAME
+	_ZN13IRQIsdsClient12openInstanceEv @ 3 NONAME
 	_ZN13IRQIsdsClient13closeInstanceEv @ 4 NONAME
 	_ZN13IRQIsdsClient14isdsMultSearchE7QStringS0_S0_S0_ @ 5 NONAME
-	_ZN13IRQIsdsClient14isdsSyncPresetEiRK7QString @ 6 NONAME
+	_ZN13IRQIsdsClient14isdsSyncPresetEiRK7QStringP14IRQFavoritesDB @ 6 NONAME
 	_ZN13IRQIsdsClient16isdsIsLogoCachedEP9IRQPresetii @ 7 NONAME
 	_ZN13IRQIsdsClient17isdsCancelRequestEv @ 8 NONAME
 	_ZN13IRQIsdsClient17isdsListenRequestEib @ 9 NONAME
@@ -21,5 +21,4 @@ EXPORTS
 	_ZN13IRQIsdsClient26isdsLogoDownCheckCacheLogoERK7QStringRi @ 20 NONAME
 	_ZN13IRQIsdsClient29isdsLogoDownCancelTransactionEv @ 21 NONAME
 	_ZNK13IRQIsdsClient21isdsLogoDownIsRunningEv @ 22 NONAME
-        _ZNK13IRQIsdsClient22isdsIsConstructSucceedEv @ 23 NONAME
-
+	_ZNK13IRQIsdsClient22isdsIsConstructSucceedEv @ 23 NONAME

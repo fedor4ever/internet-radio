@@ -361,9 +361,7 @@ TBool CIRSongHistoryDb::AddToSongHistoryDb2L( const TDesC& aSongName,
 //
 void CIRSongHistoryDb::GetAllSongHistoryListL(RPointerArray<CIRSongHistoryInfo>& aHistoryDataArr)
 {
- 	IRLOG_DEBUG( "CIRSongHistoryDb::GetAllSongHistoryListL" );
-
- 	TInt error = KErrNone;
+ 	IRLOG_DEBUG( "CIRSongHistoryDb::GetAllSongHistoryListL" ); 	 
 
     if(iSongHistoryTable.CountL() < 1)
     {
@@ -383,123 +381,68 @@ void CIRSongHistoryDb::GetAllSongHistoryListL(RPointerArray<CIRSongHistoryInfo>&
     TInt musicStatusColumn = columns->ColNo( KSongHistoryDBMusicStatusColumn );
 
     delete columns;
-    columns = NULL;
-
-	// Comparer function to find channel in channelHistoryArr
-	TIdentityRelation<CIRChannelInfo> comparer( CIRSongHistoryDb::CompareChannelInfos );
-	
- 	// Find out channels in order
- 	RPointerArray<CIRChannelInfo> channelHistoryArr;
-    for ( iSongHistoryTable.LastL(); iSongHistoryTable.AtRow(); iSongHistoryTable.PreviousL() )
+    columns = NULL; 	 
+    
+ 	TInt song = 0;
+ 	
+ 	
+    for ( iSongHistoryTable.LastL(); iSongHistoryTable.AtRow(); iSongHistoryTable.PreviousL() ) 	 
     {
         iSongHistoryTable.GetL();
+        
+        RBuf songName;
+        RBuf artistName;
+        RBuf channelName;
+        RBuf channelUrl;
+        TInt channelType;
+        TInt channelId;
+        TInt bitrate;
+        RBuf channelDesc;
+        RBuf imageUrl;
+        RBuf channelMusicStatus;
+        
+        songName.CreateL(iSongHistoryTable.ColDes( songColumn ));
+        songName.CleanupClosePushL();
+        
+        artistName.CreateL(iSongHistoryTable.ColDes( artistColumn ));
+        artistName.CleanupClosePushL();
+        
+        channelName.CreateL(iSongHistoryTable.ColDes( channelColumn ));
+        channelName.CleanupClosePushL();
+        
+        channelUrl.CreateL(iSongHistoryTable.ColDes( channelUrlColumn ));
+        channelUrl.CleanupClosePushL();
+        
+        channelType=iSongHistoryTable.ColUint8( channelTypeColumn );
+        
+        channelId=iSongHistoryTable.ColUint16( channelIdColumn );
+        
+        bitrate=iSongHistoryTable.ColUint16( bitrateColumn );
+        
+        channelDesc.CreateL(iSongHistoryTable.ColDes( channelDescColumn ));
+        channelDesc.CleanupClosePushL();
 
-		CIRChannelInfo *pChannelInfo = new ( ELeave ) CIRChannelInfo;
-		CleanupStack::PushL( pChannelInfo );
-		pChannelInfo->iChannelName.Create(iSongHistoryTable.ColDes( channelColumn ));
-		pChannelInfo->iChannelUrl.Create(iSongHistoryTable.ColDes( channelUrlColumn ));
-		pChannelInfo->iChannelType = iSongHistoryTable.ColUint16( channelTypeColumn );
-       
-		// Verify the channel is not in our list already
-		if( channelHistoryArr.Find(pChannelInfo, comparer) == KErrNotFound )
-		{
-			error = channelHistoryArr.Append( pChannelInfo );
-		 	if( error!=KErrNone )
-		 	{
-		 		CleanupStack::PopAndDestroy( pChannelInfo );
-		 		channelHistoryArr.ResetAndDestroy();
-			 	User::LeaveIfError(error);
-		 	}
+        imageUrl.CreateL(iSongHistoryTable.ColDes( imageUrlColumn ));
+        imageUrl.CleanupClosePushL();
 
-			CleanupStack::Pop( pChannelInfo );
-
-
-		}
-		else
-		{
-			CleanupStack::PopAndDestroy( pChannelInfo );
-		}
-	}
-
-	// Find out songs for each channel in order
-
-	TInt song = 0;
-	for( TInt channelIndex = 0; channelIndex < channelHistoryArr.Count(); ++channelIndex )
-	{
-		for ( iSongHistoryTable.LastL(); iSongHistoryTable.AtRow(); iSongHistoryTable.PreviousL() )
-		{
-			iSongHistoryTable.GetL();
-			// Extracting the values from the database.
-			if(song < aHistoryDataArr.Count())
-			{
-				RBuf songName;
-				RBuf artistName;
-				RBuf channelName;
-				RBuf channelUrl;
-				TInt channelType;
-				TInt channelId;
-				TInt bitrate;
-                RBuf channelDesc;
-                RBuf imageUrl;
-                RBuf channelMusicStatus;
-                
-				songName.Create(iSongHistoryTable.ColDes( songColumn ));
-				songName.CleanupClosePushL();
-				
-				artistName.Create(iSongHistoryTable.ColDes( artistColumn ));
-				artistName.CleanupClosePushL();
-				
-				channelName.Create(iSongHistoryTable.ColDes( channelColumn ));
-				channelName.CleanupClosePushL();
-				
-				channelUrl.Create(iSongHistoryTable.ColDes( channelUrlColumn ));
-				channelUrl.CleanupClosePushL();
-				
-				channelType=iSongHistoryTable.ColUint8( channelTypeColumn );
-				
-				channelId=iSongHistoryTable.ColUint16( channelIdColumn );
-				
-				bitrate=iSongHistoryTable.ColUint16( bitrateColumn );
-                
-                channelDesc.Create(iSongHistoryTable.ColDes( channelDescColumn ));
-                channelDesc.CleanupClosePushL();
-
-                imageUrl.Create(iSongHistoryTable.ColDes( imageUrlColumn ));
-                imageUrl.CleanupClosePushL();
-
-                channelMusicStatus.Create(iSongHistoryTable.ColDes( musicStatusColumn ));
-                channelMusicStatus.CleanupClosePushL();
-                
-				if( channelHistoryArr[channelIndex]->iChannelName == channelName && 
-							channelHistoryArr[channelIndex]->iChannelUrl == channelUrl &&
-							channelHistoryArr[channelIndex]->iChannelType == channelType
-							)
-				{
-					aHistoryDataArr[song]->SetHistoryInfo(songName, artistName, channelUrl,
-								 channelName,channelType,channelId,bitrate,channelDesc ,
-								 imageUrl, channelMusicStatus);
-					++song;
-				}
-                
-                CleanupStack::PopAndDestroy(&channelMusicStatus);
-                CleanupStack::PopAndDestroy(&imageUrl);
-				CleanupStack::PopAndDestroy(&channelDesc);
-				CleanupStack::PopAndDestroy(&channelUrl);
-				CleanupStack::PopAndDestroy(&channelName);
-				CleanupStack::PopAndDestroy(&artistName);
-				CleanupStack::PopAndDestroy(&songName);
-
-			}
-			else
-			{
-				//Should not enter this scenario as aHistoryDataArr is suppose to give
-				//required memory allocated. But should it enter here should appendL into
-				//the list and increment "iSong"
-			}
-		}
-	}
-
-	channelHistoryArr.ResetAndDestroy();
+        channelMusicStatus.CreateL(iSongHistoryTable.ColDes( musicStatusColumn ));
+        channelMusicStatus.CleanupClosePushL();
+ 
+        aHistoryDataArr[song]->SetHistoryInfo(songName, artistName, channelUrl,
+                         channelName,channelType,channelId,bitrate,channelDesc ,
+                         imageUrl, channelMusicStatus);
+        ++song;
+ 
+        
+        CleanupStack::PopAndDestroy(&channelMusicStatus);
+        CleanupStack::PopAndDestroy(&imageUrl);
+        CleanupStack::PopAndDestroy(&channelDesc);
+        CleanupStack::PopAndDestroy(&channelUrl);
+        CleanupStack::PopAndDestroy(&channelName);
+        CleanupStack::PopAndDestroy(&artistName);
+        CleanupStack::PopAndDestroy(&songName);
+    }        
+ 
 
 	IRLOG_DEBUG( "CIRSongHistoryDb::GetAllSongHistoryListL - Exiting." );
 }
@@ -623,12 +566,12 @@ TInt CIRSongHistoryDb::DeleteOneHistoryL(TInt aIndex)
     {
         return KErrArgument;
     }
-    
-    iSongHistoryTable.FirstL();
+	
+    iSongHistoryTable.LastL();
     TInt tempIndex = 0;     
     while (tempIndex < aIndex)
     {
-        TRAPD(error,iSongHistoryTable.NextL(););
+        TRAPD(error,iSongHistoryTable.PreviousL());
         if (KErrNone != error)
         {
             Compact();

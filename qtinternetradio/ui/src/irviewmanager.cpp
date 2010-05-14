@@ -30,7 +30,9 @@
 #include "irsettingsview.h"
 #include "iropenwebaddressview.h"
 #include "irsonghistoryview.h"
+#include "irtermsconsview.h"
 #include "irplsview.h"
+#include "irstationdetailsview.h"
 
 const int KCrossLineWidth = 30; // pixel
 const double KCrossLineMinLenth = 180.0; // pixel
@@ -55,7 +57,7 @@ static CrossLineAngleType crossLineAngleType(const QLineF &aLine);
  * Description : constructor.
  *               add a softkey action to it in order to know that back buttion is touched.
  */
-IRViewManager::IRViewManager() : iViewToHide(NULL),
+IRViewManager::IRViewManager() : iApplication(NULL),
                                  iCrossLineAReady(false),
                                  iCrossLineBReady(false),
                                  iCrossLineEnable(true),
@@ -68,13 +70,10 @@ IRViewManager::IRViewManager() : iViewToHide(NULL),
     connect(iBackAction, SIGNAL(triggered()), this, SLOT(backToPreviousView()));
     
     iExitAction = new HbAction(Hb::QuitNaviAction, this);
-    connect(iExitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
+    connect(iExitAction, SIGNAL(triggered()), this, SLOT(lower()));
     
-    connect(this, SIGNAL(currentViewChanged(HbView *)), this, SLOT(currentViewChanged(HbView *)));
-    
-    //effect for item selection
-    HbEffect::add("irview", ":/effect/viewchangeeffects_show.fxml", "show");
-    HbEffect::add("irview", ":/effect/viewchangeeffects_hide.fxml", "hide");
+    connect(this, SIGNAL(viewReady()), this, SLOT(handleViewReady()));
+    connect(this, SIGNAL(currentViewChanged(HbView*)), this, SLOT(handleCurrentViewChanged(HbView*)));
     
     iCrossLineTimer = new QTimer(this);
     iExitTimer = new QTimer(this);
@@ -89,13 +88,15 @@ IRViewManager::IRViewManager() : iViewToHide(NULL),
  */
 IRViewManager::~IRViewManager()
 {
-    HbEffect::remove("irview", ":/effect/viewchangeeffects_show.fxml", "show");
-    HbEffect::remove("irview", ":/effect/viewchangeeffects_hide.fxml", "hide");
+}
+
+void IRViewManager::setApplication(IRApplication *aApplication)
+{
+    iApplication = aApplication;
 }
 
 /*
- * Description : from base class IRAbstractViewManager.
- *               get a pointer to a specified view. If the view is not created yet,
+ * Description : get a pointer to a specified view. If the view is not created yet,
  *               view manager can create it and then return pointer to it.
  * Parameters  : aViewId : the view's id
  *               aCreateIfNotExist : whether or not create a view if it doesn't exist
@@ -124,8 +125,7 @@ IRBaseView* IRViewManager::getView(TIRViewId aViewId, bool aCreateIfNotExist)
 }
 
 /*
- * Description : from base class IRAbstractViewManager.
- *               Judge if a view is in the view stack.
+ * Description : Judge if a view is in the view stack.
  * Parameters  : aViewId : the view's id
  * Return      : true  : the view is in view stack
  *               false : the view is not in view stack
@@ -150,8 +150,7 @@ bool IRViewManager::isViewInStack(TIRViewId aViewId) const
 }
 
 /*
- * Description : from base class IRAbstractViewManager.
- *               Activate a view specified aViewId. The new view will be current view.
+ * Description : Activate a view specified aViewId. The new view will be current view.
  *               Old current view will be deactivated and pushed into view stack if 
  *               aStackCurrent is true.
  * Parameters  : aViewId : the view's id.
@@ -177,14 +176,14 @@ void IRViewManager::activateView(TIRViewId aViewId, bool aPushCurrentView)
     
     if (view)
     {
-        if (view->flag() & EViewFlag_ClearStackWhenActivate)
+        if (EViewFlag_ClearStackWhenActivate == view->flag())
         {
             clearStack();
         }
         else
         {    if (aPushCurrentView)
              {
-                 if (baseView && !(baseView->flag() & EViewFlag_UnStackable))
+                 if (baseView && EViewFlag_UnStackable != baseView->flag())
                  {
                      iViewStack.push(baseView);
                  }
@@ -196,14 +195,12 @@ void IRViewManager::activateView(TIRViewId aViewId, bool aPushCurrentView)
                  baseView->handleCommand(EIR_ViewCommand_DEACTIVATE, EIR_ViewCommandReason_Hide);
              }
         }      
-         
-        switchToNextView(view);
+        switchToNextView(view);        
     }
 }
 
 /*
- * Description : from base class IRAbstractViewManager.
- *               Activate a view specified by aView. The new view will be current view.
+ * Description : Activate a view specified by aView. The new view will be current view.
  *               Old current view will be deactivated and pushed into view stack if 
  *               aStackCurrent is true.
  * Parameters  : aView : pointer to the view to be activated.
@@ -255,9 +252,8 @@ void IRViewManager::backToView(TIRViewId aViewId)
     if (!iViewStack.isEmpty())
     {
         topView = iViewStack.pop();
-        Q_ASSERT(topView->id() == aViewId);        
+        Q_ASSERT(topView->id() == aViewId);   
         switchToNextView(topView);
-
     }
     else
     {
@@ -266,9 +262,31 @@ void IRViewManager::backToView(TIRViewId aViewId)
     }
 }
 
+void IRViewManager::switchToNextView(IRBaseView *aView)
+{
+    aView->handleCommand(EIR_ViewCommand_TOBEACTIVATED, EIR_ViewCommandReason_Show);
+    IRBaseView *viewToHide = static_cast<IRBaseView*>(currentView());
+    if( viewToHide )
+    {
+        if( (EIRView_StationDetailsView == aView->id() && EIRView_PlayingView == viewToHide->id())
+          ||(EIRView_StationDetailsView == viewToHide->id() && EIRView_PlayingView == aView->id())
+          )
+        {
+            setCurrentView(aView,true,Hb::ViewSwitchUseAltEvent); 
+        }
+        else
+        {
+            setCurrentView(aView,true,Hb::ViewSwitchUseNormalAnim);
+        }        
+    }
+    else
+    {
+        setCurrentView(aView,true,Hb::ViewSwitchUseNormalAnim);
+    }        
+}
+
 /*
- * Description : from base class IRAbstractViewManager.
- *               return the current view's id.
+ * Description : return the current view's id.
  * Return      : current view's id. 
  */
 TIRViewId IRViewManager::currentViewId() const
@@ -280,26 +298,6 @@ TIRViewId IRViewManager::currentViewId() const
     }
     
     return EIRView_InvalidId;
-}
-
-/*
- * Description : from base class IRAbstractViewManager.
- *               handle system events reported by system event collector.
- * Parameters  : aEvent : see the definition of TIRSystemEventType
- * Return      : EIR_DoDefault : caller does default handling
- *               EIR_NoDefault : caller doesn't do default handling
- */
-TIRHandleResult IRViewManager::handleSystemEvent(TIRSystemEventType aEvent)
-{
-    TIRHandleResult result = EIR_DoDefault;
-    IRBaseView *topView = static_cast<IRBaseView*>(currentView());
-    
-    if (topView)
-    {
-        result = topView->handleSystemEvent(aEvent);
-    }
-    
-    return result;
 }
 
 /*
@@ -318,8 +316,6 @@ void IRViewManager::pushViewById(TIRViewId aViewId)
     IRBaseView *curView = getView(aViewId, true);
     Q_ASSERT(curView);
     iViewStack.push(curView);
-    
-    updateSoftkey();
 }
  
 
@@ -345,62 +341,26 @@ void IRViewManager::backToPreviousView()
         {
             topView->handleCommand(EIR_ViewCommand_DEACTIVATE, EIR_ViewCommandReason_Back);
         }
-        switchToNextView(viewToShow);
+        switchToNextView(viewToShow);       
     }
 }
 
-
-void IRViewManager::switchToNextView(IRBaseView *aView)
-{
-    if(NULL == aView)
+void IRViewManager::handleViewReady()
+{    
+    IRBaseView *topView = static_cast<IRBaseView*>(currentView());
+    if (topView)
     {
-        return;
+        topView->handleCommand(EIR_ViewCommand_ACTIVATED, EIR_ViewCommandReason_Show); 
     }
     
-    // if this is the lauch view
-    if(views().count()<=1)
-    {
-        setCurrentView(aView,false);
-        aView->handleCommand(EIR_ViewCommand_ACTIVATED, EIR_ViewCommandReason_Show);  
-        aView->handleCommand(EIR_ViewCommand_EffectFinished, EIR_ViewCommandReason_Show);
-        return;
-    }
-
-    iViewToHide = static_cast<IRBaseView*>(currentView());
-    if(aView == iViewToHide)
-    {
-        aView->handleCommand(EIR_ViewCommand_ACTIVATED, EIR_ViewCommandReason_Show);  
-        aView->handleCommand(EIR_ViewCommand_EffectFinished, EIR_ViewCommandReason_Show);
-    }
-    else
-    {
-        setCurrentView(aView,false);
-        aView->handleCommand(EIR_ViewCommand_ACTIVATED, EIR_ViewCommandReason_Show);
-        iViewToHide->setVisible(true);
-    
-        HbEffect::start(iViewToHide, "irview", "hide", this, "hideEffectFinished");
-        HbEffect::start(aView, "irview", "show", this, "showEffectFinished");        
-    }
+    updateSoftkey();
 }
 
-void IRViewManager::hideEffectFinished(HbEffect::EffectStatus aStatus)
+/*
+ * this function is needed because signal viewReady() has a bug. will be deleted once the bug is fixed
+ */
+void IRViewManager::handleCurrentViewChanged(HbView * /*aView*/)
 {
-    Q_UNUSED(aStatus); 
-    iViewToHide->setVisible(false);
-}
-
-void IRViewManager::showEffectFinished(HbEffect::EffectStatus aStatus)
-{
-    Q_UNUSED(aStatus);
-    IRBaseView* viewToShow = static_cast<IRBaseView*>(currentView());
-    viewToShow->handleCommand(EIR_ViewCommand_EffectFinished, EIR_ViewCommandReason_Show);
-}
-    
-
-void IRViewManager::currentViewChanged(HbView *aView)
-{
-    Q_UNUSED(aView);
-    
     updateSoftkey();
 }
 
@@ -421,14 +381,16 @@ IRBaseView* IRViewManager::createView(IRApplication* aApplication, TIRViewId aVi
         case EIRView_CategoryView:
             return new IRCategoryView(aApplication, aViewId);
         
-        case EIRView_StationsView:
-        case EIRView_SearchResultView:
+        case EIRView_StationsView:        
             return new IRStationsView(aApplication, aViewId);
         
         case EIRView_PlayingView:
             return new IRNowPlayingView(aApplication, aViewId);
-        
-        case EIRView_SearchView:
+            
+        case EIRView_StationDetailsView:
+            return new IRStationDetailsView(aApplication, aViewId);      
+			
+		case EIRView_SearchView:
             return new IRSearchChannelsView(aApplication, aViewId);
         
         case EIRView_FavoritesView:
@@ -445,6 +407,9 @@ IRBaseView* IRViewManager::createView(IRApplication* aApplication, TIRViewId aVi
         
         case EIRView_SongHistoryView:                        
             return new IRSongHistoryView(aApplication, aViewId);
+            
+        case EIRView_TermsConsView:                        
+            return new IRTermsConsView(aApplication, aViewId);            
             
         case EIRView_PlsView:
             return new IRPlsView(aApplication, aViewId);
@@ -480,10 +445,10 @@ void IRViewManager::clearStack()
 
 void IRViewManager::updateSoftkey()
 {
-    HbView *topView = currentView();
+    IRBaseView *topView = static_cast<IRBaseView*>(currentView());
     if (topView)
     {
-        if (iViewStack.isEmpty())
+        if (EViewFlag_ClearStackWhenActivate == topView->flag())
         {
             topView->setNavigationAction(iExitAction);
         }

@@ -61,7 +61,7 @@ public:
      *to get an instance of the IRQIsdsClient. 
      *@return IRQIsdsClient *
      */
-    IMPORT_C static IRQIsdsClient *openInstance(IRQFavoritesDB *aFavPresets);
+    IMPORT_C static IRQIsdsClient *openInstance();
 
     /**
      *IRQIsdsClient::CloseInstance() 
@@ -121,7 +121,7 @@ public:
      *to syncronize presets
      *@param int,QString, the preset id and the last modified tag for the preset   
      **/
-    IMPORT_C int isdsSyncPreset(int aPresetId, const QString& aIfModifySince);
+    IMPORT_C int isdsSyncPreset(int aPresetId, const QString& aIfModifySince, IRQFavoritesDB *aFavPresets);
 
     /**
      *IRQIsdsClient::IsdsCancelRequest()
@@ -292,7 +292,7 @@ private:
      */
     int iSingletonInstances;
 
-    IRQIsdsClient(IRQFavoritesDB *aFavPresets);
+    IRQIsdsClient();
     /**
      *IRQIsdsClient::~IRQIsdsClient()
      *default c++ function

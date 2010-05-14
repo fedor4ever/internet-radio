@@ -56,7 +56,7 @@ private:
     IRQFavoritesDB    *iFavoritesDb;
     QList<IRQPreset*> *iPresetsList;
     HbIcon            *iStationLogo;
-    QMap<int, HbIcon*>     iLogos;
+    QList<HbIcon*>    iLogos;
 };
 
 #endif

@@ -23,16 +23,7 @@
 class IRDocumentLoader : public HbDocumentLoader
 {
 public:
-    IRDocumentLoader(QObject *aParent);
-    
-    QObjectList load(const QString &aFileName, const QString &aSection, QObject *aParent = NULL);
-    QObjectList load(const QString &aFileName, QObject *aParent = NULL);
-    
-public:
     virtual QObject *createObject(const QString& aType, const QString &aName);
-    
-private:
-    QObject *iParent;
 };
 
 #endif /* IRDOCUMENTLOADER_H_ */

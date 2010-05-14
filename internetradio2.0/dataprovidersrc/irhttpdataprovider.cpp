@@ -19,7 +19,7 @@
 #include <httpstringconstants.h>
 #include <rhttpheaders.h>
 #include <mmfcontrollerpluginresolver.h> //to get the supported MIME types
-#ifdef _DEBUG
+#ifdef ENABLE_USAGE_REPORT_TEST
 #include <bautils.h>
 #include "irreportsettings.h"
 #endif
@@ -42,6 +42,7 @@ const TInt KSize = 1024;
 const TInt KMaxSize = 2048;
 const TInt KBufSize = 10;
 const TUid KUidHelixController        = { 0x101F8514 }; // Helix Video controller UID
+const TInt KLogbufferLenth = KLogBufferSize/2 - 1;
 
 // ---------------------------------------------------------------------------
 // CIRHttpDataProvider::CIRHttpDataProvider(MIRHttpDataProviderObserver&
@@ -219,7 +220,7 @@ TInt CIRHttpDataProvider::IssueHttpRequestL( CIRHttpRequestData &aRequestInfo )
     // receive transaction events in MHFRunL and MHFRunError.
     iHttpTransaction = iHttpSession.OpenTransactionL( uri,  *this, method );
 
-#ifdef _DEBUG
+#ifdef ENABLE_USAGE_REPORT_TEST
     RFs iFs;
     User::LeaveIfError(iFs.Connect());
     
@@ -289,7 +290,7 @@ TInt CIRHttpDataProvider::IssueHttpRequestL( CIRHttpRequestData &aRequestInfo )
     // events via MHFRunL and MHFRunError.
     iHttpTransaction.SubmitL();
    
-#ifdef _DEBUG  
+#ifdef ENABLE_USAGE_REPORT_TEST  
     if ( aRequestInfo.iMethod == EIRHttpPOST )
         {
         _LIT( KSentPrefix, "X__");
@@ -627,8 +628,24 @@ void CIRHttpDataProvider::BuildHeadersL(const CIRHttpRequestData &aRequestInfo)
        SetHeaderL( header, HTTP::EUserAgent,
 		   iIRNetworkControllerHandle->GetUAProfString()->Des() );
        logstr.Copy(iIRNetworkControllerHandle->GetUAProfString()->Des());
-    IRLOG_DEBUG2( "CIRHttpDataProvider::BuildHeadersL - HTTP::EUserAgent = %S", &logstr );		   
-
+    IRLOG_DEBUG( "CIRHttpDataProvider::BuildHeadersL - HTTP::EUserAgent =");		   
+    TInt logstrLenth = logstr.Length();
+    TBuf<KLogbufferLenth> tempStr;
+    TInt index = 0;
+    while( logstrLenth > 0 )
+      {
+      if( logstrLenth > KLogbufferLenth )
+          {
+          tempStr.Copy( &logstr[index], KLogbufferLenth );
+          }
+      else
+          {
+          tempStr.Copy( &logstr[index], logstrLenth );
+          }
+      IRLOG_DEBUG2( "%S", &tempStr ); 
+      index += KLogbufferLenth;
+      logstrLenth -= KLogbufferLenth;
+      }  
        // Set the Accept Character set header
    SetHeaderL( header, HTTP::EAcceptCharset, KAcceptCharset );
    logstr.Copy(KAcceptCharset);
@@ -668,7 +685,24 @@ void CIRHttpDataProvider::BuildHeadersL(const CIRHttpRequestData &aRequestInfo)
    RStringF xWapProfileValueString  = iHttpSession.StringPool().OpenFStringL(
 	   iIRNetworkControllerHandle->GetWapProfString()->Des()  );
    logstr.Copy(iIRNetworkControllerHandle->GetWapProfString()->Des());
-   IRLOG_DEBUG2( "CIRHttpDataProvider::BuildHeadersL - x-wap-profile = %S", &logstr );	   
+   IRLOG_DEBUG( "CIRHttpDataProvider::BuildHeadersL - x-wap-profile =");   
+   logstrLenth = logstr.Length();
+   index = 0;
+   while( logstrLenth > 0 )
+      {
+      if( logstrLenth > KLogbufferLenth )
+          {
+          tempStr.Copy( &logstr[index], KLogbufferLenth );
+          }
+      else
+          {
+          tempStr.Copy( &logstr[index], logstrLenth );
+          }
+      IRLOG_DEBUG2( "%S", &tempStr ); 
+      index += KLogbufferLenth;
+      logstrLenth -= KLogbufferLenth;
+      }  
+   
    THTTPHdrVal xWapProfileHeader(xWapProfileValueString  );
    header.SetFieldL(xWapProfileString, xWapProfileHeader);
    xWapProfileString.Close();
@@ -778,7 +812,23 @@ void CIRHttpDataProvider::BuildHeadersL(const CIRHttpRequestData &aRequestInfo)
    RStringF xNokiaIrAppAcceptValueString  = iHttpSession.StringPool().OpenFStringL(
 	    audioMIMEs );
    logstr.Copy(audioMIMEs);
-   IRLOG_DEBUG2( "CIRHttpDataProvider::BuildHeadersL - X-Nokia-iRAPP-Accept = %S", &logstr );
+   IRLOG_DEBUG( "CIRHttpDataProvider::BuildHeadersL - X-Nokia-iRAPP-Accept =" );
+   logstrLenth = logstr.Length();
+   index = 0;
+   while( logstrLenth > 0 )
+      {
+      if( logstrLenth > KLogbufferLenth )
+          {
+          tempStr.Copy( &logstr[index], KLogbufferLenth );
+          }
+      else
+          {
+          tempStr.Copy( &logstr[index], logstrLenth );
+          }
+      IRLOG_DEBUG2( "%S", &tempStr ); 
+      index += KLogbufferLenth;
+      logstrLenth -= KLogbufferLenth;
+      }     
    THTTPHdrVal xNokiaIrAppAcceptHeader(xNokiaIrAppAcceptValueString  );
    header.SetFieldL(xNokiaIrAppAcceptString, xNokiaIrAppAcceptHeader);
    xNokiaIrAppAcceptString.Close();

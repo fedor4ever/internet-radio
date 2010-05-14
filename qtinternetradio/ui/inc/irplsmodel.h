@@ -20,12 +20,12 @@
 
 #include <QAbstractListModel>
 
-class IRSymbianDocument;
+class IRPlayList;
 
 class IRPlsModel : public QAbstractListModel
 {
 public:
-    explicit IRPlsModel(QObject *aParent = 0);
+    explicit IRPlsModel(IRPlayList *aPlayList, QObject *aParent = 0);
     
     int rowCount(const QModelIndex &aParent = QModelIndex()) const;
     QVariant data(const QModelIndex &aIndex, int aRole = Qt::DisplayRole) const;
@@ -34,7 +34,7 @@ public:
     const QString& getTitle(int aIndex) const;
     
 private:
-    IRSymbianDocument *iDocument;
+    IRPlayList *iPlayList;
 };
 
 #endif

@@ -16,17 +16,14 @@
 */
 
 #include <hbicon.h>
-#include <QBrush>
 
 #include "irchannelmodel.h"
 #include "irqisdsdatastructure.h"
-#include "iruidefines.h"
 
 IrChannelModel::IrChannelModel(QObject *aParent): QAbstractListModel(aParent)
                                                 , iChannelList(NULL)
 {
-    QIcon icon(":/stationlist/icon_stationdefault.png");
-    iStationLogo = new HbIcon(icon);   
+    iStationLogo = new HbIcon("qtg_large_internet_radio");   
 }
 
 IrChannelModel::~IrChannelModel()
@@ -108,17 +105,6 @@ QVariant IrChannelModel::data(const QModelIndex &aIndex, int aRole) const
         }
         
         return list;
-    }
-    else if (aRole == Qt::BackgroundRole)
-    {
-        if (aIndex.row() % 2 == 0)
-        {
-            return QBrush(KListEvenRowColor);
-        }
-        else
-        {
-            return QBrush(KListOddRowColor);
-        }
     }
     else
     {

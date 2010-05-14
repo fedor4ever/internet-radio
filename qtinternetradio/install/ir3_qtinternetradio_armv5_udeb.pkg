@@ -46,10 +46,11 @@
 
 
 ;qtinternetradio
-"\epoc32\release\armv5\udeb\qtinternetradio.exe"    - "!:\sys\bin\qtinternetradio.exe"
-"\epoc32\data\z\resource\apps\qtinternetradio.rsc"    - "!:\resource\apps\qtinternetradio.rsc"
-;"\epoc32\data\z\resource\apps\0xe28364bb.mif"    - "!:\resource\apps\0xe28364bb.mif"
-"\epoc32\data\z\private\10003a3f\import\apps\qtinternetradio_reg.rsc"    - "!:\private\10003a3f\import\apps\qtinternetradio_reg.rsc"
+"\epoc32\release\armv5\udeb\internet_radio_10_1.exe"    - "!:\sys\bin\internet_radio_10_1.exe"
+"\epoc32\data\z\resource\apps\internet_radio_10_1.rsc"    - "!:\resource\apps\internet_radio_10_1.rsc"
+"\epoc32\data\z\resource\apps\internet_radio_10_1.mif"    - "!:\resource\apps\internet_radio_10_1.mif"
+"\epoc32\data\z\private\10003a3f\import\apps\internet_radio_10_1_reg.rsc"    - "!:\private\10003a3f\import\apps\internet_radio_10_1_reg.rsc"
+"\epoc32\data\z\resource\qt\translations\internet_radio_10_1_en.qm"  - "!:\resource\qt\translations\internet_radio_10_1_en.qm"
 "\epoc32\release\armv5\udeb\irqnetworkcontroller.dll"    - "!:\sys\bin\irqnetworkcontroller.dll"
 "\epoc32\release\armv5\udeb\irqisdsclient.dll"    - "!:\sys\bin\irqisdsclient.dll"
 "\epoc32\release\armv5\udeb\irqmediaplayer.dll"    - "!:\sys\bin\irqmediaplayer.dll"
@@ -57,9 +58,7 @@
 "\epoc32\release\armv5\udeb\irqfavorites.dll"    - "!:\sys\bin\irqfavorites.dll"
 "\epoc32\release\armv5\udeb\irqsonghistory.dll"    - "!:\sys\bin\irqsonghistory.dll"
 "\epoc32\release\armv5\udeb\irqsettings.dll"    - "!:\sys\bin\irqsettings.dll"
-"\epoc32\release\armv5\udeb\irqmusicshop.dll"    - "!:\sys\bin\irqmusicshop.dll"
 "\epoc32\release\armv5\udeb\irqnwkinfoobserver.dll"    - "!:\sys\bin\irqnwkinfoobserver.dll"
-"\epoc32\release\armv5\udeb\irqstatisticsreport.dll"    - "!:\sys\bin\irqstatisticsreport.dll"
-"\epoc32\release\armv5\udeb\irqdiskspacewatcher.dll"    - "!:\sys\bin\irqdiskspacewatcher.dll"
-"\epoc32\release\armv5\udeb\irqstationexporter.dll"    - "!:\sys\bin\irqstationexporter.dll"
+"\epoc32\release\armv5\udeb\irqstatisticsreporter.dll"    - "!:\sys\bin\irqstatisticsreporter.dll"
+"\epoc32\release\armv5\udeb\irqsystemeventhandler.dll"    - "!:\sys\bin\irqsystemeventhandler.dll"
 "\epoc32\release\armv5\udeb\irqlogger.dll"    - "!:\sys\bin\irqlogger.dll"

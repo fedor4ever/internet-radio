@@ -29,17 +29,15 @@ exists($${OS_LAYER_PLATFORM_EXPORT_PATH(qt/translations/internet_radio_10_1*.ts)
 
 SUBDIRS = irqlogger \
           irqcommon \
+          irqsystemeventhandler \
           irqsettings \
           irqfavoritesdb \
           irqisdsclient \
           irqmediaplayer \
           irqnetworkcontroller \
           irqsonghistory \
-          irqmusicshop \
           irqnwkinfoobserver \
-          irqstatisticsreport \
-          irqdiskspacewatcher \
-          irqstationexporter \
+          irqstatisticsreporter \          
           ui 
           
 SYMBIAN_PLATFORMS = WINSCW ARMV5

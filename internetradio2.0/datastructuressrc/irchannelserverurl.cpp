@@ -110,7 +110,12 @@ EXPORT_C void CIRChannelServerUrl::SetBitRate(TInt aBitrate)
 //
 EXPORT_C const TDesC& CIRChannelServerUrl::GetServerName() const
 	{
-	IRLOG_DEBUG( "CIRChannelServerUrl::GetServerName" );
+	IRLOG_DEBUG( "CIRChannelServerUrl::GetServerName" );	 
+	if( NULL == iServerName )
+	{
+	    CIRChannelServerUrl *tempUrl = const_cast<CIRChannelServerUrl*>(this);
+	    tempUrl->iServerName = HBufC::NewL(0);
+	}
 	return *iServerName;
 	}
 	
@@ -122,7 +127,12 @@ EXPORT_C const TDesC& CIRChannelServerUrl::GetServerName() const
 //
 EXPORT_C const TDesC& CIRChannelServerUrl::GetServerUrl() const
 	{
-	IRLOG_DEBUG( "CIRChannelServerUrl::GetServerUrl" );
+	IRLOG_DEBUG( "CIRChannelServerUrl::GetServerUrl" );	 
+	if( NULL == iURL )
+	{
+	    CIRChannelServerUrl *tempUrl = const_cast<CIRChannelServerUrl*>(this);
+	    tempUrl->iURL = HBufC::NewL(0);
+	}	
 	return *iURL;
 	}
 	

@@ -14,11 +14,7 @@
 * Description:
 *
 */
-
-#include <QBrush>
-
 #include "irqisdsdatastructure.h"
-#include "iruidefines.h"
 #include "ircategorymodel.h"
 
 
@@ -59,24 +55,12 @@ QVariant IRCategoryModel::data(const QModelIndex &aIndex, int aRole) const
         int row = aIndex.row();
         
         QString catNum;
-        catNum.setNum(iItems->at(row)->size);
-        QString secondaryText = catNum + QString(" Stations");
-
+        catNum.sprintf(" (%d)", iItems->at(row)->size);
+        QString category = iItems->at(row)->catName + catNum;
+        
         QVariantList list;
-        list.append(iItems->at(row)->catName);
-        list.append(secondaryText);
+        list.append(category);
         return list;
-    }
-    else if (aRole == Qt::BackgroundRole)
-    {
-        if (aIndex.row() % 2 == 0)
-        {
-            return QBrush(KListEvenRowColor);
-        }
-        else
-        {
-            return QBrush(KListOddRowColor);
-        }
     }
 
     return QVariant();

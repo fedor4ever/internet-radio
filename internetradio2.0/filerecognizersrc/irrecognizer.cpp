@@ -27,7 +27,7 @@
 // Uid of the recogniser
 //const TUid KUidIRRecognizer={0x2000B499}
 // maximum amount of buffer space we will ever use
-const TInt KMaxBufferLength=4;
+const TInt KMaxBufferLength=4*1024;
 // If the file name length > 4, the file extension might be valid                  
 const TInt KPlsFileExtensionsMightBeValid = 4;  
 const TInt KM3uFileExtensionsMightBeValid = 4;
@@ -140,19 +140,24 @@ void CApaRecognizerEx::DoRecognizeL(const TDesC& aName,
 		else if (aName.Right(KM3uFileExtensionsMightBeValid).CompareF(
             KM3uExtension)==0)
 		{
-		    _LIT8(KHttp, "http://");
-		    if (KErrNotFound != aBuffer.Find(KHttp))
-		    {
-		        iConfidence = ECertain;
-		        iDataType = TDataType(KM3uMimeType);
-		        IRLOG_DEBUG("CApaRecognizerEx::DoRecognizeL - Exiting (2).");
-		    }
+		    RecognizeM3uFileL(aBuffer);
+		    IRLOG_DEBUG( "CApaRecognizerEx::DoRecognizeL - Exiting (2)." );
 		    return;
 		}
 	    IRLOG_DEBUG( "CApaRecognizerEx::DoRecognizeL - Exiting (3)." );					
 		}
     }
 
+void CApaRecognizerEx::RecognizeM3uFileL(const TDesC8& /*aBuffer*/)
+{
+   // _LIT8(KHttpProtocol, "http");
+   // _LIT8(KMmsProtocol, "mms");
+   // _LIT8(KRtspProtocol, "rtsp");
+    
+    //try to use descriptor method to parse the buffer
+    iConfidence = ECertain;
+    iDataType = TDataType(KM3uMimeType);
+}
 
 // -----------------------------------------------------------------------------
 // ImplementationTable

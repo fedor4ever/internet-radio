@@ -22,7 +22,6 @@
 
 class IRQPreset;
 class IRSongHistoryModel;
-class IRQMusicShop;
 class IRQStatisticsReporter;
 class IRQMetaData; 
 class HbIcon;
@@ -42,12 +41,12 @@ protected:
     TIRHandleResult handleCommand(TIRViewCommand aCommand, TIRViewCommandReason aReason);
      
 private slots:
-    void clearAllList(); 
     void modelChanged();
     void newMetadataAdded(IRQMetaData * aMetadata);
     void clearHisotrySongDB();   
     void showPrompt();
     void gotoStationHistory();
+    void handleOrientationChanged(Qt::Orientation aOrientation);
     
 private:
     void showSongHistory();
@@ -60,7 +59,6 @@ private:
     IRSongHistoryModel *iModel;
     HbAction           *iClearSongHistoryAction;   
     HbAction           *iStationHistoryAction;
-    IRQMusicShop       *iMusicShop;
     IRQStatisticsReporter *iStatisticsReporter;     
     int           iShowPrompt;
      

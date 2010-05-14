@@ -17,19 +17,15 @@
 #ifndef IRNOWPLAYINGVIEW_H
 #define IRNOWPLAYINGVIEW_H
 
-#include <hbeffect.h>
-
 #include "irbaseview.h"
 #include "irqevent.h"
 
-class IRNowPlayingContainer;
-class IRStationDetailsContainer;
 class HbAction;
 class IRQPreset;
-class IRQMusicShop;
 class IRQStatisticsReporter;
+class IRQNetworkController;
 class IRQMetaData;
-class IRQStationExporter;
+class HbLabel;
 
 /**
  * This class shows the station information when it's played.
@@ -45,94 +41,102 @@ public:
 
 protected:
     IRNowPlayingView(IRApplication* aApplication, TIRViewId aViewId);
-    //from base class IRBaseView
-    TIRHandleResult handleSystemEvent(TIRSystemEventType aEvent);
 
     //from base class IRBaseView
+    void launchAction();   
     TIRHandleResult handleCommand(TIRViewCommand aCommand, TIRViewCommandReason aReason);
 
-    //from base class IRBaseView
-    void launchAction();
-
-    
 
 private slots:
-    void presetLogoDownload(IRQPreset* aPreset);
-    void playStopControl();
-    void stop();
-    void playingStarted();
-    void playingStopped();
-    void add2FavControl();
-    void flipControl();
-    void hidePlayingWidgetComplete(HbEffect::EffectStatus status);
-    void hideDetailsWidgetComplete(HbEffect::EffectStatus status);
-    void stereoControl();
-    void openWebAddressControl();
-    void launchSettingsView();
-    void updateSongInfo(IRQMetaData*);
-    void updateLogoInfo();
-    void initializeLogo();
-    void networkRequestNotified(IRQNetworkEvent aEvent);
-    void findInMusicShop();
-    void helpAction();
-    void playPressed();
-    void gotoMusicStore();
-    void recognizeSong();
-    void openAdvLink();
-    void shareStationViaMms();
-    void prepareMenu();
+    // slots for logo download
+    void handleLogoDownloaded(IRQPreset* aPreset);
+    
+    // slots for network event
+    void handleNetworkEvent(IRQNetworkEvent aEvent);
+    
+    // slots for orientation change
+    void handleOrientationChanged(Qt::Orientation);    
+    
+    // slots for play controller
+    void handlePlayStarted();
+    void handlePlayStopped();
+    void updateMetaData(IRQMetaData* aMetaData);
 
-private:
-    void createMenu();
-    void createToolBar();
-    void updateStationInfo();
+    // slots for media key
+    void handlePlayPauseMediaKey();
+    void handleStopMediaKey();
+    
+    // slots for toolbar action
+    void handleMusicStoreAction();
+    void handleIdentifySongAction();    
+    void handlePlayStopAction();    
+    void handleAddToFavAction();   
+    void handleDetailInfoAction();
+    
+    // slots for menu action
+    void handleGoToStationAction();    
+    void handleShareStationAction();
+    void handleSettingAction();
+
+#ifdef ADV_ENABLED
+    // since this maybe called during handleLogoDownloaded(), 
+    // so make it as slot connected to a single timer.
     void updateAdvImage();
-    void showWidget();
-    void initialize();
-    void updateMusicStatus();
-
+#endif
+    
 private:
-    // preset to save station big logo
-    IRQPreset *iLogoPreset;
-    IRNowPlayingContainer *iNowPlayingContainer;
-    IRStationDetailsContainer *iStationDetailsContainer;
-    // save the pointer of idle container
-    QGraphicsWidget *iIdleContainer;
-    IRQMusicShop *iMusicShop;
-    IRQStatisticsReporter *iStatisticsReporter;
-    IRQStationExporter *iStationExporter;
+    void initialize();
+    void initMenu();
+    void initToolBar();
+    void initWidget();
 
-    // menu bar actions
-    HbAction *iStereoAction;
+    void updateWidgets();
+    void updateMusicStoreStatus();
+    void updateForLauchAction();
+    
+    void updateStationLogo();
+
+    void lazyInit();
+    void normalInit();
+    
+#ifdef ADV_ENABLED
+    void mousePressEvent(QGraphicsSceneMouseEvent *aEvent);
+    void openAdvLink();
+#endif
+    
+private:
+    IRQStatisticsReporter *iStatisticsReporter;
+    IRQNetworkController  *iNetworkController;
 
     // tool bar actions
-    HbAction *iMusicShopAction;
     HbAction *iPlayStopAction;
-    HbAction *iAdd2FavAction;
-    HbAction *iFlipAction;
-
-    QString iAdvImageUrl;
-    QString iTempAdvClickThroughUrl;
-    QString iAdvClickThroughUrl;
-    bool    iGettingAdv;
-    HbIcon *iStationLogo;
-
-    int  iStereoMode;
-    bool iShowStationInfo;
-
-    enum LogoState
+    
+    bool iLaunchActionNeeded;
+    
+    enum LogoDownloadState
     {
-        EDefaultLogo    = 0, // Use default logo
-        ERequestIssued  = 1, // Issue request to get logo from server
-        ELogoDetermined = 2, // Logo got from server or user defined
-                             // stations with default logo
+        EIdle              = 0,
+#ifdef ADV_ENABLED        
+        EDownLoadAdvImage  = 1,
+#endif                
+        EDownloadLogo      = 2        
     };
-    LogoState iLogoStatus;
+    LogoDownloadState iLogoDownloadState;
     
+    HbLabel *iSongName;
+    HbLabel *iArtistName;
+    HbLabel *iStationName;
+    HbLabel *iStationLogo;
+    bool iLogoNeedUpdate;
+        
     bool iFindinNmsAllowed;
-    
     bool iSongNameAvailable;
     
+#ifdef ADV_ENABLED
+    HbLabel *iAdvImage;
+    bool iAdvImageNeedUpdate;
+    QString iAdvUrl;
+#endif    
     friend class IRViewManager;
 };
 

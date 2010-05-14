@@ -184,9 +184,9 @@ EXPORT_C int IRQPreset::getChannelUrlAt(int aIndex, QString& aURL) const
     return EIRQErrorNone;
 }
 
-EXPORT_C int IRQPreset::getChannelBitrate(int aIndex, int &aBitrate) const
+EXPORT_C int IRQPreset::getChannelBitrate(unsigned int aIndex, unsigned int &aBitrate) const
 {
-    if (aIndex >= 0 && aIndex < urlArray.count())
+    if ( aIndex < urlArray.count())
     {
         aBitrate = urlArray[aIndex].bitrate;
         return EIRQErrorNone;
@@ -224,9 +224,9 @@ EXPORT_C void IRQPreset::sortURLArray()
     iIsSorted = true;
 }
 
-EXPORT_C bool IRQPreset::setUrlBitrate(const int aUrlIndex, const int aBitrate)
+EXPORT_C bool IRQPreset::setUrlBitrate(const unsigned int aUrlIndex, const unsigned int aBitrate)
 {
-    if(aUrlIndex < 0 || aUrlIndex > (urlArray.count()-1) )
+    if( aUrlIndex > (urlArray.count()-1) )
     {
         return false;
     }

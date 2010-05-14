@@ -41,7 +41,6 @@ APP_LAYER_SYSTEMINCLUDE
 SYSTEMINCLUDE   OS_LAYER_PUBLIC_EXPORT_PATH(http)
 SYSTEMINCLUDE   MW_LAYER_PUBLIC_EXPORT_PATH(http)
 
-LIBRARY             apengine.lib
 LIBRARY             bafl.lib
 LIBRARY             centralrepository.lib
 LIBRARY             commdb.lib
@@ -54,32 +53,9 @@ LIBRARY             irsettings.lib
 LIBRARY             http.lib
 LIBRARY 	        inetprotutil.lib
 LIBRARY 	        cmmanager.lib
-
-
-//test linker error
-LIBRARY cenrepnotifhandler.lib
-LIBRARY	commonengine.lib
-LIBRARY etel.lib
-LIBRARY etel3rdparty.lib
-LIBRARY etelmm.lib
-LIBRARY estor.lib
-LIBRARY efsrv.lib
-LIBRARY xmlframework.lib
-
-LIBRARY impapprotocolcontroller.lib
-LIBRARY imut.lib
-LIBRARY netmsg.lib
-LIBRARY netmeta.lib
-LIBRARY nifman.lib
-LIBRARY pops.lib
-LIBRARY responsemsg.lib
-LIBRARY smts.lib
-
-
-//test end
-
-
-LIBRARY        flogger.lib
+LIBRARY             extendedconnpref.lib
+LIBRARY             netmeta.lib
+LIBRARY             flogger.lib
 
 //CAPABILITY NetworkServices ProtServ ReadDeviceData ReadUserData SwEvent UserEnvironment WriteDeviceData WriteUserData TrustedUI
 CAPABILITY				CAP_GENERAL_DLL

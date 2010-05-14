@@ -1,7 +1,0 @@
-EXPORTS
-	?launchShazam@IRQMusicShop@@SA_NXZ @ 1 NONAME ; bool IRQMusicShop::launchShazam(void)
-	?launchMusicShop@IRQMusicShop@@SA_NXZ @ 2 NONAME ; bool IRQMusicShop::launchMusicShop(void)
-	?openInstance@IRQMusicShop@@SAPAV1@XZ @ 3 NONAME ; class IRQMusicShop * IRQMusicShop::openInstance(void)
-	?findInMusicShop@IRQMusicShop@@QAE_NABVQString@@00@Z @ 4 NONAME ; bool IRQMusicShop::findInMusicShop(class QString const &, class QString const &, class QString const &)
-	?closeInstance@IRQMusicShop@@QAEXXZ @ 5 NONAME ; void IRQMusicShop::closeInstance(void)
-

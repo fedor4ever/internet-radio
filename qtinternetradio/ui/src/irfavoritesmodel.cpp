@@ -15,11 +15,9 @@
 *
 */
 #include <hbicon.h>
-#include <QBrush>
 
 #include "irqfavoritesdb.h"
 #include "irqisdsdatastructure.h"
-#include "iruidefines.h"
 #include "irfavoritesmodel.h"
 
 IRFavoritesModel::IRFavoritesModel(IRQFavoritesDB *aFavoritesDb, QObject *aParent) 
@@ -31,7 +29,7 @@ IRFavoritesModel::IRFavoritesModel(IRQFavoritesDB *aFavoritesDb, QObject *aParen
         iPresetsList = aFavoritesDb->getPresets();
     }
     
-    iStationLogo = new HbIcon(":/stationlist/icon_stationdefault.png");
+    iStationLogo = new HbIcon("qtg_large_internet_radio");
 }
 
 IRFavoritesModel::~IRFavoritesModel()
@@ -53,7 +51,7 @@ IRQPreset* IRFavoritesModel::getPreset(int aIndex) const
 
 QString  IRFavoritesModel::getImgUrl(int aIndex) const
 {
-    if( aIndex<0 || aIndex >=iPresetsList->count() )
+    if ( aIndex<0 || aIndex >=iPresetsList->count() )
     {
         return "";
     }
@@ -74,6 +72,12 @@ int IRFavoritesModel::rowCount(const QModelIndex &aParent) const
 
 void IRFavoritesModel::setLogo(HbIcon *aIcon, int aIndex)
 {
+    int elementCountNeedToAdd = aIndex + 1 - iLogos.size();
+    while (elementCountNeedToAdd > 0)
+    {
+        iLogos.append(NULL);
+        elementCountNeedToAdd--;
+    }
     iLogos[aIndex] = aIcon;
     emit dataChanged(index(aIndex), index(aIndex));
 }
@@ -95,7 +99,7 @@ QVariant IRFavoritesModel::data(const QModelIndex &aIndex, int aRole) const
         QVariantList list;
         int row = aIndex.row();
 
-        QString primaryText = QString::number(row+1) + ". " + iPresetsList->at(row)->name;
+        QString primaryText = iPresetsList->at(row)->name;
         list.append(primaryText);
         QString secondaryText = iPresetsList->at(row)->shortDesc;
         
@@ -109,34 +113,28 @@ QVariant IRFavoritesModel::data(const QModelIndex &aIndex, int aRole) const
         list.append(secondaryText);
         return list;
     }
-	else if( aRole == Qt::DecorationRole)
+	else if ( aRole == Qt::DecorationRole)
 	{
 	    QVariantList list;
 		int row = aIndex.row();
-        const HbIcon *icon = iLogos.value(row);
-        if (icon)
-        {
-            list.append(*icon);
-        }
-        else
-        {
+		if(row < iLogos.size())
+		{
+            const HbIcon *icon = iLogos[row];
+            if (icon)
+            {
+                list.append(*icon);
+            }
+            else
+            {
+                list.append(*iStationLogo);
+            }            
+		}
+		else
+		{
             list.append(*iStationLogo);
-        }
-		
+		}		
         return list;
     }
-    else if (aRole == Qt::BackgroundRole)
-    {
-        if (aIndex.row() % 2 == 0)
-        {
-            return QBrush(KListEvenRowColor);
-        }
-        else
-        {
-            return QBrush(KListOddRowColor);
-        }
-    }
-
     return QVariant();
 }
 
@@ -151,11 +149,12 @@ bool IRFavoritesModel::checkFavoritesUpdate()
 
 void IRFavoritesModel::clearAndDestroyLogos()
 {
-    for (QMap<int, HbIcon*>::iterator it = iLogos.begin(); it != iLogos.end(); ++it)
+    int size = iLogos.size(); 
+    for (int i = 0; i < size; i ++)
     {
-        delete it.value();
+        delete iLogos[i];
+        iLogos[i] = NULL;
     }
-
     iLogos.clear();
 }
 
@@ -197,22 +196,27 @@ void IRFavoritesModel::clearPresetList()
 
 bool IRFavoritesModel::deleteOneFavorite(int aIndex)
 {
-    if( aIndex < 0 || aIndex >= iPresetsList->size())
+    if ( aIndex < 0 || aIndex >= iPresetsList->size())
     {
         return false;
     }
     
     IRQPreset *preset = iPresetsList->at(aIndex);        
-    int ret = iFavoritesDb->deletePreset(preset->uniqID);   
-    
-    
-    if( 0 != ret )
+    int ret = iFavoritesDb->deletePreset(preset->uniqID);
+    if ( 0 != ret )
     {
         return false;
     }
     
     beginRemoveRows(QModelIndex(), aIndex, aIndex);
     iPresetsList->removeAt(aIndex);
+    
+    if (aIndex<iLogos.size())
+    {
+        delete iLogos[aIndex];
+        iLogos[aIndex] = NULL;
+    }
+    iLogos.removeAt(aIndex);
     endRemoveRows();
     emit modelChanged();
     return true;    

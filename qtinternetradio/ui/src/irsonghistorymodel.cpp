@@ -14,39 +14,36 @@
 * Description:
 *
 */
-
-#include <QBrush>
 #include <hbglobal.h>
 
 #include "irqsonghistoryinfo.h"
 #include "irqsonghistoryengine.h"
 #include "irsonghistorymodel.h"
-#include "iruidefines.h"
 
 IRSongHistoryModel::IRSongHistoryModel(QObject *aParent) : QAbstractListModel(aParent)
 {     
-    iHistoryEngine = IRQSongHistoryEngine::openInstance();
+    mHistoryEngine = IRQSongHistoryEngine::openInstance();
     getAllList();
 }
 
 IRSongHistoryModel::~IRSongHistoryModel()
 {
-    while (!iSongHistoryList.isEmpty())
+    while (!mSongHistoryList.isEmpty())
     {
-        delete iSongHistoryList.takeFirst();
+        delete mSongHistoryList.takeFirst();
     }
     
-    if (iHistoryEngine)
+    if (mHistoryEngine)
     {
-        iHistoryEngine->closeInstance();
-        iHistoryEngine = NULL;
+        mHistoryEngine->closeInstance();
+        mHistoryEngine = NULL;
     }
 }
 
 int IRSongHistoryModel::rowCount(const QModelIndex &aParent) const
 {
     Q_UNUSED(aParent);
-    return iSongHistoryList.count();
+    return mSongHistoryList.count();
 }
  
  
@@ -59,7 +56,7 @@ QVariant IRSongHistoryModel::data(const QModelIndex &aIndex, int aRole) const
     
     int row = aIndex.row();
 
-    if (aIndex.row() >= iSongHistoryList.count())
+    if (aIndex.row() >= mSongHistoryList.count())
     {
         return QVariant();
     }
@@ -67,42 +64,30 @@ QVariant IRSongHistoryModel::data(const QModelIndex &aIndex, int aRole) const
     if (aRole == Qt::DisplayRole)
     {
         QVariantList list;      
-        
-        QString songName = iSongHistoryList.at(row)->getSongName();
-        songName = songName.trimmed();
+             
+        QString artistName = mSongHistoryList.at(row)->getArtistName().trimmed();
+        if( "" == artistName )
+        {
+            artistName = hbTrId("txt_irad_list_unknown_artist");
+        }
+      
+        QString songName = mSongHistoryList.at(row)->getSongName().trimmed();
         if( "" == songName )
         {
             songName = hbTrId("txt_irad_list_unknown_song");
         }
         
-        songName = QString::number(row+1) + ". " + "\" " + songName + " \"";        
-        list.append(songName);
-        
-        QString artistName;
-        artistName = iSongHistoryList.at(row)->getArtistName();
-        artistName = artistName.trimmed();
-        if( "" == artistName )
+        if (Qt::Vertical == mOrientation)
         {
-            artistName = "< " + hbTrId("txt_irad_list_unknown_artist") + " >";
+            list.append("<" + artistName + ">");
+            list.append("<" + songName + ">");
         }
         else
         {
-            artistName = "< " + iSongHistoryList.at(row)->getArtistName() + " >";
+            list.append("<" + artistName +"> - <" + songName + ">");
+            list.append("<Not ready>");
         }
-        list.append(artistName);
         return list;
-    }    
-    else if (aRole == Qt::BackgroundRole)
-    {
-        
-            if (aIndex.row() % 2 == 0)
-            {
-                return QBrush(KListEvenRowColor);
-            }
-            else
-            {
-                return QBrush(KListOddRowColor);
-            }        
     }
 
     return QVariant();
@@ -110,9 +95,9 @@ QVariant IRSongHistoryModel::data(const QModelIndex &aIndex, int aRole) const
 
 IRQSongInfo* IRSongHistoryModel::getSongHistoryInfo(int aIndex)
 {
-    if (aIndex >= 0 && aIndex < iSongHistoryList.count())
+    if (aIndex >= 0 && aIndex < mSongHistoryList.count())
     {
-        return iSongHistoryList.at(aIndex);
+        return mSongHistoryList.at(aIndex);
     }
 
     return NULL;
@@ -120,9 +105,9 @@ IRQSongInfo* IRSongHistoryModel::getSongHistoryInfo(int aIndex)
 
 void IRSongHistoryModel::clearAllList()
 {
-    while (!iSongHistoryList.isEmpty())
+    while (!mSongHistoryList.isEmpty())
     {
-        IRQSongInfo *firstItem = iSongHistoryList.takeFirst();
+        IRQSongInfo *firstItem = mSongHistoryList.takeFirst();
         delete firstItem;
     }
      
@@ -138,18 +123,23 @@ bool IRSongHistoryModel::checkSongHistoryUpdate()
 
 void IRSongHistoryModel::getAllList()
 {
-    iHistoryEngine->getAllSongHistory(iSongHistoryList);
+    mHistoryEngine->getAllSongHistory(mSongHistoryList);
 
     emit modelChanged();
 } 
 
 void IRSongHistoryModel::clearHisotrySongDB()
 {
-    while (!iSongHistoryList.isEmpty())
+    while (!mSongHistoryList.isEmpty())
     {
-        IRQSongInfo *firstItem = iSongHistoryList.takeFirst();
+        IRQSongInfo *firstItem = mSongHistoryList.takeFirst();
         delete firstItem;
     }
-    iHistoryEngine->clearAllSongHistory();     
+    mHistoryEngine->clearAllSongHistory();     
     emit modelChanged();
+}
+
+void IRSongHistoryModel::setOrientation(Qt::Orientation aOrientation)
+{
+    mOrientation = aOrientation;
 }

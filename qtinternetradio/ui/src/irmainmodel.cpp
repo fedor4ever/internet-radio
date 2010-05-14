@@ -14,15 +14,12 @@
 * Description:
 *
 */
-
-#include <QBrush>
 #include <hbglobal.h>
 
-#include "iruidefines.h"
 #include "irmainmodel.h"
-#include "irsymbiandocument.h"
+#include "irplaylist.h"
 
-IRMainModel::IRMainModel(QObject *aParent) : QAbstractListModel(aParent)
+IRMainModel::IRMainModel(IRPlayList *aPlayList, QObject *aParent) : QAbstractListModel(aParent), iPlayList(aPlayList)
 {
     initModel();
 }
@@ -46,19 +43,7 @@ QVariant IRMainModel::data(const QModelIndex &aIndex, int aRole) const
         int row = aIndex.row();
         QVariantList list;
         list.append(iPrimaryTexts.at(row));
-        list.append(iSecondaryTexts.at(row));
         return list;
-    }
-    else if (aRole == Qt::BackgroundRole)
-    {
-        if (aIndex.row() % 2 == 0)
-        {
-            return QBrush(KListEvenRowColor);
-        }
-        else
-        {
-            return QBrush(KListOddRowColor);
-        }
     }
     
     return QVariant();
@@ -66,20 +51,21 @@ QVariant IRMainModel::data(const QModelIndex &aIndex, int aRole) const
 
 void IRMainModel::initModel()
 {
-    iPrimaryTexts << hbTrId("txt_irad_list_recently_played_stations") 
-                  << hbTrId("txt_irad_list_stations_by_country_region")
+    iPrimaryTexts << hbTrId("txt_irad_list_stations_by_country_region")
                   << hbTrId("txt_irad_list_stations_by_language")
+                  << hbTrId("txt_irad_list_recently_played_stations")
                   << hbTrId("txt_irad_list_recently_played_songs");
-    iSecondaryTexts << tr("BBC World Service, Cloud FM ...") << tr("US, UK, France, Korea, Mexico ...") 
-                    << tr("English, French, German...")
-                    << tr("Recently played songs");
 }
+
 void IRMainModel::checkUpdate()
 {
-    IRSymbianDocument *document = IRSymbianDocument::getInstance();
-    QString primary = hbTrId("txt_irad_subtitle_stations_from_play_list");     
-    QString secondary = tr("Stations from play list file");
-    if (document->isPlsAvailable())
+    if (NULL == iPlayList)
+    {
+        return;
+    }
+    
+    QString primary = hbTrId("txt_irad_subtitle_stations_from_play_list");
+    if (iPlayList->getNumberOfEntries() > 0)
     {
         //if pls item is not in collections view, add
         if (iPrimaryTexts.indexOf(primary) == -1)
@@ -87,7 +73,6 @@ void IRMainModel::checkUpdate()
             int number = iPrimaryTexts.count();
             beginInsertRows(QModelIndex(), number, number);
             iPrimaryTexts << primary;
-            iSecondaryTexts << secondary;
             endInsertRows();
         }
     }
@@ -99,7 +84,6 @@ void IRMainModel::checkUpdate()
         {
             beginRemoveRows(QModelIndex(), index, index);
             iPrimaryTexts.removeAt(index);
-            iSecondaryTexts.removeAt(index);
             endRemoveRows();
         }
     }

@@ -228,20 +228,6 @@ void CIRLogoDownloadEngine::SetHeaderL(RHTTPHeaders aHeaders, TInt aHdrField,
 	IRLOG_DEBUG( "CIRLogoDownloadEngine::SetHeaderL - Exiting" );
 	}
 
-// ---------------------------------------------------------------------------
-// CIRLogoDownloadEngine::SetFavDbInstance(CIRFavoritesDb* aFavDb)
-// To set the favorites db instance
-// ---------------------------------------------------------------------------
-//
-EXPORT_C void CIRLogoDownloadEngine::SetFavDbInstance(CIRFavoritesDb* aFavDb)
-	{
-	IRLOG_DEBUG( "CIRLogoDownloadEngine::SetFavDbInstance - Entering" );
-	iFavDb = aFavDb;
-	iFavDb->AddObserver( *this );
-	IRLOG_DEBUG( "CIRLogoDownloadEngine::SetFavDbInstance - Exiting" );
-	}
-
-
 // ----------------------------------------------------------------------------------
 // CIRLogoDownloadEngine::SendRequestL(CIRIsdsPreset* aPreset,TInt aXValue,TInt aYValue)
 // API is called from the SearchResultsView for to download logo while doing Add to Favorites
@@ -865,7 +851,6 @@ EXPORT_C void CIRLogoDownloadEngine::SendPresetWithLogoL()
 	iTempPreset->SetLogoData(*iRespBody);
 	if(iTempReqFrom == 0)//which means the request came from SearchView while doing Add to Favorite
 		{
-		iFavDb->ReplacePresetL(*iTempPreset);
 		iPresetModifiedStatus = ETrue;
 		}
 	else if(iTempReqFrom == 1)//which menas the request came from a view other than NowPlayingView
@@ -878,7 +863,6 @@ EXPORT_C void CIRLogoDownloadEngine::SendPresetWithLogoL()
 		//(2)send the logo to the NPV through PresetLogoDownloadedL
 		//(3)check whether the preset exists in favdb; if so replace that with new logo
 		iTempLogoHandle->PresetLogoDownloadedL(iTempPreset);
-		//iFavDb->ReplacePresetL(*iTempPreset)
 		}
 		
     
@@ -1509,7 +1493,6 @@ void CIRLogoDownloadEngine::CachedStructureL(TInt aChoice)
 				 	}
 				if(iCacheReqFrom == 0)
 					{
-					iFavDb->ReplacePresetL(*iCacheTempPreset);
 					iPresetModifiedStatus = ETrue;
 					}
 				else
@@ -1528,7 +1511,6 @@ void CIRLogoDownloadEngine::CachedStructureL(TInt aChoice)
 				 	}
 				if(iTempReqFrom == 0)
 					{
-					iFavDb->ReplacePresetL(*iTempPreset);
 					iPresetModifiedStatus = ETrue;
 					}
 				else
@@ -1566,85 +1548,6 @@ void CIRLogoDownloadEngine::ReleaseResources()
     iFirstTime = ETrue;
  	IRLOG_DEBUG( "CIRLogoDownloadEngine::ReleaseResources - Exiting" );
 	} 	
-
-
-// ---------------------------------------------------------------------------
-// CIRLogoDownloadEngine::HandlePresetChangedL( TInt aId, TUid aDataHandler, MPSPresetObserver::TPSReason aType )
-// This is called by CIRFavoritesDb when values of presets stations has been changed	
-// ---------------------------------------------------------------------------
-//	
-void CIRLogoDownloadEngine::HandlePresetChangedL( TInt aId, TUid aDataHandler,
-					 MPSPresetObserver::TPSReason aReason )
-	{
- 	IRLOG_DEBUG( "CIRLogoDownloadEngine::HandlePresetChangedL - Entering" );
-    if ( aDataHandler ==  KIRPreset  )
-        {
-        switch ( aReason )
-            {
-            case 0:  //MPSPresetObserver::EPSCreated
-                {
-/*d				CIRPreset* preset = NULL;
-                preset = iFavDb->PresetById( aId );
-                delete iCopyPreset;
-                iCopyPreset = NULL;
-                iCopyPreset = CIRIsdsPreset::NewL();
-                preset->CopyPresetData(*iCopyPreset);
-                if(iCopyPreset->GetChannelType()==1)
-	                {
-	                if(iCopyPreset->GetImgUrl().Length() != 0)
-		                {
-		                if(iCopyPreset->GetLogoData().Length() == 0)
-			                {
-			                SendRequestL(iCopyPreset);		                	
-			                }
-		                }
-					else
-						{
-						//do nothing;
-						}
-	                }
-d*/                }
-            	break;
-            case 1:  //MPSPresetObserver::EPSDeleted:
-            	break;
-            case 2:  //MPSPresetObserver::EPSModified:
-	            {
-	            if(!iFavDb->GetMoveStatus())
-			        {
-		            if(iPresetModifiedStatus)
-			            {
-						iPresetModifiedStatus = EFalse;		            	
-			            }
-		            else
-			            {
-						CIRPreset* preset = NULL;
-		                preset = iFavDb->PresetById( aId );
-		                delete iCopyPreset;
-		                iCopyPreset = NULL;
-		                iCopyPreset = CIRIsdsPreset::NewL();
-		                preset->CopyPresetData(*iCopyPreset);
-		                if(iCopyPreset->GetChannelType()==1)
-			                {
-			                if(iCopyPreset->GetImgUrl().Length() != 0)
-				                {
-				                SendRequestL(iCopyPreset,KLogoSize,KLogoSize);		                	
-				                }
-							else
-								{
-								//do nothing;
-								}
-			                }
-			            }
-			        }
-	            }
-            	break;
-            default:
-            	break;
-            }
-        }
- 	IRLOG_DEBUG( "CIRLogoDownloadEngine::HandlePresetChangedL - Exiting" );
-	}
-
 
 // -----------------------------------------------------------------------------
 // Notified by network controller when network is active, to reissue the request  
