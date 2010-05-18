@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hbdocument context="IRNowPlayingContainer" version="0.9">
+    <widget name="ex-IRNowPlayingContainer" type="HbWidget">
+        <widget name="iconNameContainer" type="HbWidget"/>
+        <widget name="stationIcon" type="HbLabel">
+            <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
+        </widget>
+        <widget name="advertisementImage" type="HbLabel">
+            <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
+        </widget>
+        <widget name="stationName" type="HbTextItem">
+            <string name="elideMode" value="ElideRight"/>
+        </widget>
+        <widget name="category" type="HbTextItem">
+            <string name="elideMode" value="ElideRight"/>
+        </widget>
+        <widget name="stretchItem1" type="HbLabel"/>
+        <widget name="artistNsongName" type="HbMarqueeItem">
+            <integer name="__Hb__Text__Measurement__Utility_Max__Lines__" value="1"/>
+        </widget>
+        <contentsmargins bottom="0" left="0" right="0" top="0"/>
+    </widget>
+    <section name="portrait">
+        <widget name="iconNameContainer" type="HbWidget">
+            <widget name="stationName" type="HbTextItem">
+                <sizehint height="10un" type="PREFERRED" width="21un"/>
+            </widget>
+            <widget name="stationIcon" type="HbLabel">
+                <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
+                <sizehint height="5un" type="PREFERRED" width="7un"/>
+            </widget>
+            <layout type="grid">
+                <griditem column="0" itemname="stationIcon" row="0"/>
+                <griditem column="1" itemname="stationName" row="0"/>
+            </layout>
+        </widget>
+        <widget name="advertisementImage" type="HbLabel">
+            <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
+            <sizehint height="28un" type="PREFERRED" width="28un"/>
+        </widget>
+        <widget name="ex-IRNowPlayingContainer" type="HbWidget">
+            <layout type="grid">
+                <griditem column="0" itemname="iconNameContainer" row="0"/>
+                <griditem column="0" itemname="category" row="1"/>
+                <griditem column="0" itemname="stretchItem1" row="2"/>
+                <griditem column="0" itemname="artistNsongName" row="3"/>
+                <griditem column="0" itemname="advertisementImage" row="4"/>
+            </layout>
+        </widget>
+        <widget name="stretchItem1" type="HbLabel">
+            <sizehint height="2.5un" type="PREFERRED"/>
+        </widget>
+        <widget name="category" type="HbTextItem">
+            <sizehint height="10un" type="PREFERRED"/>
+        </widget>
+        <widget name="artistNsongName" type="HbMarqueeItem">
+            <sizehint height="5un" type="MAXIMUM"/>
+            <string name="__Hb__Text__Measurement__Utility_Max__Lines__" value=""/>
+        </widget>
+    </section>
+    <section name="landscape">
+        <widget name="iconNameContainer" type="HbWidget">
+            <widget name="stationName" type="HbTextItem">
+                <sizehint height="12un" type="PREFERRED" width="21un"/>
+            </widget>
+            <widget name="stationIcon" type="HbLabel">
+                <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
+                <sizehint height="6un" type="PREFERRED" width="7un"/>
+            </widget>
+            <layout type="grid">
+                <griditem column="0" itemname="stationIcon" row="0"/>
+                <griditem column="1" itemname="stationName" row="0"/>
+            </layout>
+        </widget>
+        <widget name="advertisementImage" type="HbLabel">
+            <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
+            <sizehint height="28un" type="PREFERRED" width="28un"/>
+        </widget>
+        <widget name="ex-IRNowPlayingContainer" type="HbWidget">
+            <layout type="grid">
+                <griditem column="0" itemname="iconNameContainer" row="0"/>
+                <griditem column="0" itemname="category" row="1"/>
+                <griditem column="0" itemname="stretchItem1" row="2"/>
+                <griditem column="0" itemname="artistNsongName" row="3"/>
+                <griditem column="1" itemname="advertisementImage" row="0" row_span="4"/>
+            </layout>
+        </widget>
+        <widget name="stretchItem1" type="HbLabel">
+            <sizehint height="2.5un" type="PREFERRED" width="28un"/>
+        </widget>
+        <widget name="category" type="HbTextItem">
+            <sizehint height="10un" type="PREFERRED" width="28un"/>
+        </widget>
+        <widget name="artistNsongName" type="HbMarqueeItem">
+            <sizehint height="6un" type="PREFERRED" width="28un"/>
+            <string name="__Hb__Text__Measurement__Utility_Max__Lines__" value=""/>
+        </widget>
+    </section>
+    <metadata activeUIState="portrait" display="NHD portrait" unit="un">
+        <uistate name="Common ui state" sections="#common"/>
+        <uistate name="portrait" sections="#common portrait"/>
+        <uistate name="landscape" sections="#common landscape"/>
+    </metadata>
+</hbdocument>
