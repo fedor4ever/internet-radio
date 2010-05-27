@@ -114,7 +114,7 @@ EXPORT_C const TDesC& CIRChannelServerUrl::GetServerName() const
 	if( NULL == iServerName )
 	{
 	    CIRChannelServerUrl *tempUrl = const_cast<CIRChannelServerUrl*>(this);
-	    tempUrl->iServerName = HBufC::NewL(0);
+	    tempUrl->iServerName = HBufC::New(0);
 	}
 	return *iServerName;
 	}
@@ -131,7 +131,7 @@ EXPORT_C const TDesC& CIRChannelServerUrl::GetServerUrl() const
 	if( NULL == iURL )
 	{
 	    CIRChannelServerUrl *tempUrl = const_cast<CIRChannelServerUrl*>(this);
-	    tempUrl->iURL = HBufC::NewL(0);
+	    tempUrl->iURL = HBufC::New(0);
 	}	
 	return *iURL;
 	}

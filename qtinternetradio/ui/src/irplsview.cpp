@@ -61,20 +61,18 @@ void IRPlsView::networkRequestNotified(IRQNetworkEvent aEvent)
         
     switch (aEvent)
     {
-        case EIRQNetworkConnectionEstablished:
-            iApplication->closeConnectingDialog();
-            
+        case EIRQNetworkConnectionEstablished:            
             if (EIR_UseNetwork_SelectItem == getUseNetworkReason())
             {
                 handleItemSelected();
-            }
-            setUseNetworkReason(EIR_UseNetwork_NoReason);
-            
+            }            
             break;
             
         default:
             break;
     }
+    
+    setUseNetworkReason(EIR_UseNetwork_NoReason);
 }
 
 void IRPlsView::handleItemSelected()

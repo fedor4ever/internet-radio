@@ -18,4 +18,8 @@ EXPORTS
 	_ZNK21IRQSystemEventHandler17diskCriticalLevelEv @ 17 NONAME
 	_ZTI21IRQSystemEventHandler @ 18 NONAME
 	_ZTV21IRQSystemEventHandler @ 19 NONAME
+	_ZN21IRQSystemEventHandler13callActivatedEv @ 20 NONAME
+	_ZN21IRQSystemEventHandler15callDeactivatedEv @ 21 NONAME
+	_ZN21IRQSystemEventHandler16headsetConnectedEv @ 22 NONAME
+	_ZN21IRQSystemEventHandler19headsetDisconnectedEv @ 23 NONAME
 

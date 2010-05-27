@@ -35,6 +35,7 @@ public:
     void setApplication(IRApplication *aApplication);
     
     IRBaseView* getView(TIRViewId aViewId, bool aCreateIfNotExist = false);
+    TIRViewId getExitingView();
     
     bool isViewInStack(TIRViewId aViewId) const;
     

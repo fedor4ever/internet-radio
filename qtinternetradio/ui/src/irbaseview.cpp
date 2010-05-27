@@ -25,8 +25,7 @@
  * Return       : None
  */
 IRBaseView::IRBaseView(IRApplication* aApplication, TIRViewId aViewId) : iApplication(aApplication),
-                                                                         iViewId(aViewId),                                                                         
-                                                                         iFlag(0),
+                                                                         iViewId(aViewId),
                                                                          iUseNetworkReason(EIR_UseNetwork_NoReason),
                                                                          iInitCompleted(false)
 {
@@ -82,14 +81,21 @@ void IRBaseView::updateView()
 {
 }
 
-void IRBaseView::setFlag(int aFlag)
+void IRBaseView::setFlag(TViewFlags aFlag)
 {
-    iFlag = aFlag;
+    iFlags |= aFlag;
 }
 
-int IRBaseView::flag() const
+void IRBaseView::clearFlag(TViewFlag aFlag)
 {
-    return iFlag;
+    if(iFlags.testFlag(aFlag))
+    {
+        iFlags ^= aFlag;
+    }
+}
+bool IRBaseView::testFlag(TViewFlag aFlag) const
+{
+    return iFlags.testFlag(aFlag);
 }
 
 void IRBaseView::setUseNetworkReason(TIRUseNetworkReason aReason)

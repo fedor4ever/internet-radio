@@ -78,6 +78,24 @@ public:
     *@return QString& instance
     */
     IMPORT_C const QString& getImageUrl() const;
+    /**
+    *IRQSongHistoryInfo::getGenreName()
+    *Function to get channel genre name
+    *@return QString& instance
+    */
+    IMPORT_C const QString& getGenreName() const;
+    /**
+    *IRQSongHistoryInfo::getCountryName()
+    *Function to get channel country Name
+    *@return QString& instance
+    */
+    IMPORT_C const QString& getCountryName() const;
+    /**
+    *IRQSongHistoryInfo::getLanguageName()
+    *Function to get channel language name
+    *@return QString& instance
+    */
+    IMPORT_C const QString& getLanguageName() const;
 
     /**
     *IRQSongHistoryInfo::getMusicStoreStatus()
@@ -117,6 +135,9 @@ public:
                         const QString& aChannelName,
                         const QString& aChannelDesc,
                         const QString& aImageUrl,
+                        const QString& aGenreName,
+                        const QString& aCountryName,
+                        const QString& aLanguageName,                        
                         const QString& aMusicStoreStatus, 
                         int aChannelType,
                         int aChannelId,
@@ -163,6 +184,27 @@ public:
     * @param QString aImageUrl
     */
     void setImageUrl(const QString& aImageUrl);
+    
+    /**
+    *IRQSongHistoryInfo::setGenreName()
+    *Function to set channel genre name
+    * @param QString aGenreName
+    */
+    void setGenreName(const QString& aGenreName);
+        
+    /**
+    *IRQSongHistoryInfo::setCountryName()
+    *Function to set channel country name
+    * @param QString aCountryName
+    */
+    void setCountryName(const QString& aCountryName);
+    
+    /**
+    *IRQSongHistoryInfo::setLanguageName()
+    *Function to set channel language name
+    * @param QString aLanguageName
+    */
+    void setLanguageName(const QString& aLanguageName);
 
     /**
     *IRQSongHistoryInfo::setMusicStoreStatus()
@@ -223,7 +265,9 @@ private:
      * Channel's image Url.
      */
     QString iImageUrl;
-
+    QString iGenreName;
+    QString iCountryName;
+    QString iLanguageName;
     /**
      * Channel's MusicStoreStatus.
      */

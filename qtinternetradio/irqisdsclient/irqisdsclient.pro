@@ -40,7 +40,8 @@ INCLUDEPATH += ..\..\internetradio2.0\settingsinc \
                ..\..\internetradio2.0\sessionloginc \
                ..\..\internetradio2.0\settingsinc \
                ..\irqcommon\inc \
-               ..\irqfavoritesdb\inc
+               ..\irqfavoritesdb\inc \
+               ..\irqlogger\inc
                
 LIBS += -lirdatastructures \
         -lirfavoritesdb \
@@ -50,8 +51,9 @@ LIBS += -lirdatastructures \
         -lisdsclientinterface \
         -lirdataprovider \
         -lflogger \
-        -lirqutility
-
+        -lirqlogger \
+        -lirqutility       
+  
 
 symbian{
   TARGET.UID3 = 0xec6ecb67
@@ -66,7 +68,7 @@ HEADERS += inc\irqisdsclient.h \
 
 #source files list
 SOURCES += irqisdsclient.cpp \
-           irqisdscientimpl.cpp
+           irqisdsclientimpl.cpp
 
 SYMBIAN_PLATFORMS = WINSCW ARMV5
 

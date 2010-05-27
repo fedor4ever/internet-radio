@@ -22,13 +22,17 @@
 
 class IRTermsConsView : public IRBaseView
 {
-    
+    Q_OBJECT
+        
 public:
     ~IRTermsConsView();
     
 private:
     IRTermsConsView(IRApplication* aApplication, TIRViewId aViewId);
 
+private slots:
+	void handleOrientationChanged( Qt::Orientation aOrientation );
+	    
 private:
     void initViewContents();
     

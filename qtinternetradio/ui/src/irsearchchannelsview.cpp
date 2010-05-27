@@ -20,6 +20,7 @@
 #include <hbsearchpanel.h>
 #include <hbaction.h>
 #include <hbprogressdialog.h>
+#include <hbscrollbar.h>
 
 #include "irsearchchannelsview.h"
 #include "iruidefines.h"
@@ -110,15 +111,23 @@ void IRSearchChannelsView::loadLayout()
 {
     // Create widget hierarchy
     setObjectName( SEARCH_CHANNELS_VIEW_OBJECT_VIEW );
-    iChannelModel = new IrChannelModel(this);
     // List existing root elements - this allows us to refer to objects in the XML 
     // which are created outside the document.
     QObjectList roots;
     roots.append( this );
     iLoader.setObjectTree( roots );
     iLoader.load(SEARCH_CHANNELS_VIEW_LAYOUT_FILENAME);
+    
     iSearchPanelWidget = qobject_cast<HbSearchPanel *>(iLoader.findWidget(SEARCH_CHANNELS_VIEW_SEARCHPANEL_WIDGET));    
-    iListView = qobject_cast<HbListView *>(iLoader.findWidget(SEARCH_CHANNELS_VIEW_SEARCHLISTVIEW_WIDGET));     
+    
+    iListView = qobject_cast<HbListView *>(iLoader.findWidget(SEARCH_CHANNELS_VIEW_SEARCHLISTVIEW_WIDGET));   
+    iListView->setFlag(ItemIsFocusable);
+    HbScrollBar *scrollbar = iListView->verticalScrollBar();
+    scrollbar->setVisible(true);
+    scrollbar->setInteractive(true);
+    iListView->setVerticalScrollBarPolicy(HbScrollArea::ScrollBarAsNeeded);
+    
+    iChannelModel = new IrChannelModel(this);
     iListView->setModel(iChannelModel);
 }
 
@@ -160,7 +169,6 @@ void IRSearchChannelsView::disconnectIsdsClient()
                        this, SLOT(presetLogoDownloadError()));  
 }
 
-
 void IRSearchChannelsView::switch2InitState()
 {
     iLoader.load(SEARCH_CHANNELS_VIEW_LAYOUT_FILENAME,SEARCH_CHANNELS_VIEW_NO_LISTVIEW_SECTION);    
@@ -169,11 +177,14 @@ void IRSearchChannelsView::switch2InitState()
 
 void IRSearchChannelsView::switch2SearchedState()
 {
-    iLoader.load(SEARCH_CHANNELS_VIEW_LAYOUT_FILENAME,SEARCH_CHANNELS_VIEW_LISTVIEW_SECTION);    
     iSearchState = ESearch_Searched;     
 }
+
 void IRSearchChannelsView::switch2SearchingState()
 {    
+    iLoader.load(SEARCH_CHANNELS_VIEW_LAYOUT_FILENAME,SEARCH_CHANNELS_VIEW_LISTVIEW_SECTION);
+    iSearchPanelWidget->clearFocus();
+    iListView->setFocus();
     iSearchState = ESearch_Searching;     
     startSearchingAnimation();
 }
@@ -227,7 +238,7 @@ void IRSearchChannelsView::handleItemSelected()
             {              
                 //once an item is selected, we show a dialog to prevent user from clicking the
                 //item again
-                iPlayController->createBufferingDialog(this, SLOT(cancelRequest()));
+                iApplication->createLoadingDialog(this, SLOT(cancelRequest()));
                 
                 if (iIsdsClient->isdsIsChannelBanner())
                 {
@@ -266,6 +277,7 @@ void IRSearchChannelsView::networkRequestNotified(IRQNetworkEvent aEvent)
         {
             Q_ASSERT( !iKeyText.isEmpty() );
             iIsdsClient->isdsSearchRequest(iKeyText);
+            iApplication->createLoadingDialog(this, SLOT(cancelRequest()));
         }
         else if( EIR_UseNetwork_SelectItem == getUseNetworkReason() )
         {            
@@ -307,12 +319,9 @@ void IRSearchChannelsView::searchTextAlready(const QString& aSearchCriteria)
     createSearchingDialog();
 }
 
-
-
 void IRSearchChannelsView::operationException(IRQError aError)
 {    
-    iApplication->closeConnectingDialog();
-    iPlayController->closeBufferingDialog();    
+    iApplication->closeLoadingDialog(); 
     closeSearchingDialog();
     stopSearchingAnimation();     
     iSearchState = ESearch_init;
@@ -367,7 +376,7 @@ void IRSearchChannelsView::convertAnother()
 
 void IRSearchChannelsView::dataChanged()
 {
-    iApplication->closeConnectingDialog();     
+    iApplication->closeLoadingDialog();     
     stopSearchingAnimation();
     
     //the following will remove into the stopSearchingAnimation() function
@@ -376,14 +385,10 @@ void IRSearchChannelsView::dataChanged()
     iListView->reset();
     iListView->setCurrentIndex(iChannelModel->index(0));
     iListView->scrollTo(iChannelModel->index(0)); 
-    GraphicsItemFlags  flags = iListView->flags();
-    bool focusEnable = flags & QGraphicsItem::ItemIsFocusable;
-    if( focusEnable )
-    {
-        //we move the focus to the listview and the search panel will
-        //hide the virtual keyboard at the same time
-        iListView->setFocus(Qt::OtherFocusReason);            
-    }
+ 
+    //we move the focus to the listview and the search panel will
+    //hide the virtual keyboard at the same time
+    iListView->setFocus();            
     
     iIconIndexArray.clear();
     //initialize the iconindices

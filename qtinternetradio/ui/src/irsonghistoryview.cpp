@@ -31,7 +31,8 @@
 #include "irqsettings.h"
 #include "iruidefines.h"
 
- 
+const QString KActionSearchInMusicStoreName("SearchInMusicStore");
+const QString KActionDeleteName("Delete");
 
 //                                         public functions
 
@@ -51,17 +52,16 @@ IRSongHistoryView::IRSongHistoryView(IRApplication *aApplication, TIRViewId aVie
     iListView->setModel(iModel);
     iListView->setCurrentIndex(iModel->index(0));
     
-    iClearSongHistoryAction = new HbAction(hbTrId("txt_irad_opt_clear_song_history"), this);
+    iClearSongHistoryAction = new HbAction(hbTrId("txt_irad_menu_clear_list"), this);
     iStatisticsReporter = IRQStatisticsReporter::openInstance();
-    
-    
+
     iShowPrompt = iSettings->getSongHistoryShow();    
     if( iShowPrompt )
     {
         iSettings->setSongHistoryShow(0);
     }  
     
-    connect(iClearSongHistoryAction, SIGNAL(triggered()), this, SLOT(clearHisotrySongDB()));    
+    connect(iClearSongHistoryAction, SIGNAL(triggered()), this, SLOT(clearList()));    
     connect(iModel, SIGNAL(modelChanged()), this, SLOT(modelChanged()));        
 }
 
@@ -91,10 +91,13 @@ TIRHandleResult IRSongHistoryView::handleCommand(TIRViewCommand aCommand,
 
     switch (aCommand)
     {
+    case EIR_ViewCommand_TOBEACTIVATED:       
+        showSongHistory();
+        ret = EIR_NoDefault;
+        break;
+                
     case EIR_ViewCommand_ACTIVATED:        
         connect(iPlayController, SIGNAL(metaDataAvailable(IRQMetaData*)), this, SLOT(newMetadataAdded(IRQMetaData*)));
-        showSongHistory();
-        
         if( iShowPrompt )
         {             
             QTimer::singleShot(5, this, SLOT(showPrompt()));
@@ -184,9 +187,9 @@ void IRSongHistoryView::newMetadataAdded(IRQMetaData *aMetadata)
      
 }
 
-void IRSongHistoryView::clearHisotrySongDB()
+void IRSongHistoryView::clearList()
 {
-    iModel->clearHisotrySongDB();  
+    iModel->clearList();  
 }
 
 void IRSongHistoryView::showPrompt()
@@ -200,7 +203,40 @@ void IRSongHistoryView::itemAboutToBeSelected(bool& needNetwork)
     /* for in song history view, the data will retrived from the web browser*/
     needNetwork = false;
 }
- 
+
+void IRSongHistoryView::listViewLongPressed(HbAbstractViewItem *aItem, const QPointF& aCoords)
+{
+    Q_UNUSED(aItem);
+    Q_UNUSED(aCoords);
+
+    HbAction *action = NULL;
+    HbMenu *contextMenu = new HbMenu;
+    contextMenu->setAttribute(Qt::WA_DeleteOnClose);
+    connect(contextMenu, SIGNAL(triggered(HbAction*)), this, SLOT(actionClicked(HbAction*)));
+
+    action = contextMenu->addAction(hbTrId("txt_irad_menu_search_in_music_store"));
+    action->setObjectName(KActionSearchInMusicStoreName);
+    action = contextMenu->addAction(hbTrId("txt_common_menu_delete"));
+    action->setObjectName(KActionDeleteName);
+
+    contextMenu->open();
+}
+
+void IRSongHistoryView::searchInMusicStoreContextAction()
+{
+    // Need to log the find song in NMS event, iStatisticsReporter->logNmsEvent(IRQStatisticsReporter::EIRFind,channelId);   
+    popupNote(hbTrId("txt_irad_info_music_store_not_available"), HbMessageBox::MessageTypeInformation);
+}
+void IRSongHistoryView::deleteContextAction()
+{
+    int current = iListView->currentIndex().row();     
+    bool ret = iModel->deleteOneItem(current);     
+    if( !ret )
+    {
+        popupNote(hbTrId("txt_irad_info_operation_failed"), HbMessageBox::MessageTypeWarning);
+    }
+}
+
 void IRSongHistoryView::gotoStationHistory()
 {
 	  getViewManager()->activateView(EIRView_HistoryView);
@@ -211,4 +247,20 @@ void IRSongHistoryView::handleOrientationChanged(Qt::Orientation aOrientation)
     IrAbstractListViewBase::handleOrientationChanged(aOrientation);
     iModel->setOrientation(aOrientation);
     iListView->reset();
+}
+
+void IRSongHistoryView::actionClicked(HbAction *aAction)
+{
+    if ( aAction )
+    {
+        QString objectName = aAction->objectName();
+        if ( objectName == KActionSearchInMusicStoreName )
+        {
+            searchInMusicStoreContextAction();
+        }
+        else if( objectName == KActionDeleteName)
+        {
+            deleteContextAction();
+        }
+    }
 }

@@ -43,10 +43,11 @@ protected:
 private slots:
     void modelChanged();
     void newMetadataAdded(IRQMetaData * aMetadata);
-    void clearHisotrySongDB();   
+    void clearList();   
     void showPrompt();
     void gotoStationHistory();
     void handleOrientationChanged(Qt::Orientation aOrientation);
+    void actionClicked(HbAction *aAction);
     
 private:
     void showSongHistory();
@@ -54,6 +55,9 @@ private:
     //from IrAbstractListViewBase
     void prepareMenu(); 
     void itemAboutToBeSelected(bool& needNetwork);
+    void listViewLongPressed(HbAbstractViewItem *aItem, const QPointF& aCoords);
+    void searchInMusicStoreContextAction();
+    void deleteContextAction();
 	
 private:  
     IRSongHistoryModel *iModel;

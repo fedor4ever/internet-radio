@@ -98,7 +98,7 @@ TDesC& CIRChannelServerUrlImpl::GetServerName()
 	{
     if( NULL == iServerName )
     {
-        iServerName = HBufC::NewL(0);
+        iServerName = HBufC::New(0);
     }
     
 	return *iServerName;
@@ -113,7 +113,7 @@ TDesC& CIRChannelServerUrlImpl::GetServerUrl()
 	{
     if( NULL == iURL )
     {
-        iURL = HBufC::NewL(0);
+        iURL = HBufC::New(0);
     }
 	return *iURL;
 	}

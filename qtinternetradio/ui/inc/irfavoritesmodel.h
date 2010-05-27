@@ -39,11 +39,13 @@ public:
     int rowCount(const QModelIndex &aParent = QModelIndex()) const;
     QVariant data(const QModelIndex &aIndex, int aRole = Qt::DisplayRole) const;
     void setLogo(HbIcon *aIcon, int aIndex);
+    bool isLogoReady(int aIndex) const;
     bool checkFavoritesUpdate();
     
     void clearFavoriteDB();
     void clearAndDestroyLogos();
-    bool deleteOneFavorite(int aIndex);    
+    bool deleteOneFavorite(int aIndex);  
+    bool deleteMultiFavorites(const QModelIndexList &aIndexList);
     
 signals:
     void modelChanged();

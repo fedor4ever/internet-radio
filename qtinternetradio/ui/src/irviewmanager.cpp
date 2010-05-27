@@ -124,6 +124,38 @@ IRBaseView* IRViewManager::getView(TIRViewId aViewId, bool aCreateIfNotExist)
     return NULL;
 }
 
+TIRViewId IRViewManager::getExitingView()
+{
+    if(0 == views().count())
+    {
+        return EIRView_InvalidId;
+    }
+    else
+    {
+        IRBaseView* lastView = static_cast<IRBaseView*>(currentView());
+        if(lastView->testFlag(IRBaseView::EViewFlag_StickyViewEnabled))
+        {
+            return lastView->id();
+        }
+        
+        if(iViewStack.empty())
+        {
+            return EIRView_InvalidId;
+        }
+        
+        for(int i = iViewStack.size()-1; i >= 0 ; i--)
+        {
+            IRBaseView* lastView = iViewStack.at(i);
+            if(lastView->testFlag(IRBaseView::EViewFlag_StickyViewEnabled))
+            {
+                return lastView->id();
+            }
+        }    
+ 
+        return EIRView_InvalidId;
+    }
+}
+
 /*
  * Description : Judge if a view is in the view stack.
  * Parameters  : aViewId : the view's id
@@ -176,14 +208,14 @@ void IRViewManager::activateView(TIRViewId aViewId, bool aPushCurrentView)
     
     if (view)
     {
-        if (EViewFlag_ClearStackWhenActivate == view->flag())
+        if (view->testFlag(IRBaseView::EViewFlag_ClearStackWhenActivate))
         {
             clearStack();
         }
         else
         {    if (aPushCurrentView)
              {
-                 if (baseView && EViewFlag_UnStackable != baseView->flag())
+                 if (baseView && !baseView->testFlag(IRBaseView::EViewFlag_UnStackable))
                  {
                      iViewStack.push(baseView);
                  }
@@ -448,7 +480,7 @@ void IRViewManager::updateSoftkey()
     IRBaseView *topView = static_cast<IRBaseView*>(currentView());
     if (topView)
     {
-        if (EViewFlag_ClearStackWhenActivate == topView->flag())
+        if (topView->testFlag(IRBaseView::EViewFlag_ClearStackWhenActivate))
         {
             topView->setNavigationAction(iExitAction);
         }

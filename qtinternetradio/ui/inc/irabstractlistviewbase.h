@@ -40,6 +40,8 @@ public:
     TIRViewParameter getViewParameter() const;
     
     ~IrAbstractListViewBase();
+
+    void setPlayingBannerTextColor(const QString &aColor);
     
 protected:    
     IrAbstractListViewBase(IRApplication *aApplication, TIRViewId aViewId);

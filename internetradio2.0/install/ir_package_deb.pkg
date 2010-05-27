@@ -243,7 +243,6 @@
 "\Epoc32\release\armv5\udeb\IRNetworkController.dll"	-"!:\sys\bin\IRNetworkController.dll"
 "\Epoc32\release\armv5\udeb\irsettings.dll"		-"!:\sys\bin\irsettings.dll"
 "\Epoc32\release\armv5\udeb\IRSessionLog.dll"		-"!:\sys\bin\IRSessionLog.dll"
-"\Epoc32\release\armv5\udeb\IRSongHistory.dll"		-"!:\sys\bin\IRSongHistory.dll"
 ;"\Epoc32\release\armv5\udeb\IRSettingsView.dll"		-"!:\sys\bin\IRSettingsView.dll"
 ;"\Epoc32\release\armv5\udeb\irgeneralsettings200.dll"	-"!:\sys\bin\irgeneralsettings200.dll"
 ;"\Epoc32\release\armv5\udeb\IRActiveIdleEngine.dll"	-"!:\sys\bin\IRActiveIdleEngine.dll"

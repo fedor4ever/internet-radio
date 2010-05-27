@@ -35,6 +35,8 @@ bool isSecondInstance();
 
 int main(int argc, char* argv[])
 {
+    installLogDir();
+    
     INSTALL_MESSAGE_HANDLER;
     HbApplication app(argc, argv);
     

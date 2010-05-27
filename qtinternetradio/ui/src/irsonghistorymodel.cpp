@@ -103,14 +103,16 @@ IRQSongInfo* IRSongHistoryModel::getSongHistoryInfo(int aIndex)
     return NULL;
 }
 
-void IRSongHistoryModel::clearAllList()
+void IRSongHistoryModel::clearList()
 {
     while (!mSongHistoryList.isEmpty())
     {
         IRQSongInfo *firstItem = mSongHistoryList.takeFirst();
         delete firstItem;
     }
-     
+
+    mHistoryEngine->clearAllSongHistory();
+
     emit modelChanged();
 }
 
@@ -126,20 +128,26 @@ void IRSongHistoryModel::getAllList()
     mHistoryEngine->getAllSongHistory(mSongHistoryList);
 
     emit modelChanged();
-} 
-
-void IRSongHistoryModel::clearHisotrySongDB()
-{
-    while (!mSongHistoryList.isEmpty())
-    {
-        IRQSongInfo *firstItem = mSongHistoryList.takeFirst();
-        delete firstItem;
-    }
-    mHistoryEngine->clearAllSongHistory();     
-    emit modelChanged();
 }
 
 void IRSongHistoryModel::setOrientation(Qt::Orientation aOrientation)
 {
     mOrientation = aOrientation;
+}
+
+bool IRSongHistoryModel::deleteOneItem(int aIndex)
+{
+    bool ret = mHistoryEngine->deleteOneSongHistoryItem(aIndex);
+
+    if( !ret )
+    {
+        return false;                
+    }
+    
+    beginRemoveRows(QModelIndex(), aIndex, aIndex);
+    mSongHistoryList.removeAt(aIndex);
+    endRemoveRows(); 
+    
+    emit modelChanged();    
+    return true;
 }

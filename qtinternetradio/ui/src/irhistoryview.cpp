@@ -17,6 +17,7 @@
 #include <hblistview.h>
 #include <hbmenu.h>
 #include <hbaction.h>
+#include <hbnotificationdialog.h>
 #include <QPixmap>
 #include <QTimer>
 
@@ -58,7 +59,7 @@ IRHistoryView::IRHistoryView(IRApplication *aApplication, TIRViewId aViewId) :
     iListView->setModel(iModel);
     iListView->setCurrentIndex(iModel->index(0));
     
-    iClearHistoryAction = new HbAction(hbTrId("txt_irad_opt_clear_station_history"), menu());
+    iClearHistoryAction = new HbAction(hbTrId("txt_irad_menu_clear_list"), menu());
 
     
     iConvertTimer = new QTimer(this);
@@ -100,6 +101,12 @@ TIRHandleResult IRHistoryView::handleCommand(TIRViewCommand aCommand,
     
     switch (aCommand)
     {
+        
+    case EIR_ViewCommand_TOBEACTIVATED:       
+        showHistory();
+        ret = EIR_NoDefault;
+        break;
+                
     case EIR_ViewCommand_ACTIVATED:
         connect(iIsdsClient, SIGNAL(presetResponse(IRQPreset *)),
                 this, SLOT(presetResponse(IRQPreset *)));
@@ -110,7 +117,6 @@ TIRHandleResult IRHistoryView::handleCommand(TIRViewCommand aCommand,
         connect(iIsdsClient, SIGNAL(presetLogoDownloadError()),
                 this, SLOT(presetLogoDownloadError()));
         
-        showHistory();
         leftCount = iIconIndexArray.count();
         if( leftCount > 0 )
         {
@@ -166,7 +172,7 @@ void IRHistoryView::handleItemSelected()
     if (hisInfo->getChannelType())
     {
         // channel from isds server, get this preset
-        iPlayController->createBufferingDialog(this, SLOT(cancelRequest()));
+        iApplication->createLoadingDialog(this, SLOT(cancelRequest()));
         iIsdsClient->isdsListenRequest(hisInfo->getChannelId(), true);
     }
     else
@@ -181,6 +187,9 @@ void IRHistoryView::handleItemSelected()
         preset.name = hisInfo->getChannelName();
         preset.description = hisInfo->getChannelDesc();
         preset.shortDesc = hisInfo->getChannelDesc();
+        preset.genreName = hisInfo->getGenreName();
+        preset.countryName = hisInfo->getCountryName();
+        preset.languageName = hisInfo->getLanguageName();
         preset.type = 0;
         preset.uniqID = 0;
         preset.presetId = 0;
@@ -201,7 +210,7 @@ void IRHistoryView::presetResponse(IRQPreset *aPreset)
 void IRHistoryView::operationException(IRQError aError)
 {
     Q_UNUSED(aError);
-    iPlayController->closeBufferingDialog();
+    iApplication->closeLoadingDialog();
 
     popupNote(hbTrId("txt_irad_info_failed_to_connect"), HbMessageBox::MessageTypeWarning);
 }
@@ -216,20 +225,18 @@ void IRHistoryView::networkRequestNotified(IRQNetworkEvent aEvent)
     switch (aEvent)
     {
     case EIRQNetworkConnectionEstablished:
-        iApplication->closeConnectingDialog();
-
         if (EIR_UseNetwork_SelectItem == getUseNetworkReason())
         {
             handleItemSelected();
         }
-        
-        setUseNetworkReason(EIR_UseNetwork_NoReason);
         break;
         
     default:
         setCheckedAction();
         break;
     }
+    
+    setUseNetworkReason(EIR_UseNetwork_NoReason);
 }
 
 void IRHistoryView::cancelRequest()
@@ -383,7 +390,7 @@ void IRHistoryView::actionClicked(HbAction *aAction)
         }
         else if( objectName == KActionDetailsName)
         {
-            detailContextAction();
+            detailsContextAction();
         }
     }
 }
@@ -396,23 +403,33 @@ void IRHistoryView::addContextAction()
     convertStationHistory2Preset(*currentInfo, preset);   
     int retValue = iFavorites->addPreset(preset);
 
+    HbNotificationDialog *add2FavNote = new HbNotificationDialog();
+    add2FavNote->setModal(true);
+    add2FavNote->setAttribute(Qt::WA_DeleteOnClose);
+        
     switch (retValue)
     {
     case EIRQErrorNone:
-	    popupNote(hbTrId("txt_irad_menu_add_to_favorite"), HbMessageBox::MessageTypeInformation);
-        
+        add2FavNote->setTitle(hbTrId("txt_irad_info_added_to_favorites"));
+        //add2FavNote->setIcon(HbIcon( QString("qtg_large_ok")));
+        add2FavNote->show();
         break;
 
     case EIRQErrorOutOfMemory:
-	    popupNote(hbTrId("txt_irad_info_can_not_add_more"), HbMessageBox::MessageTypeInformation);
-		break;
+        add2FavNote->setTitle(hbTrId("txt_irad_info_can_not_add_more"));
+        //add2FavNote->setIcon(HbIcon( QString("qtg_large_ok")));
+        add2FavNote->show();        
+        break;
 
     case EIRQErrorAlreadyExist:
-	    popupNote(hbTrId("txt_irad_info_favorite_updated"), HbMessageBox::MessageTypeInformation);
-		break;
+        add2FavNote->setTitle(hbTrId("txt_irad_info_favorite_updated"));
+        //add2FavNote->setIcon(HbIcon( QString("qtg_large_ok")));
+        add2FavNote->show();           
+        break;
  
-    default:         
-    break;
+    default:
+        Q_ASSERT(false);         
+        break;
     }    
 } 
 
@@ -425,13 +442,18 @@ void IRHistoryView::deleteContextAction()
 	    popupNote(hbTrId("txt_irad_info_operation_failed"), HbMessageBox::MessageTypeWarning);
 	  }
 }
-void IRHistoryView::detailContextAction()
-{
-    getViewManager()->activateView(EIRView_StationDetailsView);
-    IRStationDetailsView *channelHistoryView = static_cast<IRStationDetailsView*>(getViewManager()->getView(EIRView_StationDetailsView));
+void IRHistoryView::detailsContextAction()
+{   
     int selectedItemIndex = iListView->currentIndex().row();
     IRQSongHistoryInfo *channelDetailInfo = iModel->getHistoryInfo(selectedItemIndex);
-    channelHistoryView->setDetails(channelDetailInfo);
+
+    IRQPreset channelPreset;
+    convertStationHistory2Preset(*channelDetailInfo, channelPreset);
+
+    IRStationDetailsView *stationDetailsView = static_cast<IRStationDetailsView*>(getViewManager()->getView(EIRView_StationDetailsView, true));    
+    stationDetailsView->setDetails(&channelPreset);
+
+    getViewManager()->activateView(EIRView_StationDetailsView);
 }
 
 void IRHistoryView::listViewLongPressed(HbAbstractViewItem *aItem, const QPointF& aCoords)
@@ -465,6 +487,9 @@ void IRHistoryView::convertStationHistory2Preset(const IRQSongHistoryInfo& aHist
     aPreset.presetId = aHistoryInfo.getChannelId();
     aPreset.shortDesc = aHistoryInfo.getChannelDesc();  
     aPreset.imgUrl = aHistoryInfo.getImageUrl();
+    aPreset.genreName = aHistoryInfo.getGenreName();
+    aPreset.countryName = aHistoryInfo.getCountryName();
+    aPreset.languageName = aHistoryInfo.getLanguageName();
     aPreset.description = aHistoryInfo.getChannelDesc();
     aPreset.musicStoreStatus = aHistoryInfo.getMusicStoreStatus();
 }

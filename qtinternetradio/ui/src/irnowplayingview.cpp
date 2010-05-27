@@ -14,6 +14,7 @@
 * Description:
 *
 */
+#include <hbtoolbar.h>
 #include <QPixmap>
 #include <hbaction.h>
 #include <hblabel.h>
@@ -80,6 +81,8 @@ IRNowPlayingView::IRNowPlayingView(IRApplication* aApplication, TIRViewId aViewI
     {
         normalInit();
     }
+    
+    setFlag(EViewFlag_StickyViewEnabled);
 }
 
 /*
@@ -164,6 +167,13 @@ void IRNowPlayingView::initToolBar()
     connect(iPlayStopAction, SIGNAL(triggered()), this, SLOT(handlePlayStopAction()));
     connect(add2FavAction, SIGNAL(triggered()), this, SLOT(handleAddToFavAction()));
     connect(flipAction, SIGNAL(triggered()), this, SLOT(handleDetailInfoAction()));
+    
+    //could be removed after toolbar issue is ok
+    HbToolBar *viewToolBar = toolBar();
+    viewToolBar->addAction(musicStoreAction);
+    viewToolBar->addAction(iPlayStopAction);
+    viewToolBar->addAction(add2FavAction);
+    viewToolBar->addAction(flipAction);
 }
 
 void IRNowPlayingView::initWidget()
@@ -499,7 +509,6 @@ void IRNowPlayingView::handleNetworkEvent(IRQNetworkEvent aEvent)
     {
     case EIRQNetworkConnectionEstablished:
         {
-            iApplication->closeConnectingDialog();
             if( EIR_UseNetwork_StartingView == getUseNetworkReason() )
             {
                 IRPlayList *playList = iApplication->getPlayList();
@@ -523,24 +532,13 @@ void IRNowPlayingView::handleNetworkEvent(IRQNetworkEvent aEvent)
             {
                 handlePlayStopAction();
             }
-            setUseNetworkReason(EIR_UseNetwork_NoReason);
             break;
         }
-        
-    case EIRQConnectingCancelled:
-    case EIRQDisplayNetworkMessageNoConnectivity:
-        {
-            IRQPreset *preset = iPlayController->getNowPlayingPreset();
-            if( NULL == preset || preset->name == "" )
-            {
-                getViewManager()->activateView(EIRView_MainView);
-            }
-        }
-        break;
-        
     default:
         break;
     }
+    
+    setUseNetworkReason(EIR_UseNetwork_NoReason);
 }
 
 /********************************************************************************************************
@@ -552,11 +550,11 @@ void IRNowPlayingView::handleOrientationChanged(Qt::Orientation aOrientation)
 {
     if (aOrientation == Qt::Vertical)
     {
-        iLoader.load(NOW_PLAYING_VIEW_LAYOUT_FILENAME, NOW_PLAYING_VIEW_PRT_SEC);
+        iLoader.load(NOW_PLAYING_VIEW_LAYOUT_FILENAME, PORTRAIT_SEC);
     }
     else
     {
-        iLoader.load(NOW_PLAYING_VIEW_LAYOUT_FILENAME, NOW_PLAYING_VIEW_LSC_SEC);      
+        iLoader.load(NOW_PLAYING_VIEW_LAYOUT_FILENAME, LANDSCAPE_SEC);      
     }
 }
 
@@ -660,7 +658,15 @@ void IRNowPlayingView::handleIdentifySongAction()
 
 void IRNowPlayingView::handlePlayStopAction()
 {
-    setUseNetworkReason(EIR_UseNetwork_PlayStation);
+    if(iPlayController->isIdle())
+    {
+        setUseNetworkReason(EIR_UseNetwork_StartingView);
+    }
+    else
+    {
+        setUseNetworkReason(EIR_UseNetwork_PlayStation);
+    }
+    
     if (false == iApplication->verifyNetworkConnectivity())
     {
         return;

@@ -37,7 +37,8 @@ static const char* KTraceOutputFile = "c:/logs/internetradio/iruilog.txt";
     #define INSTALL_MESSAGE_HANDLER
 #else // COMBINE_WITH_ENGINE_LOGGER
 
-    #define WRITELOG(msg) qDebug()<<KLogMarker<<msg
+    //enable 3.0 log a new line
+    #define WRITELOG(msg) qDebug()<<KLogMarker<<msg<<"\r\n"
     
     #ifdef TRACE_TO_FILE
         #define INSTALL_MESSAGE_HANDLER FileLogger __fileLogger(QString(KTraceOutputFile), FILTER_BY_LOGMARKER)
@@ -144,6 +145,11 @@ private:
     static void handleMessage( QtMsgType aType, const char* aMsg );
 };
 
+// ============================================================================
+// Create log dir
+// ============================================================================
+IRQLOGGER_DLL_EXPORT void installLogDir();
+                                
 // ============================================================================
 // SIGNAL/SLOT CONNECTION CHECKER
 // ============================================================================

@@ -22,7 +22,6 @@
 
 #include "irqenums.h"
 
-class HbProgressDialog;
 class IRApplication;
 class IRQMediaPlayer;
 class IRQPreset;
@@ -45,26 +44,21 @@ public:
     // Play a station
     void connectToChannel(IRQPreset *aPreset, IRQConnectedFrom aConnectedFrom);
 
-    // Create a buffering dialog
-    void createBufferingDialog(const QObject *aReceiver, const char *aFunc);
-
-    // Close the buffering dialog
-    void closeBufferingDialog();
-
     // Play control methods
     void resume();
     void stop(IRQTerminatedType aStopReason);
     int getVolume() const;
     void setVolume(int aVolume);
-    void enableStereo();
-    void disableStereo();
 
     // Check the playing status
     bool isPlaying() const;
 
-    // Check the playing status
+    // Check the stopped status
     bool isStopped() const;
 
+    // Check the idle status
+    bool isIdle() const;
+    
     // Get the preset of now playing
     IRQPreset * getNowPlayingPreset() const;
     
@@ -125,7 +119,6 @@ private:
     IRQConnectedFrom iConnectedFrom;
     bool iGetServerResult;
     
-    HbProgressDialog *iBufferingDialog;
     IRQPreset *iNowPlayingPreset;
     // reference of IRQMediaPlayer meta data
     IRQMetaData *iMetaData;

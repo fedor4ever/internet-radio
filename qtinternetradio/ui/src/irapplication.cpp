@@ -43,11 +43,11 @@
 #include "irqsettings.h"  
 #include "irmediakeyobserver.h"
 #include "ircategoryview.h"
-#include "irstationsview.h"
 #include "irqlogger.h"
 #include "iruidefines.h"
 #include "irqsystemeventhandler.h"
 #include "irplaylist.h"
+#include "irabstractlistviewbase.h"
 
 #define INTERNETRADIO_SERVICE_NAME "internet_radio_10_1.com.nokia.symbian.IFileView"
 /*
@@ -74,7 +74,7 @@ IRApplication::IRApplication(IRViewManager* aViewManager, IRQSystemEventHandler*
                                      iDisconnected(false),
                                      iConnectingCanceled(false),
                                      iLocalServer(NULL),
-                                     iConnectingNote(NULL),
+                                     iLoadingNote(NULL),
                                      #ifdef LOCALIZATION
                                      iTranslator(NULL),
                                      #endif
@@ -122,8 +122,8 @@ IRApplication::~IRApplication()
     delete iLastPlayedStationInfo;
     iLastPlayedStationInfo = NULL;
     
-    delete iConnectingNote;
-    iConnectingNote = NULL;
+    delete iLoadingNote;
+    iLoadingNote = NULL;
     
     delete iSystemEventHandler;
     
@@ -153,6 +153,15 @@ void IRApplication::setLaunchView()
         //normal launch, launch starting view
         TIRViewId viewId = EIRView_CategoryView;
         iSettings->getStartingViewId(viewId);
+        if (EIRView_PlayingView == viewId)
+        {
+            //handle error case
+            if (NULL == getLastPlayedStationInfo()->getLastPlayedStation())
+            {
+                viewId = EIRView_CategoryView;
+            }
+        }
+        
         launchStartingView(viewId);
     }
 }
@@ -182,31 +191,58 @@ bool IRApplication::verifyNetworkConnectivity(const QString &aConnectingText)
     return ret;
 }
 
-void IRApplication::createConnectingDialog()
+void IRApplication::createLoadingDialog(const QObject *aReceiver, const char *aFunc)
 {
     LOG_METHOD_ENTER;
-    if (NULL == iConnectingNote)
+    
+    //for downloading logos in stations view, favorites view and history view, network connection
+    //is initiated by low layer, we don't show any dialog
+    if (!iNetworkController->getNetworkStatus())
     {
-        iConnectingNote = new HbProgressDialog(HbProgressDialog::WaitDialog);
-        iConnectingNote->setModal(true);
-        iConnectingNote->setTimeout(HbPopup::NoTimeout);        
-        QAction *action = iConnectingNote->actions().at(0);
-        action->setText(hbTrId("txt_common_button_cancel"));
-        connect(action, SIGNAL(triggered()), this, SLOT(cancelConnect()));
+        IRBaseView *currentView = static_cast<IRBaseView*>(iViewManager->currentView());
+        if (currentView && EIR_UseNetwork_NoReason == currentView->getUseNetworkReason())
+        {
+            return;
+        }
     }
     
-    iConnectingNote->setText(iConnectingText);
-    iConnectingNote->show();
+    if (NULL == iLoadingNote)
+    {
+        iLoadingNote = new HbProgressDialog(HbProgressDialog::WaitDialog);
+        iLoadingNote->setModal(true);
+        iLoadingNote->setTimeout(HbPopup::NoTimeout);
+        QAction *action = iLoadingNote->actions().at(0);
+        action->setText(hbTrId("txt_common_button_cancel"));
+    }
+    
+    iLoadingNote->disconnect(SIGNAL(cancelled()));
+    connect(iLoadingNote, SIGNAL(cancelled()), aReceiver, aFunc);
+
+    if (iLoadingNote->isVisible())
+    {
+        return;
+    }
+    
+    //if iConnectingText == "", network connection is initiated by lower layer (eg. downloading logos)
+    if ("" != iConnectingText)
+    {
+        iLoadingNote->setText(iConnectingText);
+        iConnectingText = "";
+    }
+    else
+    {
+        iLoadingNote->setText(hbTrId("txt_common_info_loading"));
+    }
+    
+    iLoadingNote->show();
 }
 
-void IRApplication::closeConnectingDialog()
+void IRApplication::closeLoadingDialog()
 {
     LOG_METHOD_ENTER;
-    if (iConnectingNote)
+    if (iLoadingNote)
     {
-        iConnectingNote->close();
-        delete iConnectingNote;
-        iConnectingNote = NULL;
+        iLoadingNote->close();
     }
 }
 
@@ -416,6 +452,7 @@ void IRApplication::cancelConnect()
         return;
     }
     
+    closeLoadingDialog();
     iConnectingCanceled = true;
     if (iNetworkController->getNetworkStatus())
     {
@@ -437,7 +474,7 @@ void IRApplication::networkEventNotified(IRQNetworkEvent aEvent)
     switch (aEvent)
     {
         case EIRQNetworkConnectionConnecting :
-            createConnectingDialog();
+            createLoadingDialog(this, SLOT(cancelConnect()));
             iConnectingCanceled = false;
             break;
             
@@ -456,7 +493,6 @@ void IRApplication::networkEventNotified(IRQNetworkEvent aEvent)
             break;
             
         case EIRQAccessPointSelectionCancelled : 
-            closeConnectingDialog();
             cancelConnect();
             break;
             
@@ -471,7 +507,7 @@ void IRApplication::networkEventNotified(IRQNetworkEvent aEvent)
             
         case EIRQDisplayNetworkMessageNoConnectivity:
             {
-                closeConnectingDialog();
+                closeLoadingDialog();
                 HbMessageBox::warning(hbTrId("txt_irad_info_no_network_connectiion"), (QObject*)NULL, NULL);
                 if (!iDisconnected)
                 {
@@ -555,7 +591,6 @@ TIRHandleResult IRApplication::handleConnectionEstablished()
     
     if (EIR_UseNetwork_LoadCategory == currView->getUseNetworkReason())
     {
-        closeConnectingDialog();
         IRCategoryView *categoryView = static_cast<IRCategoryView*>(getViewManager()->getView(EIRView_CategoryView, true));
         categoryView->loadCategory(IRQIsdsClient::EGenre);
         currView->setUseNetworkReason(EIR_UseNetwork_NoReason);
@@ -599,20 +634,14 @@ void IRApplication::launchStartingView(TIRViewId aViewId)
 
 void IRApplication::setExitingView()
 {
-    IRQSettings *settings = getSettings();
-    TIRViewId viewId = iViewManager->currentViewId();
-
-    switch (viewId)
-    {      
-      case EIRView_MainView:
-      case EIRView_FavoritesView:
-      case EIRView_PlayingView:
-           settings->setStartingViewId(viewId);
-           break;
-
-      default:
-          settings->setStartingViewId(EIRView_CategoryView);
-          break;
+    if (XQServiceUtil::isService())
+    {
+        return;
+    }    
+    TIRViewId viewId = iViewManager->getExitingView();
+    if(EIRView_InvalidId != viewId)
+    {
+        getSettings()->setStartingViewId(viewId);
     }
 }
 
@@ -648,12 +677,29 @@ bool IRApplication::eventFilter(QObject *object, QEvent *event)
 {
     bool eventWasConsumed = false;
 
-    if (object->objectName() == ABSTRACT_LIST_VIEW_BASE_OBJECT_PLAYINGBANNER
-            && event->type() == QEvent::GraphicsSceneMousePress)
+    if (object->objectName() == ABSTRACT_LIST_VIEW_BASE_OBJECT_PLAYINGBANNER)
     {
-        eventWasConsumed = true;
-        Q_ASSERT(iPlayController->isPlaying());
-        iViewManager->activateView(EIRView_PlayingView);
+        if( (EIRView_PlayingView == static_cast<IRBaseView*>(iViewManager->currentView())->id()) \
+        	||(EIRView_SearchView == static_cast<IRBaseView*>(iViewManager->currentView())->id()) )
+        {
+            return false;
+        }    
+	
+        if (event->type() == QEvent::GraphicsSceneMousePress)
+        {
+            eventWasConsumed = true;
+            Q_ASSERT(iPlayController->isPlaying());
+            IrAbstractListViewBase* listview = static_cast<IrAbstractListViewBase*>(iViewManager->currentView());
+            listview->setPlayingBannerTextColor("qtc_multimedia_trans_pressed");
+        }
+        else if(event->type() == QEvent::GraphicsSceneMouseRelease)
+        {
+            eventWasConsumed = true;
+            Q_ASSERT(iPlayController->isPlaying());
+            IrAbstractListViewBase* listview = static_cast<IrAbstractListViewBase*>(iViewManager->currentView());
+            listview->setPlayingBannerTextColor("qtc_multimedia_trans_normal");
+            iViewManager->activateView(EIRView_PlayingView);
+        }
     }
     return eventWasConsumed;
 }
@@ -662,6 +708,8 @@ void IRApplication::startSystemEventMonitor()
 {     
     connect(iSystemEventHandler, SIGNAL(diskSpaceLowNotification(qint64)), 
         this, SLOT(handleDiskSpaceLow(qint64)));    
+    connect(iSystemEventHandler, SIGNAL(callActivated()), this, SLOT(handleCallActivated()));
+    connect(iSystemEventHandler, SIGNAL(callDeactivated()), this, SLOT(handleCallDeactivated()));
     iSystemEventHandler->start();
 }
     
@@ -673,6 +721,40 @@ void IRApplication::handleDiskSpaceLow(qint64 aCriticalLevel)
     messageBox.setTimeout(HbPopup::NoTimeout);
     messageBox.exec();
     qApp->quit();    
+}
+
+void IRApplication::handleCallActivated()
+{
+    LOG_METHOD;
+    //for the buffering state needs more attention, we firstly
+    //don't handle it, improve in future.
+    if( iPlayController->isPlaying() /*|| iPlayController->isBuffering()*/)
+    {
+        iPlayController->stop(EIRQCallIsActivated);
+        closeLoadingDialog();
+    }
+	
+	//for we don't cancel the loading when call is activated, 
+	//so, here , we don't add the handling for it. 
+}
+
+void IRApplication::handleCallDeactivated()
+{
+    LOG_METHOD;
+    if( iPlayController->getStopReason() == EIRQCallIsActivated )
+    {
+        iPlayController->resume();
+    }
+}
+
+void IRApplication::handleHeadsetConnected()
+{
+    LOG_METHOD;
+}
+
+void IRApplication::handleHeadsetDisconnected()
+{
+    LOG_METHOD;
 }
 
 #ifdef _DEBUG

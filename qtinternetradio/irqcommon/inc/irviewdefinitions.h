@@ -42,9 +42,6 @@ enum TIRViewParameter
     EIRViewPara_Genre,
     EIRViewPara_Language,
     EIRViewPara_Country,
-    EIRViewPara_PopularStations,
-    EIRViewPara_CategoryStations,
-    EIRViewPara_SearchResults,
     EIRViewPara_ViewCounts
 };
 
@@ -76,7 +73,6 @@ enum TIRUseNetworkReason
     EIR_UseNetwork_StartingView,
     EIR_UseNetwork_OpenWebAddress,
     EIR_UseNetwork_StartSearch,
-    EIR_UseNetwork_DownloadLogo,
     EIR_UseNetwork_LoadCategory,
     EIR_UseNetwork_PlayStation
 };

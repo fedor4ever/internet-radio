@@ -15,9 +15,9 @@
         <unit unitID="qtinternetradio" mrp="" bldFile="&layer_real_source_path;/qtinternetradio" name="qtinternetradio" proFile="all.pro" qmakeArgs="-r -config rom"/>
       </module>
     </layer>
-    <layer name="app_test_layer">
+    <layer name="qt_unit_test_layer">
       <module name="qtinternetradio_test">
-        <unit unitID="qtinternetradio_test" mrp="" bldFile="&layer_real_source_path;/qtinternetradio/internal/tsrc" name="qtinternetradio_test" proFile="tsrc.pro" qmakeArgs="-r -config rom"/>
+        <unit unitID="qtinternetradio_test" mrp="" bldFile="&layer_real_source_path;/qtinternetradio/internal/tsrc" name="qtinternetradio_test" proFile="tsrc.pro" qmakeArgs="-r" filter="TA_InternetRadio"/>
       </module>
     </layer>
   </systemModel>

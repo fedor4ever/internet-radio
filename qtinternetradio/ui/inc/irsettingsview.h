@@ -35,17 +35,15 @@ protected:
     IRSettingsView(IRApplication *aApplication, TIRViewId aViewId);
     
 private slots:
-    void preferredQualitySelected(int aIndex);
+    void toggleChange(QModelIndex aStartIn, QModelIndex aEndIn);
     
 private:
     void initView();
-    void setNetworkChooseList();
     void setPreferredQuality();
     
 private:
     HbDataForm *iForm;
     HbDataFormModel *iModel;
-    QStringList iPreferredQuality;
     friend class IRViewManager;
 };
 

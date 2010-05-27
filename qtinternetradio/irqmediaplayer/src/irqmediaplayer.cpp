@@ -22,6 +22,8 @@
 #include "irqphononadapter.h"
 #endif
 
+#include "irqlogger.h"
+
 //Constants
 const int KDefaultStereoLevel = 100;            // Default stereo level
 
@@ -135,11 +137,7 @@ EXPORT_C void IRQMediaPlayer::enableStereoEffect()
         return;
     }
 
-    TRAPD(error, enableStereoEffectL());
-    if (KErrNone != error)
-    {
-        emit errorOccured(EIRQPlayerErrorSetStereoFailed);
-    }
+    TRAP_IGNORE(enableStereoEffectL());
 }
 
 // ---------------------------------------------------------------------------
@@ -149,6 +147,7 @@ EXPORT_C void IRQMediaPlayer::enableStereoEffect()
 //
 EXPORT_C void IRQMediaPlayer::disableStereoEffect()
 {
+    LOG_METHOD;
     if (iStereoEffect)
     {
         if (iStereoEffect->IsEnabled())

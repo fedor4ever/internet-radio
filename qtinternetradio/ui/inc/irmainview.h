@@ -52,6 +52,8 @@ private:
     
     void lazyInit();
     
+    void initToolBar();
+    
 private:
     IRMainModel *iMainModel;
 

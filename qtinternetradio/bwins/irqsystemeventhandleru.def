@@ -18,4 +18,8 @@ EXPORTS
 	?isBelowCriticalLevel@IRQSystemEventHandler@@QAE_N_J@Z @ 17 NONAME ; bool IRQSystemEventHandler::isBelowCriticalLevel(long long)
 	?trUtf8@IRQSystemEventHandler@@SA?AVQString@@PBD0@Z @ 18 NONAME ; class QString IRQSystemEventHandler::trUtf8(char const *, char const *)
 	?tr@IRQSystemEventHandler@@SA?AVQString@@PBD0H@Z @ 19 NONAME ; class QString IRQSystemEventHandler::tr(char const *, char const *, int)
+	?headsetDisconnected@IRQSystemEventHandler@@IAEXXZ @ 20 NONAME ; void IRQSystemEventHandler::headsetDisconnected(void)
+	?callActivated@IRQSystemEventHandler@@IAEXXZ @ 21 NONAME ; void IRQSystemEventHandler::callActivated(void)
+	?headsetConnected@IRQSystemEventHandler@@IAEXXZ @ 22 NONAME ; void IRQSystemEventHandler::headsetConnected(void)
+	?callDeactivated@IRQSystemEventHandler@@IAEXXZ @ 23 NONAME ; void IRQSystemEventHandler::callDeactivated(void)
 

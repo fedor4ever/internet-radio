@@ -17,6 +17,7 @@
 #ifndef IRBASEVIEW_H
 #define IRBASEVIEW_H
 
+#include <QFlags>
 #include <hbview.h>
 #include <hbmessagebox.h>
 
@@ -32,13 +33,6 @@ class IRQNetworkController;
 class IRQFavoritesDB;
 class IRQSettings;
 
-enum TViewFlag
-{
-    EViewFlag_None = 0,
-    EViewFlag_UnStackable = 0x01,
-    EViewFlag_ClearStackWhenActivate = 0x02
-};
-
 class IRBaseView : public HbView
 {
 public:
@@ -49,8 +43,17 @@ public:
     virtual void launchAction();
     virtual void updateView();
     
-    void setFlag(int aFlag);
-    int flag() const;
+    enum TViewFlag
+    {
+        EViewFlag_UnStackable = 0x01,
+        EViewFlag_ClearStackWhenActivate = 0x02,
+        EViewFlag_StickyViewEnabled = 0x04,
+    };
+    Q_DECLARE_FLAGS(TViewFlags, TViewFlag)
+    
+    void setFlag(TViewFlags aFlag);
+    void clearFlag(TViewFlag aFlag);
+    bool testFlag(TViewFlag aFlag) const;
     
     void setUseNetworkReason(TIRUseNetworkReason aReason);
         
@@ -80,11 +83,13 @@ protected:
     IRQSettings          *iSettings;
     IRDocumentLoader iLoader;
     
-private:
+private:    
+    TViewFlags     iFlags;
     TIRViewId      iViewId;
-    int            iFlag;
     TIRUseNetworkReason iUseNetworkReason;
     bool iInitCompleted;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(IRBaseView::TViewFlags)
 
 #endif

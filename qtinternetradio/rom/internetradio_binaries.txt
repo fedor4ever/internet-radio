@@ -12,7 +12,6 @@ irnetworkcontroller.dll
 irsettings.dll
 irsessionlog.dll
 iractiveidleengine.dll
-irsonghistory.dll
 irsettingsview.dll
 irmediaengine.dll
 irfilerecognizer.dll

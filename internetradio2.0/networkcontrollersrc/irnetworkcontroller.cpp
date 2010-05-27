@@ -23,7 +23,6 @@
 #include <featdiscovery.h>
 #include <features.hrh>
 #include <ProfileEngineSDKCRKeys.h>
-#include <WebUtilsInternalCRKeys.h>
 #include <httpstringconstants.h>
 #include <StringLoader.h>
 #include <data_caging_path_literals.hrh>
@@ -49,6 +48,31 @@ const TUint32 KIRUniqueWlanId = 0x2000883F; // Just to make it unique
 const TInt KArraySize = 5;
 const TInt KWlanStringMaxLength = 9;
 const TInt KTwo = 2;
+
+// ---------------------------------------------------------------------------
+//  define in WebUtilsSDKCRKeys.h
+// ---------------------------------------------------------------------------
+//
+const TUid KCRUidWebUtils = {0x101F8731};//Web APIs removal and Internet Radio build break
+
+// ---------------------------------------------------------------------------
+// define in WebUtilsInternalCRKeys.h
+// ---------------------------------------------------------------------------
+//
+// Compatability fragment of useragent string
+const TUint32 KWebUtilsUsrAg2 =	0x00000001;
+
+// PlatformVersion fragment of useragent string
+const TUint32 KWebUtilsUsrAg3 =	0x00000002;
+
+// MidPVersion fragment of useragent string
+const TUint32 KWebUtilsUsrAg4 =	0x00000003;
+
+// CLDConfiguration fragment of useragent string
+const TUint32 KWebUtilsUsrAg5 =	0x00000004;
+
+// Url to useragent profile
+const TUint32 KWebUtilsUaProf =	0x00000008;
 
 
 // To Format the UAProf string

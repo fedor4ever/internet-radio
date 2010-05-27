@@ -1,20 +1,19 @@
 /*
-* Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies). 
-* All rights reserved.
-* This component and the accompanying materials are made available
-* under the terms of "Eclipse Public License v1.0"
-* which accompanies this distribution, and is available
-* at the URL "http://www.eclipse.org/legal/epl-v10.html".
-*
-* Initial Contributors:
-* Nokia Corporation - initial contribution.
-*
-* Contributors:
-*
-* Description:
-*
-*/
-#include <hbprogressdialog.h>
+ * Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies). 
+ * All rights reserved.
+ * This component and the accompanying materials are made available
+ * under the terms of "Eclipse Public License v1.0"
+ * which accompanies this distribution, and is available
+ * at the URL "http://www.eclipse.org/legal/epl-v10.html".
+ *
+ * Initial Contributors:
+ * Nokia Corporation - initial contribution.
+ *
+ * Contributors:
+ *
+ * Description:
+ *
+ */
 #include <hbmessagebox.h>
 #include <QTimer>
 #ifdef Q_CC_NOKIAX86
@@ -34,7 +33,8 @@
 #include "irqsettings.h"
 #include "irqfavoritesdb.h"
 #include "irqstatisticsreporter.h"
-#include "irenummapper.h"
+#include "irenummapper.h" 
+#include "irqlogger.h"
 
 #ifdef Q_CC_NOKIAX86
 void getRadioServerAddress(QString & aUrl);
@@ -88,7 +88,6 @@ IRPlayController::IRPlayController(IRApplication* aApplication) :
     iStatisticsReporter(NULL),
     iConnectedFrom(EIRQIsds),
     iGetServerResult(false),
-    iBufferingDialog(NULL),
     iNowPlayingPreset(new IRQPreset()),
     iMetaData(NULL),
     iSongHistoryEngine(IRQSongHistoryEngine::openInstance()),
@@ -109,9 +108,6 @@ IRPlayController::IRPlayController(IRApplication* aApplication) :
  */
 IRPlayController::~IRPlayController()
 {
-    delete iBufferingDialog;
-    iBufferingDialog = NULL;
-
     stop(EIRQUserTerminated);
     delete iMediaPlayer;
     iMediaPlayer = NULL;
@@ -295,31 +291,9 @@ void IRPlayController::setVolume(int aVolume)
 }
 
 /*
- * Description : enable stereo effect
- */
-void IRPlayController::enableStereo()
-{
-    if (iMediaPlayer)
-    {
-        iMediaPlayer->enableStereoEffect();
-    }
-}
-
-/*
- * Description : disable stereo effect
- */
-void IRPlayController::disableStereo()
-{
-    if (iMediaPlayer)
-    {
-        iMediaPlayer->disableStereoEffect();
-    }
-}
-
-/*
  * Description : return the flag of playing state
  * Return      : true  : playing is ongoing
- *               false : playing is stopped
+ *               false : playing is not ongoing
  */
 bool IRPlayController::isPlaying() const
 {
@@ -329,11 +303,21 @@ bool IRPlayController::isPlaying() const
 /*
  * Description : return the flag of stopped state
  * Return      : true  : playing is stopped
- *               false : playing is ongoing
+ *               false : playing is not stopped
  */
 bool IRPlayController::isStopped() const
 {
     return (EStopped == iPlayState);
+}
+
+/*
+ * Description : return the flag of idle state
+ * Return      : true  : playing is idle
+ *               false : playing is not idle
+ */
+bool IRPlayController::isIdle() const
+{
+    return (EIdle == iPlayState);
 }
 
 /*
@@ -367,42 +351,6 @@ IRQMetaData * IRPlayController::getMetaData() const
 IRQTerminatedType IRPlayController::getStopReason() const
 {
     return iStopReason;
-}
-
-/*
- * Description : show a buffering dialog to inform user the buffering stage.
- *               If the dialog is not created yet, create first. 
- */
-void IRPlayController::createBufferingDialog(const QObject *aReceiver, const char *aFunc)
-{
-    if (NULL == iBufferingDialog)
-    {
-        iBufferingDialog = new HbProgressDialog(HbProgressDialog::ProgressDialog);
-        iBufferingDialog->setMinimum(0);
-        iBufferingDialog->setMaximum(100);
-        iBufferingDialog->setModal(true);
-    }
-
-    //disconnect everything connected to signal cancelled()
-    iBufferingDialog->disconnect(SIGNAL(cancelled()));
-
-    connect(iBufferingDialog, SIGNAL(cancelled()), aReceiver, aFunc);
-    iBufferingDialog->setProgressValue(0);
-    iBufferingDialog->setText("0%");
-    iBufferingDialog->show();
-}
-
-/*
- * Description : close the buffering dialog
- */
-void IRPlayController::closeBufferingDialog()
-{
-    if (iBufferingDialog)
-    {
-        iBufferingDialog->close();
-        delete iBufferingDialog;
-        iBufferingDialog = NULL;
-    }
 }
 
 //                                           slot  functions
@@ -442,6 +390,8 @@ void IRPlayController::connectionEstablished(int aBitrate)
  */
 void IRPlayController::errorOccured(IRQError aError)
 {
+    LOG_METHOD;
+    LOG_FORMAT("the error is occured %d",aError);
     iLastError = aError;
 
     QTimer::singleShot(1, this, SLOT(handleError()));
@@ -452,6 +402,8 @@ void IRPlayController::errorOccured(IRQError aError)
  */
 void IRPlayController::handleError()
 {
+    LOG_METHOD;
+    LOG_FORMAT("the last error is %d", iLastError);
     qDebug("IRPlayController::handleError(), Entering, iLastError - %d", iLastError);
     switch (iLastError)
     {
@@ -494,15 +446,20 @@ void IRPlayController::handleError()
         qDebug("IRPlayController::handleError, connection lost");
         stop(EIRQNoConnectionToServer);
         break;
-		
-    case EIRQPlayerErrorGeneral:
+        
     case EIRQPlayerErrorAudioDeviceLost:
+        //this is a temporary way to handle the plug-out event
+        iApplication->closeLoadingDialog();
+		stop(EIRQCallIsActivated);
+        return;
+        
+    case EIRQPlayerErrorGeneral:
     default:
         stop(EIRQUnknownTermination);
         break;
     }
 
-    closeBufferingDialog();
+    iApplication->closeLoadingDialog();
 
     createNote();
     qDebug("IRPlayController::handleError(), Exiting");
@@ -516,18 +473,9 @@ void IRPlayController::handleError()
  */
 void IRPlayController::updateProgress(int aProgress)
 {
-    /* we added this condition for sometimes, the function will be called
-     * when the state is playing. reference cr_9010
-     */
-    if( iBufferingDialog && EBuffering == iPlayState )
-    {        
-        iBufferingDialog->setProgressValue(aProgress);
-        iBufferingDialog->setText(QString("%1%").arg(aProgress));       
-    }
-    
     if (100 == aProgress)
     {
-        closeBufferingDialog();
+        iApplication->closeLoadingDialog();
 
         //updateProgress(100) sometimes can be called more than one time, to improve performance,
         //we only need to do the following work once.
@@ -576,8 +524,6 @@ void IRPlayController::fetchVolume(int &aVolume)
  */
 void IRPlayController::handleMetaDataReceived(IRQMetaData& aIRmetaData)
 {
-    
-    
     iMetaData = &aIRmetaData;
     //TO DO: there maybe a potential bug when the user cancel the play, 	
     if ((aIRmetaData.getSongName().trimmed() != "")
@@ -603,10 +549,7 @@ void IRPlayController::handleMetaDataReceived(IRQMetaData& aIRmetaData)
 void IRPlayController::cancelBuffering()
 {
     stop(EIRQUserTerminated);
-    if (!iResuming && EIRView_PlayingView == iApplication->getViewManager()->currentViewId())
-    {
-        iApplication->getViewManager()->backToPreviousView();
-    }
+    iApplication->closeLoadingDialog();
 }
 
 //                                       private functions
@@ -715,7 +658,7 @@ void IRPlayController::doPlay(const QString& aUrl)
     iMediaPlayer->playStation(aUrl, apId);
     iPlayState = EBuffering;
     startSession();
-    createBufferingDialog(this, SLOT(cancelBuffering()));
+    iApplication->createLoadingDialog(this, SLOT(cancelBuffering()));
 }
 
 /*

@@ -99,6 +99,36 @@ EXPORT_C const QString& IRQSongHistoryInfo::getImageUrl() const
 }
 
 // ---------------------------------------------------------------------------
+// IRQSongHistoryInfo::getGenreName
+// gets Channel genre name
+// ---------------------------------------------------------------------------
+//
+EXPORT_C const QString& IRQSongHistoryInfo::getGenreName() const 
+{
+  return iGenreName;
+}
+
+// ---------------------------------------------------------------------------
+// IRQSongHistoryInfo::getCountryName
+// gets Channel country name
+// ---------------------------------------------------------------------------
+//
+EXPORT_C const QString& IRQSongHistoryInfo::getCountryName() const 
+{
+  return iCountryName;
+}
+
+// ---------------------------------------------------------------------------
+// IRQSongHistoryInfo::getLanguageName
+// gets Channel language name
+// ---------------------------------------------------------------------------
+//
+EXPORT_C const QString& IRQSongHistoryInfo::getLanguageName() const 
+{
+  return iLanguageName;
+}
+
+// ---------------------------------------------------------------------------
 // IRQSongHistoryInfo::getMusicStoreStatus
 // gets Channel MusicStoreStatus
 // ---------------------------------------------------------------------------
@@ -148,6 +178,9 @@ void IRQSongHistoryInfo::setHistoryInfo(const QString& aArtistName,
         const QString& aChannelName,
         const QString& aChannelDesc,
         const QString& aImageUrl,
+	    const QString& aGenreName,
+	    const QString& aCountryName,
+	    const QString& aLanguageName,
         const QString& aMusicStoreStatus, 
         int aChannelType,
         int aChannelId,
@@ -159,6 +192,9 @@ void IRQSongHistoryInfo::setHistoryInfo(const QString& aArtistName,
     setChannelName(aChannelName);
     setChannelDesc(aChannelDesc);
     setImageUrl(aImageUrl);
+    setGenreName(aGenreName);
+    setCountryName(aCountryName);
+    setLanguageName(aLanguageName);    
     setMusicStoreStatus(aMusicStoreStatus);
     setChannelType(aChannelType);
     setChannelId(aChannelId);
@@ -222,6 +258,36 @@ void IRQSongHistoryInfo::setChannelDesc(const QString& aChannelDesc)
 void IRQSongHistoryInfo::setImageUrl(const QString& aImageUrl)
 {
     iImageUrl = aImageUrl;
+}
+
+// ---------------------------------------------------------------------------
+// IRQSongHistoryInfo::setGenreName
+// sets Channel genre name
+// ---------------------------------------------------------------------------
+//
+void IRQSongHistoryInfo::setGenreName(const QString& aGenreName)
+{
+	iGenreName = aGenreName;
+}
+
+// ---------------------------------------------------------------------------
+// IRQSongHistoryInfo::setCountryName
+// sets Channel country name
+// ---------------------------------------------------------------------------
+//
+void IRQSongHistoryInfo::setCountryName(const QString& aCountryName)
+{
+	iCountryName = aCountryName;
+}
+
+// ---------------------------------------------------------------------------
+// IRQSongHistoryInfo::setLanguageName
+// sets Channel language name
+// ---------------------------------------------------------------------------
+//
+void IRQSongHistoryInfo::setLanguageName(const QString& aLanguageName)
+{
+	iLanguageName = aLanguageName;
 }
 
 // ---------------------------------------------------------------------------

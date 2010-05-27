@@ -34,6 +34,10 @@ static const char* SETTINGS_ACTION      = "setting_act";
 static const char* GO_TO_STATION_ACTION = "go2station_act";
 static const char* OBJECT_TOOLBAR       = "toolbar";
 
+// Common Sections
+static const char* PORTRAIT_SEC  = "prt_section";
+static const char* LANDSCAPE_SEC  = "lsc_section";
+
 
 // IrAbstractListViewBase -- Object Name
 static const char* ABSTRACT_LIST_VIEW_BASE_OBJECT_VIEW                        = "ext-IrAbstractListViewBase";
@@ -85,8 +89,6 @@ static const char* NOW_PLAYING_VIEW_OBJECT_STATION_NAME               = "station
 static const char* NOW_PLAYING_VIEW_OBJECT_ADVERTISEMENT_IMAGE        = "advertisementImage";
 #endif
 // IRNowplayingView  -- section
-static const char* NOW_PLAYING_VIEW_PRT_SEC  = "prt_section";
-static const char* NOW_PLAYING_VIEW_LSC_SEC  = "lsc_section";
 static const char* NOW_PLAYING_VIEW_SONG_RECOG_YES_SEC    = "song_recog_yes_section";
 static const char* NOW_PLAYING_VIEW_SONG_RECOG_NO_SEC     = "song_recog_no_section";
 
@@ -106,7 +108,8 @@ static const char* STATION_DETAILS_VIEW_OBJECT_STATION_URL          = "stationUr
 // IRTermsConsView -- Object Name
 static const char* TERMS_CONS_VIEW_BASE_OBJECT_VIEW  = "ext-IRTermsConsView";
 // IRTermsConsView -- widget
-static const char* TERMS_CONS_VIEW_ACCEPT_BTN        = "accept_btn";
-static const char* TERMS_CONS_VIEW_DENY_BTN          = "deny_btn";
+static const char* TERMS_CONS_VIEW_ACCEPT_BTN   = "accept_btn";
+static const char* TERMS_CONS_VIEW_DECLINE_BTN  = "decline_btn";
+static const char* TERMS_CONS_VIEW_TEXT_EDIT  = "text_edit";
 
 #endif /* IRUIDEFINES_H_ */

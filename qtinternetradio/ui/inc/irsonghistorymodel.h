@@ -35,10 +35,10 @@ public:
     QVariant data(const QModelIndex &aIndex, int aRole = Qt::DisplayRole) const;
     
     IRQSongInfo* getSongHistoryInfo(int aIndex);
-    void clearAllList();
+    void clearList();
     bool checkSongHistoryUpdate();   
-    void clearHisotrySongDB();  
     void setOrientation(Qt::Orientation aOrientation);
+    bool deleteOneItem(int aIndex);
     
 signals:
     void modelChanged();   

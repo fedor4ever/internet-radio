@@ -91,9 +91,6 @@ IROpenWebAddressView::IROpenWebAddressView(IRApplication* aApplication, TIRViewI
     HbStyleLoader::registerFilePath(OPEN_WEB_ADDRESS_VIEW_PUSH_BUTTON_CSS);
     HbStyleLoader::registerFilePath(OPEN_WEB_ADDRESS_VIEW_PUSH_BUTTON_WIDGETML);
 
-    // This view need not to be stacked.
-    setFlag(EViewFlag_UnStackable);
-
     connect(iNetworkController, SIGNAL(networkRequestNotified(IRQNetworkEvent)),
     this, SLOT(networkRequestNotified(IRQNetworkEvent)));
 
@@ -103,9 +100,12 @@ IROpenWebAddressView::IROpenWebAddressView(IRApplication* aApplication, TIRViewI
 
 IROpenWebAddressView::~IROpenWebAddressView()
 {
-    iSettings->setManuallyInputtedStationUrl(iUrl->contentWidgetData(QString("text")).toString());
-    iSettings->setManuallyInputtedStationName(iName->contentWidgetData(QString("text")).toString());    
-    iSettings->closeInstance();
+    if (iSettings)
+    {
+        iSettings->setManuallyInputtedStationUrl(iUrl->contentWidgetData(QString("text")).toString());
+        iSettings->setManuallyInputtedStationName(iName->contentWidgetData(QString("text")).toString());    
+        iSettings->closeInstance();
+    }
 }
 
 /*
@@ -249,19 +249,17 @@ void IROpenWebAddressView::networkRequestNotified(IRQNetworkEvent aEvent)
     switch (aEvent)
     {
     case EIRQNetworkConnectionEstablished:
-        iApplication->closeConnectingDialog();
-
         if (EIR_UseNetwork_OpenWebAddress == getUseNetworkReason())
         {
             play();
         }
-
-        setUseNetworkReason(EIR_UseNetwork_NoReason);
         break;
         
     default:
         break;
     }
+    
+    setUseNetworkReason(EIR_UseNetwork_NoReason);
 }
 
 /*

@@ -162,6 +162,9 @@ void IRQSongHistoryEngine::handleMetaDataReceivedL(const IRQMetaData& aMetaData,
     TPtrC channelName(reinterpret_cast<const TUint16*>(aPreset.name.utf16()), aPreset.name.length());
     TPtrC channelDesc(reinterpret_cast<const TUint16*>(aPreset.description.utf16()), aPreset.description.length());
     TPtrC imageUrl(reinterpret_cast<const TUint16*>(aPreset.imgUrl.utf16()), aPreset.imgUrl.length());
+    TPtrC genreName(reinterpret_cast<const TUint16*>(aPreset.genreName.utf16()), aPreset.genreName.length());
+    TPtrC countryName(reinterpret_cast<const TUint16*>(aPreset.countryName.utf16()), aPreset.countryName.length());
+    TPtrC languageName(reinterpret_cast<const TUint16*>(aPreset.languageName.utf16()), aPreset.languageName.length());
     TPtrC musicFlag(reinterpret_cast<const TUint16*>(aPreset.musicStoreStatus.utf16()), aPreset.musicStoreStatus.length());
     TUint8 channelType = aPreset.type;
     TUint16 channelId = aPreset.presetId;
@@ -173,7 +176,7 @@ void IRQSongHistoryEngine::handleMetaDataReceivedL(const IRQMetaData& aMetaData,
         if(ret)
         {
             TInt modified = iSongHistoryDb->UpdateSongHistoryDbL( channelId ,
-                       channelName ,channelUrl ,imageUrl ,musicFlag);   
+                       channelName ,channelUrl ,imageUrl ,genreName, countryName, languageName, musicFlag);   
             // TODO notify uplayer to change layout?
         }
     }
@@ -206,6 +209,9 @@ void IRQSongHistoryEngine::handleMetaDataReceivedL(const IRQMetaData& aMetaData,
                          bitrate,
                          channelDesc,
                          imageUrl,
+                         genreName,
+                         countryName,
+                         languageName,
                          musicFlag);
 
     CleanupStack::PopAndDestroy(4, &delSongName);
@@ -315,6 +321,9 @@ void IRQSongHistoryEngine::getAllHistoryL(QList<IRQSongHistoryInfo *>& aSongHist
     int bitrate;
     QString channelDesc;
     QString imageUrl;
+    QString genreName;
+    QString countryName;
+    QString languageName;
     QString musicStoreStatus;
     for (int arrCount = 0 ; arrCount < songCount ; arrCount++ )
     {
@@ -333,6 +342,12 @@ void IRQSongHistoryEngine::getAllHistoryL(QList<IRQSongHistoryInfo *>& aSongHist
                              historyDataArr[arrCount]->GetChannelDesc().Length());
         imageUrl = QString::fromUtf16(historyDataArr[arrCount]->GetImageUrl().Ptr(),
                                      historyDataArr[arrCount]->GetImageUrl().Length());
+        genreName = QString::fromUtf16(historyDataArr[arrCount]->GetGenreName().Ptr(),                
+                                     historyDataArr[arrCount]->GetGenreName().Length());
+        countryName = QString::fromUtf16(historyDataArr[arrCount]->GetCountryName().Ptr(),
+                                     historyDataArr[arrCount]->GetCountryName().Length());
+        languageName = QString::fromUtf16(historyDataArr[arrCount]->GetLanguageName().Ptr(),
+                                     historyDataArr[arrCount]->GetLanguageName().Length());
         musicStoreStatus = QString::fromUtf16(historyDataArr[arrCount]->GetChannelMusicStatus().Ptr(),
                              historyDataArr[arrCount]->GetChannelMusicStatus().Length());
        IRQSongHistoryInfo* irqsongHistory = new IRQSongHistoryInfo();
@@ -341,7 +356,7 @@ void IRQSongHistoryEngine::getAllHistoryL(QList<IRQSongHistoryInfo *>& aSongHist
            break;
        }
        irqsongHistory->setHistoryInfo(artist, songName, streamUrl, channelName, channelDesc 
-                                      , imageUrl, musicStoreStatus, channelType, channelId, bitrate);
+                                      , imageUrl, genreName, countryName, languageName, musicStoreStatus, channelType, channelId, bitrate);
        aSongHistoryArr.append(irqsongHistory);
     }
     
@@ -443,6 +458,9 @@ EXPORT_C void IRQSongHistoryEngine::updateSongHistoryDb(int aChannelId,
         const QString& aChannelName,
         const QString& aChannelUrl,
         const QString& aImageUrl,
+        const QString& aGenreName,
+        const QString& aCountryName,
+        const QString& aLanguageName,
         const QString& aMusicFlag)
 {
     TInt ret = KErrNone ;
@@ -460,11 +478,17 @@ EXPORT_C void IRQSongHistoryEngine::updateSongHistoryDb(int aChannelId,
         TPtrC channelName(reinterpret_cast<const TUint16*>(aChannelName.utf16()));
         TPtrC channelUrl(reinterpret_cast<const TUint16*>(aChannelUrl.utf16()));
         TPtrC imageUrl(reinterpret_cast<const TUint16*>(aImageUrl.utf16()));
+        TPtrC genreName(reinterpret_cast<const TUint16*>(aGenreName.utf16()));
+        TPtrC countryName(reinterpret_cast<const TUint16*>(aCountryName.utf16()));
+        TPtrC languageName(reinterpret_cast<const TUint16*>(aLanguageName.utf16()));
         TPtrC musicFlag(reinterpret_cast<const TUint16*>(aMusicFlag.utf16()));
         TRAP_IGNORE(iSongHistoryDb->UpdateSongHistoryDbL( channelId ,
                 channelName,
                 channelUrl,
                 imageUrl,
+                genreName,
+                countryName,
+                languageName,
                 musicFlag));
     }
 }
@@ -473,6 +497,18 @@ EXPORT_C bool IRQSongHistoryEngine::deleteOneItem(int aIndex)
 {    
     int retValue = 0;
     retValue = iSongHistoryDb->DeleteOneHistory(aIndex);
+    if( KErrNone != retValue )
+    {
+        return false;
+    }
+    
+    return true;
+}
+
+EXPORT_C bool IRQSongHistoryEngine::deleteOneSongHistoryItem(int aIndex)
+{    
+    int retValue = 0;
+    retValue = iSongHistoryDb->DeleteOneSongHistory(aIndex);
     if( KErrNone != retValue )
     {
         return false;

@@ -63,7 +63,7 @@ private:
     void convertStationHistory2Preset(const IRQSongHistoryInfo& aHistoryInfo, IRQPreset& aPreset);
     void addContextAction();
     void deleteContextAction();
-    void detailContextAction();
+    void detailsContextAction();
 
 private:  
     IRHistoryModel *iModel;

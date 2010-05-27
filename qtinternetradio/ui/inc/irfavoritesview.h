@@ -20,6 +20,7 @@
 #include "irabstractlistviewbase.h"
 #include "irqevent.h"
 
+class HbSelectionDialog;
 class IRFavoritesModel;
 class IRQPreset;
 
@@ -37,13 +38,14 @@ protected:
     TIRHandleResult handleCommand(TIRViewCommand aCommand, TIRViewCommandReason aReason);
     
 private slots:
-    void clearAllFavorites();        
+    void deleteFavorites();        
     void networkRequestNotified(IRQNetworkEvent aEvent);    
     void convertAnother();
     void presetLogoDownload(IRQPreset* aPreset);
     void presetLogoDownloadError();	
     void modelChanged();
     void actionClicked(HbAction *aAction);
+    void deleteDialogClosed(HbAction *aAction);
     
 private:
     //from IrAbstractListViewBase
@@ -55,6 +57,7 @@ private:
     void deleteContextAction();
     void renameContextAction();
     void detailsContextAction();
+    void updateIconIndexArray();
     
     //from base view 
     void listViewLongPressed(HbAbstractViewItem *aItem, const QPointF& aCoords);
@@ -68,7 +71,8 @@ private:
 private:
     
     IRFavoritesModel  *iModel;
-    HbAction          *iClearFavoriteAction;
+    HbSelectionDialog *iMultiDeleteDialog;
+    HbAction          *iMultiDeleteAction;
     //the following are used to support the img
     QList<int>         iIconIndexArray;
     IRQPreset         *iLogoPreset;

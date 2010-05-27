@@ -43,6 +43,10 @@ signals:
     void alarmStarted();
     void alarmStopped();
     void diskSpaceLowNotification(qint64 aCriticalLevel);
+    void callActivated();
+    void callDeactivated();
+    void headsetConnected();
+    void headsetDisconnected();
     
 private:
     

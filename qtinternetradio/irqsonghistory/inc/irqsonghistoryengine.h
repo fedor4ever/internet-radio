@@ -65,10 +65,10 @@ public:
     */
 
     IMPORT_C void updateSongHistoryDb(int aChannelId,
-                                      const QString& aChannelName,
-                                      const QString& aChannelUrl,
-                                      const QString& aImageUrl,
-                                      const QString& aMusicFlag);
+            const QString& aChannelName, const QString& aChannelUrl,
+            const QString& aImageUrl, const QString& aGenreName,
+            const QString& aCountryName, const QString& aLanguageName,
+            const QString& aMusicFlag);
 
     /**
     * Connected with play controller with the song name changed.
@@ -88,6 +88,12 @@ public:
      * @param   aIndex    the index of the item need deleted
      */
     IMPORT_C bool deleteOneItem(int aIndex);
+
+    /*
+     * delete one item from the song history db
+     * @param   aIndex    the index of the item need deleted
+     */
+    IMPORT_C bool deleteOneSongHistoryItem(int aIndex);
 
 private:
 

@@ -65,6 +65,9 @@ public:
 									 TInt aBitrate,
 									 RBuf& aChannelDesc,
 									 RBuf& aImageUrl,
+                                     RBuf& aGenreName,
+                                     RBuf& aCountryName,
+                                     RBuf& aLanguageName,									 
 									 RBuf& aMusicStoreStatus );
 
 	/**
@@ -190,8 +193,44 @@ public:
     *CIRSongHistoryInfo::SetImageUrl()
     *Function to set channel image Url
     * @param RBuf aImageUrl
-    */
+    */        
         void SetImageUrl(RBuf& aImageUrl) ;
+    /**
+    *IRQSongHistoryInfo::GetGenreName()
+    *Function to get channel genre name
+    *@return RBuf& instance
+    */
+        IMPORT_C const RBuf& GetGenreName() const;
+    /**
+    *CIRSongHistoryInfo::SetGenreName()
+    *Function to set channel genre name
+    * @param RBuf aGenreName
+    */        
+        void SetGenreName(const RBuf& aGenreName);
+    /**
+    *IRQSongHistoryInfo::GetCountryName()
+    *Function to get channel country name
+    *@return RBuf& instance
+    */
+        IMPORT_C const RBuf& GetCountryName() const;
+    /**
+    *CIRSongHistoryInfo::SetCountryName()
+    *Function to set channel country name
+    * @param RBuf& aCountryName
+    */        
+        void SetCountryName(const RBuf& aCountryName);
+    /**
+    *IRQSongHistoryInfo::getLanguageName()
+    *Function to get channel language name
+    *@return RBuf& instance
+    */
+        IMPORT_C const RBuf& GetLanguageName() const;
+    /**
+    *CIRSongHistoryInfo::SetLanguageName()
+    *Function to set channel language name
+    * @param RBuf aLanguageName
+    */        
+        void SetLanguageName(const RBuf& aLanguageName);        
 	/**
 	*CIRSongHistoryInfo::SetChannelMusicStatus()
 	*Function to set Channel MusicStoreStatus
@@ -248,7 +287,10 @@ private: //data
     /**
 	 * Channel Description.
      */
-		RBuf iImageUrl;
+        RBuf iImageUrl;
+        RBuf iGenreName;
+        RBuf iCountryName;
+        RBuf iLanguageName;
     /**
      * Channel Id.
      */

@@ -1,23 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <hbdocument version="1.0">
     <widget name="ext-IRTermsConsView" type="HbView">
-        <widget name="content" role="HbView:widget" type="HbWidget">
-            <widget name="accept_btn" type="HbPushButton">
-                <string name="text" value="Accept"/>
+        <widget name="container" role="HbView:widget" type="HbWidget">
+            <widget name="heading_text" type="HbGroupBox">
+                <sizepolicy horizontalPolicy="Expanding" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
+                <sizehint height="expr((var(hb-param-text-height-secondary)+2*var(hb-param-margin-gene-middle-vertical)))" type="PREFERRED"/>
+                <bool name="collapsable" value="FALSE"/>
+                <string locid="txt_irad_terms_and_conditions" name="heading"/>
+                <fontspec name="fontSpec" role="Secondary" textheight="var(hb-param-text-height-secondary)"/>
             </widget>
-            <widget name="deny_btn" type="HbPushButton">
-                <string name="text" value="Deny"/>
+            <widget name="text_edit" type="HbTextEdit">
+                <bool name="readOnly" value="TRUE"/>
+                <string locid="txt_irad_terms_content" name="plainText"/>
+                <enums name="cursorVisibility" value="TextCursorHidden"/>
+                <enums name="contextMenuFlags" value="ShowTextContextMenuOnSelectionClicked"/>
             </widget>
-            <layout orientation="Vertical" type="linear">
-                <stretchitem stretchfactor="1"/>
-                <linearitem itemname="accept_btn"/>
-                <linearitem itemname="deny_btn"/>
-                <stretchitem stretchfactor="1"/>
+            <widget name="btn_container" type="HbWidget">
+                <widget name="accept_btn" type="HbPushButton">
+                    <sizehint height="6un" type="PREFERRED" width="40un"/>
+                    <string locid="txt_irad_accept" name="text"/>
+                </widget>
+                <widget name="decline_btn" type="HbPushButton">
+                    <sizehint height="6un" type="PREFERRED" width="40un"/>
+                    <string locid="txt_irad_decline" name="text"/>
+                </widget>
+                <layout orientation="Vertical" type="linear">
+                    <linearitem itemname="accept_btn"/>
+                    <linearitem itemname="decline_btn"/>
+                </layout>
+            </widget>
+            <layout orientation="Vertical" spacing="0un" type="linear">
+                <contentsmargins bottom="0un" left="0un" right="0un" top="0un"/>
+                <linearitem itemname="heading_text"/>
+                <linearitem itemname="text_edit"/>
+                <linearitem itemname="btn_container"/>
             </layout>
         </widget>
         <string locid="txt_irad_title_internet_radio" name="title"/>
     </widget>
+    <section name="prt_section">
+        <widget name="container" role="HbView:widget" type="HbWidget">
+            <widget name="btn_container" type="HbWidget">
+                <sizepolicy horizontalPolicy="Preferred" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
+                <sizehint height="20un" type="PREFERRED"/>
+                <layout type="anchor">
+                    <anchoritem dst="decline_btn" dstEdge="LEFT" spacing="var(hb-param-margin-gene-screen)" src="" srcEdge="LEFT"/>
+                    <anchoritem dst="decline_btn" dstEdge="RIGHT" spacing="-var(hb-param-margin-gene-screen)" src="" srcEdge="RIGHT"/>
+                    <anchoritem dst="decline_btn" dstEdge="BOTTOM" spacing="-3un" src="" srcEdge="BOTTOM"/>
+                    <anchoritem dst="accept_btn" dstEdge="LEFT" spacing="var(hb-param-margin-gene-screen)" src="" srcEdge="LEFT"/>
+                    <anchoritem dst="accept_btn" dstEdge="TOP" spacing="3un" src="" srcEdge="TOP"/>
+                    <anchoritem dst="accept_btn" dstEdge="RIGHT" spacing="-var(hb-param-margin-gene-screen)" src="" srcEdge="RIGHT"/>
+                </layout>
+            </widget>
+        </widget>
+    </section>
+    <section name="lsc_section">
+        <widget name="container" role="HbView:widget" type="HbWidget">
+            <widget name="btn_container" type="HbWidget">
+                <sizepolicy horizontalPolicy="Preferred" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
+                <sizehint height="10un" type="PREFERRED"/>
+                <layout type="anchor">
+                    <anchoritem dst="accept_btn" dstEdge="LEFT" spacing="5un" src="" srcEdge="LEFT"/>
+                    <anchoritem dst="accept_btn" dstEdge="CENTERV" spacing="0un" src="" srcEdge="CENTERV"/>
+                    <anchoritem dst="decline_btn" dstEdge="RIGHT" spacing="-5un" src="" srcEdge="RIGHT"/>
+                    <anchoritem dst="decline_btn" dstEdge="CENTERV" spacing="0un" src="" srcEdge="CENTERV"/>
+                </layout>
+            </widget>
+        </widget>
+    </section>
     <metadata activeUIState="Common ui state" display="NHD portrait" unit="un">
         <uistate name="Common ui state" sections="#common"/>
+        <uistate name="prt_state" sections="#common prt_section"/>
+        <uistate name="lsc_state" sections="#common lsc_section"/>
     </metadata>
 </hbdocument>

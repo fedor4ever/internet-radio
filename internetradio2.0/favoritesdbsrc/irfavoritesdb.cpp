@@ -238,6 +238,8 @@ EXPORT_C void CIRFavoritesDb::DeletePresetL( TInt aId )
 	{	     
 	    if( aId == iFavPresetList[i]->Id())
 	    {
+	    	  //before Remove, the memory should be freed ahead. 
+	        delete iFavPresetList[i];
 	        iFavPresetList.Remove(i);	         
 	        break;
 	    }

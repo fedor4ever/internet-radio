@@ -53,7 +53,9 @@ enum IRQTerminatedType
     //no connection to the server
     EIRQNoConnectionToServer,
     //no connection to the network
-    EIRQNoConnectionToNetwork
+    EIRQNoConnectionToNetwork,
+    //a call is activated
+    EIRQCallIsActivated
 };
 
 enum IRQConnectedFrom

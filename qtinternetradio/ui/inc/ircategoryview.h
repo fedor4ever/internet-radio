@@ -22,7 +22,6 @@
 #include "irqisdsclient.h"
 
 class IRCategoryModel;
-class HbProgressDialog;
 
 class IRCategoryView : public IrAbstractListViewBase
 {
@@ -61,8 +60,6 @@ private:
     void storeCurrentItem();
     void handleItemSelected();
     
-    void createWaitDialog(const QString &aText);
-    
     void connectToIsdsClient();
     
     void disconnectIsdsClient();
@@ -71,8 +68,10 @@ private:
     
     void normalInit();
     
+    void initToolBar();
+ 
+    
 private:
-	HbProgressDialog *iWaitDialog;
     int iLastSelectItem;
     IRCategoryModel *iModel;
     QString iLoadedSection;

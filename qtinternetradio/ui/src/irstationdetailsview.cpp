@@ -26,6 +26,11 @@
 #include "irplaycontroller.h"
 #include "irviewmanager.h"
 #include "irqsonghistoryinfo.h"
+
+
+const unsigned int KChannelBitrateIndex = 0;
+const int KChannelURLIndex = 0;
+
 IRStationDetailsView::IRStationDetailsView(IRApplication* aApplication, TIRViewId aViewId) : IRBaseView(aApplication, aViewId),
                                     iScrollArea(NULL),iContainer(NULL),
                                     iStationName(NULL),iDescription(NULL),
@@ -50,15 +55,19 @@ IRStationDetailsView::~IRStationDetailsView()
 /*
  * Description : update the station information.
  */
-void IRStationDetailsView::setDetails(IRQSongHistoryInfo *aCurChannelInfo)
+void IRStationDetailsView::setDetails(IRQPreset * aPreset)
 {
-    iStationName->setPlainText(aCurChannelInfo->getChannelName());
-    iGenres->setPlainText(QString(""));
-    iLanguage->setPlainText(QString(""));
-    iCountry->setPlainText(QString(""));
-    iBitRate->setPlainText(hbTrId("txt_irad_setlabel_bit_rate") + QString(" : ") + QString::number(0) + QString("kbps"));
-    iDescription->setPlainText(aCurChannelInfo->getChannelDesc());
-    iNowPlayingUrl->setPlainText(aCurChannelInfo->getStreamUrl());
+    iStationName->setPlainText(aPreset->name);
+    iGenres->setPlainText(aPreset->genreName);
+    iLanguage->setPlainText(aPreset->languageName);
+    iCountry->setPlainText(aPreset->countryName);
+
+    unsigned int bitrate = 0;
+    aPreset->getChannelBitrate(KChannelBitrateIndex, bitrate);
+    iBitRate->setPlainText(QString::number(bitrate) + QString("kbps"));
+
+    iDescription->setPlainText(aPreset->description);
+    iNowPlayingUrl->setPlainText(aPreset->getURLsForBitrate(bitrate)->at(KChannelURLIndex));
 }
 
 /*
@@ -71,7 +80,7 @@ void IRStationDetailsView::setDetails()
     iGenres->setPlainText(nowPlayingPreset->genreName);
     iLanguage->setPlainText(nowPlayingPreset->languageName);
     iCountry->setPlainText(nowPlayingPreset->countryName);
-    iBitRate->setPlainText(hbTrId("txt_irad_setlabel_bit_rate") + QString(" : ") + QString::number(iPlayController->getNowPlayingBitRate()) + QString("kbps"));
+    iBitRate->setPlainText(QString::number(iPlayController->getNowPlayingBitRate()) + QString("kbps"));
     iDescription->setPlainText(nowPlayingPreset->description);
     iNowPlayingUrl->setPlainText(iPlayController->getNowPlayingUrl());
 }

@@ -55,11 +55,11 @@ public:
 
     ~IRApplication();
     
-    bool verifyNetworkConnectivity(const QString &aConnectingText = hbTrId("Connecting to server..."));
+    bool verifyNetworkConnectivity(const QString &aConnectingText = hbTrId("txt_common_info_loading"));
     
-    void createConnectingDialog();
+    void createLoadingDialog(const QObject *aReceiver, const char *aFunc);
     
-    void closeConnectingDialog();
+    void closeLoadingDialog();
     
     IRViewManager* getViewManager() const;
     IRQNetworkController* getNetworkController();
@@ -102,6 +102,10 @@ private slots:
     void newLocalSocketConnection();
     void handleDiskSpaceLow(qint64 aCriticalLevel);
     void handleTermsConsAccepted();
+    void handleCallActivated();
+    void handleCallDeactivated();
+    void handleHeadsetConnected();
+    void handleHeadsetDisconnected();
     
 private:
     void createComponents();
@@ -155,7 +159,7 @@ private:
     
     QLocalServer *iLocalServer;
     
-    HbProgressDialog *iConnectingNote;
+    HbProgressDialog *iLoadingNote;
     
 #ifdef LOCALIZATION
     QTranslator  *iTranslator;

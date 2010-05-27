@@ -81,25 +81,28 @@ public:
 
 
 
-	/**
-	* Function : AddToSongHistoryDbL()
-	* adds the song history entry into data base
-	* @param various channel information 
-	*/
-	TBool AddToSongHistoryDbL( const TDesC& aSongName,
-								const TDesC& aArtistName, 
-								const TDesC& aChannelName, 
-								const TDesC& aChannelUrl,
-								RBuf& aDelSongName, 
-								RBuf& aDelArtistname, 
-								RBuf& aDelChannelName, 
-								RBuf& aDelChannelUrl,
-								TInt  aChannelType,
-								TInt aChannelId,
-								TInt aBitrate,
-								const TDesC& aChannelDesc,
-								const TDesC& aImageUrl,
-								const TDesC& aMusicFlag);
+    /**
+    * Function : AddToSongHistoryDbL()
+    * adds the song history entry into data base
+    * @param various channel information 
+    */
+    TBool AddToSongHistoryDbL( const TDesC& aSongName,
+                                const TDesC& aArtistName, 
+                                const TDesC& aChannelName, 
+                                const TDesC& aChannelUrl,
+                                RBuf& aDelSongName, 
+                                RBuf& aDelArtistname, 
+                                RBuf& aDelChannelName, 
+                                RBuf& aDelChannelUrl,
+                                TInt  aChannelType,
+                                TInt aChannelId,
+                                TInt aBitrate,
+                                const TDesC& aChannelDesc,
+                                const TDesC& aImageUrl,
+                                const TDesC& aGenreName,
+                                const TDesC& aCountryName,
+                                const TDesC& aLanguageName,
+                                const TDesC& aMusicFlag);
 	 /**
 	 * Function : AddToSongHistoryDb2L()
 	 * adds the song history entry into data base
@@ -183,6 +186,9 @@ public:
     	                      const TDesC& aChannelName, 
 						      const TDesC& aChannelUrl,
 						      const TDesC& aImageUrl,
+                              const TDesC& aGenreName,
+                              const TDesC& aCountryName,
+                              const TDesC& aLanguageName,						      
 							  const TDesC& aMusicFlag);
 
     /*
@@ -192,10 +198,14 @@ public:
                                 TInt aChannelType);
     
     /*
-     * delete a recorder by the index
+     * delete a recorder by the index, for station history database
      * */
     TInt DeleteOneHistory(TInt aIndex);
     
+    /*
+     * delete a recorder by the index, for songhistory database
+     * */
+    TInt DeleteOneSongHistory(TInt aIndex);
 
 private:
 
@@ -218,9 +228,9 @@ private:
 	* ---------------------------------------------------------------------------
 	* SongHistoryTable
 	*---------------------------
-	*| SongName | ArtistName | ChannelName | ChannelUrl | ChannelType | ChannelId | Bitrate | ChannelDesc | ImageUrl
+	*| SongName | ArtistName | ChannelName | ChannelUrl | ChannelType | ChannelId    | Bitrate      | ChannelDesc | ImageUrl   | GenreName  | CountryName | LanguageName | MusicStatus
 	*---------------------------
-	*|EDbColText| EDbColText | EDbColText | EDbColText | EDbColUint8 | EDbColUint16 | EDbColUint16 | EDbColText | EDbColText
+	*|EDbColText| EDbColText | EDbColText  | EDbColText | EDbColUint8 | EDbColUint16 | EDbColUint16 | EDbColText  | EDbColText | EDbColText | EDbColText  | EDbColText   | EDbColText 
 	*----------------------------------------------------------------------------
 	*/
 	void CreateSongHistoryTablesL();
@@ -265,6 +275,11 @@ private:
 	 * to wrapper the delete leaving
 	 */
 	TInt DeleteOneHistoryL(TInt aIndex);
+
+    /**
+     * to wrapper the delete leaving
+     */
+    TInt DeleteOneSongHistoryL(TInt aIndex);
 
 	/**
 	* Data-structure to hold unique channel info

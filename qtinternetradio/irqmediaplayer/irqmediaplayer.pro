@@ -22,12 +22,15 @@ DEPENDPATH += src
 LIBS += -lmediaclientvideo \
         -lmmfcontrollerframework \
         -lstereowideningeffect  \
-        -lws32
+        -lws32 \
+        -lirqlogger
 
 INCLUDEPATH += $$APP_LAYER_SYSTEMINCLUDE 
 
 INCLUDEPATH += inc  \
-               ..\irqcommon\inc
+               ..\irqcommon\inc \
+               ..\irqlogger\inc            
+                
                         
                   
 MOC_DIR = moc

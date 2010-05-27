@@ -4,7 +4,7 @@
         <string locid="txt_irad_opt_go_to_station" name="text"/>
     </object>
     <object name="share_station_act" type="HbAction">
-        <string locid="txt_irad_opt_share_station" name="text"/>
+        <string locid="txt_irad_opt_share" name="text"/>
     </object>
     <object name="songrecg_act" type="HbAction">
         <string locid="txt_irad_opt_identify_song" name="text"/>
@@ -61,12 +61,7 @@
                 <linearitem itemname="station_name"/>
             </layout>
         </widget>
-        <widget name="viewToolbar" role="HbView:toolBar" type="HbToolBar">
-            <enums name="orientation" value="Horizontal"/>
-            <ref object="musicstore_act" role="HbToolBar:addAction"/>
-            <ref object="play_stop_act" role="HbToolBar:addAction"/>
-            <ref object="add_2_fav_act" role="HbToolBar:addAction"/>
-            <ref object="detail_act" role="HbToolBar:addAction"/>
+        <widget name="viewToolbar" role="HbView:toolBar" type="HbToolBar">            
         </widget>
         <string locid="txt_irad_title_internet_radio" name="title"/>
     </widget>
