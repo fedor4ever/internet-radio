@@ -23,5 +23,4 @@ EXPORTS
 	?SwapPresetsInDbL@CIRFavoritesDb@@QAEXHHHH@Z @ 22  NONAME ; void CIRFavoritesDb::SwapPresetsInDbL(int, int, int, int)
 	?GetAllSortedPresets@CIRFavoritesDb@@QAEABV?$RPointerArray@VCIRPreset@@@@XZ @ 23  NONAME ; class RPointerArray<class CIRPreset> const & CIRFavoritesDb::GetAllSortedPresets(void)
 	?IncreasePlayedTimesL@CIRFavoritesDb@@QAEHABVCIRIsdsPreset@@@Z @ 24  NONAME ; int CIRFavoritesDb::IncreasePlayedTimesL(class CIRIsdsPreset const &)
-	_E32Dll=__E32Dll	; Entry point for emulation
-
+        ?RenamePresetL@CIRFavoritesDb@@QAEHABVCIRIsdsPreset@@ABVTDesC16@@@Z @ 25  NONAME ; int CIRFavoritesDb::RenamePresetL(class CIRIsdsPreset const &, class TDesC16 const &)

@@ -19,9 +19,10 @@
 
 #include "irchannelmodel.h"
 #include "irqisdsdatastructure.h"
+#include "irsearchresultdb.h"
 
 IrChannelModel::IrChannelModel(QObject *aParent): QAbstractListModel(aParent)
-                                                , iChannelList(NULL)
+                                                , iChannelList(NULL),iDB(NULL)
 {
     iStationLogo = new HbIcon("qtg_large_internet_radio");   
 }
@@ -34,6 +35,12 @@ IrChannelModel::~IrChannelModel()
     iStationLogo = NULL;
     
     clearAndDestroyLogos();
+
+    if( iDB )
+    {
+        delete iDB;
+        iDB = NULL;
+    }
 }
 
 int IrChannelModel::rowCount(const QModelIndex &aParent) const
@@ -123,6 +130,47 @@ void IrChannelModel::updateData(QList<IRQChannelItem*> *aPushItemsList)
     clearAndDestroyLogos();
     
     emit dataAvailable();
+}
+
+void IrChannelModel::initWithCache()
+{
+    if( NULL == iDB )
+    {
+        iDB = new IRSearchResultDB();
+    }
+    
+    QList<IRQChannelItem*> *channelList = iDB->getCahcedChannelList();
+   
+    if( NULL == channelList )
+    {
+        //some error happens
+        return;
+    }
+    
+    clearAndDestroyItems();
+    clearAndDestroyLogos();
+    iChannelList = channelList;    
+}
+
+void IrChannelModel::save2Cache()
+{
+    if( NULL == iChannelList )
+    {
+        return;
+    }
+    
+    //ignore the return value   
+    iDB->cacheChannelList(iChannelList);
+}
+
+IRQChannelItem * IrChannelModel::getChannelItemByIndex(int aIndex)
+{
+    if( aIndex < 0 || aIndex >= iChannelList->count() )
+    {
+        return NULL;
+    }
+    
+    return iChannelList->at(aIndex);
 }
 
 void IrChannelModel::clearAndDestroyLogos()

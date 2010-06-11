@@ -299,16 +299,20 @@ public:
     
     IMPORT_C void setArtistName(const QString& aArtist);
     IMPORT_C const QString& getArtistName()const;
-    
+
+    IMPORT_C void setStationName(const QString& aStationName);
+    IMPORT_C const QString& getStationName()const;
+
     IMPORT_C void setMusicshopStatus(const QString& aStatus);
     IMPORT_C const QString& getMusicshopStatus()const;
     
-    IMPORT_C void setAllInfo(const QString& aName, const QString& aArtist, const QString& aStatus);
+    IMPORT_C void setAllInfo(const QString& aName, const QString& aArtist, const QString& aStationName, const QString& aStatus);
     
 private:
     
     QString iSongName;
     QString iSongArtist;
+    QString iStationName;
     QString iMusicshopStatus;
 
 };

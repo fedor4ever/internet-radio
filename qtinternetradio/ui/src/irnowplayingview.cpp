@@ -20,6 +20,12 @@
 #include <hblabel.h>
 #include <hbnotificationdialog.h>
 
+#ifdef NOWPLAYING_VIEW_OPTION_B
+#include <hbframedrawer.h>
+#include <hbframeitem.h>
+#endif
+
+
 #include "irviewmanager.h"
 #include "irapplication.h"
 #include "irplaycontroller.h"
@@ -51,6 +57,10 @@ static const QString KDefaultStationLogo("qtg_large_internet_radio");
 static const QString KPlayButtonIcon("qtg_mono_play");
 static const QString KStopButtonIcon("qtg_mono_stop");
 
+#ifdef NOWPLAYING_VIEW_OPTION_B
+static const QString KLcdGraphics("qtg_fr_lcd");
+#endif
+
 /*
  * Description : constructor
  */
@@ -58,6 +68,7 @@ IRNowPlayingView::IRNowPlayingView(IRApplication* aApplication, TIRViewId aViewI
     IRBaseView(aApplication, aViewId),
     iStatisticsReporter(NULL),
     iNetworkController(NULL),
+    iStationShare(NULL),
     iPlayStopAction(NULL),
     iLaunchActionNeeded(false),
     iLogoDownloadState(EIdle),    
@@ -99,6 +110,8 @@ IRNowPlayingView::~IRNowPlayingView()
     {
         iStatisticsReporter->closeInstance();
     }
+    
+    delete iStationShare;        
 }
 
 
@@ -186,6 +199,17 @@ void IRNowPlayingView::initWidget()
     iStationName->setPlainText("");
     iSongName->setPlainText("");
     iArtistName->setPlainText("");    
+    
+#ifdef NOWPLAYING_VIEW_OPTION_B
+	HbWidget * viewContainer = qobject_cast<HbWidget *> (iLoader.findObject(VIEW_CONTAINER));
+    HbFrameDrawer* drawer = new HbFrameDrawer(KLcdGraphics, HbFrameDrawer::NinePieces);
+    HbFrameItem* backgroundItem = new HbFrameItem(drawer, viewContainer);
+    if (backgroundItem)
+    {
+        viewContainer->setBackgroundItem(backgroundItem);
+    }
+#endif
+    
 #ifdef ADV_ENABLED
     iAdvImage = qobject_cast<HbLabel *> (iLoader.findObject( NOW_PLAYING_VIEW_OBJECT_ADVERTISEMENT_IMAGE));
     iAdvImage->setIcon(HbIcon(KDefaultStationLogo));
@@ -735,8 +759,11 @@ void IRNowPlayingView::handleGoToStationAction()
 
 void IRNowPlayingView::handleShareStationAction()
 {
-    IRStationShare stationShare;
-    stationShare.shareStations(*iPlayController->getNowPlayingPreset());
+    if (NULL == iStationShare)
+    {
+        iStationShare = new IRStationShare();
+    }
+    iStationShare->shareStations(*iPlayController->getNowPlayingPreset());
 }
 
 void IRNowPlayingView::handleSettingAction()

@@ -344,11 +344,20 @@ EXPORT_C void IRQSongInfo::setArtistName(const QString& aArtist)
     iSongArtist = aArtist;
 }
 
+EXPORT_C void IRQSongInfo::setStationName(const QString& aStationName)
+{
+    iStationName = aStationName;
+}
+
 EXPORT_C const QString& IRQSongInfo::getArtistName() const
 {
     return iSongArtist;
 }
 
+EXPORT_C const QString& IRQSongInfo::getStationName() const
+{
+    return iStationName;
+}
 EXPORT_C void IRQSongInfo::setMusicshopStatus(const QString& aStatus)
 {
     iMusicshopStatus = aStatus;
@@ -359,11 +368,12 @@ EXPORT_C const QString& IRQSongInfo::getMusicshopStatus() const
     return iMusicshopStatus;
 }
 
-EXPORT_C void IRQSongInfo::setAllInfo(const QString& aName, const QString& aArtist, const QString& aStatus)
+EXPORT_C void IRQSongInfo::setAllInfo(const QString& aName, const QString& aArtist, const QString& aStationName, const QString& aStatus)
 {
     iSongName =   aName;
     iSongArtist = aArtist;
-    iMusicshopStatus = aStatus;    
+    iStationName = aStationName;
+    iMusicshopStatus = aStatus;
 }
 
 

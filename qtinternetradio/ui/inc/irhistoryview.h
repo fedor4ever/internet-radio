@@ -39,16 +39,12 @@ protected:
    
 private slots:
     void clearAllList();
-    void presetResponse(IRQPreset *aPreset);
-    void operationException(IRQError aError);
     void networkRequestNotified(IRQNetworkEvent aEvent);
-    void cancelRequest();
     //to start the convertion asynchronously
     void convertAnother();
     void presetLogoDownload(IRQPreset* aPreset);
     void presetLogoDownloadError();
     void modelChanged();
-    void gotoSongHistory();
     
     void actionClicked(HbAction *aAction);
     

@@ -110,6 +110,7 @@ public:
 	 */
 	 TBool AddToSongHistoryDb2L( const TDesC& aSongName,
 	                             const TDesC& aArtistName, 	                                
+                                 const TDesC& aChannelName,
 	                             const TDesC& aMusicFlag);
 
 
@@ -183,7 +184,6 @@ public:
 	* Updates the song history DB when there is a channel change in the isds.
 	*/
     TInt UpdateSongHistoryDbL( TInt aChannelId,
-    	                      const TDesC& aChannelName, 
 						      const TDesC& aChannelUrl,
 						      const TDesC& aImageUrl,
                               const TDesC& aGenreName,
@@ -195,7 +195,7 @@ public:
      * search if a record already exists in database. If yes, delete it.
      */
     void SearchAndDeleteRecordL(const TDesC& aChannelName, const TDesC& aChannelUrl,
-                                TInt aChannelType);
+                                TInt aChannelType, TInt aPresetId);
     
     /*
      * delete a recorder by the index, for station history database
@@ -242,9 +242,9 @@ private:
 	* ---------------------------------------------------------------------------
 	* SongHistoryTable
 	*---------------------------
-	*| SongName | ArtistName | MusicStatusFlag
+	*| SongName | ArtistName | ChannelName | MusicStatusFlag
 	*---------------------------
-	*|EDbColText| EDbColText | EDbColText |
+	*|EDbColText| EDbColText | EDbColText  | EDbColText |
 	*----------------------------------------------------------------------------
 	*/
 	void CreateSongHistoryTables2L();

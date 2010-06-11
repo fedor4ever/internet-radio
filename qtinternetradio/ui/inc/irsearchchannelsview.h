@@ -50,15 +50,10 @@ private: //functions
     void connectIsdsClient();
     void disconnectIsdsClient();
     
-    void switch2SearchingState();
-    void switch2InitState();    
-    void switch2SearchedState(); 
-    void startSearchingAnimation();
-    void stopSearchingAnimation();    
-    void loadLayout();   
-    void handleItemSelected();
-    void createSearchingDialog();
-    void closeSearchingDialog();
+    void switch2LoadingState();
+    void switch2InitState();  
+    void loadLayout();
+    void handleItemSelected();    
     void normalInit();
     void initMenu();
     void lazyInit();
@@ -79,16 +74,15 @@ private slots: //slots
     void convertAnother();
     void presetLogoDownload(IRQPreset* aPreset);
     void presetLogoDownloadError();
-
-    
+    //this slot is used to back to previouse view or minimize the search widget
+    void minimizeSearchPanel();   
     
 private: // members       
     
     enum IRQSearchState
     {
         ESearch_init = 0,
-        ESearch_Searching,
-        ESearch_Searched
+        ESearch_Loading //loading means searching or buffering.
     };    
     
     HbListView          *iListView;
@@ -98,7 +92,6 @@ private: // members
     HbSearchPanel       *iSearchPanelWidget;
     IRQSearchState       iSearchState;
     IrChannelModel      *iChannelModel;
-    HbProgressDialog    *iSearchingDialog;    
     //the object is created by IsdsClient, but application is responsible for free
     IRQPreset           *iPreset;
     IRQPreset           *iLogoPreset;     

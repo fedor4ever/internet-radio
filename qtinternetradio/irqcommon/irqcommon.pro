@@ -30,7 +30,8 @@ LIBS += -lirdatastructures \
         -lws32 \
         -lapgrfx \
         -lxqsettingsmanager \
-        -lapmime
+        -lapmime \
+        -lpsclient100
         
 symbian{
   TARGET.UID3 = 0xef3c4675

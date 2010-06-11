@@ -199,6 +199,8 @@ public:
      */
 	IMPORT_C TInt IncreasePlayedTimesL(const CIRIsdsPreset &aIsdsPreset);
 	
+	IMPORT_C TInt RenamePresetL(const CIRIsdsPreset &aIsdsPreset, const TDesC &aNewName);
+	
 	private:
 
     /**CIRFavoritesDb::HandlePresetChangedL()

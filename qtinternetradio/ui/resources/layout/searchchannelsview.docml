@@ -9,7 +9,7 @@
                 <sizepolicy horizontalPolicy="Expanding" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
                 <sizehint height="expr(var(hb-param-text-height-secondary)+2*var(hb-param-margin-gene-middle-vertical))" type="PREFERRED"/>
                 <fontspec name="fontSpec" role="Secondary" textheight="var(hb-param-text-height-secondary)"/>
-                <bool name="visible" value="FALSE"/>
+                <bool name="visible" value="TRUE"/>
             </widget>
             
             <widget name="search_listview" type="HbListView">                 
@@ -22,52 +22,15 @@
             <real name="z" value="0"/>
             <layout orientation="Vertical" type="linear">
                 <contentsmargins bottom="0un" left="0un" right="0un" top="0un"/>
-                <stretchitem stretchfactor="1"/>
+                <linearitem itemname="headingText" spacing="0un"/>
+                <linearitem itemname="search_listview" spacing="0un"/>                
                 <linearitem itemname="search_panel" spacing="0un"/>
             </layout>
         </widget> 
         <string locid="txt_irad_title_internet_radio" name="title"/>
     </widget>
     
-    <section name="section_without_listview">
-        <widget name="headingText" type="HbGroupBox">
-            <bool name="visible" value="FALSE"/>
-        </widget>
-        
-        <widget name="search_listview" type="HbListView">
-            <bool name="visible" value="FALSE"/>
-        </widget>
-        
-        <widget name="content" role="HbView:widget" type="HbWidget">             
-            <layout orientation="Vertical" type="linear">               
-                <stretchitem stretchfactor="1"/>
-                <linearitem itemname="search_panel" spacing="0un"/>
-            </layout>
-        </widget> 
-    </section>
-    
-    <section name="section_with_listview">
-        <widget name="headingText" type="HbGroupBox">
-             <bool name="visible" value="TRUE"/>
-        </widget>
-        
-        <widget name="search_listview" type="HbListView">
-            <bool name="visible" value="TRUE"/>
-        </widget>
-                    
-        <widget name="content" role="HbView:widget" type="HbWidget">             
-            <layout orientation="Vertical" type="linear">
-                <contentsmargins bottom="0un" left="0un" right="0un" top="0un"/>
-                <linearitem itemname="headingText" spacing="0un"/>
-                <linearitem itemname="search_listview" spacing="0un"/>
-                <stretchitem stretchfactor="1"/>                 
-                <linearitem itemname="search_panel" spacing="0un"/>
-            </layout>
-        </widget>        
-    </section>
-    
     <metadata activeUIState="ui_state_listview" display="NHD portrait" unit="un">
         <uistate name="Common ui state" sections="#common"/>       
-        <uistate name="ui_state_listview" sections="#common section_without_listview section_with_listview"/>        
     </metadata>
 </hbdocument>

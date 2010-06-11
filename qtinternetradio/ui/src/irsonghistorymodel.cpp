@@ -77,15 +77,16 @@ QVariant IRSongHistoryModel::data(const QModelIndex &aIndex, int aRole) const
             songName = hbTrId("txt_irad_list_unknown_song");
         }
         
+        QString stationName = mSongHistoryList.at(row)->getStationName().trimmed();       
         if (Qt::Vertical == mOrientation)
         {
-            list.append("<" + artistName + ">");
-            list.append("<" + songName + ">");
+            list.append(artistName);
+            list.append(songName);
         }
         else
         {
-            list.append("<" + artistName +"> - <" + songName + ">");
-            list.append("<Not ready>");
+            list.append(artistName + " - " + songName);
+            list.append(stationName);
         }
         return list;
     }

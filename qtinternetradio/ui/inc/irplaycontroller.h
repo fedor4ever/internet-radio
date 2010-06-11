@@ -37,6 +37,11 @@ class IRPlayController : public QObject
 {
     Q_OBJECT
 
+    
+public slots:    
+    // slots connected with own functions
+    void cancelBuffering();
+    
 public:
     explicit IRPlayController(IRApplication* aApplication);
     ~IRPlayController();
@@ -95,8 +100,7 @@ private slots:
     void fetchVolume(int &aVolume);
     void handleMetaDataReceived(IRQMetaData& aIRmetaData);
 
-    // slots connected with own functions
-    void cancelBuffering();
+    // slots connected with own functions  
     void handleError();
 
 private:
@@ -120,6 +124,8 @@ private:
     bool iGetServerResult;
     
     IRQPreset *iNowPlayingPreset;
+    //reserve the info in nowplay view
+    IRQPreset *iNowPlayingPresetBackup;
     // reference of IRQMediaPlayer meta data
     IRQMetaData *iMetaData;
     IRQSongHistoryEngine *iSongHistoryEngine;
@@ -157,6 +163,8 @@ private:
     // the bitrate from real station feedback.
     int iRealBitrate;
     QString iLastPlayedUrl;
+    //reserve the info in nowplay view
+    QString iLastPlayedUrlBackup; 
     // To handle error async
     IRQError iLastError;
     

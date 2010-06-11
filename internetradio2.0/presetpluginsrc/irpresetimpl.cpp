@@ -18,13 +18,11 @@
 #include <s32strm.h>
 
 #include "irchannelserverurl.h"
-#include "irchannelserverurlimpl.h"
 #include "irdebug.h"
 #include "irpresetimpl.h"
 #include "irisdspreset.h"
 
 const TInt KUrlArrayMaxLength = 128;
-const TInt KUrlForBitrateMaxLength = 128;
 
 // ======== MEMBER FUNCTIONS ========
 
@@ -69,9 +67,9 @@ void CIRPresetImpl::ConstructL(TAny* aParams)
 	IRLOG_DEBUG( "CIRPresetImpl::ConstructL" );
 	BaseConstructL(aParams);
 	iUrlArray=
-		new (ELeave) CArrayPtrFlat<CIRChannelServerUrlImpl>(
+		new (ELeave) CArrayPtrFlat<CIRChannelServerUrl>(
 		KUrlArrayMaxLength);
-	iUrlForBitrate=new (ELeave) CDesCArrayFlat(KUrlForBitrateMaxLength);
+
 	IRLOG_DEBUG( "CIRPresetImpl::ConstructL - Exiting." );
 	}
 
@@ -97,7 +95,7 @@ CIRPresetImpl::~CIRPresetImpl()
 	iGenereName.Close();
 	iGenereId.Close();
 	iMusicStoreStatus.Close();
-	delete iUrlForBitrate;
+
 	if (iUrlArray)
 		{
 		iUrlArray->ResetAndDestroy();
@@ -337,7 +335,7 @@ void CIRPresetImpl::SetUrlL(const TDesC &aServerName,const TDesC &aUrl,
 	const TDesC &aBitrate)
 	{
 	IRLOG_DEBUG( "CIRPresetImpl::SetUrlL" );
-	CIRChannelServerUrlImpl* hold=CIRChannelServerUrlImpl::NewL();
+	CIRChannelServerUrl* hold=CIRChannelServerUrl::NewL();
 	hold->SetServerName(aServerName);
 	hold->SetServerUrl(aUrl);
 	TLex conv(aBitrate);
@@ -361,7 +359,7 @@ void CIRPresetImpl::SetUrlL(const TDesC &aServerName,const TDesC &aUrl,
 	TInt aBitrate)
 	{
 	IRLOG_DEBUG( "CIRPresetImpl::SetUrlL(const TDesC &aServerName,const TDesC &aUrl,TInt aBitrate)" );
-	CIRChannelServerUrlImpl* hold=CIRChannelServerUrlImpl::NewL();
+	CIRChannelServerUrl* hold=CIRChannelServerUrl::NewL();
 	hold->SetServerName(aServerName);
 	hold->SetServerUrl(aUrl);
 	hold->SetBitRate(aBitrate);
@@ -483,6 +481,11 @@ const TDesC& CIRPresetImpl::GetAdvertisementUrl() const
 	return iAdvertisementUrl;
 	}
 
+const TDesC& CIRPresetImpl::GetAdvertisementInUse() const
+{
+    return iAdvertisementInUse;
+}
+
 // ---------------------------------------------------------------------------
 // CIRPresetImpl::GetImgUrl()
 // Function to get iImgUrl
@@ -503,6 +506,12 @@ TInt CIRPresetImpl::GetUrlCount() const
 	return iChannelUrlCount;
 	}
 
+CIRChannelServerUrl& CIRPresetImpl::GetUrl(TInt aIndex) const
+{
+    ASSERT( aIndex >= 0 && aIndex < iUrlArray->Count() ); 
+    return ((*iUrlArray->At(aIndex)));
+}
+
 /*
  * get the channel url at specified position
  *
@@ -511,17 +520,6 @@ const TDesC& CIRPresetImpl::GetChannelUrlAt(TInt aIndex) const
 {
     return iUrlArray->At(aIndex)->GetServerUrl();
 }
-
-// ---------------------------------------------------------------------------
-// CIRPresetImpl::GetUrl()
-// Function to get iLanguageCode
-// ---------------------------------------------------------------------------
-//
-CIRChannelServerUrlImpl& CIRPresetImpl::GetUrl(TInt aInt)const
-	{
-	ASSERT( aInt >= 0 && aInt < iUrlArray->Count() );
-	return ((*iUrlArray->At(aInt)));
-	}
 
 // ---------------------------------------------------------------------------
 // CIRPresetImpl::GetDescription()
@@ -580,7 +578,6 @@ CIRPresetImpl& CIRPresetImpl::operator=(const CIRPresetImpl& aPreset)
 		return *this;
 		}
 	//copy data members
-	iUniqId = aPreset.iUniqId;
  	iPresetId = aPreset.iPresetId;
 
 	TRAP_IGNORE(SetNameL(aPreset.Name()))
@@ -666,7 +663,6 @@ void CIRPresetImpl::ExternalizeL(RWriteStream& aWriteStream)const
 	{
 	IRLOG_DEBUG( "CIRPresetImpl::ExternalizeL" );
 //! externalize TInts s
-	aWriteStream.WriteUint32L(iUniqId);
 	aWriteStream.WriteInt32L(iPresetId);
 	aWriteStream.WriteInt32L(iType);
 	aWriteStream.WriteInt32L(iChannelUrlCount);
@@ -854,6 +850,8 @@ void CIRPresetImpl::ExternalizeL(RWriteStream& aWriteStream)const
 	//added by Peter on June 23rd, 2009
 	aWriteStream.WriteInt32L(iPlayedTimes);
 	
+	aWriteStream.WriteInt32L(iRenamed);
+	
 	IRLOG_DEBUG( "CIRPresetImpl::ExternalizeL - Exiting." );
 	}
 
@@ -868,7 +866,6 @@ void CIRPresetImpl::ExternalizeL(RWriteStream& aWriteStream)const
 	{
 	IRLOG_DEBUG( "CIRPresetImpl::InternalizeL" );
 	//! Internalize TInts s
-	iUniqId = aReadStream.ReadUint32L();
 	iPresetId=aReadStream.ReadInt32L();
 	iType=aReadStream.ReadInt32L();
 	iChannelUrlCount=aReadStream.ReadInt32L();
@@ -978,16 +975,19 @@ void CIRPresetImpl::ExternalizeL(RWriteStream& aWriteStream)const
 		}
 
 	//internalizing the preset data
-	CIRChannelServerUrlImpl *url = NULL;
+	CIRChannelServerUrl *url = NULL;
 	for(TInt cnt=0;cnt<iChannelUrlCount;cnt++)
 		{
-		url = CIRChannelServerUrlImpl::NewLC();
+		url = CIRChannelServerUrl::NewLC();
 		url->InternalizeL(aReadStream);
 		iUrlArray->AppendL(url);
 	    CleanupStack::Pop(url);
 		}
 	
 	iPlayedTimes = aReadStream.ReadInt32L();
+	
+	iRenamed = aReadStream.ReadInt32L();
+	
 	IRLOG_DEBUG( "CIRPresetImpl::InternalizeL - Exiting." );
 	}
 
@@ -1001,7 +1001,6 @@ void CIRPresetImpl::ExternalizeL(RWriteStream& aWriteStream)const
 void CIRPresetImpl::CIRIsdsPresetToCIRPresetImpl(const CIRIsdsPreset& aIsdsPreset)
  	{
 	IRLOG_DEBUG( "CIRPresetImpl::CIRIsdsPresetToCIRPresetImpl" );
-	iUniqId = aIsdsPreset.UniqId();
  	iPresetId = aIsdsPreset.GetId();
 	iChannelUrlCount = aIsdsPreset.GetUrlCount();
 	iType = aIsdsPreset.GetChannelType();  //0 for user defined 1 for isds type.
@@ -1075,7 +1074,6 @@ void CIRPresetImpl::UserDefinedPresetToCIRPresetImpl(const TDesC& aName,
 void CIRPresetImpl::CopyPresetData(CIRIsdsPreset& aIsdsPreset) const
 	{
 	IRLOG_DEBUG( "CIRPresetImpl::CopyPresetData" );
-	aIsdsPreset.SetUniqId( this->Id() );
 	aIsdsPreset.SetId( iPresetId );
 	aIsdsPreset.SetUrlCount( iChannelUrlCount );
 	aIsdsPreset.SetChannelType( iType );  //0 for user defined 1 for isds type.
@@ -1135,21 +1133,6 @@ RArray<TInt>& CIRPresetImpl::GetAvailableBitrates()
 	return iBitrateArray;
 	}
 
-//----------------------------------------------------------------------------
-// TInt UniqId()
-//----------------------------------------------------------------------------
-TUint32 CIRPresetImpl::UniqId()
-	{
-	return iUniqId;
-	}
-//----------------------------------------------------------------------------
-//  SetUniqId(TInt)
-//----------------------------------------------------------------------------
-void CIRPresetImpl::SetUniqId( TUint32 aId)
-	{
-	iUniqId = aId;
-	}
-
 /*
  * Returns the played times of the channel
  */
@@ -1164,4 +1147,14 @@ TInt CIRPresetImpl::GetPlayedTimes() const
 void CIRPresetImpl::SetPlayedTimes(TInt aPlayedTimes)
 {
     iPlayedTimes = aPlayedTimes;
+}
+
+TBool CIRPresetImpl::GetRenamed() const
+{
+    return iRenamed;
+}
+
+void CIRPresetImpl::SetRenamed()
+{
+    iRenamed = ETrue;
 }

@@ -87,7 +87,7 @@ void IRStationsView::loadCategoryStations(int aIndex, const QString &aHeadingTex
     
     if (!cache)
     {
-        iApplication->createLoadingDialog(this, SLOT(cancelRequest()));
+        iApplication->startLoadingAnimation(this, SLOT(cancelRequest()));
     }
 }
 
@@ -178,7 +178,7 @@ void IRStationsView::handleItemSelected()
                 
                 //once an item is selected, we show a dialog to prevent user from clicking the
                 //item again
-                iApplication->createLoadingDialog(this, SLOT(cancelRequest()));
+                iApplication->startLoadingAnimation(this, SLOT(cancelRequest()));
                 
                 if (iIsdsClient->isdsIsChannelBanner())
                 {
@@ -218,7 +218,7 @@ void IRStationsView::dataChanged()
     }
 
     getViewManager()->activateView(this);
-    iApplication->closeLoadingDialog();
+    iApplication->stopLoadingAnimation();
 }
 
 /*
@@ -248,7 +248,7 @@ void IRStationsView::presetResponse(IRQPreset *aPreset)
  */
 void IRStationsView::operationException(IRQError aError)
 {
-    iApplication->closeLoadingDialog();
+    iApplication->stopLoadingAnimation();
 
     disconnectIsdsClient();
     QString errorString = hbTrId("txt_irad_info_failed_to_connect");
@@ -277,7 +277,7 @@ void IRStationsView::cancelRequest()
     }    
     iIsdsClient->isdsCancelRequest();
     disconnectIsdsClient();
-    iApplication->closeLoadingDialog();
+    iApplication->stopLoadingAnimation();
 }
 
 void IRStationsView::startConvert(int aIndex)

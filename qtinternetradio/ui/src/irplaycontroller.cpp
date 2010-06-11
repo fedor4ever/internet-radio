@@ -89,6 +89,7 @@ IRPlayController::IRPlayController(IRApplication* aApplication) :
     iConnectedFrom(EIRQIsds),
     iGetServerResult(false),
     iNowPlayingPreset(new IRQPreset()),
+    iNowPlayingPresetBackup(new IRQPreset()),
     iMetaData(NULL),
     iSongHistoryEngine(IRQSongHistoryEngine::openInstance()),
     iPlayState(EIdle),
@@ -114,6 +115,8 @@ IRPlayController::~IRPlayController()
 
     delete iNowPlayingPreset;
     iNowPlayingPreset = NULL;
+    delete iNowPlayingPresetBackup;
+    iNowPlayingPresetBackup = NULL;
 
     delete iUrlArray;
     iUrlArray = NULL;
@@ -170,7 +173,11 @@ void IRPlayController::connectToChannel(IRQPreset *aPreset, IRQConnectedFrom aCo
 
         // get URL to play
         iTryingBitrate = selectedBitRate;
+        
+        //reserve the info in nowplay view
+        *iNowPlayingPresetBackup = *iNowPlayingPreset;
         *iNowPlayingPreset = *aPreset;
+        
         delete iUrlArray;
         iUrlArray = NULL;
         iUrlArray = iNowPlayingPreset->getURLsForBitrate(selectedBitRate);
@@ -191,6 +198,8 @@ void IRPlayController::connectToChannel(IRQPreset *aPreset, IRQConnectedFrom aCo
                 emit initializeLogo();
             }
 #endif
+            //reserve the info in nowplay view
+            iLastPlayedUrlBackup = iLastPlayedUrl;
             iLastPlayedUrl = url;
             iResuming = false;
             doPlay(url);
@@ -419,6 +428,11 @@ void IRPlayController::handleError()
         // if there's NO other URL to try, show warning.
         if (iNowPlayingPreset->getChannelURLCount() == 1)
         {
+            //here recover info in nowplay view, only for cases:
+            //1/a channel has one url. 2/ invoked by "go to station" view.
+            //if a channel has more than one url, here can't be reached.
+            iLastPlayedUrl = iLastPlayedUrlBackup;
+            *iNowPlayingPreset = *iNowPlayingPresetBackup;
 		    stop(EIRQNoConnectionToServer);
             break;
         }
@@ -449,7 +463,7 @@ void IRPlayController::handleError()
         
     case EIRQPlayerErrorAudioDeviceLost:
         //this is a temporary way to handle the plug-out event
-        iApplication->closeLoadingDialog();
+        iApplication->stopLoadingAnimation();
 		stop(EIRQCallIsActivated);
         return;
         
@@ -459,8 +473,7 @@ void IRPlayController::handleError()
         break;
     }
 
-    iApplication->closeLoadingDialog();
-
+    iApplication->stopLoadingAnimation();
     createNote();
     qDebug("IRPlayController::handleError(), Exiting");
 }
@@ -475,7 +488,7 @@ void IRPlayController::updateProgress(int aProgress)
 {
     if (100 == aProgress)
     {
-        iApplication->closeLoadingDialog();
+        iApplication->stopLoadingAnimation();
 
         //updateProgress(100) sometimes can be called more than one time, to improve performance,
         //we only need to do the following work once.
@@ -532,7 +545,7 @@ void IRPlayController::handleMetaDataReceived(IRQMetaData& aIRmetaData)
         //when we are play the musicplayer and get the metadata from lower layer, we save the 
         //song's metadata into the db.  After we save it to db, we emit the next signal to notify the UI         
         iSongHistoryEngine->handleSongMetaDataReceived(*iMetaData,
-                iNowPlayingPreset->musicStoreStatus);  
+                *iNowPlayingPreset);  
     }   
 
     if (EPlaying == iPlayState)
@@ -549,7 +562,7 @@ void IRPlayController::handleMetaDataReceived(IRQMetaData& aIRmetaData)
 void IRPlayController::cancelBuffering()
 {
     stop(EIRQUserTerminated);
-    iApplication->closeLoadingDialog();
+    iApplication->stopLoadingAnimation();
 }
 
 //                                       private functions
@@ -658,7 +671,7 @@ void IRPlayController::doPlay(const QString& aUrl)
     iMediaPlayer->playStation(aUrl, apId);
     iPlayState = EBuffering;
     startSession();
-    iApplication->createLoadingDialog(this, SLOT(cancelBuffering()));
+    iApplication->startLoadingAnimation(this, SLOT(cancelBuffering()));
 }
 
 /*

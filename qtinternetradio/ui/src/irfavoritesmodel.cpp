@@ -305,3 +305,11 @@ bool IRFavoritesModel::deleteMultiFavorites(const QModelIndexList &aIndexList)
     return retVal;    
 }
 
+void IRFavoritesModel::updateFavoriteName(int aIndex, const QString &aNewName)
+{
+    if (aIndex >= 0 && aIndex < iPresetsList->count())
+    {
+        iPresetsList->at(aIndex)->name = aNewName;
+        emit dataChanged(index(aIndex), index(aIndex));
+    }
+}

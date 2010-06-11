@@ -1,121 +1,114 @@
 EXPORTS
-	??0CIRIsdsPreset@@QAE@XZ @ 1  NONAME ; CIRIsdsPreset::CIRIsdsPreset(void)
-	??4CIRChannelServerUrl@@QAEAAV0@ABV0@@Z @ 2  NONAME ; class CIRChannelServerUrl & CIRChannelServerUrl::operator=(class CIRChannelServerUrl const &)
-	??4CIRIsdsPreset@@QAEAAV0@ABV0@@Z @ 3  NONAME ; class CIRIsdsPreset & CIRIsdsPreset::operator=(class CIRIsdsPreset const &)
-	??4CIRLastPlayedSongs@@QAEAAV0@ABV0@@Z @ 4  NONAME ; class CIRLastPlayedSongs & CIRLastPlayedSongs::operator=(class CIRLastPlayedSongs const &)
-	?ConstructL@CIRAdvertisement@@QBEXXZ @ 5  NONAME ; void CIRAdvertisement::ConstructL(void) const
-	?ConstructL@CIROTAUpdate@@QAEXXZ @ 6  NONAME ; void CIROTAUpdate::ConstructL(void)
-	?ExternalizeL@CIRBrowseCatagoryItems@@QBEXAAVRWriteStream@@@Z @ 7  NONAME ; void CIRBrowseCatagoryItems::ExternalizeL(class RWriteStream &) const
-	?ExternalizeL@CIRBrowseChannelItems@@QBEXAAVRWriteStream@@@Z @ 8  NONAME ; void CIRBrowseChannelItems::ExternalizeL(class RWriteStream &) const
-	?ExternalizeL@CIRChannelServerUrl@@QAEXAAVRWriteStream@@@Z @ 9  NONAME ; void CIRChannelServerUrl::ExternalizeL(class RWriteStream &)
-	?ExternalizeL@CIRIsdsPreset@@QAEXAAVRWriteStream@@@Z @ 10  NONAME ; void CIRIsdsPreset::ExternalizeL(class RWriteStream &)
-	?ExternalizeL@CIRLastPlayedSongs@@QAEXAAVRWriteStream@@@Z @ 11  NONAME ; void CIRLastPlayedSongs::ExternalizeL(class RWriteStream &)
-	?ExternalizeL@CIROTAUpdate@@QBEXAAVRWriteStream@@@Z @ 12  NONAME ; void CIROTAUpdate::ExternalizeL(class RWriteStream &) const
-	?GetAdvertisementInUse@CIRIsdsPreset@@QBEABVTDesC16@@XZ @ 13  NONAME ; class TDesC16 const & CIRIsdsPreset::GetAdvertisementInUse(void) const
-	?GetAdvertisementUrl@CIRIsdsPreset@@QBEABVTDesC16@@XZ @ 14  NONAME ; class TDesC16 const & CIRIsdsPreset::GetAdvertisementUrl(void) const
-	?GetArtistName@CIRLastPlayedSongs@@QAEAAVTDesC16@@XZ @ 15  NONAME ; class TDesC16 & CIRLastPlayedSongs::GetArtistName(void)
-	?GetAvailableBitrates@CIRIsdsPreset@@QBEHAAV?$RArray@H@@@Z @ 16  NONAME ; int CIRIsdsPreset::GetAvailableBitrates(class RArray<int> &) const
-	?GetBitRate@CIRChannelServerUrl@@QBEHXZ @ 17  NONAME ; int CIRChannelServerUrl::GetBitRate(void) const
-	?GetChannelBitrateL@CIRIsdsPreset@@QAEHH@Z @ 18  NONAME ; int CIRIsdsPreset::GetChannelBitrateL(int)
-	?GetChannelType@CIRIsdsPreset@@QBEHXZ @ 19  NONAME ; int CIRIsdsPreset::GetChannelType(void) const
-	?GetChannelUrlAtL@CIRIsdsPreset@@QBEABVTDesC16@@H@Z @ 20  NONAME ; class TDesC16 const & CIRIsdsPreset::GetChannelUrlAtL(int) const
-	?GetCountryId@CIRIsdsPreset@@QBEABVTDesC16@@XZ @ 21  NONAME ; class TDesC16 const & CIRIsdsPreset::GetCountryId(void) const
-	?GetCountryName@CIRIsdsPreset@@QBEABVTDesC16@@XZ @ 22  NONAME ; class TDesC16 const & CIRIsdsPreset::GetCountryName(void) const
-	?GetDescription@CIRIsdsPreset@@QBEABVTDesC16@@XZ @ 23  NONAME ; class TDesC16 const & CIRIsdsPreset::GetDescription(void) const
-	?GetExactUrlForBitrateL@CIRIsdsPreset@@QAEPAVCDesC16ArrayFlat@@H@Z @ 24  NONAME ; class CDesC16ArrayFlat * CIRIsdsPreset::GetExactUrlForBitrateL(int)
-	?GetGenreId@CIRIsdsPreset@@QBEABVTDesC16@@XZ @ 25  NONAME ; class TDesC16 const & CIRIsdsPreset::GetGenreId(void) const
-	?GetGenreName@CIRIsdsPreset@@QBEABVTDesC16@@XZ @ 26  NONAME ; class TDesC16 const & CIRIsdsPreset::GetGenreName(void) const
-	?GetId@CIRIsdsPreset@@QBEHXZ @ 27  NONAME ; int CIRIsdsPreset::GetId(void) const
-	?GetImgUrl@CIRIsdsPreset@@QBEABVTDesC16@@XZ @ 28  NONAME ; class TDesC16 const & CIRIsdsPreset::GetImgUrl(void) const
-	?GetIndex@CIRIsdsPreset@@QBEHXZ @ 29  NONAME ; int CIRIsdsPreset::GetIndex(void) const
-	?GetLangId@CIRIsdsPreset@@QBEABVTDesC16@@XZ @ 30  NONAME ; class TDesC16 const & CIRIsdsPreset::GetLangId(void) const
-	?GetLangName@CIRIsdsPreset@@QBEABVTDesC16@@XZ @ 31  NONAME ; class TDesC16 const & CIRIsdsPreset::GetLangName(void) const
-	?GetLastModifiedTime@CIRIsdsPreset@@QBEABVTDesC16@@XZ @ 32  NONAME ; class TDesC16 const & CIRIsdsPreset::GetLastModifiedTime(void) const
-	?GetLogoData@CIRIsdsPreset@@QBEABVTDesC8@@XZ @ 33  NONAME ; class TDesC8 const & CIRIsdsPreset::GetLogoData(void) const
-	?GetMusicStoreStatus@CIRIsdsPreset@@QBEABVTDesC16@@XZ @ 34  NONAME ; class TDesC16 const & CIRIsdsPreset::GetMusicStoreStatus(void) const
-	?GetName@CIRIsdsPreset@@QBEABVTDesC16@@XZ @ 35  NONAME ; class TDesC16 const & CIRIsdsPreset::GetName(void) const
-	?GetServerName@CIRChannelServerUrl@@QBEABVTDesC16@@XZ @ 36  NONAME ; class TDesC16 const & CIRChannelServerUrl::GetServerName(void) const
-	?GetServerUrl@CIRChannelServerUrl@@QBEABVTDesC16@@XZ @ 37  NONAME ; class TDesC16 const & CIRChannelServerUrl::GetServerUrl(void) const
-	?GetShortDescription@CIRIsdsPreset@@QBEABVTDesC16@@XZ @ 38  NONAME ; class TDesC16 const & CIRIsdsPreset::GetShortDescription(void) const
-	?GetSongName@CIRLastPlayedSongs@@QAEAAVTDesC16@@XZ @ 39  NONAME ; class TDesC16 & CIRLastPlayedSongs::GetSongName(void)
-	?GetUrl@CIRIsdsPreset@@QAEAAVCIRChannelServerUrl@@H@Z @ 40  NONAME ; class CIRChannelServerUrl & CIRIsdsPreset::GetUrl(int)
-	?GetUrlCount@CIRIsdsPreset@@QBEHXZ @ 41  NONAME ; int CIRIsdsPreset::GetUrlCount(void) const
-	?GetUrlForBitrateL@CIRIsdsPreset@@QAEPAVCDesC16ArrayFlat@@H@Z @ 42  NONAME ; class CDesC16ArrayFlat * CIRIsdsPreset::GetUrlForBitrateL(int)
-	?InternalizeL@CIRBrowseCatagoryItems@@QAEXAAVRReadStream@@@Z @ 43  NONAME ; void CIRBrowseCatagoryItems::InternalizeL(class RReadStream &)
-	?InternalizeL@CIRBrowseChannelItems@@QAEXAAVRReadStream@@@Z @ 44  NONAME ; void CIRBrowseChannelItems::InternalizeL(class RReadStream &)
-	?InternalizeL@CIRChannelServerUrl@@QAEXAAVRReadStream@@@Z @ 45  NONAME ; void CIRChannelServerUrl::InternalizeL(class RReadStream &)
-	?InternalizeL@CIRIsdsPreset@@QAEXAAVRReadStream@@@Z @ 46  NONAME ; void CIRIsdsPreset::InternalizeL(class RReadStream &)
-	?InternalizeL@CIRLastPlayedSongs@@QAEXAAVRReadStream@@@Z @ 47  NONAME ; void CIRLastPlayedSongs::InternalizeL(class RReadStream &)
-	?InternalizeL@CIROTAUpdate@@QAEXAAVRReadStream@@@Z @ 48  NONAME ; void CIROTAUpdate::InternalizeL(class RReadStream &)
-	?NewL@CIRAdvertisement@@SAPAV1@XZ @ 49  NONAME ; class CIRAdvertisement * CIRAdvertisement::NewL(void)
-	?NewL@CIRBrowseCatagoryItems@@SAPAV1@XZ @ 50  NONAME ; class CIRBrowseCatagoryItems * CIRBrowseCatagoryItems::NewL(void)
-	?NewL@CIRBrowseChannelItems@@SAPAV1@XZ @ 51  NONAME ; class CIRBrowseChannelItems * CIRBrowseChannelItems::NewL(void)
-	?NewL@CIRChannelServerUrl@@SAPAV1@XZ @ 52  NONAME ; class CIRChannelServerUrl * CIRChannelServerUrl::NewL(void)
-	?NewL@CIRIsdsPreset@@SAPAV1@XZ @ 53  NONAME ; class CIRIsdsPreset * CIRIsdsPreset::NewL(void)
-	?NewL@CIRLastPlayedSongs@@SAPAV1@XZ @ 54  NONAME ; class CIRLastPlayedSongs * CIRLastPlayedSongs::NewL(void)
-	?NewL@CIROTAUpdate@@SAPAV1@XZ @ 55  NONAME ; class CIROTAUpdate * CIROTAUpdate::NewL(void)
-	?NewLC@CIRAdvertisement@@SAPAV1@XZ @ 56  NONAME ; class CIRAdvertisement * CIRAdvertisement::NewLC(void)
-	?NewLC@CIRBrowseCatagoryItems@@SAPAV1@XZ @ 57  NONAME ; class CIRBrowseCatagoryItems * CIRBrowseCatagoryItems::NewLC(void)
-	?NewLC@CIRBrowseChannelItems@@SAPAV1@XZ @ 58  NONAME ; class CIRBrowseChannelItems * CIRBrowseChannelItems::NewLC(void)
-	?NewLC@CIRChannelServerUrl@@SAPAV1@XZ @ 59  NONAME ; class CIRChannelServerUrl * CIRChannelServerUrl::NewLC(void)
-	?NewLC@CIRIsdsPreset@@SAPAV1@XZ @ 60  NONAME ; class CIRIsdsPreset * CIRIsdsPreset::NewLC(void)
-	?NewLC@CIRLastPlayedSongs@@SAPAV1@XZ @ 61  NONAME ; class CIRLastPlayedSongs * CIRLastPlayedSongs::NewLC(void)
-	?NewLC@CIROTAUpdate@@SAPAV1@XZ @ 62  NONAME ; class CIROTAUpdate * CIROTAUpdate::NewLC(void)
-	?SetAdvInUse@CIRAdvertisement@@QAEXABVTDesC16@@@Z @ 63  NONAME ; void CIRAdvertisement::SetAdvInUse(class TDesC16 const &)
-	?SetAdvertisementInUse@CIRIsdsPreset@@QAEXABVTDesC16@@@Z @ 64  NONAME ; void CIRIsdsPreset::SetAdvertisementInUse(class TDesC16 const &)
-	?SetAdvertisementUrl@CIRIsdsPreset@@QAEXABVTDesC16@@@Z @ 65  NONAME ; void CIRIsdsPreset::SetAdvertisementUrl(class TDesC16 const &)
-	?SetArtistName@CIRLastPlayedSongs@@QAEXABVTDesC16@@@Z @ 66  NONAME ; void CIRLastPlayedSongs::SetArtistName(class TDesC16 const &)
-	?SetBannerUrl@CIRBrowseCatagoryItems@@QAEXABVTDesC16@@@Z @ 67  NONAME ; void CIRBrowseCatagoryItems::SetBannerUrl(class TDesC16 const &)
-	?SetBannerUrl@CIRBrowseChannelItems@@QAEXABVTDesC16@@@Z @ 68  NONAME ; void CIRBrowseChannelItems::SetBannerUrl(class TDesC16 const &)
-	?SetBitRate@CIRChannelServerUrl@@QAEXH@Z @ 69  NONAME ; void CIRChannelServerUrl::SetBitRate(int)
-	?SetBitrate@CIRBrowseChannelItems@@QAEXABVTDesC16@@00@Z @ 70  NONAME ; void CIRBrowseChannelItems::SetBitrate(class TDesC16 const &, class TDesC16 const &, class TDesC16 const &)
-	?SetBitrate@CIRBrowseChannelItems@@QAEXABVTDesC16@@0@Z @ 71  NONAME ; void CIRBrowseChannelItems::SetBitrate(class TDesC16 const &, class TDesC16 const &)
-	?SetBitrate@CIRBrowseChannelItems@@QAEXABVTDesC16@@@Z @ 72  NONAME ; void CIRBrowseChannelItems::SetBitrate(class TDesC16 const &)
-	?SetChannelType@CIRIsdsPreset@@QAEXH@Z @ 73  NONAME ; void CIRIsdsPreset::SetChannelType(int)
-	?SetClickThroughUrl@CIRBrowseCatagoryItems@@QAEXABVTDesC16@@@Z @ 74  NONAME ; void CIRBrowseCatagoryItems::SetClickThroughUrl(class TDesC16 const &)
-	?SetClickThroughUrl@CIRBrowseChannelItems@@QAEXABVTDesC16@@@Z @ 75  NONAME ; void CIRBrowseChannelItems::SetClickThroughUrl(class TDesC16 const &)
-	?SetCountryCode@CIRIsdsPreset@@QAEXABVTDesC16@@@Z @ 76  NONAME ; void CIRIsdsPreset::SetCountryCode(class TDesC16 const &)
-	?SetCountryInfo@CIRIsdsPreset@@QAEXABVTDesC16@@0@Z @ 77  NONAME ; void CIRIsdsPreset::SetCountryInfo(class TDesC16 const &, class TDesC16 const &)
-	?SetCountryName@CIRIsdsPreset@@QAEXABVTDesC16@@@Z @ 78  NONAME ; void CIRIsdsPreset::SetCountryName(class TDesC16 const &)
-	?SetDescription@CIRIsdsPreset@@QAEXABVTDesC16@@@Z @ 79  NONAME ; void CIRIsdsPreset::SetDescription(class TDesC16 const &)
-	?SetGenreId@CIRIsdsPreset@@QAEXABVTDesC16@@@Z @ 80  NONAME ; void CIRIsdsPreset::SetGenreId(class TDesC16 const &)
-	?SetGenreInfo@CIRIsdsPreset@@QAEXABVTDesC16@@0@Z @ 81  NONAME ; void CIRIsdsPreset::SetGenreInfo(class TDesC16 const &, class TDesC16 const &)
-	?SetGenreName@CIRIsdsPreset@@QAEXABVTDesC16@@@Z @ 82  NONAME ; void CIRIsdsPreset::SetGenreName(class TDesC16 const &)
-	?SetGetOperation@CIRBrowseCatagoryItems@@QAEXABVTDesC16@@@Z @ 83  NONAME ; void CIRBrowseCatagoryItems::SetGetOperation(class TDesC16 const &)
-	?SetGetOperationL@CIRBrowseChannelItems@@QAEXABVTDesC16@@@Z @ 84  NONAME ; void CIRBrowseChannelItems::SetGetOperationL(class TDesC16 const &)
-	?SetId@CIRIsdsPreset@@QAEXABVTDesC16@@@Z @ 85  NONAME ; void CIRIsdsPreset::SetId(class TDesC16 const &)
-	?SetId@CIRIsdsPreset@@QAEXH@Z @ 86  NONAME ; void CIRIsdsPreset::SetId(int)
-	?SetImageUrl@CIRBrowseChannelItems@@QAEXABVTDesC16@@@Z @ 87  NONAME ; void CIRBrowseChannelItems::SetImageUrl(class TDesC16 const &)
-	?SetImgUrl@CIRIsdsPreset@@QAEXABVTDesC16@@@Z @ 88  NONAME ; void CIRIsdsPreset::SetImgUrl(class TDesC16 const &)
-	?SetIndex@CIRIsdsPreset@@QAEXH@Z @ 89  NONAME ; void CIRIsdsPreset::SetIndex(int)
-	?SetLang@CIRIsdsPreset@@QAEXABVTDesC16@@@Z @ 90  NONAME ; void CIRIsdsPreset::SetLang(class TDesC16 const &)
-	?SetLangCode@CIRIsdsPreset@@QAEXABVTDesC16@@@Z @ 91  NONAME ; void CIRIsdsPreset::SetLangCode(class TDesC16 const &)
-	?SetLangInfo@CIRIsdsPreset@@QAEXABVTDesC16@@0@Z @ 92  NONAME ; void CIRIsdsPreset::SetLangInfo(class TDesC16 const &, class TDesC16 const &)
-	?SetLastModifiedTime@CIRIsdsPreset@@QAEXABVTDesC16@@@Z @ 93  NONAME ; void CIRIsdsPreset::SetLastModifiedTime(class TDesC16 const &)
-	?SetLogoData@CIRIsdsPreset@@QAEXABVTDesC8@@@Z @ 94  NONAME ; void CIRIsdsPreset::SetLogoData(class TDesC8 const &)
-	?SetMusicStoreStatus@CIRIsdsPreset@@QAEXABVTDesC16@@@Z @ 95  NONAME ; void CIRIsdsPreset::SetMusicStoreStatus(class TDesC16 const &)
-	?SetName@CIRIsdsPreset@@QAEXABVTDesC16@@@Z @ 96  NONAME ; void CIRIsdsPreset::SetName(class TDesC16 const &)
-	?SetOTAUrl@CIROTAUpdate@@QAEXABVTDesC16@@@Z @ 97  NONAME ; void CIROTAUpdate::SetOTAUrl(class TDesC16 const &)
-	?SetServerName@CIRChannelServerUrl@@QAEXABVTDesC16@@@Z @ 98  NONAME ; void CIRChannelServerUrl::SetServerName(class TDesC16 const &)
-	?SetServerUrl@CIRChannelServerUrl@@QAEXABVTDesC16@@@Z @ 99  NONAME ; void CIRChannelServerUrl::SetServerUrl(class TDesC16 const &)
-	?SetShortDesc@CIRIsdsPreset@@QAEXABVTDesC16@@@Z @ 100  NONAME ; void CIRIsdsPreset::SetShortDesc(class TDesC16 const &)
-	?SetSize@CIRBrowseCatagoryItems@@QAEXABVTDesC16@@@Z @ 101  NONAME ; void CIRBrowseCatagoryItems::SetSize(class TDesC16 const &)
-	?SetSize@CIRBrowseChannelItems@@QAEXABVTDesC16@@@Z @ 102  NONAME ; void CIRBrowseChannelItems::SetSize(class TDesC16 const &)
-	?SetSongName@CIRLastPlayedSongs@@QAEXABVTDesC16@@@Z @ 103  NONAME ; void CIRLastPlayedSongs::SetSongName(class TDesC16 const &)
-	?SetTextL@CIRBrowseCatagoryItems@@QAEXABVTDesC16@@0@Z @ 104  NONAME ; void CIRBrowseCatagoryItems::SetTextL(class TDesC16 const &, class TDesC16 const &)
-	?SetTextL@CIRBrowseChannelItems@@QAEXABVTDesC16@@00@Z @ 105  NONAME ; void CIRBrowseChannelItems::SetTextL(class TDesC16 const &, class TDesC16 const &, class TDesC16 const &)
-	?SetURL@CIRAdvertisement@@QAEXABVTDesC16@@@Z @ 106  NONAME ; void CIRAdvertisement::SetURL(class TDesC16 const &)
-	?SetUniqId@CIRIsdsPreset@@QAEXK@Z @ 107  NONAME ; void CIRIsdsPreset::SetUniqId(unsigned long)
-	?SetUpdateInterval@CIROTAUpdate@@QAEXABVTDesC16@@@Z @ 108  NONAME ; void CIROTAUpdate::SetUpdateInterval(class TDesC16 const &)
-	?SetUpdateMethod@CIROTAUpdate@@QAEXABVTDesC16@@@Z @ 109  NONAME ; void CIROTAUpdate::SetUpdateMethod(class TDesC16 const &)
-	?SetUrlCount@CIRIsdsPreset@@QAEXH@Z @ 110  NONAME ; void CIRIsdsPreset::SetUrlCount(int)
-	?SetUrlCount@CIRIsdsPreset@@QAEXXZ @ 111  NONAME ; void CIRIsdsPreset::SetUrlCount(void)
-	?SetUrlL@CIRIsdsPreset@@QAEXABVTDesC16@@00@Z @ 112  NONAME ; void CIRIsdsPreset::SetUrlL(class TDesC16 const &, class TDesC16 const &, class TDesC16 const &)
-	?SetUrlL@CIRIsdsPreset@@QAEXABVTDesC16@@0H@Z @ 113  NONAME ; void CIRIsdsPreset::SetUrlL(class TDesC16 const &, class TDesC16 const &, int)
-	?SetUrlL@CIRIsdsPreset@@QAEXABVTDesC16@@@Z @ 114  NONAME ; void CIRIsdsPreset::SetUrlL(class TDesC16 const &)
-	?SetUsage@CIRAdvertisement@@QAEXABVTDesC16@@@Z @ 115  NONAME ; void CIRAdvertisement::SetUsage(class TDesC16 const &)
-	?SetVersion@CIROTAUpdate@@QAEXABVTDesC16@@@Z @ 116  NONAME ; void CIROTAUpdate::SetVersion(class TDesC16 const &)
-	?SetVisibleTime@CIRAdvertisement@@QAEXABVTDesC16@@@Z @ 117  NONAME ; void CIRAdvertisement::SetVisibleTime(class TDesC16 const &)
-	?UniqId@CIRIsdsPreset@@QBEKXZ @ 118  NONAME ; unsigned long CIRIsdsPreset::UniqId(void) const
-	_E32Dll=__E32Dll	; Entry point for emulation
+	?NewLC@CIRBrowseChannelItems@@SAPAV1@XZ @ 1  NONAME ; class CIRBrowseChannelItems * CIRBrowseChannelItems::NewLC(void)
+	?SetSize@CIRBrowseChannelItems@@QAEXABVTDesC16@@@Z @ 2  NONAME ; void CIRBrowseChannelItems::SetSize(class TDesC16 const &)
+	?GetUrl@CIRIsdsPreset@@QAEAAVCIRChannelServerUrl@@H@Z @ 3  NONAME ; class CIRChannelServerUrl & CIRIsdsPreset::GetUrl(int)
+	?ExternalizeL@CIRLastPlayedSongs@@QAEXAAVRWriteStream@@@Z @ 4  NONAME ; void CIRLastPlayedSongs::ExternalizeL(class RWriteStream &)
+	?GetShortDescription@CIRIsdsPreset@@QBEABVTDesC16@@XZ @ 5  NONAME ; class TDesC16 const & CIRIsdsPreset::GetShortDescription(void) const
+	?GetLastModifiedTime@CIRIsdsPreset@@QBEABVTDesC16@@XZ @ 6  NONAME ; class TDesC16 const & CIRIsdsPreset::GetLastModifiedTime(void) const
+	?GetLangId@CIRIsdsPreset@@QBEABVTDesC16@@XZ @ 7  NONAME ; class TDesC16 const & CIRIsdsPreset::GetLangId(void) const
+	?SetLastModifiedTime@CIRIsdsPreset@@QAEXABVTDesC16@@@Z @ 8  NONAME ; void CIRIsdsPreset::SetLastModifiedTime(class TDesC16 const &)
+	?GetGenreName@CIRIsdsPreset@@QBEABVTDesC16@@XZ @ 9  NONAME ; class TDesC16 const & CIRIsdsPreset::GetGenreName(void) const
+	?GetGenreId@CIRIsdsPreset@@QBEABVTDesC16@@XZ @ 10  NONAME ; class TDesC16 const & CIRIsdsPreset::GetGenreId(void) const
+	?SetLangCode@CIRIsdsPreset@@QAEXABVTDesC16@@@Z @ 11  NONAME ; void CIRIsdsPreset::SetLangCode(class TDesC16 const &)
+	?SetName@CIRIsdsPreset@@QAEXABVTDesC16@@@Z @ 12  NONAME ; void CIRIsdsPreset::SetName(class TDesC16 const &)
+	?SetUsage@CIRAdvertisement@@QAEXABVTDesC16@@@Z @ 13  NONAME ; void CIRAdvertisement::SetUsage(class TDesC16 const &)
+	?SetImgUrl@CIRIsdsPreset@@QAEXABVTDesC16@@@Z @ 14  NONAME ; void CIRIsdsPreset::SetImgUrl(class TDesC16 const &)
+	?NewL@CIROTAUpdate@@SAPAV1@XZ @ 15  NONAME ; class CIROTAUpdate * CIROTAUpdate::NewL(void)
+	?GetUrlForBitrateL@CIRIsdsPreset@@QAEPAVCDesC16ArrayFlat@@H@Z @ 16  NONAME ; class CDesC16ArrayFlat * CIRIsdsPreset::GetUrlForBitrateL(int)
+	??4CIRIsdsPreset@@QAEAAV0@ABV0@@Z @ 17  NONAME ; class CIRIsdsPreset & CIRIsdsPreset::operator=(class CIRIsdsPreset const &)
+	?SetImageUrl@CIRBrowseChannelItems@@QAEXABVTDesC16@@@Z @ 18  NONAME ; void CIRBrowseChannelItems::SetImageUrl(class TDesC16 const &)
+	?SetVisibleTime@CIRAdvertisement@@QAEXABVTDesC16@@@Z @ 19  NONAME ; void CIRAdvertisement::SetVisibleTime(class TDesC16 const &)
+	?GetSongName@CIRLastPlayedSongs@@QAEAAVTDesC16@@XZ @ 20  NONAME ; class TDesC16 & CIRLastPlayedSongs::GetSongName(void)
+	?GetCountryName@CIRIsdsPreset@@QBEABVTDesC16@@XZ @ 21  NONAME ; class TDesC16 const & CIRIsdsPreset::GetCountryName(void) const
+	?SetDescription@CIRIsdsPreset@@QAEXABVTDesC16@@@Z @ 22  NONAME ; void CIRIsdsPreset::SetDescription(class TDesC16 const &)
+	?SetChannelType@CIRIsdsPreset@@QAEXH@Z @ 23  NONAME ; void CIRIsdsPreset::SetChannelType(int)
+	?ConstructL@CIRAdvertisement@@QBEXXZ @ 24  NONAME ; void CIRAdvertisement::ConstructL(void) const
+	?InternalizeL@CIRChannelServerUrl@@QAEXAAVRReadStream@@@Z @ 25  NONAME ; void CIRChannelServerUrl::InternalizeL(class RReadStream &)
+	?GetChannelType@CIRIsdsPreset@@QBEHXZ @ 26  NONAME ; int CIRIsdsPreset::GetChannelType(void) const
+	?SetLangInfo@CIRIsdsPreset@@QAEXABVTDesC16@@0@Z @ 27  NONAME ; void CIRIsdsPreset::SetLangInfo(class TDesC16 const &, class TDesC16 const &)
+	?SetShortDesc@CIRIsdsPreset@@QAEXABVTDesC16@@@Z @ 28  NONAME ; void CIRIsdsPreset::SetShortDesc(class TDesC16 const &)
+	?SetBitrate@CIRBrowseChannelItems@@QAEXABVTDesC16@@00@Z @ 29  NONAME ; void CIRBrowseChannelItems::SetBitrate(class TDesC16 const &, class TDesC16 const &, class TDesC16 const &)
+	?GetMusicStoreStatus@CIRIsdsPreset@@QBEABVTDesC16@@XZ @ 30  NONAME ; class TDesC16 const & CIRIsdsPreset::GetMusicStoreStatus(void) const
+	?SetClickThroughUrl@CIRBrowseCatagoryItems@@QAEXABVTDesC16@@@Z @ 31  NONAME ; void CIRBrowseCatagoryItems::SetClickThroughUrl(class TDesC16 const &)
+	?NewLC@CIRLastPlayedSongs@@SAPAV1@XZ @ 32  NONAME ; class CIRLastPlayedSongs * CIRLastPlayedSongs::NewLC(void)
+	?NewLC@CIRChannelServerUrl@@SAPAV1@XZ @ 33  NONAME ; class CIRChannelServerUrl * CIRChannelServerUrl::NewLC(void)
+	?InternalizeL@CIRIsdsPreset@@QAEXAAVRReadStream@@@Z @ 34  NONAME ; void CIRIsdsPreset::InternalizeL(class RReadStream &)
+	?SetUrlCount@CIRIsdsPreset@@QAEXXZ @ 35  NONAME ; void CIRIsdsPreset::SetUrlCount(void)
+	?SetLogoData@CIRIsdsPreset@@QAEXABVTDesC8@@@Z @ 36  NONAME ; void CIRIsdsPreset::SetLogoData(class TDesC8 const &)
+	?SetGenreInfo@CIRIsdsPreset@@QAEXABVTDesC16@@0@Z @ 37  NONAME ; void CIRIsdsPreset::SetGenreInfo(class TDesC16 const &, class TDesC16 const &)
+	?SetBitrate@CIRBrowseChannelItems@@QAEXABVTDesC16@@@Z @ 38  NONAME ; void CIRBrowseChannelItems::SetBitrate(class TDesC16 const &)
+	?NewL@CIRAdvertisement@@SAPAV1@XZ @ 39  NONAME ; class CIRAdvertisement * CIRAdvertisement::NewL(void)
+	?SetAdvertisementInUse@CIRIsdsPreset@@QAEXABVTDesC16@@@Z @ 40  NONAME ; void CIRIsdsPreset::SetAdvertisementInUse(class TDesC16 const &)
+	?NewL@CIRChannelServerUrl@@SAPAV1@XZ @ 41  NONAME ; class CIRChannelServerUrl * CIRChannelServerUrl::NewL(void)
+	?GetUrlCount@CIRIsdsPreset@@QBEHXZ @ 42  NONAME ; int CIRIsdsPreset::GetUrlCount(void) const
+	?NewL@CIRLastPlayedSongs@@SAPAV1@XZ @ 43  NONAME ; class CIRLastPlayedSongs * CIRLastPlayedSongs::NewL(void)
+	?NewL@CIRIsdsPreset@@SAPAV1@XZ @ 44  NONAME ; class CIRIsdsPreset * CIRIsdsPreset::NewL(void)
+	?SetCountryCode@CIRIsdsPreset@@QAEXABVTDesC16@@@Z @ 45  NONAME ; void CIRIsdsPreset::SetCountryCode(class TDesC16 const &)
+	?SetClickThroughUrl@CIRBrowseChannelItems@@QAEXABVTDesC16@@@Z @ 46  NONAME ; void CIRBrowseChannelItems::SetClickThroughUrl(class TDesC16 const &)
+	?GetDescription@CIRIsdsPreset@@QBEABVTDesC16@@XZ @ 47  NONAME ; class TDesC16 const & CIRIsdsPreset::GetDescription(void) const
+	?SetSize@CIRBrowseCatagoryItems@@QAEXABVTDesC16@@@Z @ 48  NONAME ; void CIRBrowseCatagoryItems::SetSize(class TDesC16 const &)
+	?ExternalizeL@CIRChannelServerUrl@@QAEXAAVRWriteStream@@@Z @ 49  NONAME ; void CIRChannelServerUrl::ExternalizeL(class RWriteStream &)
+	?SetServerUrl@CIRChannelServerUrl@@QAEXABVTDesC16@@@Z @ 50  NONAME ; void CIRChannelServerUrl::SetServerUrl(class TDesC16 const &)
+	?SetGetOperationL@CIRBrowseChannelItems@@QAEXABVTDesC16@@@Z @ 51  NONAME ; void CIRBrowseChannelItems::SetGetOperationL(class TDesC16 const &)
+	?NewLC@CIRIsdsPreset@@SAPAV1@XZ @ 52  NONAME ; class CIRIsdsPreset * CIRIsdsPreset::NewLC(void)
+	?InternalizeL@CIROTAUpdate@@QAEXAAVRReadStream@@@Z @ 53  NONAME ; void CIROTAUpdate::InternalizeL(class RReadStream &)
+	?GetCountryId@CIRIsdsPreset@@QBEABVTDesC16@@XZ @ 54  NONAME ; class TDesC16 const & CIRIsdsPreset::GetCountryId(void) const
+	?GetImgUrl@CIRIsdsPreset@@QBEABVTDesC16@@XZ @ 55  NONAME ; class TDesC16 const & CIRIsdsPreset::GetImgUrl(void) const
+	?SetUrlL@CIRIsdsPreset@@QAEXABVTDesC16@@0H@Z @ 56  NONAME ; void CIRIsdsPreset::SetUrlL(class TDesC16 const &, class TDesC16 const &, int)
+	?SetAdvertisementUrl@CIRIsdsPreset@@QAEXABVTDesC16@@@Z @ 57  NONAME ; void CIRIsdsPreset::SetAdvertisementUrl(class TDesC16 const &)
+	?GetServerUrl@CIRChannelServerUrl@@QBEABVTDesC16@@XZ @ 58  NONAME ; class TDesC16 const & CIRChannelServerUrl::GetServerUrl(void) const
+	?SetCountryInfo@CIRIsdsPreset@@QAEXABVTDesC16@@0@Z @ 59  NONAME ; void CIRIsdsPreset::SetCountryInfo(class TDesC16 const &, class TDesC16 const &)
+	?NewLC@CIRAdvertisement@@SAPAV1@XZ @ 60  NONAME ; class CIRAdvertisement * CIRAdvertisement::NewLC(void)
+	?NewLC@CIRBrowseCatagoryItems@@SAPAV1@XZ @ 61  NONAME ; class CIRBrowseCatagoryItems * CIRBrowseCatagoryItems::NewLC(void)
+	?SetGetOperation@CIRBrowseCatagoryItems@@QAEXABVTDesC16@@@Z @ 62  NONAME ; void CIRBrowseCatagoryItems::SetGetOperation(class TDesC16 const &)
+	?ExternalizeL@CIROTAUpdate@@QBEXAAVRWriteStream@@@Z @ 63  NONAME ; void CIROTAUpdate::ExternalizeL(class RWriteStream &) const
+	?GetName@CIRIsdsPreset@@QBEABVTDesC16@@XZ @ 64  NONAME ; class TDesC16 const & CIRIsdsPreset::GetName(void) const
+	?GetServerName@CIRChannelServerUrl@@QBEABVTDesC16@@XZ @ 65  NONAME ; class TDesC16 const & CIRChannelServerUrl::GetServerName(void) const
+	?SetTextL@CIRBrowseChannelItems@@QAEXABVTDesC16@@00@Z @ 66  NONAME ; void CIRBrowseChannelItems::SetTextL(class TDesC16 const &, class TDesC16 const &, class TDesC16 const &)
+	?SetGenreName@CIRIsdsPreset@@QAEXABVTDesC16@@@Z @ 67  NONAME ; void CIRIsdsPreset::SetGenreName(class TDesC16 const &)
+	?GetChannelBitrateL@CIRIsdsPreset@@QAEHH@Z @ 68  NONAME ; int CIRIsdsPreset::GetChannelBitrateL(int)
+	?GetId@CIRIsdsPreset@@QBEHXZ @ 69  NONAME ; int CIRIsdsPreset::GetId(void) const
+	?GetLangName@CIRIsdsPreset@@QBEABVTDesC16@@XZ @ 70  NONAME ; class TDesC16 const & CIRIsdsPreset::GetLangName(void) const
+	?SetOTAUrl@CIROTAUpdate@@QAEXABVTDesC16@@@Z @ 71  NONAME ; void CIROTAUpdate::SetOTAUrl(class TDesC16 const &)
+	?GetArtistName@CIRLastPlayedSongs@@QAEAAVTDesC16@@XZ @ 72  NONAME ; class TDesC16 & CIRLastPlayedSongs::GetArtistName(void)
+	?SetId@CIRIsdsPreset@@QAEXH@Z @ 73  NONAME ; void CIRIsdsPreset::SetId(int)
+	?SetUrlCount@CIRIsdsPreset@@QAEXH@Z @ 74  NONAME ; void CIRIsdsPreset::SetUrlCount(int)
+	?ConstructL@CIROTAUpdate@@QAEXXZ @ 75  NONAME ; void CIROTAUpdate::ConstructL(void)
+	?InternalizeL@CIRBrowseCatagoryItems@@QAEXAAVRReadStream@@@Z @ 76  NONAME ; void CIRBrowseCatagoryItems::InternalizeL(class RReadStream &)
+	?SetURL@CIRAdvertisement@@QAEXABVTDesC16@@@Z @ 77  NONAME ; void CIRAdvertisement::SetURL(class TDesC16 const &)
+	?ExternalizeL@CIRBrowseChannelItems@@QBEXAAVRWriteStream@@@Z @ 78  NONAME ; void CIRBrowseChannelItems::ExternalizeL(class RWriteStream &) const
+	?GetBitRate@CIRChannelServerUrl@@QBEHXZ @ 79  NONAME ; int CIRChannelServerUrl::GetBitRate(void) const
+	?NewLC@CIROTAUpdate@@SAPAV1@XZ @ 80  NONAME ; class CIROTAUpdate * CIROTAUpdate::NewLC(void)
+	?SetUpdateInterval@CIROTAUpdate@@QAEXABVTDesC16@@@Z @ 81  NONAME ; void CIROTAUpdate::SetUpdateInterval(class TDesC16 const &)
+	?ExternalizeL@CIRBrowseCatagoryItems@@QBEXAAVRWriteStream@@@Z @ 82  NONAME ; void CIRBrowseCatagoryItems::ExternalizeL(class RWriteStream &) const
+	?GetAvailableBitrates@CIRIsdsPreset@@QBEHAAV?$RArray@H@@@Z @ 83  NONAME ; int CIRIsdsPreset::GetAvailableBitrates(class RArray<int> &) const
+	?SetGenreId@CIRIsdsPreset@@QAEXABVTDesC16@@@Z @ 84  NONAME ; void CIRIsdsPreset::SetGenreId(class TDesC16 const &)
+	?ExternalizeL@CIRIsdsPreset@@QAEXAAVRWriteStream@@@Z @ 85  NONAME ; void CIRIsdsPreset::ExternalizeL(class RWriteStream &)
+	?GetChannelUrlAtL@CIRIsdsPreset@@QBEABVTDesC16@@H@Z @ 86  NONAME ; class TDesC16 const & CIRIsdsPreset::GetChannelUrlAtL(int) const
+	?GetExactUrlForBitrateL@CIRIsdsPreset@@QAEPAVCDesC16ArrayFlat@@H@Z @ 87  NONAME ; class CDesC16ArrayFlat * CIRIsdsPreset::GetExactUrlForBitrateL(int)
+	?SetBitrate@CIRBrowseChannelItems@@QAEXABVTDesC16@@0@Z @ 88  NONAME ; void CIRBrowseChannelItems::SetBitrate(class TDesC16 const &, class TDesC16 const &)
+	?SetSongName@CIRLastPlayedSongs@@QAEXABVTDesC16@@@Z @ 89  NONAME ; void CIRLastPlayedSongs::SetSongName(class TDesC16 const &)
+	?NewL@CIRBrowseChannelItems@@SAPAV1@XZ @ 90  NONAME ; class CIRBrowseChannelItems * CIRBrowseChannelItems::NewL(void)
+	?SetTextL@CIRBrowseCatagoryItems@@QAEXABVTDesC16@@0@Z @ 91  NONAME ; void CIRBrowseCatagoryItems::SetTextL(class TDesC16 const &, class TDesC16 const &)
+	?SetId@CIRIsdsPreset@@QAEXABVTDesC16@@@Z @ 92  NONAME ; void CIRIsdsPreset::SetId(class TDesC16 const &)
+	?SetArtistName@CIRLastPlayedSongs@@QAEXABVTDesC16@@@Z @ 93  NONAME ; void CIRLastPlayedSongs::SetArtistName(class TDesC16 const &)
+	?InternalizeL@CIRBrowseChannelItems@@QAEXAAVRReadStream@@@Z @ 94  NONAME ; void CIRBrowseChannelItems::InternalizeL(class RReadStream &)
+	?SetUpdateMethod@CIROTAUpdate@@QAEXABVTDesC16@@@Z @ 95  NONAME ; void CIROTAUpdate::SetUpdateMethod(class TDesC16 const &)
+	?SetLang@CIRIsdsPreset@@QAEXABVTDesC16@@@Z @ 96  NONAME ; void CIRIsdsPreset::SetLang(class TDesC16 const &)
+	?GetAdvertisementUrl@CIRIsdsPreset@@QBEABVTDesC16@@XZ @ 97  NONAME ; class TDesC16 const & CIRIsdsPreset::GetAdvertisementUrl(void) const
+	??4CIRChannelServerUrl@@QAEAAV0@ABV0@@Z @ 98  NONAME ; class CIRChannelServerUrl & CIRChannelServerUrl::operator=(class CIRChannelServerUrl const &)
+	??4CIRLastPlayedSongs@@QAEAAV0@ABV0@@Z @ 99  NONAME ; class CIRLastPlayedSongs & CIRLastPlayedSongs::operator=(class CIRLastPlayedSongs const &)
+	?SetUrlL@CIRIsdsPreset@@QAEXABVTDesC16@@00@Z @ 100  NONAME ; void CIRIsdsPreset::SetUrlL(class TDesC16 const &, class TDesC16 const &, class TDesC16 const &)
+	?SetBannerUrl@CIRBrowseChannelItems@@QAEXABVTDesC16@@@Z @ 101  NONAME ; void CIRBrowseChannelItems::SetBannerUrl(class TDesC16 const &)
+	?SetCountryName@CIRIsdsPreset@@QAEXABVTDesC16@@@Z @ 102  NONAME ; void CIRIsdsPreset::SetCountryName(class TDesC16 const &)
+	?SetBannerUrl@CIRBrowseCatagoryItems@@QAEXABVTDesC16@@@Z @ 103  NONAME ; void CIRBrowseCatagoryItems::SetBannerUrl(class TDesC16 const &)
+	?SetServerName@CIRChannelServerUrl@@QAEXABVTDesC16@@@Z @ 104  NONAME ; void CIRChannelServerUrl::SetServerName(class TDesC16 const &)
+	?SetBitRate@CIRChannelServerUrl@@QAEXH@Z @ 105  NONAME ; void CIRChannelServerUrl::SetBitRate(int)
+	?SetMusicStoreStatus@CIRIsdsPreset@@QAEXABVTDesC16@@@Z @ 106  NONAME ; void CIRIsdsPreset::SetMusicStoreStatus(class TDesC16 const &)
+	?GetAdvertisementInUse@CIRIsdsPreset@@QBEABVTDesC16@@XZ @ 107  NONAME ; class TDesC16 const & CIRIsdsPreset::GetAdvertisementInUse(void) const
+	?SetAdvInUse@CIRAdvertisement@@QAEXABVTDesC16@@@Z @ 108  NONAME ; void CIRAdvertisement::SetAdvInUse(class TDesC16 const &)
+	?InternalizeL@CIRLastPlayedSongs@@QAEXAAVRReadStream@@@Z @ 109  NONAME ; void CIRLastPlayedSongs::InternalizeL(class RReadStream &)
+	?SetVersion@CIROTAUpdate@@QAEXABVTDesC16@@@Z @ 110  NONAME ; void CIROTAUpdate::SetVersion(class TDesC16 const &)
+	?NewL@CIRBrowseCatagoryItems@@SAPAV1@XZ @ 111  NONAME ; class CIRBrowseCatagoryItems * CIRBrowseCatagoryItems::NewL(void)
+	?GetLogoData@CIRIsdsPreset@@QBEABVTDesC8@@XZ @ 112  NONAME ; class TDesC8 const & CIRIsdsPreset::GetLogoData(void) const
 

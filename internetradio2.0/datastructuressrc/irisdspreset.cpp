@@ -104,7 +104,7 @@ CIRIsdsPreset::~CIRIsdsPreset()
 //standard two phased constructor
 // ---------------------------------------------------------------------------
 //
-EXPORT_C CIRIsdsPreset::CIRIsdsPreset()
+CIRIsdsPreset::CIRIsdsPreset()
 	{
 	IRLOG_DEBUG( "CIRIsdsPreset::CIRIsdsPreset" );
 	}
@@ -451,20 +451,6 @@ EXPORT_C void CIRIsdsPreset::SetUrlCount(TInt aCnt)
 	IRLOG_DEBUG( "CIRIsdsPreset::SetUrlCount - Exiting." );
 	}
 
-
-// ---------------------------------------------------------------------------
-//CIRIsdsPreset::SetIndex()
-//Function to set iIndex
-// ---------------------------------------------------------------------------
-//
-EXPORT_C void CIRIsdsPreset::SetIndex(TInt aInt)
-	{
-	IRLOG_DEBUG( "CIRIsdsPreset::SetIndex - Entering" );
-	iIndex=aInt;
-	IRLOG_DEBUG( "CIRIsdsPreset::SetIndex - Exiting." );
-	}
-
-
 // ---------------------------------------------------------------------------
 //CIRIsdsPreset::SetUrl()
 //Function to set Url parameter
@@ -534,21 +520,6 @@ EXPORT_C void CIRIsdsPreset::SetChannelType(TInt aType)
 	IRLOG_DEBUG( "CIRIsdsPreset::SetChannelType - Exiting." );
 	}
 
-
-// ---------------------------------------------------------------------------
-//CIRIsdsPreset::SetUrl()
-//Function to set Url parameter
-// ---------------------------------------------------------------------------
-//
-EXPORT_C void CIRIsdsPreset::SetUrlL(const TDesC &aUrl)
-	{
-	IRLOG_DEBUG( "CIRIsdsPreset::SetUrlL - Entering" );
-	CIRChannelServerUrl * hold=CIRChannelServerUrl::NewL();
-	hold->SetServerUrl(aUrl);
-	iUrlArray->AppendL(hold);
-	IRLOG_DEBUG( "CIRIsdsPreset::SetUrlL - Exiting" );
-	}
-
 // ---------------------------------------------------------------------------
 //CIRIsdsPreset::SetMusicStoreStatus()
 //Function to set iMusicStoreStatus parameter
@@ -573,9 +544,7 @@ EXPORT_C  void CIRIsdsPreset::ExternalizeL(RWriteStream& aWriteStream)
 	{
 	IRLOG_DEBUG( "CIRIsdsPreset::ExternalizeL - Entering" );
 //! externalize TInts s
-	aWriteStream.WriteUint32L(iUniqId);
 	aWriteStream.WriteInt32L(iPresetId);
-	aWriteStream.WriteInt32L(iIndex);
 	aWriteStream.WriteInt32L(iType);
 	aWriteStream.WriteInt32L(iChannelUrlCount);
 
@@ -614,9 +583,7 @@ EXPORT_C void CIRIsdsPreset::InternalizeL(RReadStream& aReadStream)
 	{
 	IRLOG_DEBUG( "CIRIsdsPreset::InternalizeL - Entering" );
 	//! Internalize TInts s
-	iUniqId = aReadStream.ReadUint32L();
 	iPresetId=aReadStream.ReadInt32L();
-	iIndex=aReadStream.ReadInt32L();
 	iType=aReadStream.ReadInt32L();
 	iChannelUrlCount=aReadStream.ReadInt32L();
 
@@ -800,19 +767,6 @@ EXPORT_C TInt CIRIsdsPreset::GetChannelType() const
 	return iType;
 	}
 
-
-// ---------------------------------------------------------------------------
-//CIRIsdsPreset::GetIndex()
-//Function to get iIndex
-// ---------------------------------------------------------------------------
-//
-EXPORT_C TInt CIRIsdsPreset::GetIndex() const
-	{
-	IRLOG_DEBUG( "CIRIsdsPreset::GetIndex" );
-	return iIndex;
-	}
-
-
 // ---------------------------------------------------------------------------
 //CIRIsdsPreset::GetGenreId()
 //Function to get iGenereId
@@ -990,9 +944,7 @@ EXPORT_C CIRIsdsPreset& CIRIsdsPreset::operator=(const CIRIsdsPreset& aPreset)
 		}
 	iChannelUrlCount=aPreset.iChannelUrlCount;
 	iType=aPreset.iType;  //0 for user defined 1 for isds type.
-	iIndex=aPreset.iIndex;
 	iPresetId = aPreset.iPresetId;
-	iUniqId=aPreset.iUniqId;
 	IRLOG_DEBUG( "CIRIsdsPreset::operator= - Exiting." );
  	return *this;
 	}
@@ -1187,23 +1139,3 @@ void CIRIsdsPreset::SortInOrderL()
 	IRLOG_DEBUG( "CIRIsdsPreset::SortInOrderL - Exiting." );
 	return;
 	}
-//----------------------------------------------------------------------------
-// TInt UniqId()
-//
-//----------------------------------------------------------------------------
-EXPORT_C TUint32 CIRIsdsPreset::UniqId() const
-	{
-	IRLOG_DEBUG( "CIRIsdsPreset::UniqId" );
-	return iUniqId;
-	}
-//----------------------------------------------------------------------------
-//  SetUniqId(TInt)
-//
-//----------------------------------------------------------------------------
-EXPORT_C void CIRIsdsPreset::SetUniqId( TUint32 aId)
-	{
-	IRLOG_DEBUG( "CIRIsdsPreset::SetUniqId - Entering" );
-	iUniqId = aId;
-	IRLOG_DEBUG( "CIRIsdsPreset::SetUniqId - Exiting" );
-	}
-

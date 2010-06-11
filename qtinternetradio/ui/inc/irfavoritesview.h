@@ -22,6 +22,7 @@
 
 class HbSelectionDialog;
 class IRFavoritesModel;
+class IRStationShare;
 class IRQPreset;
 
 class IRFavoritesView : public IrAbstractListViewBase 
@@ -45,6 +46,7 @@ private slots:
     void presetLogoDownloadError();	
     void modelChanged();
     void actionClicked(HbAction *aAction);
+    void renameConfirmed(HbAction *aAction);
     void deleteDialogClosed(HbAction *aAction);
     
 private:
@@ -70,6 +72,7 @@ private:
     
 private:
     
+    IRStationShare    *iStationShare;
     IRFavoritesModel  *iModel;
     HbSelectionDialog *iMultiDeleteDialog;
     HbAction          *iMultiDeleteAction;

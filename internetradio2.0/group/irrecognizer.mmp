@@ -48,6 +48,6 @@ SYSTEMINCLUDE   OS_LAYER_PUBLIC_EXPORT_PATH(ecom)
 
 LIBRARY             euser.lib
 LIBRARY             apmime.lib
-
-LIBRARY        flogger.lib
+LIBRARY             efsrv.lib 
+LIBRARY             flogger.lib
 

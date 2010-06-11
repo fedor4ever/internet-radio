@@ -429,6 +429,8 @@ void IRQIsdsClientImpl::IsdsChannelDataReceivedL(CArrayPtrFlat<
             oneChannelItem->shortDescription = QString::fromUtf16(
                     aParsedStructure[i]->iShortDescription->Des().Ptr(),
                     aParsedStructure[i]->iShortDescription->Des().Length());
+            //added for search result's cache
+            oneChannelItem->channelID = aParsedStructure[i]->iChannelID;
 
             if (0 != aParsedStructure[i]->iImgUrl.Length())
             {

@@ -26,6 +26,9 @@
 #include <QDir>
 #include <xqsharablefile.h> 
 #include <xqserviceutil.h>
+#include <hbiconitem.h>
+#include <hbiconanimator.h>
+#include <hbiconanimationmanager.h>
 
 #ifdef LOCALIZATION 
 #include <QTranslator>
@@ -79,7 +82,8 @@ IRApplication::IRApplication(IRViewManager* aViewManager, IRQSystemEventHandler*
                                      iTranslator(NULL),
                                      #endif
                                      iSystemEventHandler(aSystemEventHandler),
-                                     iPlayList(NULL)
+                                     iPlayList(NULL),
+                                     iLoadingAnimation(NULL)
                                      
 {
     LOG_METHOD;
@@ -191,7 +195,22 @@ bool IRApplication::verifyNetworkConnectivity(const QString &aConnectingText)
     return ret;
 }
 
-void IRApplication::createLoadingDialog(const QObject *aReceiver, const char *aFunc)
+void IRApplication::startLoadingAnimation(const QPointF& aPos)
+{
+    if( NULL == iLoadingAnimation )
+    {
+        getLoadingAnimation();
+    }
+    
+    if (iLoadingAnimation)
+    {
+        iLoadingAnimation->setPos(aPos);
+        iLoadingAnimation->show();
+        iLoadingAnimation->animator().startAnimation();
+    }    
+}
+
+void IRApplication::startLoadingAnimation(const QObject *aReceiver, const char *aFunc)
 {
     LOG_METHOD_ENTER;
     
@@ -204,6 +223,13 @@ void IRApplication::createLoadingDialog(const QObject *aReceiver, const char *aF
         {
             return;
         }
+    }
+    
+    //if in search, we could not show the dialog
+    TIRViewId curViewID = static_cast<IRBaseView*>(iViewManager->currentView())->id();
+    if ( EIRView_SearchView == curViewID )
+    {
+        return;        
     }
     
     if (NULL == iLoadingNote)
@@ -237,12 +263,18 @@ void IRApplication::createLoadingDialog(const QObject *aReceiver, const char *aF
     iLoadingNote->show();
 }
 
-void IRApplication::closeLoadingDialog()
+void IRApplication::stopLoadingAnimation()
 {
     LOG_METHOD_ENTER;
     if (iLoadingNote)
     {
         iLoadingNote->close();
+    }
+    
+    if( iLoadingAnimation )
+    {
+        iLoadingAnimation->animator().stopAnimation();
+        iLoadingAnimation->hide();         
     }
 }
 
@@ -452,7 +484,7 @@ void IRApplication::cancelConnect()
         return;
     }
     
-    closeLoadingDialog();
+    stopLoadingAnimation();
     iConnectingCanceled = true;
     if (iNetworkController->getNetworkStatus())
     {
@@ -474,7 +506,7 @@ void IRApplication::networkEventNotified(IRQNetworkEvent aEvent)
     switch (aEvent)
     {
         case EIRQNetworkConnectionConnecting :
-            createLoadingDialog(this, SLOT(cancelConnect()));
+            startLoadingAnimation(this, SLOT(cancelConnect()));
             iConnectingCanceled = false;
             break;
             
@@ -507,7 +539,7 @@ void IRApplication::networkEventNotified(IRQNetworkEvent aEvent)
             
         case EIRQDisplayNetworkMessageNoConnectivity:
             {
-                closeLoadingDialog();
+                stopLoadingAnimation();
                 HbMessageBox::warning(hbTrId("txt_irad_info_no_network_connectiion"), (QObject*)NULL, NULL);
                 if (!iDisconnected)
                 {
@@ -556,9 +588,29 @@ void IRApplication::newLocalSocketConnection()
     iViewManager->raise();
 }
 
+void IRApplication::getLoadingAnimation()
+{
+    HbIconAnimationManager::global()->addDefinitionFile("qtg_anim_loading.axml");
+    iLoadingAnimation = new HbIconItem("qtg_anim_loading");
+    iLoadingAnimation->hide();
+    QGraphicsScene *targetScene = getViewManager()->scene();
+    QGraphicsScene *oldScene = iLoadingAnimation->scene();
+
+    if (targetScene != oldScene)
+    {
+        if (oldScene)
+        {
+            oldScene->removeItem(iLoadingAnimation);
+        }
+        targetScene->addItem(iLoadingAnimation); // takes ownership
+    }
+
+}
+
 void IRApplication::initApp()
 {
-    getNetworkController();
+    getNetworkController();    
+    
     connect(iNetworkController, SIGNAL(networkEventNotified(IRQNetworkEvent)),
             this, SLOT(networkEventNotified(IRQNetworkEvent)));
     
@@ -679,6 +731,11 @@ bool IRApplication::eventFilter(QObject *object, QEvent *event)
 
     if (object->objectName() == ABSTRACT_LIST_VIEW_BASE_OBJECT_PLAYINGBANNER)
     {
+        if (NULL == iViewManager->currentView())
+        {
+            return false;
+        }
+        
         if( (EIRView_PlayingView == static_cast<IRBaseView*>(iViewManager->currentView())->id()) \
         	||(EIRView_SearchView == static_cast<IRBaseView*>(iViewManager->currentView())->id()) )
         {
@@ -731,7 +788,7 @@ void IRApplication::handleCallActivated()
     if( iPlayController->isPlaying() /*|| iPlayController->isBuffering()*/)
     {
         iPlayController->stop(EIRQCallIsActivated);
-        closeLoadingDialog();
+        stopLoadingAnimation();
     }
 	
 	//for we don't cancel the loading when call is activated, 

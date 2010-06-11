@@ -71,9 +71,7 @@ symbian{
   TARGET.EPOCHEAPSIZE = 0x020000 0x2000000
   TARGET.VID = VID_DEFAULT
   ICON = resources/qtg_large_internet_radio.svg
-  datatype_list = "datatype_list={DATATYPE{priority=EDataTypePriorityHigh;type=\"audio/x-scpls\";}," \
-                                 "DATATYPE{priority=EDataTypePriorityHigh;type=\"audio/x-mpegurl\";}" \
-                  "};"
+  datatype_list = "datatype_list={DATATYPE{priority=EDataTypePriorityHigh;type=\"audio/x-scpls\";}};"
   RSS_RULES += datatype_list 
 }
 
@@ -109,7 +107,8 @@ HEADERS += inc\irapplication.h \
            inc\irstationshare.h \
            inc\irstationdetailsview.h \
            inc\irtermsconsview.h \
-           inc\irplaylist.h
+           inc\irplaylist.h \
+           inc\irsearchresultdb.h
            
 #source files list
 SOURCES += main.cpp  \
@@ -143,7 +142,8 @@ SOURCES += main.cpp  \
            irstationshare.cpp \
            irstationdetailsview.cpp \
            irtermsconsview.cpp \
-           irplaylist.cpp
+           irplaylist.cpp \
+           irsearchresultdb.cpp
           	   
 #resource
 RESOURCES += resources/irui.qrc

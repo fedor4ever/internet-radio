@@ -129,22 +129,25 @@ EXPORT_C void IRQSongHistoryEngine::handleMetaDataReceived(const IRQMetaData& aM
 }
 
 EXPORT_C void IRQSongHistoryEngine::handleSongMetaDataReceived(const IRQMetaData& aMetaData,
-        QString& aMusicshopStatus)
+        const IRQPreset& aPreset)
 {
-    TRAPD(error, handleSongMetaDataReceivedL(aMetaData,aMusicshopStatus));
+    TRAPD(error, handleSongMetaDataReceivedL(aMetaData,aPreset));
     if (KErrNone != error)
     {        
     }
 }
 
 EXPORT_C void IRQSongHistoryEngine::handleSongMetaDataReceivedL(const IRQMetaData& aMetaData,
-        QString& aMusicshopStatus)
+        const IRQPreset& aPreset)
 {
+    
     TPtrC songName(reinterpret_cast<const TUint16*>(aMetaData.getSongName().utf16()), aMetaData.getSongName().length());
     TPtrC artistName(reinterpret_cast<const TUint16*>(aMetaData.getArtistName().utf16()), aMetaData.getArtistName().length());    
-    TPtrC musicFlag(reinterpret_cast<const TUint16*>(aMusicshopStatus.utf16()), aMusicshopStatus.length());    
+    TPtrC channelName(reinterpret_cast<const TUint16*>(aPreset.name.utf16()), aPreset.name.length());
+    TPtrC musicFlag(reinterpret_cast<const TUint16*>(aPreset.musicStoreStatus.utf16()), aPreset.musicStoreStatus.length());    
     TBool bExceededMax = iSongHistoryDb->AddToSongHistoryDb2L(songName,
                              artistName,
+                             channelName,
                              musicFlag);                            
 }
 
@@ -176,7 +179,7 @@ void IRQSongHistoryEngine::handleMetaDataReceivedL(const IRQMetaData& aMetaData,
         if(ret)
         {
             TInt modified = iSongHistoryDb->UpdateSongHistoryDbL( channelId ,
-                       channelName ,channelUrl ,imageUrl ,genreName, countryName, languageName, musicFlag);   
+                       channelUrl ,imageUrl ,genreName, countryName, languageName, musicFlag);   
             // TODO notify uplayer to change layout?
         }
     }
@@ -186,7 +189,7 @@ void IRQSongHistoryEngine::handleMetaDataReceivedL(const IRQMetaData& aMetaData,
         channelType = 0;
     }
     
-    iSongHistoryDb->SearchAndDeleteRecordL(channelName, channelUrl, channelType);
+    iSongHistoryDb->SearchAndDeleteRecordL(channelName, channelUrl, channelType, channelId);
     
 	RBuf delSongName;
 	delSongName.CleanupClosePushL();
@@ -399,6 +402,7 @@ void IRQSongHistoryEngine::getAllSongHistoryL(QList<IRQSongInfo *>& aSongHistory
     // create IRQSongHistoryInfo array and set
     QString songName;
     QString artist;     
+    QString stationName;     
     QString musicStoreStatus;
     
     for (int arrCount = 0; arrCount < songCount; arrCount++)
@@ -409,12 +413,15 @@ void IRQSongHistoryEngine::getAllSongHistoryL(QList<IRQSongInfo *>& aSongHistory
         artist = QString::fromUtf16(
                 historyDataArr[arrCount]->GetArtistInfo().Ptr(),
                 historyDataArr[arrCount]->GetArtistInfo().Length());
+        stationName = QString::fromUtf16(
+                historyDataArr[arrCount]->GetChannelName().Ptr(),
+                historyDataArr[arrCount]->GetChannelName().Length());
         musicStoreStatus = QString::fromUtf16(
                 historyDataArr[arrCount]->GetChannelMusicStatus().Ptr(),
                 historyDataArr[arrCount]->GetChannelMusicStatus().Length());
         IRQSongInfo* irqsong = new IRQSongInfo();
 
-        irqsong->setAllInfo(songName, artist, musicStoreStatus);
+        irqsong->setAllInfo(songName, artist, stationName, musicStoreStatus);
         aSongHistoryArr.append(irqsong);
     }
     
@@ -483,7 +490,6 @@ EXPORT_C void IRQSongHistoryEngine::updateSongHistoryDb(int aChannelId,
         TPtrC languageName(reinterpret_cast<const TUint16*>(aLanguageName.utf16()));
         TPtrC musicFlag(reinterpret_cast<const TUint16*>(aMusicFlag.utf16()));
         TRAP_IGNORE(iSongHistoryDb->UpdateSongHistoryDbL( channelId ,
-                channelName,
                 channelUrl,
                 imageUrl,
                 genreName,

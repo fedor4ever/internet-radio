@@ -22,6 +22,7 @@
 
 class HbIcon;
 class IRQChannelItem;
+class IRSearchResultDB;
 
 class IrChannelModel : public QAbstractListModel
 {
@@ -35,7 +36,11 @@ public:
     QVariant data(const QModelIndex &aIndex, int aRole = Qt::DisplayRole) const;
     QString imageUrl(int aRow);
     void setLogo(HbIcon *aIcon, int aIndex);
-
+    void initWithCache();    
+    void save2Cache();
+    //not take ownership
+    IRQChannelItem * getChannelItemByIndex(int aIndex);
+    
     void clearAndDestroyLogos();
     
 public slots:
@@ -51,6 +56,7 @@ private:
     QList<IRQChannelItem*> *iChannelList;
     QMap<int, HbIcon*>     iLogos;
     HbIcon *iStationLogo;
+    IRSearchResultDB *iDB;
 };
 
 #endif

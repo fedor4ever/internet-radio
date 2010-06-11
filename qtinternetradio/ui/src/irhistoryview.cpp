@@ -72,11 +72,6 @@ IRHistoryView::IRHistoryView(IRApplication *aApplication, TIRViewId aViewId) :
     connect(iConvertTimer, SIGNAL(timeout()), this, SLOT(convertAnother()));
 }
 
-void IRHistoryView::gotoSongHistory()
-{
-    getViewManager()->activateView(EIRView_SongHistoryView);
-}
-
 /* 
  * Description : destructor
  */
@@ -108,10 +103,6 @@ TIRHandleResult IRHistoryView::handleCommand(TIRViewCommand aCommand,
         break;
                 
     case EIR_ViewCommand_ACTIVATED:
-        connect(iIsdsClient, SIGNAL(presetResponse(IRQPreset *)),
-                this, SLOT(presetResponse(IRQPreset *)));
-        connect(iIsdsClient, SIGNAL(operationException(IRQError)),
-                this, SLOT(operationException(IRQError)));
         connect(iIsdsClient, SIGNAL(presetLogoDownloaded(IRQPreset* )),
                 this, SLOT(presetLogoDownload(IRQPreset* )));
         connect(iIsdsClient, SIGNAL(presetLogoDownloadError()),
@@ -134,11 +125,7 @@ TIRHandleResult IRHistoryView::handleCommand(TIRViewCommand aCommand,
         //iIconIndexArray must be cleared, because timer call back convertAnother() might be
         //called after view is deactivated. In that case, iModel->getImgURL(aIndex); will crash
         iIconIndexArray.clear();
-                
-        disconnect(iIsdsClient, SIGNAL(presetResponse(IRQPreset *)),
-                   this, SLOT(presetResponse(IRQPreset *)));
-        disconnect(iIsdsClient, SIGNAL(operationException(IRQError)),
-                   this, SLOT(operationException(IRQError)));
+
         disconnect(iIsdsClient, SIGNAL(presetLogoDownloaded(IRQPreset*)),
                    this, SLOT(presetLogoDownload(IRQPreset* )));
         disconnect(iIsdsClient, SIGNAL(presetLogoDownloadError()),
@@ -169,50 +156,19 @@ void IRHistoryView::handleItemSelected()
         return;
     }
 
+    IRQPreset preset;
+    convertStationHistory2Preset(*hisInfo, preset);
+    
     if (hisInfo->getChannelType())
     {
-        // channel from isds server, get this preset
-        iApplication->createLoadingDialog(this, SLOT(cancelRequest()));
-        iIsdsClient->isdsListenRequest(hisInfo->getChannelId(), true);
+        // channel from isds server
+        iPlayController->connectToChannel(&preset, EIRQHistoryIsds);
     }
     else
     {
         // user defined channel
-        IRQChannelServerURL server;
-        server.bitrate = hisInfo->getBitrate();
-        server.url = hisInfo->getStreamUrl();
-        server.serverName = hisInfo->getChannelName();
-        IRQPreset preset;
-        preset.insertChannelServer(server);
-        preset.name = hisInfo->getChannelName();
-        preset.description = hisInfo->getChannelDesc();
-        preset.shortDesc = hisInfo->getChannelDesc();
-        preset.genreName = hisInfo->getGenreName();
-        preset.countryName = hisInfo->getCountryName();
-        preset.languageName = hisInfo->getLanguageName();
-        preset.type = 0;
-        preset.uniqID = 0;
-        preset.presetId = 0;
-
         iPlayController->connectToChannel(&preset,EIRQHistoryAdhoc);
     }
-}
-
-// ---------------------------------------------------------------------------
-// IRHistoryView::presetResponse()
-// gets the preset from isds client and play
-//---------------------------------------------------------------------------
-void IRHistoryView::presetResponse(IRQPreset *aPreset)
-{
-    iPlayController->connectToChannel(aPreset,EIRQHistoryIsds);
-}
-
-void IRHistoryView::operationException(IRQError aError)
-{
-    Q_UNUSED(aError);
-    iApplication->closeLoadingDialog();
-
-    popupNote(hbTrId("txt_irad_info_failed_to_connect"), HbMessageBox::MessageTypeWarning);
 }
 
 void IRHistoryView::networkRequestNotified(IRQNetworkEvent aEvent)
@@ -237,11 +193,6 @@ void IRHistoryView::networkRequestNotified(IRQNetworkEvent aEvent)
     }
     
     setUseNetworkReason(EIR_UseNetwork_NoReason);
-}
-
-void IRHistoryView::cancelRequest()
-{
-    iIsdsClient->isdsCancelRequest();
 }
 
 // ---------------------------------------------------------------------------
@@ -479,6 +430,7 @@ void IRHistoryView::listViewLongPressed(HbAbstractViewItem *aItem, const QPointF
 void IRHistoryView::convertStationHistory2Preset(const IRQSongHistoryInfo& aHistoryInfo, IRQPreset& aPreset)
 {
     IRQChannelServerURL url;
+    url.serverName = aHistoryInfo.getChannelName();
     url.url = aHistoryInfo.getStreamUrl();
     url.bitrate = aHistoryInfo.getBitrate();
     aPreset.name = aHistoryInfo.getChannelName();

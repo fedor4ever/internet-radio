@@ -20,6 +20,7 @@
 #include <QEvent>
 #include <hbglobal.h>
 #include <xqserviceprovider.h>
+#include <qpoint.h>
 
 #include "irqevent.h"
 #include "irviewdefinitions.h"
@@ -41,6 +42,7 @@ class HbProgressDialog;
 class IRQSystemEventHandler;
 class XQSharableFile;
 class IRPlayList;
+class HbIconItem;
 
 #ifdef LOCALIZATION
 class QTranslator;
@@ -57,9 +59,9 @@ public:
     
     bool verifyNetworkConnectivity(const QString &aConnectingText = hbTrId("txt_common_info_loading"));
     
-    void createLoadingDialog(const QObject *aReceiver, const char *aFunc);
-    
-    void closeLoadingDialog();
+    void startLoadingAnimation(const QObject *aReceiver, const char *aFunc);  
+    void startLoadingAnimation(const QPointF& aPos);
+    void stopLoadingAnimation();
     
     IRViewManager* getViewManager() const;
     IRQNetworkController* getNetworkController();
@@ -116,6 +118,7 @@ private:
     void startSystemEventMonitor();
     void initApp();
     void setExitingView();
+    void getLoadingAnimation();
     
     TIRHandleResult handleConnectionEstablished();
     
@@ -168,6 +171,7 @@ private:
     IRQSystemEventHandler *iSystemEventHandler;
     
     IRPlayList *iPlayList;
+    HbIconItem          *iLoadingAnimation;    
 };
 
 #endif

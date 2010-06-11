@@ -180,8 +180,6 @@ EXPORT_C void CIRFavoritesDb::AddPresetL(CIRIsdsPreset& aPreset,
             preset->CIRIsdsPresetToCIRPresetImpl(aPreset);
             //setname of CPSPresetInterface is called
             preset->SetNameL( aPreset.GetName() );
-            //asign the preset id of the fav preset to uniqid value of the preset
-            aPreset.SetUniqId(preset->Id());
             transaction->CommitL();
             CleanupStack::PopAndDestroy( transaction );
             //added to check multiple insertion
@@ -409,30 +407,34 @@ EXPORT_C TInt CIRFavoritesDb::GetPreviousPreset( TInt aIndex )
 //
 
 EXPORT_C void CIRFavoritesDb::ReplacePresetL( CIRIsdsPreset& aNewPreset )
-	{
+{
 	IRLOG_DEBUG( "CIRFavoritesDb::ReplacePresetL" );
 	iMoveStatus=EFalse;
 	CIRPreset* preset;
 	TInt index = SearchPreset(aNewPreset.GetId(),KNullId);
 	//actual index
     if (index >= 0)
-        {
+    {
         ASSERT( index >= 0 || index < iFavPresetList.Count() );
     	index = iFavPresetList[index]->Index();
     	preset = PresetByIndex(index);
-    	if(preset)
-    		{
-        	CPSTransaction* transaction = preset->CreateTransactionLC();
+    	if (preset)
+    	{
+    	    CPSTransaction* transaction = preset->CreateTransactionLC();
         	//change the preset data and commit
+    	    //update 'name' only if this station has not been renamed before
+    	    if (preset->GetRenamed())
+            {
+    	        aNewPreset.SetName(preset->Name());
+            }
         	preset->CIRIsdsPresetToCIRPresetImpl(aNewPreset);
         	preset->SetChannelType(EIsdsPreset);
-        		preset->SetNameL( aNewPreset.GetName() );
         	transaction->CommitL();
         	CleanupStack::PopAndDestroy( transaction );
-    		}
-        }
+    	}
+    }
 	IRLOG_DEBUG( "CIRFavoritesDb::ReplacePresetL - Exiting." );
-	}
+}
 
 //---------------------------------------------------------------------------
 //CIRFavoritesDb::ReplaceUserDefinedPresetL()
@@ -576,6 +578,43 @@ EXPORT_C TInt CIRFavoritesDb::IncreasePlayedTimesL(const CIRIsdsPreset &aIsdsPre
     //open a transaction with the preset server
     CPSTransaction* transaction = irPreset->CreateTransactionLC();
     irPreset->SetPlayedTimes(irPreset->GetPlayedTimes() + 1);
+    transaction->CommitL();
+    CleanupStack::PopAndDestroy(transaction);
+    
+    return KErrNone;
+}
+
+EXPORT_C TInt CIRFavoritesDb::RenamePresetL(const CIRIsdsPreset &aIsdsPreset, const TDesC &aNewName)
+{
+    TInt index = 0;
+    if (aIsdsPreset.GetChannelType() == 0)
+    {
+        index = SearchUserDefinedPreset(aNewName, aIsdsPreset.GetChannelUrlAtL(0));
+        if (KErrNotFound != index)
+        {
+            //there is already a user-defined station with same name and url
+            return KErrAlreadyExists;
+        }
+        else
+        {
+            index = SearchUserDefinedPreset(aIsdsPreset.GetName(), aIsdsPreset.GetChannelUrlAtL(0));
+        }
+    }
+    else
+    {
+        index = SearchPreset(aIsdsPreset.GetId(), KNullId);
+    }
+    
+    if (KErrNotFound == index)
+    {
+        return KErrNotFound;
+    }
+    
+    CIRPreset *irPreset = iFavPresetList[index];
+    //open a transaction with the preset server
+    CPSTransaction* transaction = irPreset->CreateTransactionLC();
+    irPreset->SetNameL(aNewName);
+    irPreset->SetRenamed();
     transaction->CommitL();
     CleanupStack::PopAndDestroy(transaction);
     

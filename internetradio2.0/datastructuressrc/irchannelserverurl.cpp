@@ -212,28 +212,24 @@ EXPORT_C void CIRChannelServerUrl::ExternalizeL(RWriteStream& aWriteStream)
 	{
 	IRLOG_DEBUG( "CIRChannelServerUrl::ExternalizeL - Entering" );
 	TInt len;
-	if( !iServerName )
+	if(iServerName && (len=iServerName->Length()) > 0)
 		{
-		len=0;
-		aWriteStream.WriteInt32L(len);
-		}
-	else
-		{
-		len=iServerName->Length();
 		aWriteStream.WriteInt32L(len);
 		aWriteStream << *iServerName;
 		}
-		
-	if(!iURL )
+	else
 		{
-		len=0;
+		aWriteStream.WriteInt32L(0);
+		}
+		
+	if(iURL && (len=iURL->Length()) > 0)
+		{
 		aWriteStream.WriteInt32L(len);
+		aWriteStream << *iURL;
 		}
 	else
 		{
-		len=iURL->Length();
-		aWriteStream.WriteInt32L(len);
-		aWriteStream << *iURL;
+		aWriteStream.WriteInt32L(0);
 		}
 		
 	aWriteStream.WriteInt32L(iBitrate);

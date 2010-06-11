@@ -204,7 +204,7 @@ void IRCategoryView::loadCategory(IRQIsdsClient::IRQIsdsClientInterfaceIDs aCate
     
     if (!cache)
     {
-        iApplication->createLoadingDialog(this, SLOT(cancelRequest()));
+        iApplication->startLoadingAnimation(this, SLOT(cancelRequest()));
     }
 }
 
@@ -264,7 +264,7 @@ void IRCategoryView::networkRequestNotified(IRQNetworkEvent aEvent)
             connectToIsdsClient();
             bool cache = false;
             iIsdsClient->isdsCategoryRequest(request, cache);
-            iApplication->createLoadingDialog(this, SLOT(cancelRequest()));
+            iApplication->startLoadingAnimation(this, SLOT(cancelRequest()));
         }
         //for there may be some cache, and when we click, we need to handle here        
         else if ( EIR_UseNetwork_SelectItem == getUseNetworkReason())
@@ -352,7 +352,7 @@ void IRCategoryView::handleItemSelected()
 void IRCategoryView::dataChanged()
 {
     disconnectIsdsClient();
-    iApplication->closeLoadingDialog();
+    iApplication->stopLoadingAnimation();
 
     iListView->reset();
     iListView->setCurrentIndex(iModel->index(iLastSelectItem));
@@ -368,7 +368,7 @@ void IRCategoryView::cancelRequest()
 {
     iIsdsClient->isdsCancelRequest();
     disconnectIsdsClient();
-    iApplication->closeLoadingDialog();
+    iApplication->stopLoadingAnimation();
     
     //if this function is called and this view is current view, it indicates that this view is starting view and 
     //data has not been loaded yet, so we need to back to collections view
@@ -385,7 +385,7 @@ void IRCategoryView::cancelRequest()
 void IRCategoryView::operationException(IRQError aError)
 {
     Q_UNUSED(aError);
-    iApplication->closeLoadingDialog();
+    iApplication->stopLoadingAnimation();
 
     disconnectIsdsClient();
     

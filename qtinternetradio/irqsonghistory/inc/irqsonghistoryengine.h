@@ -81,7 +81,7 @@ public:
     * @param    aMetaData   The meta data contains song name, artist and bitrate.
     * @param    aMusicshopStatus     The music shop status of the song
     */
-    IMPORT_C void handleSongMetaDataReceived(const IRQMetaData& aMetaData, QString& aMusicshopStatus);
+    IMPORT_C void handleSongMetaDataReceived(const IRQMetaData& aMetaData, const IRQPreset& preset);
     
     /*
      * delete one item from the station history db
@@ -128,7 +128,7 @@ private:
     
     void handleMetaDataReceivedL(const IRQMetaData& aMetaData, const IRQPreset& aPreset);
 	void getAllHistoryL(QList<IRQSongHistoryInfo *>& aSongHistoryArr);
-	void handleSongMetaDataReceivedL(const IRQMetaData& aMetaData, QString& aMusicshopStatus);
+	void handleSongMetaDataReceivedL(const IRQMetaData& aMetaData, const IRQPreset& aPreset);
     void getAllSongHistoryL(QList<IRQSongInfo *>& aSongHistoryArr);
 
 private:

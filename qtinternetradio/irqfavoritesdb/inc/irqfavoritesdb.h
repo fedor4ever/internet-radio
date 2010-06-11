@@ -123,6 +123,8 @@ public:
      */
     void increasePlayedTimes(const IRQPreset &aPreset);
     
+    int renamePreset(const IRQPreset &aPreset, const QString &aNewName);
+    
 signals:
     /*
      * the signal will triggered when we receive the message that preset is changed

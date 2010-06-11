@@ -73,16 +73,13 @@ class CIRIsdsPreset:public CBase
 	*/
 	~CIRIsdsPreset();
 
-
-	/**
-	*CIRIsdsPreset::CIRIsdsPreset()
-	*standard C++ constructor
-	*/
-	IMPORT_C	CIRIsdsPreset();
-
-
 	protected:
-
+    /**
+    *CIRIsdsPreset::CIRIsdsPreset()
+    *standard C++ constructor
+    */
+	CIRIsdsPreset();
+	
 	/**
 	*CIRIsdsPreset::ConstructL()
 	*standard second phase constructor(Leaveable)
@@ -243,13 +240,6 @@ class CIRIsdsPreset:public CBase
 	IMPORT_C	void SetUrlCount(TInt aCnt);
 
 	/**
-	*CIRIsdsPreset::SetIndex()
-	*sets the index for the preset.used only for presets in the fav list
-	*@param aInt
-	*/
-	IMPORT_C	void SetIndex(TInt aInt);
-
-	/**
 	*CIRIsdsPreset::SetUrlL()
 	*sets the channel server url
 	*@param aServerName ,server name
@@ -273,13 +263,6 @@ class CIRIsdsPreset:public CBase
 	*@param aChannelType userdefined,isds,adhoc
 	*/
 	IMPORT_C	void SetChannelType(TInt aChannelType);
-
-	/**
-	*CIRIsdsPreset::SetUrlL()
-	*sets the url for a channel server
-	*@param aUrl
-	*/
-	IMPORT_C    void SetUrlL(const TDesC &aUrl);
 	
 	
 	/**
@@ -380,13 +363,6 @@ class CIRIsdsPreset:public CBase
 	IMPORT_C	TInt GetChannelType() const;
 
 	/**
-	*CIRIsdsPreset::GetIndex()
-	*gets the channel  index
-	*@return TInt
-	*/
-	IMPORT_C	TInt GetIndex() const;
-
-	/**
 	*CIRIsdsPreset::GetGenreId()
 	*gets the channel  genreid
 	*@return TDesC
@@ -432,20 +408,6 @@ class CIRIsdsPreset:public CBase
 	*@return TDesC&
 	*/
     IMPORT_C const TDesC8& GetLogoData() const;
-
-	/*
-	*CIRIsdsPreset::GetLogoSize()
-	*gets the Logo Size
-	*@return TSize&
-	*/
-    IMPORT_C const TSize& GetLogoSize() const;
-
-	/**
-	*CIRIsdsPreset::SGetUrl()
-	*gets the channel  url from zeroth position
-	*@return TInt
-	*/
-	IMPORT_C TInt GetUrl() const;
 
 		/**
 	*CIRIsdsPreset::GetMusicStoreStatus()
@@ -494,20 +456,6 @@ class CIRIsdsPreset:public CBase
 	*/
 	IMPORT_C 	CDesCArrayFlat* GetExactUrlForBitrateL(TInt aBitrate);
 
-	/**
-	*CIRIsdsPreset::UniqId()
-	*gets the unique id
-	*@return TUint32
-	*/
-	IMPORT_C 	TUint32 UniqId() const;
-
-	/**
-	*CIRIsdsPreset::SetUniqId()
-	*sets the unique id for the preset
-	*@param aId
-	*/
-	IMPORT_C 	void SetUniqId( TUint32 aId);
-
     /**
 	*CIRIsdsPreset::GetChannelUrlAtL()
 	*sets the lastmodified time stamp
@@ -547,14 +495,10 @@ public:
     };
 
 private:
-	//unique id generated for the preset saved at favourite
-	TUint32 iUniqId;
 	//no of channel urls
 	TInt iChannelUrlCount;
     //0 for user defined 1 for isds type.
 	TInt iType;
-	//index in the preset table
-	TInt iIndex;
 	//isds generated preset id
 	TInt iPresetId;
 	//preset name

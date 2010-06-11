@@ -39,6 +39,8 @@ public:
    QString channelName;
    QString shortDescription;
    QString imageURL;
+   //added for cache search
+   int     channelID;
 };
 
 class IRQChannelServerURL

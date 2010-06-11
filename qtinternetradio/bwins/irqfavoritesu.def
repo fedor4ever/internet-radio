@@ -28,4 +28,5 @@ EXPORTS
 	?qt_metacast@IRQFavoritesDB@@UAEPAXPBD@Z @ 27  NONAME ; void * IRQFavoritesDB::qt_metacast(char const *)
 	?getStaticMetaObject@IRQFavoritesDB@@SAABUQMetaObject@@XZ @ 28  NONAME ; struct QMetaObject const & IRQFavoritesDB::getStaticMetaObject(void)
 	??0IRQFavoritesDB@@QAE@XZ @ 29  NONAME ; IRQFavoritesDB::IRQFavoritesDB(void)
+        ?renamePreset@IRQFavoritesDB@@QAEHABVIRQPreset@@ABVQString@@@Z @ 30  NONAME ; int IRQFavoritesDB::renamePreset(class IRQPreset const &, class QString const &)
 

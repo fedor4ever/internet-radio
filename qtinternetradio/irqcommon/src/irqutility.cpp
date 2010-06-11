@@ -51,9 +51,7 @@ static bool launchAppByUid(const TUid aUid);
 //
 EXPORT_C void IRQUtility::convertCIRIsdsPreset2IRQPrest(const CIRIsdsPreset& aCIRIsdsPreset, IRQPreset& aQIRPreset)
 {
-  aQIRPreset.uniqID = aCIRIsdsPreset.UniqId(); 
   aQIRPreset.type = aCIRIsdsPreset.GetChannelType();
-  aQIRPreset.index  = aCIRIsdsPreset.GetIndex();
   
   aQIRPreset.presetId = aCIRIsdsPreset.GetId();
   aQIRPreset.iChannelUrlCount  = aCIRIsdsPreset.GetUrlCount();
@@ -101,8 +99,6 @@ EXPORT_C void IRQUtility::convertCIRIsdsPreset2IRQPrest(const CIRIsdsPreset& aCI
 //
 EXPORT_C void IRQUtility::convertIRQPreset2CIRIsdsPreset(const IRQPreset& aQIRPreset, CIRIsdsPreset& aCIRIsdsPreset)
 {
-  aCIRIsdsPreset.SetId(aQIRPreset.uniqID);
-  aCIRIsdsPreset.SetIndex(aQIRPreset.index);
   aCIRIsdsPreset.SetId(aQIRPreset.presetId);
   aCIRIsdsPreset.SetUrlCount(aQIRPreset.iChannelUrlCount);
   aCIRIsdsPreset.SetChannelType(aQIRPreset.type);  
@@ -157,14 +153,47 @@ EXPORT_C void IRQUtility::convertIRQPreset2CIRIsdsPreset(const IRQPreset& aQIRPr
 //
 EXPORT_C void IRQUtility::convertCIRPreset2IRQPreset(const CIRPreset& aCIRPreset, IRQPreset& aIRQPreset)
 {
-  CIRIsdsPreset * cirIsdsPreset = NULL;  
-  TRAPD(err, cirIsdsPreset = CIRIsdsPreset::NewL());
-  if( KErrNone != err)
-    return;
-   
-  aCIRPreset.CopyPresetData(*cirIsdsPreset);  
-  convertCIRIsdsPreset2IRQPrest(*cirIsdsPreset, aIRQPreset);
-  delete cirIsdsPreset;  
+    aIRQPreset.uniqID = aCIRPreset.Id(); 
+    aIRQPreset.type = aCIRPreset.GetChannelType();
+    aIRQPreset.index  = aCIRPreset.Index();
+    
+    aIRQPreset.presetId = aCIRPreset.GetId();
+    aIRQPreset.iChannelUrlCount  = aCIRPreset.GetUrlCount();
+    aIRQPreset.name = QString::fromUtf16((aCIRPreset.Name()).Ptr(), (aCIRPreset.Name()).Length());
+    
+    aIRQPreset.languageCode  = QString::fromUtf16(aCIRPreset.GetLangId().Ptr(), aCIRPreset.GetLangId().Length());
+    aIRQPreset.languageName  = QString::fromUtf16(aCIRPreset.GetLangName().Ptr(), aCIRPreset.GetLangName().Length());
+    
+    aIRQPreset.countryCode  = QString::fromUtf16(aCIRPreset.GetCountryId().Ptr(),aCIRPreset.GetCountryId().Length());
+    aIRQPreset.countryName  = QString::fromUtf16(aCIRPreset.GetCountryName().Ptr(),aCIRPreset.GetCountryName().Length());
+    
+    aIRQPreset.lastModified  = QString::fromUtf16(aCIRPreset.GetLastModifiedTime().Ptr(), aCIRPreset.GetLastModifiedTime().Length());
+    aIRQPreset.description  = QString::fromUtf16(aCIRPreset.GetDescription().Ptr(), aCIRPreset.GetDescription().Length());
+    aIRQPreset.shortDesc  = QString::fromUtf16(aCIRPreset.GetShortDescription().Ptr(), aCIRPreset.GetShortDescription().Length());
+    
+    aIRQPreset.genreId  = QString::fromUtf16(aCIRPreset.GetGenreId().Ptr(), aCIRPreset.GetGenreId().Length());
+    aIRQPreset.genreName  = QString::fromUtf16(aCIRPreset.GetGenreName().Ptr(), aCIRPreset.GetGenreName().Length());
+    
+    aIRQPreset.advertisementUrl  = QString::fromUtf16(aCIRPreset.GetAdvertisementUrl().Ptr(), aCIRPreset.GetAdvertisementUrl().Length());
+    aIRQPreset.advertisementInUse  = QString::fromUtf16(aCIRPreset.GetAdvertisementInUse().Ptr(),aCIRPreset.GetAdvertisementInUse().Length());
+    
+    aIRQPreset.imgUrl  = QString::fromUtf16(aCIRPreset.GetImgUrl().Ptr(), aCIRPreset.GetImgUrl().Length());   
+    
+    aIRQPreset.musicStoreStatus  = QString::fromUtf16(aCIRPreset.GetMusicStoreStatus().Ptr(), aCIRPreset.GetMusicStoreStatus().Length());
+    aIRQPreset.clearChannelServerList();
+    
+    IRQChannelServerURL url;
+    
+    for(int i=0; i<aCIRPreset.GetUrlCount(); i++)
+    {
+        CIRChannelServerUrl& tempServerUrl = aCIRPreset.GetUrl(i);
+        url.bitrate = tempServerUrl.GetBitRate();
+        url.serverName = QString::fromUtf16(tempServerUrl.GetServerName().Ptr(), tempServerUrl.GetServerName().Length());
+        url.url = QString::fromUtf16(tempServerUrl.GetServerUrl().Ptr(), tempServerUrl.GetServerUrl().Length());
+        aIRQPreset.insertChannelServer(url);
+    }
+    
+    aIRQPreset.sortURLArray();   
 }
 
 //switch from the symbian error code to the IRQ error code 

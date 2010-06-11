@@ -25,6 +25,7 @@ class IRQPreset;
 class IRQStatisticsReporter;
 class IRQNetworkController;
 class IRQMetaData;
+class IRStationShare;
 class HbLabel;
 
 /**
@@ -107,6 +108,7 @@ private:
 private:
     IRQStatisticsReporter *iStatisticsReporter;
     IRQNetworkController  *iNetworkController;
+    IRStationShare *iStationShare;
 
     // tool bar actions
     HbAction *iPlayStopAction;

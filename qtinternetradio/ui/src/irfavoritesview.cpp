@@ -22,6 +22,7 @@
 #include <hbselectiondialog.h>
 #include <QPixmap>
 #include <QTimer>
+#include <HbInputDialog>
 
 #include "irviewmanager.h"
 #include "irfavoritesview.h"
@@ -51,6 +52,7 @@ const QString KActionDetailsName("Details");
  */
 IRFavoritesView::IRFavoritesView(IRApplication *aApplication, TIRViewId aViewId) 
                                  : IrAbstractListViewBase(aApplication, aViewId),
+                                   iStationShare(NULL),
                                    iMultiDeleteDialog(NULL),
                                    iMultiDeleteAction(NULL),
                                    iLogoPreset(NULL)
@@ -73,7 +75,10 @@ IRFavoritesView::~IRFavoritesView()
     iLogoPreset = NULL;
     
     delete iMultiDeleteDialog;
-    iMultiDeleteDialog = NULL;    
+    iMultiDeleteDialog = NULL; 
+    
+    delete iStationShare;
+    iStationShare = NULL;
 }
 
 TIRHandleResult IRFavoritesView::handleCommand(TIRViewCommand aCommand, TIRViewCommandReason aReason)
@@ -430,8 +435,11 @@ void IRFavoritesView::shareContextAction()
 {
     int current = iListView->currentIndex().row();
 
-    IRStationShare stationShare;
-    stationShare.shareStations(*iModel->getPreset(current));    
+    if (NULL == iStationShare)
+    {
+        iStationShare = new IRStationShare();
+    }
+    iStationShare->shareStations(*iModel->getPreset(current));    
 }
 
 void IRFavoritesView::updateIconIndexArray()
@@ -450,7 +458,9 @@ void IRFavoritesView::updateIconIndexArray()
 
 void IRFavoritesView::renameContextAction()
 {
-    
+    int current = iListView->currentIndex().row();
+    IRQPreset *preset = iModel->getPreset(current);
+    HbInputDialog::getText(hbTrId("txt_common_menu_rename_item"), this, SLOT(renameConfirmed(HbAction*)), preset->name);
 }
 
 void IRFavoritesView::detailsContextAction()
@@ -488,6 +498,49 @@ void IRFavoritesView::deleteContextAction()
     {
         iConvertTimer->start();
     }    
+}
+
+void IRFavoritesView::renameConfirmed(HbAction *aAction)
+{
+    HbInputDialog *dialog = static_cast<HbInputDialog*>(sender());
+    if (dialog)
+    {
+        if (aAction == dialog->actions().at(0))
+        {
+            int current = iListView->currentIndex().row();
+            IRQPreset *preset = iModel->getPreset(current);
+            
+            QString newName = dialog->value().toString().trimmed();
+            if (newName.isEmpty())
+            {
+                newName = hbTrId("txt_irad_info_unnamed_station");
+            }
+            
+            if (newName == preset->name)
+            {
+                return;
+            }
+            
+            int ret = iFavorites->renamePreset(*preset, newName);
+            switch (ret)
+            {
+            case EIRQErrorNotFound:
+                //popup note : not found
+                break;
+                
+            case EIRQErrorAlreadyExist:
+                //popup note : already exists
+                break;
+                
+            case EIRQErrorNone:
+                iModel->updateFavoriteName(current, newName);
+                break;
+                
+            default:
+                break;
+            }  
+        }
+    }
 }
 
 void IRFavoritesView::initToolBar()

@@ -29,10 +29,12 @@ void IRQChannelServerURL::externalize(QDataStream &aStream) const
     aStream<<serverName<<url<<bitrate;
 }
 
-EXPORT_C IRQPreset::IRQPreset()
+//we need to initialize all the member for sometimes, it will 
+//crash by overflow if we don't do this. 
+EXPORT_C IRQPreset::IRQPreset():uniqID(0),type(0),index(0),presetId(0),
+                                bitrate(0),iIsSorted(false),iChannelUrlCount(0)
 {
-    iIsSorted = false;
-    iChannelUrlCount = 0;
+ 
 }
 
 EXPORT_C IRQPreset::~IRQPreset()

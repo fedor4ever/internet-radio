@@ -34,6 +34,7 @@
 #include "irqenums.h"
 #include "iruidefines.h"
 #include "irqsettings.h"
+static const int MAX_URL_CHARACTOR_NUMBER = 255;
 
 IROpenWebAddressView::IROpenWebAddressView(IRApplication* aApplication, TIRViewId aViewId) :
     IRBaseView(aApplication, aViewId),
@@ -199,6 +200,7 @@ void IROpenWebAddressView::initDataForm()
 {
     iUrl = new HbDataFormModelItem(
             HbDataFormModelItem::TextItem, hbTrId("txt_irad_formlabel_station_url"));
+    iUrl->setContentWidgetData("maxLength",MAX_URL_CHARACTOR_NUMBER);
     iModel->appendDataFormItem(iUrl);
 
     iName = new HbDataFormModelItem(

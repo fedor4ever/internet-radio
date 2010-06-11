@@ -47,6 +47,8 @@ public:
     bool deleteOneFavorite(int aIndex);  
     bool deleteMultiFavorites(const QModelIndexList &aIndexList);
     
+    void updateFavoriteName(int aIndex, const QString &aNewName);
+    
 signals:
     void modelChanged();
     
