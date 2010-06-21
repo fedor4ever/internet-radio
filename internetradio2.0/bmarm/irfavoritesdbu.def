@@ -21,7 +21,7 @@ EXPORTS
 	_ZN14CIRFavoritesDb4NewLEv @ 20  NONAME
 	_ZNK14CIRFavoritesDb16EmptyPresetCountEv @ 21  NONAME
 	_ZNK14CIRFavoritesDb7PresetsEv @ 22  NONAME
-	_ZThn4_N14CIRFavoritesDb20HandlePresetChangedLEi4TUidN17MPSPresetObserver9TPSReasonE @ 23  NONAME ; #<thunk>#
+	_ZThn4_N14CIRFavoritesDb20HandlePresetChangedLEi4TUidN17MPSPresetObserver9TPSReasonE @ 23  NONAME ABSENT ; #<thunk>#
 	_ZN14CIRFavoritesDb19GetAllSortedPresetsEv @ 24  NONAME
 	_ZN14CIRFavoritesDb20IncreasePlayedTimesLERK13CIRIsdsPreset @ 25  NONAME
 
