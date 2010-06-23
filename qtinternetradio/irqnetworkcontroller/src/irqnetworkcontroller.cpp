@@ -88,50 +88,6 @@ EXPORT_C IRQError IRQNetworkController::getIAPId(unsigned long& aIapId) const
 }
 
 // ---------------------------------------------------------------------------
-// IRQNetworkController::getAccessPointList()
-// Returns the list of available access points
-// @return QStringList &aList specifying the access point names
-// ---------------------------------------------------------------------------
-//
-EXPORT_C void IRQNetworkController::getAccessPointList(QStringList &aList)
-{
-    iBody->getAccessPointList(aList);
-}
-
-// ---------------------------------------------------------------------------
-// IRQNetworkController::getApIdList()
-// Returns the list of iap ids for available access points
-// @return QList<unsigned long> &aList specifying the iap ids
-// ---------------------------------------------------------------------------
-//
-EXPORT_C void IRQNetworkController::getApIdList(QList<unsigned long> &aList)
-{
-    iBody->getApIdList(aList);
-}
-
-// ---------------------------------------------------------------------------
-// IRQNetworkController::getBearerList()
-// Returns the list of bearer ids for available access points
-// @return QList<unsigned long> &aList specifying the bearer ids
-// ---------------------------------------------------------------------------
-//
-EXPORT_C void IRQNetworkController::getBearerList(QList<unsigned long> &aList)
-{
-    iBody->getBearerList(aList);
-}
-
-// ---------------------------------------------------------------------------
-// IRQNetworkController::getNetworkList()
-// Returns the list of network ids for available access points
-// @return QList<unsigned long> &aList specifying the network ids
-// ---------------------------------------------------------------------------
-//
-EXPORT_C void IRQNetworkController::getNetworkList(QList<unsigned long> &aList)
-{
-    iBody->getNetworkList(aList);
-}
-
-// ---------------------------------------------------------------------------
 // IRQNetworkController::chooseAccessPoint()
 // Configures the Access Point which is used by all the components for network
 // connectivity

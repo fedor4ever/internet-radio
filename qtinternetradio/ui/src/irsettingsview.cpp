@@ -48,7 +48,7 @@ void IRSettingsView::initView()
     setLayout(layout);
 
     HbGroupBox * titleText = new HbGroupBox();
-    titleText->setHeading( hbTrId("txt_irad_subtitle_network_setting") ); 
+    titleText->setHeading( hbTrId("txt_common_opt_settings") ); 
     layout->addItem(titleText);
 
     iForm = new HbDataForm();

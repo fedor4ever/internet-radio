@@ -24,7 +24,7 @@
 #include <QFile>
 #include <QTextStream>
 #include <QDir>
-#include <xqsharablefile.h> 
+
 #include <xqserviceutil.h>
 #include <hbiconitem.h>
 #include <hbiconanimator.h>
@@ -49,17 +49,14 @@
 #include "irqlogger.h"
 #include "iruidefines.h"
 #include "irqsystemeventhandler.h"
-#include "irplaylist.h"
 #include "irabstractlistviewbase.h"
-
-#define INTERNETRADIO_SERVICE_NAME "internet_radio_10_1.com.nokia.symbian.IFileView"
+#include "irfileviewservice.h"
 /*
  * Description : constructor, initialize all data members
  * Parameters  : aViewManager : pointer to the view manager object
  * Return      : None
  */
 IRApplication::IRApplication(IRViewManager* aViewManager, IRQSystemEventHandler* aSystemEventHandler):
-                                     XQServiceProvider(INTERNETRADIO_SERVICE_NAME),
 #ifdef _DEBUG
                                      iTestPreferredBitrate(false),
 #endif
@@ -82,16 +79,11 @@ IRApplication::IRApplication(IRViewManager* aViewManager, IRQSystemEventHandler*
                                      iTranslator(NULL),
                                      #endif
                                      iSystemEventHandler(aSystemEventHandler),
-                                     iPlayList(NULL),
-                                     iLoadingAnimation(NULL)
+                                     iLoadingAnimation(NULL),
+                                     iFileViewService(NULL)
                                      
 {
     LOG_METHOD;
-    if (XQServiceUtil::isService())
-    {
-        //Publishes all public slots on this object
-        publishAll();
-    }
     
     iViewManager->setApplication(this);
     iInitEvent = static_cast<QEvent::Type>(QEvent::registerEventType());
@@ -105,6 +97,12 @@ IRApplication::IRApplication(IRViewManager* aViewManager, IRQSystemEventHandler*
     iSettings->getGlobalAdvFlag(iEnableGlobalAdv);
     setupConnection();
     setLaunchView();
+    
+    QString name = XQServiceUtil::interfaceName();
+    if (name == QString("com.nokia.symbian.IFileView"))
+    {
+        iFileViewService = new IRFileViewService(this);
+    }
 } 
 
 /*
@@ -131,8 +129,6 @@ IRApplication::~IRApplication()
     
     delete iSystemEventHandler;
     
-    delete iPlayList;
-    
 #ifdef LOCALIZATION
     if( iTranslator )
     {
@@ -141,6 +137,9 @@ IRApplication::~IRApplication()
         iTranslator = NULL;
     }
 #endif
+    
+    delete iFileViewService;
+    iFileViewService = NULL;
 }
 
  
@@ -298,6 +297,8 @@ IRQNetworkController* IRApplication::getNetworkController()
     if(NULL == iNetworkController)
     {
         iNetworkController = IRQNetworkController::openInstance(); 
+        connect(iNetworkController, SIGNAL(networkEventNotified(IRQNetworkEvent)),
+               this, SLOT(networkEventNotified(IRQNetworkEvent)));
     } 
     return iNetworkController;
 }
@@ -379,7 +380,12 @@ IRQAdvClient* IRApplication::getAdvClient()
 
 IRPlayList* IRApplication::getPlayList() const
 {
-    return iPlayList;
+    if (NULL == iFileViewService)
+    {
+        return NULL;
+    }
+    
+    return iFileViewService->getPlayList();
 }
 
 #ifdef LOCALIZATION
@@ -391,37 +397,6 @@ void IRApplication::setTranslator(QTranslator* aTranslator)
     iTranslator = aTranslator;        
 }
 #endif
-
-void IRApplication::view(const QString &aFileName)
-{
-    if (NULL == iPlayList)
-    {
-        iPlayList = new IRPlayList;
-    }
-    
-    iPlayList->parseFile(aFileName);
-    
-    if (1 == iPlayList->getNumberOfEntries())
-    {
-        launchStartingView(EIRView_PlayingView);
-    }
-    else if (iPlayList->getNumberOfEntries() > 1)
-    {
-        launchStartingView(EIRView_PlsView);
-    }
-    else
-    {
-        //normal launch, launch starting view
-        TIRViewId viewId = EIRView_CategoryView;
-        iSettings->getStartingViewId(viewId);        
-        launchStartingView(viewId);
-    }
-}
-
-void IRApplication::view(const XQSharableFile &/*aSharableFile*/)
-{
-    
-}
 
 /*
  * Description : create all the application level components, including network controller,
@@ -610,9 +585,6 @@ void IRApplication::getLoadingAnimation()
 void IRApplication::initApp()
 {
     getNetworkController();    
-    
-    connect(iNetworkController, SIGNAL(networkEventNotified(IRQNetworkEvent)),
-            this, SLOT(networkEventNotified(IRQNetworkEvent)));
     
     IRBaseView *view = static_cast<IRBaseView*> (iViewManager->currentView());
     if (view)

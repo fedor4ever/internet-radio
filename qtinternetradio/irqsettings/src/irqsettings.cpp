@@ -31,13 +31,7 @@ EXPORT_C IRQSettings* IRQSettings::openInstance()
 
     if (NULL == irqsettings)
     {
-        TRAPD(error, irqsettings = createInstanceL());
-        if (KErrNone != error)
-        {
-            delete irqsettings;
-            irqsettings = NULL;
-            Dll::SetTls(NULL);
-        }
+        irqsettings = createInstance();
     }
     else
     {
@@ -366,16 +360,36 @@ IRQSettings::~IRQSettings()
 // @return IRQSettings*
 // ---------------------------------------------------------------------------
 //
-IRQSettings* IRQSettings::createInstanceL()
+IRQSettings* IRQSettings::createInstance()
 {
-    IRQSettings* irqsettings = new (ELeave) IRQSettings();
-    irqsettings->constructL();
-    User::LeaveIfError(Dll::SetTls(irqsettings));
-    irqsettings->iSingletonInstances = 1;
-
-    return irqsettings;
+    IRQSettings* irqsettings = new IRQSettings();
+    
+    TRAPD(leaveCode, doCreateInstanceL(irqsettings));
+    if (KErrNone != leaveCode)
+    {
+        delete irqsettings;
+        irqsettings = NULL;
+        return NULL;
+    }
+    else
+    {
+        irqsettings->iSingletonInstances = 1;
+        return irqsettings;
+    }
 }
 
+// ---------------------------------------------------------------------------
+// IRQSettings::doCreateInstanceL()
+// Creates IRQSettings instance
+// @return IRQSettings*
+// ---------------------------------------------------------------------------
+//
+void IRQSettings::doCreateInstanceL(IRQSettings * aQsettings)
+{
+    aQsettings->constructL();
+    Dll::SetTls(aQsettings);
+
+}
 // ---------------------------------------------------------------------------
 // IRQSettings::constructL()
 // Two-Phase Constructor.

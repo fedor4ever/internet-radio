@@ -17,6 +17,7 @@ TEMPLATE = lib
 TARGET = irqisdsclient
 TARGET.CAPABILITY += CAP_GENERAL_DLL
 
+defFilePath = ..
 MOC_DIR = moc
 DEPENDPATH = src
 

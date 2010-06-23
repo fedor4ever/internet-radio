@@ -39,8 +39,8 @@ public:
     void initWithCache();    
     void save2Cache();
     //not take ownership
-    IRQChannelItem * getChannelItemByIndex(int aIndex);
-    
+    IRQChannelItem * getChannelItemByIndex(int aIndex); 
+    void cleanupDatabase();
     void clearAndDestroyLogos();
     
 public slots:

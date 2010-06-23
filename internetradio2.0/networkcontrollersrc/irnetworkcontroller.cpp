@@ -36,15 +36,10 @@
 
 #include "iractivenetworkobserver.h"
 
-//for ALR/SNAP
-#include <cmmanager.h>
-#include <cmdestination.h>
-
 
 const TInt KMaxIRUAProfLength = 250; // Max length of the UAProf string
 const TInt KIRDefaultUAProfBufferSize = 0x80;
 const TUint KIRESockMessageSlots = 16;
-const TUint32 KIRUniqueWlanId = 0x2000883F; // Just to make it unique
 const TInt KArraySize = 5;
 const TInt KWlanStringMaxLength = 9;
 const TInt KTwo = 2;
@@ -101,6 +96,13 @@ EXPORT_C CIRNetworkController* CIRNetworkController::OpenL(MIRNetworkController*
         CleanupStack::Pop(networkController);
 	}
     networkController->iSingletonInstances++;
+    
+    if (NULL != aObserver)
+    {
+        networkController->iObserver = aObserver;
+        networkController->iIRNetworkObserver->SetObserver(aObserver);
+    }
+    
     IRLOG_DEBUG( "CIRNetworkController::OpenL - Exiting." );
     return networkController;
 }
@@ -261,49 +263,6 @@ EXPORT_C TInt CIRNetworkController::GetIAPId(TUint32& aIapId) const
 }
 
 // ---------------------------------------------------------------------------
-// CIRNetworkController::GetAccessPointList
-// Reset the connection status to Disconnected statet
-// ---------------------------------------------------------------------------
-//
-EXPORT_C const CDesCArray* CIRNetworkController::GetAccessPointList() const
-{
-    IRLOG_DEBUG( "CIRNetworkController::GetAccessPointList" );
-    return iIapList;
-}
-
-// ---------------------------------------------------------------------------
-// CIRNetworkController::GetBearerList
-// Reset the connection status to Disconnected statet
-//
-EXPORT_C const RArray<TUint32> CIRNetworkController::GetBearerList() const
-{
-    IRLOG_DEBUG( "CIRNetworkController::GetBearerList" );
-    return iBearerList;
-}
-
-// ---------------------------------------------------------------------------
-// CIRNetworkController::GetNetworkList
-// Reset the connection status to Disconnected statet
-// ---------------------------------------------------------------------------
-//
-EXPORT_C const RArray<TUint32> CIRNetworkController::GetNetworkList() const
-{
-    IRLOG_DEBUG( "CIRNetworkController::GetNetworkList" );
-    return iNetworkList;
-}
-
-// ---------------------------------------------------------------------------
-// CIRNetworkController::GetApList
-// Reset the connection status to Disconnected statet
-// ---------------------------------------------------------------------------
-//
-EXPORT_C const RArray<TUint32> CIRNetworkController::GetApList() const
-{
-    IRLOG_DEBUG( "CIRNetworkController::GetApList" );
-    return iIapIdList;
-}
-
-// ---------------------------------------------------------------------------
 //  CIRNetworkController::ChooseAccessPointL
 //  Configures the Access Point which is used by all the components for network
 //  connectivity
@@ -330,6 +289,13 @@ EXPORT_C void CIRNetworkController::ChooseAccessPointL(TBool aDefaultConnection)
     // Always validate the Access Points status
     if ( ValidateAccessPointsL() )
     { 
+        if(NULL != iMobility)
+        {
+         iMobility->Cancel();
+         delete iMobility;
+         iMobility = NULL;
+        }
+
         // Connect to the Symbian Socket Server
         iIRNetworkConnection->Close();
         iIRSocketServer.Close();
@@ -531,7 +497,13 @@ CIRNetworkController::~CIRNetworkController()
     _LIT(KErrorMsg,"Method Close not called");
     __ASSERT_ALWAYS(iSingletonInstances == 0, User::Panic(KErrorMsg, KErrCorrupt));
 
-    delete iMobility;
+    if(NULL != iMobility)
+    {
+     iMobility->Cancel();
+     delete iMobility;
+     iMobility = NULL;
+    }
+
     if (IsActive())
     {
         Cancel();
@@ -552,9 +524,7 @@ CIRNetworkController::~CIRNetworkController()
     }
     delete iIRNetworkObserver;
     iIRSocketServer.Close();
-    iBearerList.Close();
-    iNetworkList.Close();
-    iIapIdList.Close();
+
     if (iIapList)
     {
         iIapList->Reset();
@@ -622,9 +592,6 @@ void CIRNetworkController::QueryCommsForIAPL()
 
     // Reset all the comms info
     iIapList->Reset();
-    iBearerList.Reset();
-    iNetworkList.Reset();
-    iIapIdList.Reset();
     
 #ifndef __WINS__
     CIRFilteredApReader* filteredReader = CIRFilteredApReader::
@@ -639,9 +606,6 @@ void CIRNetworkController::QueryCommsForIAPL()
         CleanupStack::PushL( iapRecord );
 
         iIapList->AppendL( iapRecord->iRecordName.GetL() );
-        iBearerList.AppendL( static_cast<TUint32>(iapRecord->iBearer) );
-        iNetworkList.AppendL( static_cast<TUint32>(iapRecord->iNetwork) );
-        iIapIdList.AppendL( iapRecord->RecordId() );
 
         CleanupStack::PopAndDestroy( iapRecord );
         iapRecord = filteredReader->NextRecordL();
@@ -662,9 +626,6 @@ void CIRNetworkController::QueryCommsForIAPL()
         CCDIAPRecord* iapRecord =
                 static_cast<CCDIAPRecord*> (iapSet->iRecords[i]);
         iIapList->AppendL(iapRecord->iRecordName.GetL());
-        iBearerList.AppendL(static_cast<TUint32> (iapRecord->iBearer));
-        iNetworkList.AppendL(static_cast<TUint32> (iapRecord->iNetwork));
-        iIapIdList.AppendL(iapRecord->RecordId());
     }
     CleanupStack::PopAndDestroy(2, dbSession);
 
@@ -679,10 +640,6 @@ void CIRNetworkController::QueryCommsForIAPL()
         TBuf<KWlanStringMaxLength> wlanString;
         wlanString.Copy(KIRWLanName);
         iIapList->AppendL(wlanString);
-        TUint32 WlanIdentifier(KIRUniqueWlanId);
-        iBearerList.AppendL(WlanIdentifier);
-        iNetworkList.AppendL((TUint32)KErrNotFound);
-        iIapIdList.AppendL((TUint32)KErrNotFound);
     }
 #endif
 
@@ -871,6 +828,14 @@ void CIRNetworkController::RunL()
 void CIRNetworkController::DoCancel()
 {
     IRLOG_DEBUG( "CIRNetworkController::DoCancel - Entering" );
+
+    if(NULL != iMobility)
+    {
+     iMobility->Cancel();
+     delete iMobility;
+     iMobility = NULL;
+    }
+
     iIRNetworkConnection->Stop();
     iIRNetworkConnection->Close();
     iIRSocketServer.Close();

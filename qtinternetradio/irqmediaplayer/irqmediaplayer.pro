@@ -16,6 +16,7 @@ TEMPLATE = lib
 TARGET = irqmediaplayer
 TARGET.CAPABILITY = CAP_GENERAL_DLL
 
+defFilePath = ..
 DEFINES += MMFADAPTER
 
 DEPENDPATH += src

@@ -173,6 +173,15 @@ IRQChannelItem * IrChannelModel::getChannelItemByIndex(int aIndex)
     return iChannelList->at(aIndex);
 }
 
+void IrChannelModel::cleanupDatabase()
+{
+    clearAndDestroyItems();
+    clearAndDestroyLogos();
+    iDB->clearCache();
+    
+    emit dataAvailable();
+}
+
 void IrChannelModel::clearAndDestroyLogos()
 {
     for (QMap<int, HbIcon*>::iterator it = iLogos.begin(); it != iLogos.end(); ++it)

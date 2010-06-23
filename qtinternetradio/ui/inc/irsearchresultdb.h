@@ -34,10 +34,10 @@ public:
 	IRQError cacheChannelList(QList<IRQChannelItem*> *aChannelList);
 	//caller needs to release the memory
 	QList<IRQChannelItem*> * getCahcedChannelList();	
+	IRQError clearCache();
     
 private:		
-    void createDBConnection();
-    IRQError clearCache();
+    void createDBConnection();    
 		
 private:
 	  QSqlDatabase         *iDB;

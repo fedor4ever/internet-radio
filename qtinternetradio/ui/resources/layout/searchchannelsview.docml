@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <hbdocument version="1.0">     
+    <object name="exit_act" type="HbAction">
+        <string locid="txt_common_opt_exit" name="text"/>
+    </object>
     <widget name="ext-IRSearchChannelsView" type="HbView">
         <widget name="content" role="HbView:widget" type="HbWidget">
             <contentsmargins bottom="0un" left="0un" right="0un" top="0un"/>
@@ -27,6 +30,9 @@
                 <linearitem itemname="search_panel" spacing="0un"/>
             </layout>
         </widget> 
+        <widget name="view_menu" role="HbView:menu" type="HbMenu">            
+            <ref object="exit_act" role="HbMenu:addAction"/>
+        </widget>
         <string locid="txt_irad_title_internet_radio" name="title"/>
     </widget>
     

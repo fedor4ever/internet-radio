@@ -70,6 +70,7 @@ static const char* OPEN_WEB_ADDRESS_VIEW_OBJECT_PLAY_BUTTON                = "pl
 static const char* SEARCH_CHANNELS_VIEW_OBJECT_VIEW                   = "ext-IRSearchChannelsView"; 
 static const char* SEARCH_CHANNELS_VIEW_SEARCHPANEL_WIDGET            = "search_panel";
 static const char* SEARCH_CHANNELS_VIEW_SEARCHLISTVIEW_WIDGET         = "search_listview";
+static const char* SEARCH_CHANNELS_VIEW_HEADINGTEXT_WIDGET            = "headingText";
 
 // IRNowplayingView  -- Object Name
 static const char* NOW_PLAYING_VIEW_OBJECT_NAME                       = "ext-nowplayingview"; 

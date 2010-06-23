@@ -322,7 +322,12 @@ void IRHistoryView::convertAnother()
 
 void IRHistoryView::modelChanged()
 {
-    QString headingStr = hbTrId("Station History") + " (" + QString::number(iModel->rowCount()) + ")";  
+#ifdef SUBTITLE_STR_BY_LOCID
+    QString headingStr = hbTrId("txt_irad_subtitle_recently_played_stations") + " (" + QString::number(iModel->rowCount()) + ")"; 
+#else
+    QString headingStr = hbTrId("Recently played stations") + " (" + QString::number(iModel->rowCount()) + ")";
+#endif
+  
     setHeadingText(headingStr);
 }
  

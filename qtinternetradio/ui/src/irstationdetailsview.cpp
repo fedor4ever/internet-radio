@@ -67,7 +67,13 @@ void IRStationDetailsView::setDetails(IRQPreset * aPreset)
     iBitRate->setPlainText(QString::number(bitrate) + QString("kbps"));
 
     iDescription->setPlainText(aPreset->description);
-    iNowPlayingUrl->setPlainText(aPreset->getURLsForBitrate(bitrate)->at(KChannelURLIndex));
+
+    QList<QString> *urlList = aPreset->getURLsForBitrate(bitrate);
+    if (urlList != NULL)
+    {
+        iNowPlayingUrl->setPlainText(urlList->at(KChannelURLIndex));
+    }
+    delete urlList;
 }
 
 /*

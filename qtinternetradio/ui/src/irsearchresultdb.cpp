@@ -62,7 +62,14 @@ IRQError IRSearchResultDB::cacheChannelList(QList<IRQChannelItem*> *aChannelList
             QString name = insertItem->channelName;
             int channelID = insertItem->channelID;
             QString imageURL = insertItem->imageURL;
-            QString description = insertItem->shortDescription;            
+            QString description = insertItem->shortDescription;
+            
+            //if some data overflows, we just skip it.note that
+            //the VARCHAR is word-based, so here we use the real size 
+            if( name.size()>= 256 || imageURL.size() >= 256 || description.size() >= 256 )
+            {
+                continue;
+            }            
             
             QSqlQuery query;
             bool result;
@@ -156,6 +163,8 @@ void IRSearchResultDB::createDBConnection()
     {
         bool dbResult = false;
         QSqlQuery query;         
+        //note: the VARCHAR is word-based but not byte-based. and 255 
+        //means 255 unicode words.
         dbResult = query.exec("CREATE TABLE searchresult ("
             "id INTEGER PRIMARY KEY AUTOINCREMENT, "
             "name VARCHAR(255) NOT NULL, "

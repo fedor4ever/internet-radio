@@ -21,7 +21,7 @@
 #include "irbaseview.h"
 #include "irqenums.h"
 
-
+class HbGroupBox;
 class HbListView;
 class HbSearchPanel;
 class HbAction;
@@ -59,7 +59,8 @@ private: //functions
     void lazyInit();
     void startConvert(int aIndex);   
     void initTimer();
-    
+    //set the subtitle and counter;
+    void setHeadingText(const QString &aText);
 private slots: //slots
      
     void cancelRequest();
@@ -84,7 +85,7 @@ private: // members
         ESearch_init = 0,
         ESearch_Loading //loading means searching or buffering.
     };    
-    
+    HbGroupBox          *iHeadingLabel;
     HbListView          *iListView;
     QString              iKeyText;
     

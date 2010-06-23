@@ -25,6 +25,7 @@
 #include <hbiconanimator.h>
 #include <hblabel.h> 
 #include <hbiconanimationmanager.h>
+#include <HbGroupBox>
 
 #include "irsearchchannelsview.h"
 #include "iruidefines.h"
@@ -40,7 +41,7 @@ const uint KBitmapSize = 59;
 
 IRSearchChannelsView::IRSearchChannelsView(IRApplication* aApplication,
         TIRViewId aViewId): IRBaseView(aApplication, aViewId),
-        iListView(NULL),iSearchPanelWidget(NULL),iSearchState(ESearch_init),
+        iHeadingLabel(NULL),iListView(NULL),iSearchPanelWidget(NULL),iSearchState(ESearch_init),
         iChannelModel(NULL),iPreset(NULL),iLogoPreset(NULL),
         iConvertTimer(NULL) 
 {
@@ -78,7 +79,9 @@ void IRSearchChannelsView::normalInit()
 
 void IRSearchChannelsView::initMenu()
 {
-
+    HbMenu *viewMenu = menu();
+    QObject *exitAction = iLoader.findObject(EXIT_ACTION);
+    connect(exitAction, SIGNAL(triggered()), iApplication, SIGNAL(quit()));
 }
 
 void IRSearchChannelsView::initTimer()
@@ -123,6 +126,9 @@ void IRSearchChannelsView::loadLayout()
     iLoader.setObjectTree( roots );
     iLoader.load(SEARCH_CHANNELS_VIEW_LAYOUT_FILENAME);
     
+    iHeadingLabel = qobject_cast<HbGroupBox *>(iLoader.findWidget(SEARCH_CHANNELS_VIEW_HEADINGTEXT_WIDGET));
+    
+    
     iSearchPanelWidget = qobject_cast<HbSearchPanel *>(iLoader.findWidget(SEARCH_CHANNELS_VIEW_SEARCHPANEL_WIDGET));    
     
     iListView = qobject_cast<HbListView *>(iLoader.findWidget(SEARCH_CHANNELS_VIEW_SEARCHLISTVIEW_WIDGET));   
@@ -135,6 +141,14 @@ void IRSearchChannelsView::loadLayout()
     iChannelModel = new IrChannelModel(this);
     iChannelModel->initWithCache();
     iListView->setModel(iChannelModel);    
+    //anywhere, before show the count, updated it ahead.
+#ifdef SUBTITLE_STR_BY_LOCID
+    QString headingStr = hbTrId("txt_irad_subtitle_search_results") + " (" + QString::number(iChannelModel->rowCount()) + ")"; 
+#else
+    QString headingStr = hbTrId("Search results") + " (" + QString::number(iChannelModel->rowCount()) + ")";
+#endif
+
+    setHeadingText(headingStr);  
 }
 
 void IRSearchChannelsView::connectWidget()
@@ -293,6 +307,7 @@ void IRSearchChannelsView::operationException(IRQError aError)
     }
     
     popupNote(errStr, HbMessageBox::MessageTypeWarning);     
+    iChannelModel->cleanupDatabase();
 }
 
 void IRSearchChannelsView::clickItem(const QModelIndex&)
@@ -332,13 +347,31 @@ void IRSearchChannelsView::convertAnother()
     }
 }
 
+//set the subtitle and counter;
+void IRSearchChannelsView::setHeadingText(const QString &aText)
+{
+    if (iHeadingLabel)
+    {
+        iHeadingLabel->setHeading(aText);
+    }    
+}
 void IRSearchChannelsView::dataChanged()
 {
     switch2InitState(); 
+    //here update count in subtitle
+#ifdef SUBTITLE_STR_BY_LOCID
+    QString headingStr = hbTrId("txt_irad_subtitle_search_results") + " (" + QString::number(iChannelModel->rowCount()) + ")"; 
+#else
+    QString headingStr = hbTrId("Search results") + " (" + QString::number(iChannelModel->rowCount()) + ")";
+#endif
+    setHeadingText(headingStr);   
     iListView->reset();
-    iListView->setCurrentIndex(iChannelModel->index(0));
-    iListView->scrollTo(iChannelModel->index(0)); 
- 
+    if( iChannelModel->rowCount() )
+    {
+        iListView->setCurrentIndex(iChannelModel->index(0));
+        iListView->scrollTo(iChannelModel->index(0));         
+    }
+    
     //we move the focus to the listview and the search panel will
     //hide the virtual keyboard at the same time
     iListView->setFocus();            
@@ -356,9 +389,7 @@ void IRSearchChannelsView::dataChanged()
     if( iIconIndexArray.count() > 0 )
     {
         iConvertTimer->start();        
-    } 
-    
-    iSearchPanelWidget->setPlaceholderText(iKeyText); 
+    }   
 }
 
 void IRSearchChannelsView::startConvert(int aIndex)

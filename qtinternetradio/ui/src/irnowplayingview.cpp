@@ -67,7 +67,6 @@ static const QString KLcdGraphics("qtg_fr_lcd");
 IRNowPlayingView::IRNowPlayingView(IRApplication* aApplication, TIRViewId aViewId) :
     IRBaseView(aApplication, aViewId),
     iStatisticsReporter(NULL),
-    iNetworkController(NULL),
     iStationShare(NULL),
     iPlayStopAction(NULL),
     iLaunchActionNeeded(false),
@@ -101,11 +100,6 @@ IRNowPlayingView::IRNowPlayingView(IRApplication* aApplication, TIRViewId aViewI
  */
 IRNowPlayingView::~IRNowPlayingView()
 {
-    if(iNetworkController)
-    {
-        iNetworkController->closeInstance();
-    }
-    
     if (iStatisticsReporter)
     {
         iStatisticsReporter->closeInstance();
@@ -386,7 +380,6 @@ void IRNowPlayingView::normalInit()
         IRBaseView::lazyInit();
         
         iStatisticsReporter = IRQStatisticsReporter::openInstance();
-        iNetworkController = IRQNetworkController::openInstance();
             
         connect(iPlayController, SIGNAL(metaDataAvailable(IRQMetaData*)), this, SLOT(updateMetaData(IRQMetaData*)));
         connect(iPlayController, SIGNAL(playingStarted()), this, SLOT(handlePlayStarted()));

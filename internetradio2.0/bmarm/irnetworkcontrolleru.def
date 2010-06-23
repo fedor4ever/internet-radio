@@ -18,12 +18,8 @@ EXPORTS
 	_ZN20CIRNetworkController32RegisterLogoDataTransferTrackerLER12RHTTPSession @ 17 NONAME
 	_ZN20CIRNetworkController5CloseEv @ 18 NONAME
 	_ZN20CIRNetworkController5OpenLEP20MIRNetworkController @ 19 NONAME
-	_ZNK20CIRNetworkController13GetBearerListEv @ 20 NONAME
-	_ZNK20CIRNetworkController14GetNetworkListEv @ 21 NONAME
-	_ZNK20CIRNetworkController15IsWlanSupportedEv @ 22 NONAME
-	_ZNK20CIRNetworkController16GetNetworkStatusEv @ 23 NONAME
-	_ZNK20CIRNetworkController18GetAccessPointListEv @ 24 NONAME
-	_ZNK20CIRNetworkController22IdentifyConnectionTypeEv @ 25 NONAME
-	_ZNK20CIRNetworkController8GetIAPIdERm @ 26 NONAME
-	_ZNK20CIRNetworkController9GetApListEv @ 27 NONAME
+	_ZNK20CIRNetworkController15IsWlanSupportedEv @ 20 NONAME
+	_ZNK20CIRNetworkController16GetNetworkStatusEv @ 21 NONAME
+	_ZNK20CIRNetworkController22IdentifyConnectionTypeEv @ 22 NONAME
+	_ZNK20CIRNetworkController8GetIAPIdERm @ 23 NONAME
 

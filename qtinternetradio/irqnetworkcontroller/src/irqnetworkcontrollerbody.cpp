@@ -61,68 +61,6 @@ IRQError IRQNetworkControllerBody::getIAPId(unsigned long& aIapId) const
 }
 
 // ---------------------------------------------------------------------------
-// IRQNetworkControllerBody::getAccessPointList()
-// Returns the list of available access points
-// @return QStringList &aList specifying the access point names
-// ---------------------------------------------------------------------------
-//
-void IRQNetworkControllerBody::getAccessPointList(QStringList &aList)
-{
-    const CDesCArray *apArray = iNetworkController->GetAccessPointList();
-    int count = apArray->MdcaCount();
-    for (int i = 0; i < count; ++i)
-    {
-        QString str = QString::fromUtf16(apArray->MdcaPoint(i).Ptr(), apArray->MdcaPoint(i).Length());
-        aList.append(str);
-    }
-}
-
-// ---------------------------------------------------------------------------
-// IRQNetworkControllerBody::getApIdList()
-// Returns the list of iap ids for available access points
-// @return QList<unsigned long> &aList specifying the iap ids
-// ---------------------------------------------------------------------------
-//
-void IRQNetworkControllerBody::getApIdList(QList<unsigned long> &aList)
-{
-    const RArray<TUint32>& accessPointIDArray = iNetworkController->GetApList();
-    for (int i = 0; i < accessPointIDArray.Count(); ++i)
-    {
-        aList.append(accessPointIDArray[i]);
-    }
-}
-
-// ---------------------------------------------------------------------------
-// IRQNetworkControllerBody::getBearerList()
-// Returns the list of bearer ids for available access points
-// @return QList<unsigned long> &aList specifying the bearer ids
-// ---------------------------------------------------------------------------
-//
-void IRQNetworkControllerBody::getBearerList(QList<unsigned long> &aList)
-{
-    const RArray<TUint32>& bearerIDArray = iNetworkController->GetBearerList();
-    for (int i = 0; i < bearerIDArray.Count(); ++i)
-    {
-        aList.append(bearerIDArray[i]);
-    }
-}
-
-// ---------------------------------------------------------------------------
-// IRQNetworkControllerBody::getNetworkList()
-// Returns the list of network ids for available access points
-// @return QList<unsigned long> &aList specifying the network ids
-// ---------------------------------------------------------------------------
-//
-void IRQNetworkControllerBody::getNetworkList(QList<unsigned long> &aList)
-{
-    const RArray<TUint32>& networkIDArray = iNetworkController->GetNetworkList();
-    for (int i = 0; i < networkIDArray.Count(); ++i)
-    {
-        aList.append(networkIDArray[i]);
-    }
-}
-
-// ---------------------------------------------------------------------------
 // IRQNetworkControllerBody::chooseAccessPoint()
 // Configures the Access Point which is used by all the components for network
 // connectivity

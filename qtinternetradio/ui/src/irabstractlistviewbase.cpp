@@ -19,7 +19,7 @@
 #include <hbtoolbar.h>
 #include <hbaction.h>
 #include <hblistview.h>
-#include <hbabstractviewitem.h>
+#include <hblistviewitem.h>
 #include <hbscrollbar.h>
 #include <HbGroupBox>
 #include <HbMarqueeItem>
@@ -121,7 +121,8 @@ void IrAbstractListViewBase::initContentWidget()
     iArtistSongName->setLoopCount(KAnimationLoopTimes);
 
     iListView = qobject_cast<HbListView *>(iLoader.findObject(ABSTRACT_LIST_VIEW_BASE_OBJECT_LISTVIEW));
-
+    iListView->listItemPrototype()->setGraphicsSize(HbListViewItem::LargeIcon);
+    
     // draw background for now playing banner
     HbFrameDrawer* drawer = new HbFrameDrawer(NOW_PLAYING_BANNER_FRAME, HbFrameDrawer::NinePieces);
     HbFrameItem* backgroundItem = new HbFrameItem(drawer, iPlayingBanner);

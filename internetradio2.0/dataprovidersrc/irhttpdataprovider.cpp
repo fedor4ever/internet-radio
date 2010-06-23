@@ -740,12 +740,16 @@ void CIRHttpDataProvider::BuildHeadersL(const CIRHttpRequestData &aRequestInfo)
 		TInt pfCount = pf.Count();
         for(ii=0;ii<pf.Count();ii++)
             {
-            TBuf<KSize> z;
-            TBuf<KSize> z1;
+            RBuf z;
+            RBuf z1;
             TBool first;
             //file extensions
             const CDesC8Array &fe=pf[ii]->SupportedFileExtensions();
             first=TRUE;
+            z.CreateL(KSize);
+            z.CleanupClosePushL();
+            z1.CreateL(KSize);
+            z1.CleanupClosePushL();
             z1.Zero();
             for(j=0;j<fe.Count();j++)
                 {
@@ -787,7 +791,7 @@ void CIRHttpDataProvider::BuildHeadersL(const CIRHttpRequestData &aRequestInfo)
                 	tempD++;	                	
 	                }
                 };
-
+            CleanupStack::PopAndDestroy(2);
             };// for play formats
             }
    

@@ -22,7 +22,6 @@
 #include "irnetworkcontroller.h"
 #include "ircachemgmt.h"
 #include "irhttprequestdata.h"
-#include "irpreset.h"
 #include "irdebug.h"
 #include "irdataproviderconstants.h"
 #include "iractivenetworkobserver.h"

@@ -101,7 +101,8 @@ private:
     /**
      *  Creates IRQSettings instance
      */
-    static IRQSettings* createInstanceL();
+    static IRQSettings* createInstance();
+	static void doCreateInstanceL(IRQSettings * aQsettings);
     
     void constructL();
 

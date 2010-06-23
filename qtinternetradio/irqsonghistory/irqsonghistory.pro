@@ -16,6 +16,8 @@ TEMPLATE = lib
 TARGET = irqsonghistory
 TARGET.CAPABILITY = CAP_GENERAL_DLL
 
+defFilePath = ..
+
 DEPENDPATH += src ..\..\internetradio2.0\songhistorysrc
 LIBS += -lbafl -ledbms -lefsrv -lirsettings -lflogger
 

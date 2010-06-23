@@ -88,6 +88,7 @@ TIRHandleResult IRCategoryView::handleCommand(TIRViewCommand aCommand, TIRViewCo
                 {
                     iLoader.load(ABSTRACT_LIST_VIEW_BASE_LAYOUT_FILENAME, ABSTRACT_LIST_VIEW_BASE_NO_TOOLBAR_SECTION);
                     iLoadedSection = ABSTRACT_LIST_VIEW_BASE_NO_TOOLBAR_SECTION;
+                    setToolBar(NULL);
                 }
             }
         }
@@ -471,8 +472,10 @@ void IRCategoryView::initToolBar()
 {
     //add HbActions to the toolbar, the HbActions have been created in IrAbstractListViewBase
     HbToolBar *viewToolBar = toolBar();
+    viewToolBar->clearActions();
     viewToolBar->addAction(iGenresAction);
     viewToolBar->addAction(iCollectionsAction);
     viewToolBar->addAction(iFavoritesAction);
     viewToolBar->addAction(iSearchAction);
+    viewToolBar->setVisible(true);
 }

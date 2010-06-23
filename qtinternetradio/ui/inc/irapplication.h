@@ -17,9 +17,9 @@
 #ifndef IRAPPLICATION_H
 #define IRAPPLICATION_H
 
+#include <QObject>
 #include <QEvent>
 #include <hbglobal.h>
-#include <xqserviceprovider.h>
 #include <qpoint.h>
 
 #include "irqevent.h"
@@ -40,15 +40,15 @@ class QLocalServer;
 class IRQAdvClient;
 class HbProgressDialog;
 class IRQSystemEventHandler;
-class XQSharableFile;
 class IRPlayList;
 class HbIconItem;
+class IRFileViewService;
 
 #ifdef LOCALIZATION
 class QTranslator;
 #endif
 
-class IRApplication : public XQServiceProvider
+class IRApplication : public QObject
 {
     Q_OBJECT
     
@@ -74,6 +74,8 @@ public:
     IRQAdvClient* getAdvClient(); 
     IRPlayList* getPlayList() const;
     
+    void launchStartingView(TIRViewId aViewId);
+    
 #ifdef LOCALIZATION
     /*
      * this function will take ownership of the translator
@@ -88,10 +90,6 @@ public:
 public:
     bool iTestPreferredBitrate;
 #endif
-
-public slots:
-    void view(const QString &aFileName);
-    void view(const XQSharableFile &aSharableFile);
     
 signals:
     void quit();
@@ -114,7 +112,6 @@ private:
     void destroyComponents();
     void setupConnection();
     void setLaunchView();
-    void launchStartingView(TIRViewId aViewId);
     void startSystemEventMonitor();
     void initApp();
     void setExitingView();
@@ -170,8 +167,8 @@ private:
     
     IRQSystemEventHandler *iSystemEventHandler;
     
-    IRPlayList *iPlayList;
     HbIconItem          *iLoadingAnimation;    
+    IRFileViewService *iFileViewService;
 };
 
 #endif

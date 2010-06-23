@@ -204,7 +204,7 @@ EXPORT_C void CIRFavoritesDb::AddPresetL(const TDesC& aName,
 	IRLOG_DEBUG( "CIRFavoritesDb::AddPresetL(des des int int)" );
 	iMoveStatus=EFalse;
     CIRIsdsPreset* saveItem;
-    saveItem = CIRIsdsPreset::NewL();
+    saveItem = CIRIsdsPreset::NewLC();
     saveItem->SetName(aName);
 	saveItem->SetUrlCount(1);//only one url is saved for manually added channel
 	saveItem->SetChannelType(EUserDefined);
@@ -212,7 +212,8 @@ EXPORT_C void CIRFavoritesDb::AddPresetL(const TDesC& aName,
 	//bitrate set to zero so that it is accessible to all kinds of bitrate settings
 	saveItem->SetUrlL(KNotAvailable,aURl,0);
 	AddPresetL(*saveItem,aReturn);
-	delete saveItem;
+	CleanupStack::PopAndDestroy(saveItem);
+
 	IRLOG_DEBUG( "CIRFavoritesDb::AddPresetL(des des int int) - Exiting." );
 	}
 

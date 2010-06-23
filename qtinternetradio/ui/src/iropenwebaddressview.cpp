@@ -198,13 +198,17 @@ void IROpenWebAddressView::initUrlAndName()
  */
 void IROpenWebAddressView::initDataForm()
 {
-    iUrl = new HbDataFormModelItem(
-            HbDataFormModelItem::TextItem, hbTrId("txt_irad_formlabel_station_url"));
+#ifdef SUBTITLE_STR_BY_LOCID
+    iUrl = new HbDataFormModelItem(HbDataFormModelItem::TextItem, hbTrId("txt_irad_formlabel_station_address"));
+#else
+    iUrl = new HbDataFormModelItem(HbDataFormModelItem::TextItem, hbTrId("Station address"));
+#endif     
     iUrl->setContentWidgetData("maxLength",MAX_URL_CHARACTOR_NUMBER);
     iModel->appendDataFormItem(iUrl);
 
     iName = new HbDataFormModelItem(
             HbDataFormModelItem::TextItem, hbTrId("txt_irad_formlabel_station_name"));
+    iName->setContentWidgetData("maxLength", MAX_URL_CHARACTOR_NUMBER);
     iModel->appendDataFormItem(iName);
 
     iForm->addConnection(iUrl, SIGNAL(textChanged(const QString&)),

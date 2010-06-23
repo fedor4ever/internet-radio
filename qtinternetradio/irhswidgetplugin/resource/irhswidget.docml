@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hbdocument version="1.1">
+    <widget name="irhswidget" type="HbWidget">
+        <widget name="logoLabel" type="HbLabel">
+            <icon iconName="qtg_large_internet_radio" name="icon"/>
+            <sizepolicy horizontalPolicy="Preferred" horizontalStretch="0" verticalPolicy="Preferred" verticalStretch="0"/>
+            <sizehint height="14un" type="PREFERRED" width="10un"/>
+            <contentsmargins bottom="2un" left="1un" right="1un" top="2un"/>
+            <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
+        </widget>
+        <widget name="leftSideArea" type="HbWidget">
+            <widget name="stack_container" type="HbWidget">
+                <widget name="info_control_area" type="HbWidget">
+                    <widget name="infoLayout" type="HbWidget">
+                        <widget name="firstRowLabel" type="HbLabel">
+                            <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
+                            <sizehint height="7un" type="PREFERRED" width="23un"/>
+                            <fontspec name="fontSpec" role="PrimarySmall" textheight="3.5un"/>
+                        </widget>
+                        <widget name="secondRowLabel" type="HbLabel">
+                            <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
+                            <sizehint height="7un" type="PREFERRED" width="23un"/>
+                            <fontspec name="fontSpec" role="PrimarySmall" textheight="3un"/>
+                        </widget>
+                        <widget name="hInterLineLabel" type="HbLabel">
+                            <icon iconName="qtg_graf_divider_h_thin" name="icon"/>
+                            <sizehint height="1un" type="PREFERRED" width="23un"/>
+                            <contentsmargins bottom="0un" left="expr(var(hb-param-margin-gene-middle-horizontal) )" right="expr(var(hb-param-margin-gene-middle-horizontal) )" top="0un"/>
+                            <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
+                        </widget>
+                        <sizehint height="14un" type="PREFERRED" width="23un"/>
+                        <layout orientation="Vertical" spacing="0un" type="linear">
+                            <contentsmargins bottom="0un" left="0un" right="0un" top="0un"/>
+                            <linearitem itemname="firstRowLabel"/>
+                            <linearitem itemname="hInterLineLabel"/>
+                            <linearitem itemname="secondRowLabel"/>
+                        </layout>
+                    </widget>
+                    <widget name="vLineLabelRight" type="HbLabel">
+                        <icon iconName="qtg_graf_divider_v_thin" name="icon"/>
+                        <sizehint height="14un" type="PREFERRED" width="1un"/>
+                        <contentsmargins bottom="expr(var(hb-param-margin-gene-middle-vertical) )" left="0un" right="0un" top="expr(var(hb-param-margin-gene-middle-vertical) )"/>
+                        <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
+                    </widget>
+                    <widget name="controlLabel" type="HbLabel">
+                        <icon iconName="qtg_mono_play" name="icon"/>
+                        <sizepolicy horizontalPolicy="Preferred" horizontalStretch="0" verticalPolicy="Preferred" verticalStretch="0"/>
+                        <sizehint height="14un" type="PREFERRED" width="10un"/>
+                        <contentsmargins bottom="2un" left="2un" right="2un" top="2un"/>
+                        <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
+                    </widget>
+                    <sizehint height="14un" type="PREFERRED" width="34un"/>
+                    <layout orientation="Horizontal" spacing="0un" type="linear">
+                        <contentsmargins bottom="0un" left="0un" right="0un" top="0un"/>
+                        <linearitem itemname="infoLayout"/>
+                        <linearitem itemname="vLineLabelRight"/>
+                        <linearitem itemname="controlLabel"/>
+                    </layout>
+                </widget>
+                <widget name="goToIrLabel" type="HbLabel">
+                    <sizehint height="14un" type="PREFERRED" width="34un"/>
+                    <string name="plainText" value="Go To Internet Radio"/>
+                    <fontspec name="fontSpec" role="PrimarySmall" textheight="4un"/>
+                    <enums name="alignment" value="AlignLeft|AlignVCenter|AlignLeading"/>
+                </widget>
+                <sizehint height="14un" type="PREFERRED" width="34un"/>
+                <layout type="stacked">
+                    <stackitem itemname="info_control_area"/>
+                    <stackitem itemname="goToIrLabel"/>
+                </layout>
+            </widget>
+            <widget name="vLineLabelLeft" type="HbLabel">
+                <icon iconName="qtg_graf_divider_v_thin" name="icon"/>
+                <sizehint height="14un" type="PREFERRED" width="1un"/>
+                <contentsmargins bottom="expr(var(hb-param-margin-gene-middle-vertical) )" left="0un" right="0un" top="expr(var(hb-param-margin-gene-middle-vertical) )"/>
+                <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
+            </widget>
+            <sizehint height="14un" type="PREFERRED" width="35un"/>
+            <layout orientation="Horizontal" spacing="0un" type="linear">
+                <contentsmargins bottom="0un" left="0un" right="0un" top="0un"/>
+                <linearitem itemname="vLineLabelLeft"/>
+                <linearitem itemname="stack_container"/>
+            </layout>
+        </widget>
+        <size height="14un" name="size" width="45un"/>
+        <rect height="14un" name="geometry" width="45un" x="0" y="0"/>
+        <sizepolicy horizontalPolicy="Preferred" horizontalStretch="0" verticalPolicy="Preferred" verticalStretch="0"/>
+        <sizehint height="14un" type="PREFERRED" width="45un"/>
+        <layout orientation="Horizontal" spacing="0un" type="linear">
+            <contentsmargins bottom="0un" left="0un" right="0un" top="0un"/>
+            <linearitem itemname="logoLabel"/>
+            <linearitem itemname="leftSideArea"/>
+        </layout>
+    </widget>
+    <metadata activeUIState="Common ui state" display="NHD-3.2-inch_portrait" unit="un">
+        <uistate name="Common ui state" sections="#common"/>
+    </metadata>
+</hbdocument>

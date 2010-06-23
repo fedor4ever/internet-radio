@@ -152,7 +152,13 @@ void CApaRecognizerEx::RecognizeM3uFileL(const TDesC& aFileName)
     RFs fs;
     User::LeaveIfError(fs.Connect());
     RFile file;
-    file.Open(fs, aFileName, EFileRead);
+    TInt ret = file.Open(fs, aFileName, EFileRead);
+    if (KErrNone != ret)
+    {
+        fs.Close();
+        return;
+    }
+    
     RBuf8 content;
     TInt maxLen = 0;
     file.Size(maxLen);

@@ -4,7 +4,7 @@
         <string locid="txt_irad_opt_go_to_station" name="text"/>
     </object>
     <object name="setting_act" type="HbAction">
-        <string locid="txt_irad_opt_network_setting" name="text"/>
+        <string locid="txt_common_opt_settings" name="text"/>
     </object>
     <object name="exit_act" type="HbAction">
         <string locid="txt_common_opt_exit" name="text"/>
@@ -93,9 +93,6 @@
         </widget>
     </section>
     <section name="section_no_toolbar_with_heading">
-        <widget name="ext-IrAbstractListViewBase" type="HbView">
-            <widget name="viewToolbar_empty" role="HbView:toolBar" type="HbToolBar"/>
-        </widget>
         <widget name="headingText" type="HbGroupBox">
             <sizehint height="expr(var(hb-param-text-height-secondary)+2*var(hb-param-margin-gene-middle-vertical))" type="PREFERRED"/>
             <sizehint height="expr(var(hb-param-text-height-secondary)+2*var(hb-param-margin-gene-middle-vertical))" type="MINIMUM"/>

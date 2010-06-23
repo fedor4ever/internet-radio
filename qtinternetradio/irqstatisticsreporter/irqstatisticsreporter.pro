@@ -17,6 +17,7 @@ TARGET = irqstatisticsreporter
 QT -= gui
 CONFIG += dll
 DEFINES += BUILD_IRQSTATISTICSREPORTER_DLL
+defFilePath = ..
 
 symbian{
   TARGET.UID3 = 0xe3801560
@@ -28,7 +29,8 @@ symbian{
 ########## Dependency Path ##############################
 MOC_DIR = moc
 DEPENDPATH += src
-INCLUDEPATH += inc \
+INCLUDEPATH += /epoc32/include/platform \
+               inc \
                ../irqcommon\inc \
                ../irqisdsclient/inc \
                ../irqnetworkcontroller/inc \

@@ -155,7 +155,6 @@ EXPORT_C void IRQUtility::convertCIRPreset2IRQPreset(const CIRPreset& aCIRPreset
 {
     aIRQPreset.uniqID = aCIRPreset.Id(); 
     aIRQPreset.type = aCIRPreset.GetChannelType();
-    aIRQPreset.index  = aCIRPreset.Index();
     
     aIRQPreset.presetId = aCIRPreset.GetId();
     aIRQPreset.iChannelUrlCount  = aCIRPreset.GetUrlCount();
@@ -274,28 +273,28 @@ EXPORT_C bool IRQUtility::identifySongAvailable()
     
     bool ret = false;
     TUid songRecognitionAppUid = getSongRecognitionAppUid();
-    TApaAppInfo appInfo;
+    TApaAppInfo *appInfo = new TApaAppInfo;
     lsSession.GetAllApps();  
 
-    while( KErrNone == lsSession.GetNextApp(appInfo) )
+    while( KErrNone == lsSession.GetNextApp(*appInfo) )
     {
         TBool appIsHidden = EFalse;
         TApaAppCapabilityBuf capability;
-        if( KErrNone == lsSession.GetAppCapability(capability,appInfo.iUid) )
+        if( KErrNone == lsSession.GetAppCapability(capability,appInfo->iUid) )
         {
             appIsHidden = capability().iAppIsHidden;
         }
         
         if(!appIsHidden)
         {
-            if(songRecognitionAppUid == appInfo.iUid)
+            if(songRecognitionAppUid == appInfo->iUid)
             {
                 ret = true;
                 break;
             }
         }
     }
-    
+    delete appInfo;
     lsSession.Close();
     return ret;         
 }   

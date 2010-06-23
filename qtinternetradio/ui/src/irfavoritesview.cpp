@@ -45,6 +45,7 @@ const QString KActionDeleteName("Delete");
 const QString KActionRenameName("Rename");
 const QString KActionDetailsName("Details");
 
+
 //                                        public functions
 
 /*
@@ -336,7 +337,11 @@ void IRFavoritesView::convertAnother()
 
 void IRFavoritesView::modelChanged()
 {
-    QString headingStr = QString::number(iModel->rowCount()) + QString(" ") + hbTrId("txt_irad_subtitle_stations");
+#ifdef SUBTITLE_STR_BY_LOCID
+    QString headingStr = hbTrId("txt_irad_subtitle_favorites") + " (" + QString::number(iModel->rowCount()) + ")";
+#else
+    QString headingStr = hbTrId("Favorites") + " (" + QString::number(iModel->rowCount()) + ")";
+#endif
     setHeadingText(headingStr);
     updateIconIndexArray();
     
@@ -363,7 +368,11 @@ void IRFavoritesView::deleteDialogClosed(HbAction *aAction)
             }
 
             updateIconIndexArray();
-            QString headingStr = QString::number(iModel->rowCount()) + QString(" ") + hbTrId("txt_irad_subtitle_stations");
+#ifdef SUBTITLE_STR_BY_LOCID
+            QString headingStr = hbTrId("txt_irad_subtitle_favorites") + " (" + QString::number(iModel->rowCount()) + ")";
+#else
+            QString headingStr = hbTrId("Favorites") + " (" + QString::number(iModel->rowCount()) + ")";
+#endif
             setHeadingText(headingStr);  
 			
             if (!iIconIndexArray.empty())
@@ -486,7 +495,11 @@ void IRFavoritesView::deleteContextAction()
     if (iModel->deleteOneFavorite(current))
     {
         updateIconIndexArray();
-        QString headingStr = QString::number(iModel->rowCount()) + QString(" ") + hbTrId("txt_irad_subtitle_stations");
+#ifdef SUBTITLE_STR_BY_LOCID
+        QString headingStr = hbTrId("txt_irad_subtitle_favorites") + " (" + QString::number(iModel->rowCount()) + ")";
+#else
+        QString headingStr = hbTrId("Favorites") + " (" + QString::number(iModel->rowCount()) + ")";
+#endif
         setHeadingText(headingStr);          
     }
     else

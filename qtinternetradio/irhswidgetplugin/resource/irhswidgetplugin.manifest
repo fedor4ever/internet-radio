@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<hswidgetmanifest>
+    <uri>irhswidgetplugin</uri>
+    <title>Internet Radio HS Widget</title>
+    <description>Internet Radio HS Widget</description>
+    <icon>irhswidgetplugin.png</icon>
+    <hidden>false</hidden>
+    <servicexml>irhswidgetplugin.xml</servicexml>
+</hswidgetmanifest>

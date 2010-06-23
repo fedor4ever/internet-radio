@@ -176,7 +176,13 @@ void IRSongHistoryView::prepareMenu()
 void IRSongHistoryView::modelChanged()
 {    
     iListView->reset();
-    QString headingStr = hbTrId("txt_irad_list_recently_played_songs") + " (" + QString::number(iModel->rowCount()) + ")";    
+    
+#ifdef SUBTITLE_STR_BY_LOCID
+    QString headingStr = hbTrId("txt_irad_subtitle_recently_played_songs") + " (" + QString::number(iModel->rowCount()) + ")";   
+#else
+    QString headingStr = hbTrId("Recently played songs") + " (" + QString::number(iModel->rowCount()) + ")";
+#endif    
+ 
     setHeadingText(headingStr);   
 }
 
