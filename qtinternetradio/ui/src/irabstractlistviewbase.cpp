@@ -38,8 +38,7 @@
 #include "iruidefines.h"
  
 const int KAnimationLoopTimes = 2; // Animation loop times
-//#define NOW_PLAYING_BANNER_FRAME "qtg_fr_multimedia_trans"
-#define NOW_PLAYING_BANNER_FRAME "qtg_fr_popup_list_highlight"
+#define NOW_PLAYING_BANNER_FRAME "qtg_fr_multimedia_trans"
 
 IrAbstractListViewBase::IrAbstractListViewBase(IRApplication *aApplication, TIRViewId aViewId)
     : IRBaseView(aApplication, aViewId),

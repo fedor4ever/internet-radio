@@ -20,7 +20,8 @@
 #define IRPRESET_H
 
 #include <badesca.h>
-#include <pspresetinterface.h>
+
+#include "pspresetinterface.h"
 
 class CIRIsdsPreset;
 class CIRChannelServerUrl;

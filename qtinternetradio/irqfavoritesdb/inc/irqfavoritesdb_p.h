@@ -19,7 +19,8 @@
 #define IRQFAVORITESDB_P_H
 
 #include <QObject>
-#include <pspresetobserver.h>
+
+#include "pspresetobserver.h"
 
 class CIRFavoritesDb;
 class IRQPreset;

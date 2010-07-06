@@ -20,6 +20,9 @@
 #include <QFile>
 #include <QTextStream>
 #endif
+#ifdef HS_WIDGET_ENABLED
+#include <QSettings>
+#endif
 
 #include "irplaycontroller.h"
 #include "irapplication.h"
@@ -35,6 +38,9 @@
 #include "irqstatisticsreporter.h"
 #include "irenummapper.h" 
 #include "irqlogger.h"
+#ifdef HS_WIDGET_ENABLED
+#include "irservicedef.h"
+#endif
 
 #ifdef Q_CC_NOKIAX86
 void getRadioServerAddress(QString & aUrl);
@@ -77,6 +83,10 @@ END_ENUM_MAP( KConnectedFromMap )
              IRQStatisticsReporter::IRConnectedFrom, \
              ui_enum, KConnectedFromMap )                 
 
+
+static bool loadStationLogoFlag();
+static void saveStationLogoFlag(bool aIsStationLogoAvailable);
+
 //                                        public functions
 
 /*
@@ -86,10 +96,13 @@ IRPlayController::IRPlayController(IRApplication* aApplication) :
     iApplication(aApplication),
     iMediaPlayer(new IRQMediaPlayer()),
     iStatisticsReporter(NULL),
-    iConnectedFrom(EIRQIsds),
     iGetServerResult(false),
     iNowPlayingPreset(new IRQPreset()),
     iNowPlayingPresetBackup(new IRQPreset()),
+    iConnectedFrom(EIRQIsds),
+    iConnectedFromBackup(EIRQIsds),
+    iStationLogoAvailable(false),
+    iStationLogoAvailableBackup(false),
     iMetaData(NULL),
     iSongHistoryEngine(IRQSongHistoryEngine::openInstance()),
     iPlayState(EIdle),
@@ -98,8 +111,29 @@ IRPlayController::IRPlayController(IRApplication* aApplication) :
     iUrlArray(0),
     iRealBitrate(0),
     iLastError(EIRQErrorNone),
-    iStopReason(EIRQUnknownTermination)
+    iStopReason(EIRQUnknownTermination),
+    iErrorNote(NULL)
 {
+    // use the last played station to initiliaze the backup value.
+    // can regard the player is bootup, and initilize its LCD screen with last played station info if available.
+    IRQPreset *lastPlayedPreset = iApplication->getLastPlayedStationInfo()->getLastPlayedStation();
+    if (lastPlayedPreset)
+    {
+        *iNowPlayingPreset      =   *lastPlayedPreset;
+        iLastPlayedUrl          =   getFirstTryUrl(lastPlayedPreset);
+        iConnectedFrom          =   iApplication->getLastPlayedStationInfo()->connectedFrom();
+        iStationLogoAvailable   =   loadStationLogoFlag();
+    }
+    
+    if (iNowPlayingPreset->getChannelURLCount())
+    {
+        iPlayState = EStopped;
+    }
+    else
+    {
+        iPlayState = EIdle;
+    }    
+    
     connectSignalSlot(); 
     iStatisticsReporter = IRQStatisticsReporter::openInstance();
 }
@@ -120,7 +154,12 @@ IRPlayController::~IRPlayController()
 
     delete iUrlArray;
     iUrlArray = NULL;
+    
+    delete iErrorNote;
+    iErrorNote = NULL;
 
+    saveStationLogoFlag(iStationLogoAvailable);
+	
     if (iSongHistoryEngine)
     {
         iSongHistoryEngine->closeInstance();
@@ -139,72 +178,74 @@ IRPlayController::~IRPlayController()
  */
 void IRPlayController::connectToChannel(IRQPreset *aPreset, IRQConnectedFrom aConnectedFrom)
 {
-    iConnectedFrom = aConnectedFrom;
     if (!aPreset)
     {
         return;
     }
 
     if (iMediaPlayer)
-    {
-        // sort the URL by ascending order and get all available rates.
-        // iAvailableBitrate is cleared in getAvailableBitrates().
-        aPreset->sortURLArray();
-        aPreset->getAvailableBitrates(iAvailableBitrate);
-        if (iAvailableBitrate.count() == 0)
+    {       
+        QString firstTryUrl = getFirstTryUrl(aPreset);
+        if (firstTryUrl.isEmpty())
         {
             return;
         }
         
-        int selectedBitRate = 0;
-        IRQPreferredQuality preferredQuality = iApplication->getSettings()->getPreferredQuality();
-        switch(preferredQuality)
-        {
-            case EIRQStandardQuality:
-                selectedBitRate = iAvailableBitrate.first();
-                break;
-            case EIRQHighQuality:
-                selectedBitRate = iAvailableBitrate.last();
-                break;
-            default:
-                selectedBitRate = iAvailableBitrate.first();
-                break;
-        }
-
-        // get URL to play
-        iTryingBitrate = selectedBitRate;
+        *iNowPlayingPresetBackup = *iNowPlayingPreset;         
+        iLastPlayedUrlBackup = iLastPlayedUrl;
+        iConnectedFromBackup = iConnectedFrom;
         
-        //reserve the info in nowplay view
-        *iNowPlayingPresetBackup = *iNowPlayingPreset;
-        *iNowPlayingPreset = *aPreset;
-        
-        delete iUrlArray;
-        iUrlArray = NULL;
-        iUrlArray = iNowPlayingPreset->getURLsForBitrate(selectedBitRate);
-        if (iUrlArray)
-        {
-            QString url = iUrlArray->at(0);
-#ifdef Q_CC_NOKIAX86
-            if (iLastPlayedChannelName != aPreset->name)
-            {
-                emit initializeLogo();
-            }
-            url = "http://172.28.205.171:8000";
-            getRadioServerAddress(url);
-            iLastPlayedChannelName = aPreset->name;
-#else
-            if (iLastPlayedUrl != iUrlArray->at(0))
-            {
-                emit initializeLogo();
-            }
-#endif
-            //reserve the info in nowplay view
-            iLastPlayedUrlBackup = iLastPlayedUrl;
-            iLastPlayedUrl = url;
-            iResuming = false;
-            doPlay(url);
-        }
+        *iNowPlayingPreset = *aPreset;           
+        iLastPlayedUrl = firstTryUrl;
+        iConnectedFrom = aConnectedFrom;
+        iResuming = false;
+        doPlay(iLastPlayedUrl);
     }
+}
+
+QString IRPlayController::getFirstTryUrl(IRQPreset *aPreset)
+{
+    QString firstTryUrl;
+    // sort the URL by ascending order and get all available rates.
+    // iAvailableBitrate is cleared in getAvailableBitrates().
+    aPreset->sortURLArray();
+    aPreset->getAvailableBitrates(iAvailableBitrate);
+    if (iAvailableBitrate.count() == 0)
+    {
+        return firstTryUrl;
+    }
+    
+    int selectedBitRate = 0;
+    IRQPreferredQuality preferredQuality = iApplication->getSettings()->getPreferredQuality();
+    switch(preferredQuality)
+    {
+        case EIRQStandardQuality:
+            selectedBitRate = iAvailableBitrate.first();
+            break;
+        case EIRQHighQuality:
+            selectedBitRate = iAvailableBitrate.last();
+            break;
+        default:
+            selectedBitRate = iAvailableBitrate.first();
+            break;
+    }
+
+    // get URL to play
+    iTryingBitrate = selectedBitRate;
+    
+    delete iUrlArray;
+    iUrlArray = NULL;
+    iUrlArray = aPreset->getURLsForBitrate(selectedBitRate);
+    if (iUrlArray)
+    {
+        firstTryUrl = iUrlArray->at(0);
+#ifdef Q_CC_NOKIAX86
+        firstTryUrl = "http://172.28.182.59:8000";
+        getRadioServerAddress(firstTryUrl);
+#endif
+    }
+    
+    return firstTryUrl;
 }
 
 /*
@@ -232,23 +273,98 @@ void IRPlayController::resume()
  */
 void IRPlayController::stop(IRQTerminatedType aStopReason)
 {
-    qDebug("IRPlayController::stop, Entering, aStopReason=%d", aStopReason);
-    if (iMediaPlayer)
-    {
-        iMediaPlayer->disableStereoEffect();
-
-        iMediaPlayer->stop();
-
-        if (EPlaying == iPlayState)
-        {
+    qDebug("IRPlayController::stop, Entering, aStopReason=%d", aStopReason);        
+    
+    switch (iPlayState)
+    {   
+        case EPlaying:
+            iPlayState = EStopped; 
             iStopReason = aStopReason;
+            if (iMediaPlayer)
+            {
+                iMediaPlayer->disableStereoEffect();
+                iMediaPlayer->stop(); 
+            }
             // playingStarted is emitted while iPlaying is set to true,
             // so when stop() is called and iPlaying is true, playingStopped
             // should be emitted.
-            qDebug("IRPlayController::stop, emit playingStopped()");
-            emit playingStopped();
-        }
-        iPlayState = EStopped;
+            qDebug("IRPlayController::stop, emit playingStopped()");             
+            emit playingStopped();              
+            break;
+
+#ifdef HS_WIDGET_ENABLED			
+        case EConnecting:     
+            // No need to restore because when connecting occurs, because the connectToChannel() has NOT been invoked yet. 
+            // Only need to reset the player state                  
+            if (iNowPlayingPreset->getChannelURLCount())
+            {
+                iPlayState = EStopped;
+            }
+            else
+            {
+                iPlayState = EIdle;
+            }
+            
+            iStopReason = aStopReason;  
+            
+            // Only need to restore the station logo flag since we may force it to be false when connecting started.   
+            // force logo to be default when current view is NOT nowplaying view && is not resuming (start playing a different station.) 
+            if (EIRView_PlayingView != iApplication->getViewManager()->currentViewId()
+                && iConnectingStationName != iNowPlayingPreset->name)
+            {
+                iStationLogoAvailable = iStationLogoAvailableBackup;
+                emit stationLogoUpdated(iStationLogoAvailable);             
+            }                      
+            emit connectingCancelled(iNowPlayingPreset->name);
+            break;
+#endif
+            
+        case EBuffering:
+            if (iMediaPlayer)
+            {
+                iMediaPlayer->disableStereoEffect();
+                iMediaPlayer->stop(); 
+            }
+            // when player is forced to stop in bufferring state, we have to revert to backup preset.
+            // only with exception when current view is nowplaying view.
+            // in IR case, user can only stay in nowplaying view when buffering:
+            // 1. starging view is now playing view; 2. open a pls file with only one url
+            if (EIRView_PlayingView != iApplication->getViewManager()->currentViewId())
+            {
+                iLastPlayedUrl        = iLastPlayedUrlBackup;
+                *iNowPlayingPreset    = *iNowPlayingPresetBackup;
+                iConnectedFrom        = iConnectedFromBackup;               
+            }
+            
+            if (iNowPlayingPreset->getChannelURLCount())
+            {
+                iPlayState = EStopped;
+            }
+            else
+            {
+                iPlayState = EIdle;
+            }
+            
+            iStopReason = aStopReason;
+                        
+#ifdef HS_WIDGET_ENABLED            
+            // Need to restore the station logo flag since we may force it to be false when buffering started.  
+            // force logo to be default when current view is NOT nowplaying view && is not resuming (start playing a different station.) 
+            if (EIRView_PlayingView != iApplication->getViewManager()->currentViewId()
+                && !iResuming)
+            {
+                iStationLogoAvailable = iStationLogoAvailableBackup;
+                emit stationLogoUpdated(iStationLogoAvailable);             
+            }                         
+            emit bufferingCancelled(iNowPlayingPreset->name);
+#endif
+            break;
+		
+			
+        case EIdle:
+        case EStopped:		
+        default:              
+            break;
     }
 	endSession(aStopReason);
 	qDebug("IRPlayController::stop, Exiting");
@@ -297,6 +413,76 @@ void IRPlayController::setVolume(int aVolume)
         iMediaPlayer->setVolume(aVolume);
     }
     iApplication->getSettings()->setVolumeSetting(aVolume);
+}
+
+#ifdef HS_WIDGET_ENABLED
+void IRPlayController::setConnectingStationName(const QString &aStationName, bool aForceConnecting)
+{
+    iConnectingStationName = aStationName;
+    if (aForceConnecting
+         || !iApplication->getNetworkController()->getNetworkStatus())
+    {
+        LOG_FORMAT("IRPlayController::setConnectingStationName, the station name is %s", STRING2CHAR(aStationName));
+        iPlayState = EConnecting;   
+        
+        // force logo to be default when current view is NOT nowplaying view && is not resuming (start playing a different station.) 
+        if (EIRView_PlayingView != iApplication->getViewManager()->currentViewId()
+            && iConnectingStationName != iNowPlayingPreset->name)
+        {
+            emitStationLogoUpdated(false);
+        }        
+        emit connectingStarted(aStationName);
+    }
+}
+
+QString IRPlayController::getConnectingStationName() const
+{
+    return iConnectingStationName;
+}
+
+void IRPlayController::reloadNowplayingPreset(IRQPreset *aPreset, bool aIsLogoAvailable, IRQConnectedFrom aConnectedFrom)
+{
+    if (aPreset)
+    {
+        *iNowPlayingPreset      =   *aPreset;
+        iLastPlayedUrl          =   getFirstTryUrl(aPreset);
+        iConnectedFrom          =   aConnectedFrom;
+        iStationLogoAvailable   =   aIsLogoAvailable;
+    }
+    
+    if (iNowPlayingPreset->getChannelURLCount())
+    {
+        iPlayState = EStopped;
+    }
+    else
+    {
+        iPlayState = EIdle;
+    }     
+}
+
+bool IRPlayController::isStationLogoAvailable() const
+{
+    return iStationLogoAvailable;
+}
+
+void IRPlayController::emitStationLogoUpdated(bool aIsLogoAvailable)
+{
+    iStationLogoAvailableBackup = iStationLogoAvailable;
+    iStationLogoAvailable = aIsLogoAvailable;
+    emit stationLogoUpdated(iStationLogoAvailable);
+}
+
+bool loadStationLogoFlag()
+{
+    QSettings settings(KIrSettingOrganization, KIrSettingApplication);
+    return settings.value(KIrSettingStationLogoAvailable,false).toBool();
+}
+
+#endif
+
+IRPlayController::EPlayState IRPlayController::state() const
+{
+    return iPlayState;
 }
 
 /*
@@ -428,11 +614,6 @@ void IRPlayController::handleError()
         // if there's NO other URL to try, show warning.
         if (iNowPlayingPreset->getChannelURLCount() == 1)
         {
-            //here recover info in nowplay view, only for cases:
-            //1/a channel has one url. 2/ invoked by "go to station" view.
-            //if a channel has more than one url, here can't be reached.
-            iLastPlayedUrl = iLastPlayedUrlBackup;
-            *iNowPlayingPreset = *iNowPlayingPresetBackup;
 		    stop(EIRQNoConnectionToServer);
             break;
         }
@@ -474,7 +655,7 @@ void IRPlayController::handleError()
     }
 
     iApplication->stopLoadingAnimation();
-    createNote();
+    popupNote();
     qDebug("IRPlayController::handleError(), Exiting");
 }
 
@@ -488,36 +669,39 @@ void IRPlayController::updateProgress(int aProgress)
 {
     if (100 == aProgress)
     {
+        //updateProgress(100) sometimes can be called more than one time, to improve performance,
+        //we only need to do the following work once.        
+        if (EPlaying == iPlayState)
+        {
+            iApplication->stopLoadingAnimation();
+            return;
+        }
+        
+        iPlayState = EPlaying;
         iApplication->stopLoadingAnimation();
 
-        //updateProgress(100) sometimes can be called more than one time, to improve performance,
-        //we only need to do the following work once.
-        if (EBuffering == iPlayState)
-        {
-            iApplication->getViewManager()->activateView(EIRView_PlayingView);
-            iPlayState = EPlaying;
+        iApplication->getViewManager()->activateView(EIRView_PlayingView);
 
-            //update last played station
-            IRLastPlayedStationInfo *lastPlayedStationInfo = iApplication->getLastPlayedStationInfo();
-            lastPlayedStationInfo->updateLastPlayedStation(iNowPlayingPreset,iConnectedFrom);
-            lastPlayedStationInfo->commitLastPlayedStation();
+        //update last played station
+        IRLastPlayedStationInfo *lastPlayedStationInfo = iApplication->getLastPlayedStationInfo();
+        lastPlayedStationInfo->updateLastPlayedStation(iNowPlayingPreset,iConnectedFrom);
+        lastPlayedStationInfo->commitLastPlayedStation();
 
-            //increase the played times of current preset
-            iApplication->getFavoritesDB()->increasePlayedTimes(*iNowPlayingPreset);
+        //increase the played times of current preset
+        iApplication->getFavoritesDB()->increasePlayedTimes(*iNowPlayingPreset);
 
-            emit playingStarted();
+        emit playingStarted();
 
-            // if the metadata is available, show it.
-            emit metaDataAvailable(iMetaData);
+        // if the metadata is available, show it.
+        emit metaDataAvailable(iMetaData);
 
-            // Save the station information to database
-            IRQMetaData tmpMetaData;
-            tmpMetaData.setBitrate(iRealBitrate);
-            tmpMetaData.setStreamUrl(iLastPlayedUrl);
-            iSongHistoryEngine->handleMetaDataReceived(tmpMetaData, *iNowPlayingPreset);
-            // open stereo defaultly
-            iMediaPlayer->enableStereoEffect();
-        }
+        // Save the station information to database
+        IRQMetaData tmpMetaData;
+        tmpMetaData.setBitrate(iRealBitrate);
+        tmpMetaData.setStreamUrl(iLastPlayedUrl);
+        iSongHistoryEngine->handleMetaDataReceived(tmpMetaData, *iNowPlayingPreset);
+        // open stereo defaultly
+        iMediaPlayer->enableStereoEffect();
     }
 }
 
@@ -571,9 +755,21 @@ void IRPlayController::cancelBuffering()
  * Description : show a note to user to inform that error occured.
  *                
  */
-void IRPlayController::createNote(const QString &aNote)
+void IRPlayController::popupNote(const QString &aNote)
 {
-    HbMessageBox::warning(aNote, (QObject*)NULL, NULL);
+    if (NULL == iErrorNote)
+    {
+        iErrorNote = new HbMessageBox(HbMessageBox::MessageTypeWarning);
+        iErrorNote->setModal(true);
+        iErrorNote->setTimeout(HbPopup::StandardTimeout);
+    }
+    
+    iErrorNote->setText(aNote);
+    // if there is already on error note showing, only change the text 
+    if (!iErrorNote->isVisible())
+    {
+        iErrorNote->show();
+    }
 }
 
 /*
@@ -670,6 +866,15 @@ void IRPlayController::doPlay(const QString& aUrl)
     qDebug("IRPlayController::doPlay, access point : %d", apId);
     iMediaPlayer->playStation(aUrl, apId);
     iPlayState = EBuffering;
+#ifdef HS_WIDGET_ENABLED	
+    // force logo to be default when current view is NOT nowplaying view && is not resuming (start playing a different station.) 
+    if (EIRView_PlayingView != iApplication->getViewManager()->currentViewId()
+        && !iResuming)
+    {
+        emitStationLogoUpdated(false);             
+    }   
+    emit bufferingStarted(iNowPlayingPreset->name);
+#endif	
     startSession();
     iApplication->startLoadingAnimation(this, SLOT(cancelBuffering()));
 }
@@ -699,6 +904,14 @@ int IRPlayController::bitrateTrying() const
     return iTryingBitrate;
 }
 #endif 
+
+void saveStationLogoFlag(bool aIsStationLogoAvailable)
+{
+    QSettings settings(KIrSettingOrganization, KIrSettingApplication);
+    QVariant data(QVariant::Bool);
+    data.setValue(aIsStationLogoAvailable);
+    settings.setValue(KIrSettingStationLogoAvailable,data);
+}
 
 //get IP address configuration of test radio server
 #ifdef Q_CC_NOKIAX86

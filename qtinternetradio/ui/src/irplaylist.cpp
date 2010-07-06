@@ -242,7 +242,11 @@ void IRPlayList::parseM3uFile(const QString &aFileName)
             else
             {
                 //no station name is available
-                item = new IRPlayListItem(currentLine, hbTrId("txt_irad_info_unnamed"), -1);
+#ifdef SUBTITLE_STR_BY_LOCID
+                item = new IRPlayListItem(currentLine, hbTrId("txt_irad_info_unnamed_station"), -1);
+#else
+                item = new IRPlayListItem(currentLine, hbTrId("Unnamed station"), -1);                
+#endif
             }
             iItemList.append(item);
         }

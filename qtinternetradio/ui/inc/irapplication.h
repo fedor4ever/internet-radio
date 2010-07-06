@@ -41,8 +41,12 @@ class IRQAdvClient;
 class HbProgressDialog;
 class IRQSystemEventHandler;
 class IRPlayList;
-class HbIconItem;
+#ifdef HS_WIDGET_ENABLED
+class IrMonitorService;
+class IrControlService;
+#endif 
 class IRFileViewService;
+class HbMessageBox;
 
 #ifdef LOCALIZATION
 class QTranslator;
@@ -56,12 +60,19 @@ public:
     IRApplication(IRViewManager *aViewManager, IRQSystemEventHandler* aSystemEventHandler);    
 
     ~IRApplication();
-    
+#ifdef SUBTITLE_STR_BY_LOCID
     bool verifyNetworkConnectivity(const QString &aConnectingText = hbTrId("txt_common_info_loading"));
+#else
+    bool verifyNetworkConnectivity(const QString &aConnectingText = hbTrId("Loading"));
+#endif
     
-    void startLoadingAnimation(const QObject *aReceiver, const char *aFunc);  
-    void startLoadingAnimation(const QPointF& aPos);
+    void startLoadingAnimation(const QObject *aReceiver, const char *aFunc);    
     void stopLoadingAnimation();
+	
+#ifdef HS_WIDGET_ENABLED    
+    bool startPlaying();
+    void cancelPlayerLoading();
+#endif
     
     IRViewManager* getViewManager() const;
     IRQNetworkController* getNetworkController();
@@ -73,8 +84,11 @@ public:
     IRMediaKeyObserver* getMediaKeyObserver();
     IRQAdvClient* getAdvClient(); 
     IRPlayList* getPlayList() const;
-    
+	
+    void setLaunchView();    
     void launchStartingView(TIRViewId aViewId);
+    
+    bool isAppFullyStarted() const;
     
 #ifdef LOCALIZATION
     /*
@@ -111,12 +125,9 @@ private:
     void createComponents();
     void destroyComponents();
     void setupConnection();
-    void setLaunchView();
     void startSystemEventMonitor();
     void initApp();
-    void setExitingView();
-    void getLoadingAnimation();
-    
+    void setExitingView(); 
     TIRHandleResult handleConnectionEstablished();
     
     void startLocalServer();
@@ -165,10 +176,18 @@ private:
     QTranslator  *iTranslator;
 #endif
     
-    IRQSystemEventHandler *iSystemEventHandler;
+    IRQSystemEventHandler *iSystemEventHandler;    	
+    TIRUseNetworkReason iUseNetworkReason;	
     
-    HbIconItem          *iLoadingAnimation;    
-    IRFileViewService *iFileViewService;
+    bool iAppFullyStarted;
+    
+#ifdef HS_WIDGET_ENABLED    
+    IrControlService    *iControlService;
+    IrMonitorService    *iMonitorService;
+#endif	
+      
+    IRFileViewService   *iFileViewService;
+    HbMessageBox *iMessageBox;
 };
 
 #endif

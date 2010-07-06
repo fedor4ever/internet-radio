@@ -51,6 +51,10 @@ private slots:
     
 private:
     //from IrAbstractListViewBase
+#ifdef HS_WIDGET_ENABLED	
+    void itemAboutToBeSelected(bool &aNeedNetwork);
+#endif
+	
     void setCheckedAction();
     void handleItemSelected();
     void prepareMenu();

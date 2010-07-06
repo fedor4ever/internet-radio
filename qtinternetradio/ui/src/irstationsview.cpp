@@ -157,6 +157,16 @@ TIRHandleResult IRStationsView::handleCommand(TIRViewCommand aCommand, TIRViewCo
     return ret;
 }
 
+#ifdef HS_WIDGET_ENABLED
+void IRStationsView::itemAboutToBeSelected(bool &aNeedNetwork)
+{
+    aNeedNetwork =  true;
+    
+    int index = iListView->currentIndex().row();
+    iPlayController->setConnectingStationName(iChannelModel->getChannelItemByIndex(index)->channelName);
+}
+#endif
+
 //                                      slots functions
 
 /*
@@ -251,12 +261,20 @@ void IRStationsView::operationException(IRQError aError)
     iApplication->stopLoadingAnimation();
 
     disconnectIsdsClient();
+#ifdef SUBTITLE_STR_BY_LOCID
     QString errorString = hbTrId("txt_irad_info_failed_to_connect");
+#else
+    QString errorString = hbTrId("Connecting failed");    
+#endif
     
     switch (aError)
     {   
     case EIRQErrorNotFound:
-        errorString = hbTrId("txt_irad_info_no_matching_stations_found");
+#ifdef SUBTITLE_STR_BY_LOCID
+        errorString = hbTrId("txt_irad_info_no_matching_station_found");
+#else
+        errorString = hbTrId("No matching station found");        
+#endif
         if (iConnectTimer->isActive())
         {
             iConnectTimer->stop();
@@ -413,5 +431,9 @@ void IRStationsView::connectTimeOut()
 {    
     iConnectTimer->stop();
     cancelRequest();   
+#ifdef SUBTITLE_STR_BY_LOCID
     popupNote(hbTrId("txt_irad_info_connecting_timout"), HbMessageBox::MessageTypeWarning);
+#else
+    popupNote(hbTrId("Connecting timeout"), HbMessageBox::MessageTypeWarning);    
+#endif
 }

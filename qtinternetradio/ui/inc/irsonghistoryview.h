@@ -43,7 +43,8 @@ protected:
 private slots:
     void modelChanged();
     void newMetadataAdded(IRQMetaData * aMetadata);
-    void clearList();   
+    void popupClearHistoryConfirmMessageBox();   
+    void clearList(HbAction *aAction);   
     void showPrompt();
     void gotoStationHistory();
     void handleOrientationChanged(Qt::Orientation aOrientation);

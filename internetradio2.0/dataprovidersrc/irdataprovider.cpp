@@ -15,6 +15,9 @@
 *
 */
 
+#include <ezgzip.h>
+#include <bautils.h>
+#include <f32file.h>
 
 #include "irdataprovider.h"
 #include "irdataproviderobserver.h"
@@ -22,6 +25,9 @@
 #include "irhttpdataprovider.h"
 #include "irhttprequestdata.h"
 #include "irsettings.h"
+
+_LIT( KGzXmlFile, "iSdsResponse.xml.gz" );
+_LIT( KXmlFile, "iSdsResponse.xml" );
 
 // ---------------------------------------------------------------------------
 //  CIRDataProvider::NewL(MIRDataProviderObserver& aObserver)
@@ -110,7 +116,7 @@ EXPORT_C void CIRDataProvider::IRHttpIssueRequestL(
 
 
     // Create or replace the file used to store xml response from iSDS
-    User::LeaveIfError(iFile.Replace( iFsSession, iXmlFilePath, EFileWrite ));
+    User::LeaveIfError(iFile.Replace( iFsSession, iXmlGzFilePath, EFileWrite ));
     iHttpDataProvider->CancelTransaction();
 
     TInt err = iHttpDataProvider->IssueHttpRequestL( aRequestObject );
@@ -179,6 +185,10 @@ void CIRDataProvider::HttpEventComplete()
     iFile.Close();
     iDataProviderTimer->Cancel();
 
+    // unzip the gz file
+    TRAP_IGNORE( UnzipFileL( iXmlFilePath ) );
+    // delete the original gz file
+    BaflUtils::DeleteFile( iFsSession, iXmlGzFilePath );
     // Need to take a member to a local variable, as the IRHttpDataReceived may initiate
     // an IRHttpIssueRequestL() call, causing the headers to be replaced with empty ones, and
     // causing crashes.
@@ -341,8 +351,7 @@ CIRDataProvider::CIRDataProvider( MIRDataProviderObserver &aObserver ):
 void CIRDataProvider::ConstructL() // second-phase constructor
     {
     IRLOG_DEBUG( "CIRDataProvider::ConstructL - Entering" );
-    _LIT( KXmlFile, "iSdsResponse.xml" );
-    ConstructL(KXmlFile);
+    ConstructL( KGzXmlFile );
     iHttpDataProvider->iSetNonUAProfUserAgent = EFalse;
     IRLOG_DEBUG( "CIRDataProvider::ConstructL - Exiting" );
     }
@@ -359,8 +368,10 @@ void CIRDataProvider::ConstructL( const TDesC &aFileName )
     iDataProviderTimer = CIRDataProviderTimer::NewL( EPriorityHigh,  *this );
     User::LeaveIfError(iFsSession.Connect());
     iIRSettings = CIRSettings::OpenL();
-    iXmlFilePath = iIRSettings->PrivatePath();
-    iXmlFilePath.Append( aFileName );
+    iXmlGzFilePath = iIRSettings->PrivatePath();
+    iXmlFilePath = iXmlGzFilePath;
+    iXmlGzFilePath.Append( aFileName );
+    iXmlFilePath.Append( KXmlFile );
     iTimeOut = iIRSettings->GetTimeOut();
     iHttpDataProvider->iSetNonUAProfUserAgent = ETrue;
     IRLOG_DEBUG( "CIRDataProvider::ConstructL(const TDesC &aFileName) - Exiting." );
@@ -430,4 +441,25 @@ void CIRDataProvider::SetOffsetSeconds( const TTime& aTime )
 	IRLOG_DEBUG( "CIRDataProvider::SetOffsetSeconds - Exiting." );
 	}
 
+// ---------------------------------------------------------------------------
+//  CIRDataProvider::UnzipFileL
+// ---------------------------------------------------------------------------
+//
+void CIRDataProvider::UnzipFileL( const TDesC& aOutputFile )
+    {
+    IRLOG_DEBUG( "CIRDataProvider::UnzipFileL - Enter." );
+    RFile outputFile;
+    CleanupClosePushL( outputFile );
+    User::LeaveIfError( outputFile.Replace( iFsSession, aOutputFile, 
+                        EFileStream | EFileWrite | EFileShareExclusive ) );
+    CEZGZipToFile* gZip = 
+        CEZGZipToFile::NewLC( iFsSession, iXmlGzFilePath, outputFile );
 
+    while ( gZip->InflateL() )
+        {
+        // unzip the gz file, quit when finish
+        }
+    CleanupStack::PopAndDestroy( gZip );
+    CleanupStack::PopAndDestroy( &outputFile );
+    IRLOG_DEBUG( "CIRDataProvider::UnzipFileL - Exit." );
+    }

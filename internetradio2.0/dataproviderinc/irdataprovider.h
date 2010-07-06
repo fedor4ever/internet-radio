@@ -222,6 +222,13 @@ NONSHARABLE_CLASS ( CIRDataProvider ):
 	 */
 	void SetOffsetSeconds( const TTime& aTime );
 
+    /**
+	 *  CIRDataProvider::UnzipFileL()
+	 *  Unzip the gz file to xml file
+	 *  @param aOutputFile out put file
+	 */
+    void UnzipFileL( const TDesC& aOutputFile );
+
 private:
 
 	/**
@@ -247,6 +254,11 @@ private:
     * File handle to create the xml file
     */
     RFile iFile;
+
+    /**
+     * Name of the Xml Gz file to be created
+     */
+    TFileName iXmlGzFilePath;
 
    	/**
 	 * Name of the Xml file to be created

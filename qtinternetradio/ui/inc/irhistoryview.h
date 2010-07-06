@@ -38,7 +38,7 @@ protected:
     TIRHandleResult handleCommand(TIRViewCommand aCommand, TIRViewCommandReason aReason);
    
 private slots:
-    void clearAllList();
+    void clearAllList(HbAction *aAction);
     void networkRequestNotified(IRQNetworkEvent aEvent);
     //to start the convertion asynchronously
     void convertAnother();
@@ -47,7 +47,7 @@ private slots:
     void modelChanged();
     
     void actionClicked(HbAction *aAction);
-    
+    void popupClearHistoryConfirmMessageBox();    
 private:
     void showHistory();
     void handleItemSelected();
@@ -55,6 +55,9 @@ private:
     
     //from IrAbstractListViewBase
     void prepareMenu();
+#ifdef HS_WIDGET_ENABLED	
+    void itemAboutToBeSelected(bool &aNeedNetwork);
+#endif	
     void startConvert(int aIndex); 
     void convertStationHistory2Preset(const IRQSongHistoryInfo& aHistoryInfo, IRQPreset& aPreset);
     void addContextAction();

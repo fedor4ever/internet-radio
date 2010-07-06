@@ -16,9 +16,8 @@
 */
 
 
-#include <pspresetnotifier.h>
-#include <psserv.h>
-
+#include "pspresetnotifier.h"
+#include "psserv.h"
 #include "psservnotifier.h"
 
 const TInt KPSDefaultNotifierPriority = CActive::EPriorityLow; // Priority of the non-preset notifiers.

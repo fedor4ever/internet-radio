@@ -75,6 +75,16 @@ void IRPlsView::networkRequestNotified(IRQNetworkEvent aEvent)
     setUseNetworkReason(EIR_UseNetwork_NoReason);
 }
 
+#ifdef HS_WIDGET_ENABLED
+void IRPlsView::itemAboutToBeSelected(bool &aNeedNetwork)
+{
+    aNeedNetwork =  true;
+    
+    int currentRow = iListView->currentIndex().row();
+    iPlayController->setConnectingStationName(iPlsModel->getTitle(currentRow));
+}
+#endif
+
 void IRPlsView::handleItemSelected()
 {
     int currentRow = iListView->currentIndex().row();
@@ -101,7 +111,11 @@ void IRPlsView::listViewLongPressed(HbAbstractViewItem *aItem, const QPointF &aC
     
     HbMenu *contextMenu = new HbMenu;
     contextMenu->setAttribute(Qt::WA_DeleteOnClose);
+#ifdef SUBTITLE_STR_BY_LOCID
     HbAction *action = contextMenu->addAction(hbTrId("txt_common_menu_delete"));
+#else
+    HbAction *action = contextMenu->addAction(hbTrId("Delete"));    
+#endif
     action->setObjectName(KActionDeleteName);
     contextMenu->open();
     connect(contextMenu, SIGNAL(triggered(HbAction*)), this, SLOT(actionClicked(HbAction*)));

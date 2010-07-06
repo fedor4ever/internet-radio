@@ -20,13 +20,11 @@
 #include "irqevent.h"
 #include "irbaseview.h"
 #include "irqenums.h"
-
-class HbGroupBox;
+ 
 class HbListView;
 class HbSearchPanel;
 class HbAction;
-class IrChannelModel;
-class HbProgressDialog;
+class IrChannelModel; 
 class IRQPreset;
 class QTimer;
 
@@ -59,8 +57,7 @@ private: //functions
     void lazyInit();
     void startConvert(int aIndex);   
     void initTimer();
-    //set the subtitle and counter;
-    void setHeadingText(const QString &aText);
+    
 private slots: //slots
      
     void cancelRequest();
@@ -75,6 +72,8 @@ private slots: //slots
     void convertAnother();
     void presetLogoDownload(IRQPreset* aPreset);
     void presetLogoDownloadError();
+    
+public slots:    
     //this slot is used to back to previouse view or minimize the search widget
     void minimizeSearchPanel();   
     
@@ -85,7 +84,7 @@ private: // members
         ESearch_init = 0,
         ESearch_Loading //loading means searching or buffering.
     };    
-    HbGroupBox          *iHeadingLabel;
+    
     HbListView          *iListView;
     QString              iKeyText;
     

@@ -59,19 +59,29 @@ IRHistoryView::IRHistoryView(IRApplication *aApplication, TIRViewId aViewId) :
     iListView->setModel(iModel);
     iListView->setCurrentIndex(iModel->index(0));
     
-    iClearHistoryAction = new HbAction(hbTrId("txt_irad_menu_clear_list"), menu());
-
+#ifdef SUBTITLE_STR_BY_LOCID
+    iClearHistoryAction = new HbAction(hbTrId("txt_irad_opt_clear_list"), menu());
+#else
+    iClearHistoryAction = new HbAction(hbTrId("Clear list"), menu());    
+#endif
     
     iConvertTimer = new QTimer(this);
     iConvertTimer->setInterval(10);
     
-    connect(iClearHistoryAction, SIGNAL(triggered()), this, SLOT(clearAllList()));
+    connect(iClearHistoryAction, SIGNAL(triggered()), this, SLOT(popupClearHistoryConfirmMessageBox()));
     connect(iNetworkController, SIGNAL(networkRequestNotified(IRQNetworkEvent)),
     this, SLOT(networkRequestNotified(IRQNetworkEvent)));
     connect(iModel, SIGNAL(modelChanged()), this, SLOT(modelChanged()));
     connect(iConvertTimer, SIGNAL(timeout()), this, SLOT(convertAnother()));
 }
-
+void IRHistoryView::popupClearHistoryConfirmMessageBox()
+{
+#ifdef SUBTITLE_STR_BY_LOCID
+    HbMessageBox::question(hbTrId("txt_irad_info_clear_station_list"), this, SLOT(clearAllList(HbAction*)), hbTrId("txt_common_button_ok"), hbTrId("txt_common_button_cancel"));
+#else
+    HbMessageBox::question(hbTrId("Clear station list?"), this, SLOT(clearAllList(HbAction*)), hbTrId("Ok"), hbTrId("Cancel"));    
+#endif
+}
 /* 
  * Description : destructor
  */
@@ -171,6 +181,16 @@ void IRHistoryView::handleItemSelected()
     }
 }
 
+#ifdef HS_WIDGET_ENABLED
+void IRHistoryView::itemAboutToBeSelected(bool &aNeedNetwork)
+{
+    aNeedNetwork =  true;
+    
+    int index = iListView->currentIndex().row();
+    iPlayController->setConnectingStationName(iModel->getHistoryInfo(index)->getChannelName()); 
+}
+#endif
+
 void IRHistoryView::networkRequestNotified(IRQNetworkEvent aEvent)
 {
     if (getViewManager()->currentView() != this)
@@ -224,13 +244,20 @@ void IRHistoryView::showHistory()
 // IRHistoryView::clearAllList()
 // gets the List which was stored earlier
 //---------------------------------------------------------------------------
-void IRHistoryView::clearAllList()
+void IRHistoryView::clearAllList(HbAction *aAction)
 {
-    iIconIndexArray.clear();
-    iModel->clearAllList();
-    iConvertTimer->stop();
-    iIsdsClient->isdsLogoDownCancelTransaction();
-    iListView->reset();
+    HbMessageBox *dialog = static_cast<HbMessageBox*>(sender());
+    if (dialog)
+    {
+        if (aAction == dialog->actions().at(0))
+        {
+            iIconIndexArray.clear();
+            iModel->clearAllList();
+            iConvertTimer->stop();
+            iIsdsClient->isdsLogoDownCancelTransaction();
+            iListView->reset();
+        }
+    }    
 }
 
 void IRHistoryView::prepareMenu()
@@ -366,19 +393,31 @@ void IRHistoryView::addContextAction()
     switch (retValue)
     {
     case EIRQErrorNone:
+#ifdef SUBTITLE_STR_BY_LOCID
         add2FavNote->setTitle(hbTrId("txt_irad_info_added_to_favorites"));
+#else
+        add2FavNote->setTitle(hbTrId("Added to Favorites"));        
+#endif
         //add2FavNote->setIcon(HbIcon( QString("qtg_large_ok")));
         add2FavNote->show();
         break;
 
     case EIRQErrorOutOfMemory:
+#ifdef SUBTITLE_STR_BY_LOCID
         add2FavNote->setTitle(hbTrId("txt_irad_info_can_not_add_more"));
+#else
+        add2FavNote->setTitle(hbTrId("Can't add more"));        
+#endif
         //add2FavNote->setIcon(HbIcon( QString("qtg_large_ok")));
         add2FavNote->show();        
         break;
 
     case EIRQErrorAlreadyExist:
+#ifdef SUBTITLE_STR_BY_LOCID
         add2FavNote->setTitle(hbTrId("txt_irad_info_favorite_updated"));
+#else
+        add2FavNote->setTitle(hbTrId("Favorite updated"));        
+#endif
         //add2FavNote->setIcon(HbIcon( QString("qtg_large_ok")));
         add2FavNote->show();           
         break;
@@ -395,7 +434,11 @@ void IRHistoryView::deleteContextAction()
     bool ret = iModel->deleteOneItem(current);     
     if( !ret )
 	  {
+#ifdef SUBTITLE_STR_BY_LOCID
 	    popupNote(hbTrId("txt_irad_info_operation_failed"), HbMessageBox::MessageTypeWarning);
+#else
+	    popupNote(hbTrId("Operation failed"), HbMessageBox::MessageTypeWarning);	    
+#endif
 	  }
 }
 void IRHistoryView::detailsContextAction()
@@ -422,11 +465,23 @@ void IRHistoryView::listViewLongPressed(HbAbstractViewItem *aItem, const QPointF
     contextMenu->setAttribute(Qt::WA_DeleteOnClose);
     connect(contextMenu, SIGNAL(triggered(HbAction*)), this, SLOT(actionClicked(HbAction*)));
     
+#ifdef SUBTITLE_STR_BY_LOCID
     action = contextMenu->addAction(hbTrId("txt_irad_menu_add_to_favorite"));
+#else
+    action = contextMenu->addAction(hbTrId("Add to favorites"));    
+#endif
     action->setObjectName(KActionAddName);
+#ifdef SUBTITLE_STR_BY_LOCID
     action = contextMenu->addAction(hbTrId("txt_common_menu_delete"));
+#else
+    action = contextMenu->addAction(hbTrId("Delete"));    
+#endif
     action->setObjectName(KActionDeleteName);
+#ifdef SUBTITLE_STR_BY_LOCID
     action = contextMenu->addAction(hbTrId("txt_common_menu_details"));
+#else
+    action = contextMenu->addAction(hbTrId("Details"));    
+#endif
     action->setObjectName(KActionDetailsName);
     
     contextMenu->open();

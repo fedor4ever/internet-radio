@@ -17,6 +17,7 @@ DEFINES += USER_DEFINED_DISKSPACE
 DEFINES += USER_DEFINED_ISDSURL
 #DEFINES += NOWPLAYING_VIEW_OPTION_B
 #DEFINES += ADV_ENABLED
+DEFINES += HS_WIDGET_ENABLED
 
 # ##########################################################
 # Logging flag definitions

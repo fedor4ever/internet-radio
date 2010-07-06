@@ -34,6 +34,8 @@ _LIT8( KAccept, "*/*" );
 _LIT8( KAcceptCharset, "iso-8859-1, utf-8, iso-10646-ucs-2; q=0.6" );
 // Used to specify the Accept Language
 _LIT8( KAcceptLanguage, "en" );
+// Used to specify the Accept encoding
+_LIT8( KAcceptEncoding, "gzip" );
 // Some texts for header output
 _LIT( KDPColon, ": " );
 // Default Content-Type

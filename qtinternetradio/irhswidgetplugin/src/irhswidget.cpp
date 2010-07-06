@@ -16,57 +16,29 @@
 */
 
 // System includes
-#include <HbLabel>
-#include <HbDocumentLoader>
 #include <HbFrameDrawer>
 #include <HbFrameItem>
-#include <HbIconAnimationManager>
-#include <HbIconAnimationDefinition>
-#include <HbColorScheme>
-#include <HbStyleLoader>
 #include <QGraphicsLinearLayout>
-#include <QSettings>
-#include <QPixmap>
 
 // User includes
 #include "irhswidget.h"
 #include "irserviceclient.h"
+#include "irhswidgettitlerow.h"
+#include "irhswidgetmetadatarow.h"
+#include "irqlogger.h"
 
-// Defines
-static const QString KIrHsWidgetDocml  = ":/resource/irhswidget.docml";
-static const QString KIrHsWidget       = "irhswidget";
-static const QString KLogoLabel        = "logoLabel";
-static const QString KGoToIrLabel      = "goToIrLabel";
-static const QString KControlLabel     = "controlLabel";
-static const QString KFirstRowLabel    = "firstRowLabel";
-static const QString KSecondRowLabel   = "secondRowLabel";
-static const QString KInfoControlArea  = "info_control_area";
-static const QString KCentrolArea      = "infoLayout";
-
-static const QString KDefaultStationLogo = "qtg_large_internet_radio";
-static const QString KPlayButtonIcon     = "qtg_mono_play";
-static const QString KStopButtonIcon     = "qtg_mono_stop";
-
-static const QString KFrameGraphicsName  = "qtg_fr_hswidget_normal";
-static const QString KStationNameColor   = "qtc_hs_list_item_title";
-static const QString KMetaDataColor      = "qtc_hs_list_item_content";
-
-static const QString KLoadingAnimationPrefix  = "qtg_anim_loading_";
-static const QString KLoadingIconName = "LoadingAnimation";
-
-const int KIrHsWidgetLogoSize = 50; // hs widget logo size
+// Constants
+static const int KIrHsWidgetContentsMargin = 0;
+static const QString KIrHsWidgetBackgroundImage = "qtg_fr_hswidget_normal";
 
 // ======== MEMBER FUNCTIONS ========
 // Constructor
 IrHsWidget::IrHsWidget(QGraphicsItem* aParent, Qt::WindowFlags aFlags)
     : HbWidget(aParent, aFlags),
-      mLogoLabel(NULL),
-      mControlLabel(NULL),
-      mGoToIrLabel(NULL),
-      mStationNameLabel(NULL),
-      mMetadataLabel(NULL),
-      mInfoControlArea(NULL),
-      mCentralArea(NULL),
+      mUserActionEnabled(false),
+      mRowLayout(NULL),
+      mTitleRow(NULL),
+      mMetaDataRow(NULL),
       mServiceClient(NULL),
       mIrState(IrAppState::Unknown),
       mIrHsWidgetState(EUnknown)
@@ -74,13 +46,23 @@ IrHsWidget::IrHsWidget(QGraphicsItem* aParent, Qt::WindowFlags aFlags)
     setupUi();
     initHomeSreenWidget();
     
-    mServiceClient = new IrServiceClient(this);
+    mServiceClient = IrServiceClient::openInstance();
     setupConnection();
 }
 
 // Destructor
 IrHsWidget::~IrHsWidget()
 {
+    if (mServiceClient)
+    {
+        mServiceClient->closeInstance();
+    } 
+    
+    if (mRowLayout->count() == 1)
+    {
+        delete mMetaDataRow;
+        mMetaDataRow = NULL;
+    }
 }
 
 // Initializes the widget.
@@ -98,98 +80,62 @@ void IrHsWidget::onUninitialize()
 
 // Called when widget is shown in the home screen
 void IrHsWidget::onShow()
-{
+{ 
+    if (mRowLayout->count() == 2)
+    {
+        mMetaDataRow->startMetaDataMarquee();
+    }   
 }
 
 // Called when widget is hidden from the home screen
 void IrHsWidget::onHide()
 {
+    if (mRowLayout->count() == 2)
+    {
+        mMetaDataRow->stopMetaDataMarquee();
+    }  
 }
 
 
 void IrHsWidget::setupUi()
 {
-    HbDocumentLoader *uiLoader = new HbDocumentLoader();
-    uiLoader->reset();
-
-    bool loaded = false;
-    uiLoader->load(KIrHsWidgetDocml, &loaded);
-
-    if (loaded)
-    {
-        HbWidget *irHsWidget = qobject_cast<HbWidget *>(uiLoader->findWidget(KIrHsWidget));
-        HbFrameDrawer *irHsWidgetDrawer = new HbFrameDrawer(KFrameGraphicsName, HbFrameDrawer::NinePieces);
-        HbFrameItem   *irHsWidgetBgItem = new HbFrameItem(irHsWidgetDrawer, irHsWidget);
-        irHsWidgetBgItem->setPreferredSize(irHsWidget->preferredSize());
-
-        QGraphicsLinearLayout *irHsWidgetLayout = new QGraphicsLinearLayout(Qt::Vertical, this);
-        irHsWidgetLayout->addItem(irHsWidget);
-        setLayout(irHsWidgetLayout);
-
-        mGoToIrLabel      = qobject_cast<HbLabel *>(uiLoader->findWidget(KGoToIrLabel));
-        mLogoLabel        = qobject_cast<HbLabel *>(uiLoader->findWidget(KLogoLabel));
-        mControlLabel     = qobject_cast<HbLabel *>(uiLoader->findWidget(KControlLabel));
-        mInfoControlArea  = qobject_cast<HbWidget *>(uiLoader->findWidget(KInfoControlArea));
-        mCentralArea      = qobject_cast<HbWidget *>(uiLoader->findWidget(KCentrolArea));
-
-        // make system's hs backgourd item under logo
-        irHsWidgetBgItem->stackBefore(mLogoLabel);
-
-        // set font for station name line
-        mStationNameLabel = qobject_cast<HbLabel *>(uiLoader->findWidget(KFirstRowLabel));
-        mStationNameLabel->setTextColor(HbColorScheme::color(KStationNameColor));
-
-        // set font for meta data line
-        mMetadataLabel = qobject_cast<HbLabel *>(uiLoader->findWidget(KSecondRowLabel));
-        mMetadataLabel->setTextColor(HbColorScheme::color(KMetaDataColor));
-
-        // Create animation.
-        HbIconAnimationManager *animationManager = HbIconAnimationManager::global();
-        HbIconAnimationDefinition animationDefinition;
-        HbIconAnimationDefinition::AnimationFrame animationFrame;
-        QList<HbIconAnimationDefinition::AnimationFrame> animationFrameList;
-        
-        QString animationFrameIconName;
-        for (int i = 1; i < 11; i++)
-        {
-            animationFrame.duration = 100;
-            animationFrameIconName.clear();
-            animationFrameIconName.append(KLoadingAnimationPrefix);
-            animationFrameIconName.append(animationFrameIconName.number(i));
-            animationFrame.iconName = animationFrameIconName;
-            animationFrameList.append(animationFrame);
-        }
-        animationDefinition.setPlayMode(HbIconAnimationDefinition::Loop);
-        animationDefinition.setFrameList(animationFrameList);
-        animationManager->addDefinition(KLoadingIconName, animationDefinition);
-
-        // Construct an icon using the animation definition.
-        mLoadingIcon.setIconName(KLoadingIconName);        
-        
-        // install event filter to widget
-        mGoToIrLabel->installEventFilter(this);
-        mControlLabel->installEventFilter(this);
-        mLogoLabel->installEventFilter(this);
-        mCentralArea->installEventFilter(this);
-    }
+    setContentsMargins( KIrHsWidgetContentsMargin, KIrHsWidgetContentsMargin,
+            KIrHsWidgetContentsMargin, KIrHsWidgetContentsMargin);
     
-    delete uiLoader;
+    //Setup layout
+    mRowLayout = new QGraphicsLinearLayout(Qt::Vertical);
+
+    mRowLayout->setContentsMargins(KIrHsWidgetContentsMargin, KIrHsWidgetContentsMargin,
+            KIrHsWidgetContentsMargin, KIrHsWidgetContentsMargin);
+    mRowLayout->setSpacing(KIrHsWidgetContentsMargin);
+    setLayout(mRowLayout);
+   
+   //background
+   HbFrameDrawer * backgroundFrameDrawer = new HbFrameDrawer(KIrHsWidgetBackgroundImage, HbFrameDrawer::NinePieces);
+   HbFrameItem* backgroundLayoutItem = new HbFrameItem(backgroundFrameDrawer); 
+   setBackgroundItem( backgroundLayoutItem );
 }
 
 void IrHsWidget::initHomeSreenWidget()
 {
+    mTitleRow = new IrHsWidgetTitleRow(); 
+    mMetaDataRow = new IrHsWidgetMetaDataRow();
+    
+    mRowLayout->addItem(mTitleRow);
+    resizeHomeScreenWidget();
+                
     if (mServiceClient->isStationPlayed())
     {
         loadStoppedLayout();
         QString stationName;
         if (mServiceClient->loadStationName(stationName))
         {
-            mStationNameLabel->setPlainText(stationName);
+            mTitleRow->setStationName(stationName);
         }
         
         if (mServiceClient->loadStationLogoFlag())
         {
-            loadStationLogo();
+            mTitleRow->loadStationLogo();
         }
     }
     else
@@ -198,6 +144,17 @@ void IrHsWidget::initHomeSreenWidget()
     }
 }
 
+void IrHsWidget::resizeHomeScreenWidget()
+{
+    //resize here so homescreen will place widget correctly on screen
+    setPreferredSize( mRowLayout->preferredSize() );
+    if (parentWidget())
+    {
+        //to place widget properly after adding to homescreen
+        parentWidget()->resize(preferredSize()); 
+	}
+}
+    
 void IrHsWidget::setupConnection()
 {
     // signal - slot for service event
@@ -210,58 +167,19 @@ void IrHsWidget::setupConnection()
     QObject::connect(mServiceClient, SIGNAL(irStateChanged(IrAppState::Type)),
         this, SLOT(handleIrStateUpdated(IrAppState::Type)));
     QObject::connect(mServiceClient, SIGNAL(controlFailed()),
-        this, SLOT(handleControlFailed()));    
-}
-
-bool IrHsWidget::eventFilter(QObject *aObject, QEvent *aEvent)
-{
-    bool eventWasConsumed = false;
-    QString objectName     = aObject->objectName();
-    QEvent::Type eventType = aEvent->type();
-    
-    if (KGoToIrLabel == objectName)
-    {
-        if (QEvent::GraphicsSceneMousePress == eventType)
-        {
-            eventWasConsumed = true;
-            handleGoToIrAreaAction();
-        }
-    }
-    else if (KLogoLabel == objectName)
-    {
-        if (QEvent::GraphicsSceneMousePress == eventType)
-        {
-            eventWasConsumed = true;
-            handleLogoAreaAction();
-        }
-    }
-    else if (KControlLabel == objectName)
-    {
-        if (QEvent::GraphicsSceneMousePress == eventType)
-        {
-            eventWasConsumed = true;
-            handleControlAreaAction();
-        }
-    }
-    else if (KCentrolArea == objectName)
-    {
-        if (QEvent::GraphicsSceneMousePress == eventType)
-        {
-            eventWasConsumed = true;
-            handleCentralAreaAction();
-        }
-    }
+        this, SLOT(handleControlFailed()));  
         
-    return eventWasConsumed;
+    enableUserAction();          
 }
 
 // ================ handle user press event ===============
-void IrHsWidget::handleLogoAreaAction()
+void IrHsWidget::handleCommonAreaAction()
 {
     switch (mIrState)
     {
         case IrAppState::NoRunInit:
         case IrAppState::NoRunStopped:
+            disableUserAction();
             mServiceClient->launchIrNormally();
             break;
             
@@ -279,26 +197,28 @@ void IrHsWidget::handleLogoAreaAction()
 
 void IrHsWidget::handleControlAreaAction()
 {
+    LOG("IrHsWidget::handleControlAreaAction()");
+    //here, for we will control the application by homescreen, 
+    //to avoid repeat actions, we disable all control event here
+    //and enable them when state changed or failed.      
+    disableUserAction();
+    
     switch (mIrState)
     {
-        case IrAppState::NoRunStopped:          
-            mServiceClient->launchIrNowPlaying();
-            loadLoadingLayout();              
+        case IrAppState::NoRunStopped:
+            mServiceClient->launchIrNowPlaying();           
             break;
                     
         case IrAppState::RunningStopped:
-            mServiceClient->startPlaying();
-            loadLoadingLayout();         
+            mServiceClient->startPlaying();        
             break;
                     
         case IrAppState::Playing:
-            mServiceClient->stopPlaying();
-            loadStoppedLayout();          
+            mServiceClient->stopPlaying();         
             break;
             
         case IrAppState::Loading: 
-            mServiceClient->cancelLoading();
-            loadStoppedLayout();                     
+            mServiceClient->cancelLoading();                  
             break;       
 
         default:
@@ -306,18 +226,11 @@ void IrHsWidget::handleControlAreaAction()
     }
 }
 
-void IrHsWidget::handleGoToIrAreaAction()
-{
-    handleLogoAreaAction();
-}
-
-void IrHsWidget::handleCentralAreaAction()
-{
-    handleLogoAreaAction();
-}
 
 void IrHsWidget::handleControlFailed()
-{
+{ 
+    LOG("handleControlFailed()");
+    enableUserAction();
     switch (mIrHsWidgetState)
     {
         case EInit:     // LAF == [logo][go to interneat radio]
@@ -345,35 +258,31 @@ void IrHsWidget::handleControlFailed()
 // ======== for service notification ========
 void IrHsWidget::handleStationNameUpdated(const QString &aStationName)
 {
-    if (mStationNameLabel->plainText() != aStationName)
-    {
-        mStationNameLabel->setPlainText(aStationName);
-    }
+    mTitleRow->setStationName(aStationName);
 }
 
 void IrHsWidget::handleStationLogoUpdated(bool aLogoAvailable)
 {    
     if (aLogoAvailable)
     {
-        loadStationLogo();
+        mTitleRow->loadStationLogo();
     }
     else
     {
-        mLogoLabel->setIcon(KDefaultStationLogo);
+        mTitleRow->setDefaultLogo();
     }
 }
 
 void IrHsWidget::handleMetaDataUpdated(const QString &aMetaData)
 {
-    if (mMetadataLabel->plainText() != aMetaData)
-    {
-        mMetadataLabel->setPlainText(aMetaData);
-    }    
+    mMetaDataRow->setMetaData(aMetaData); 
 }
 
 
 void IrHsWidget::handleIrStateUpdated(IrAppState::Type aNewState)
 {
+    LOG("IrHsWidget::handleIrStateUpdated()");
+    enableUserAction();
     if (aNewState == mIrState)
     {
         return;
@@ -438,47 +347,80 @@ void IrHsWidget::handleHsWidgetStateChange(IrHsWidgetState aNewState)
 // LAF == [logo][go to interneat radio]
 void IrHsWidget::loadInitLayout()
 {
-    mInfoControlArea->hide();
-    mGoToIrLabel->show();
+    if (mRowLayout->count() == 2)
+    {
+        mRowLayout->removeItem(mMetaDataRow);
+        resizeHomeScreenWidget();      
+    }
+    
+    mTitleRow->setDefaultTitle();        
 }
 
 // LAF == [logo][StationInfo][Play]
 void IrHsWidget::loadStoppedLayout()
 {
-    mGoToIrLabel->hide();
-    mInfoControlArea->show();
-    mMetadataLabel->setPlainText(QString(""));
-    mControlLabel->setIcon(KPlayButtonIcon);
+    if (mRowLayout->count() == 1)
+    {
+        mRowLayout->addItem(mMetaDataRow);
+        resizeHomeScreenWidget();      
+    }
+    
+    mMetaDataRow->setPlayIcon();
 }
 
 // LAF == [logo][StationInfo][Stop]
 void IrHsWidget::loadPlayingLayout()
 {
-    mGoToIrLabel->hide();
-    mInfoControlArea->show();
-    mControlLabel->setIcon(KStopButtonIcon);      
+    if (mRowLayout->count() == 1)
+    {
+        mRowLayout->addItem(mMetaDataRow);
+        resizeHomeScreenWidget();      
+    }
+    
+    mMetaDataRow->setStopIcon();     
 }
 
 // LAF == [logo][StationInfo][Loading]
 void IrHsWidget::loadLoadingLayout()
 {
-    mGoToIrLabel->hide();
-    mInfoControlArea->show();
-    mMetadataLabel->setPlainText(QString(""));
-    mControlLabel->setIcon(mLoadingIcon);   
+    if (mRowLayout->count() == 1)
+    {
+        mRowLayout->addItem(mMetaDataRow);
+        resizeHomeScreenWidget();      
+    }
+    
+    mMetaDataRow->setLoadingIcon(); 
 }
 
-void IrHsWidget::loadStationLogo()
+
+
+void IrHsWidget::enableUserAction()
 {
-    QSettings settings(KIrSettingOrganization, KIrSettingApplicaton);
-    if (settings.value(KIrSettingStationLogo).canConvert<QPixmap>())
+    if (!mUserActionEnabled)
     {
-        QPixmap logoPixmap = settings.value(KIrSettingStationLogo).value<QPixmap>();
-        QPixmap newLogoPixmap = 
-             logoPixmap.scaled(QSize(KIrHsWidgetLogoSize,KIrHsWidgetLogoSize),Qt::KeepAspectRatio);
-        QIcon logoQIcon(newLogoPixmap);
-        HbIcon logoHbIcon(logoQIcon);            
-        mLogoLabel->setIcon(logoHbIcon);
-    }  
+        mUserActionEnabled = true;
+        // signal - slot for user click action
+        QObject::connect(mTitleRow, SIGNAL(titleRowClicked()),
+            this, SLOT(handleCommonAreaAction()));
+        QObject::connect(mMetaDataRow, SIGNAL(metaDataAreaClicked()),
+            this, SLOT(handleCommonAreaAction()));     
+        QObject::connect(mMetaDataRow, SIGNAL(controlAreaClicked()),
+            this, SLOT(handleControlAreaAction()));      
+    }
+}
+
+void IrHsWidget::disableUserAction()
+{
+    if (mUserActionEnabled)
+    {    
+        mUserActionEnabled = false;
+        // signal - slot for user click action
+        QObject::disconnect(mTitleRow, SIGNAL(titleRowClicked()),
+            this, SLOT(handleCommonAreaAction()));
+        QObject::disconnect(mMetaDataRow, SIGNAL(metaDataAreaClicked()),
+            this, SLOT(handleCommonAreaAction()));     
+        QObject::disconnect(mMetaDataRow, SIGNAL(controlAreaClicked()),
+            this, SLOT(handleControlAreaAction()));  
+    }
 }
 

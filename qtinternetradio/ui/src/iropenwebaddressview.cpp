@@ -167,7 +167,11 @@ void IROpenWebAddressView::initDetails()
 
     if (0 == stationName.size())
     {
-        iName->setContentWidgetData(QString("text"), hbTrId("txt_irad_info_unnamed"));
+#ifdef SUBTITLE_STR_BY_LOCID
+        iName->setContentWidgetData(QString("text"), hbTrId("txt_irad_info_unnamed_station"));
+#else
+        iName->setContentWidgetData(QString("text"), hbTrId("Unnamed station"));        
+#endif
     }
     else
     {
@@ -189,7 +193,11 @@ void IROpenWebAddressView::initUrlAndName()
     temp = iName->contentWidgetData(QString("text")).toString();
     if (0 == temp.size())
     {
-        iName->setContentWidgetData(QString("text"), hbTrId("txt_irad_info_unnamed"));
+#ifdef SUBTITLE_STR_BY_LOCID
+        iName->setContentWidgetData(QString("text"), hbTrId("txt_irad_info_unnamed_station"));
+#else
+        iName->setContentWidgetData(QString("text"), hbTrId("Unnamed station"));        
+#endif
     }
 }
 
@@ -206,8 +214,13 @@ void IROpenWebAddressView::initDataForm()
     iUrl->setContentWidgetData("maxLength",MAX_URL_CHARACTOR_NUMBER);
     iModel->appendDataFormItem(iUrl);
 
+#ifdef SUBTITLE_STR_BY_LOCID
     iName = new HbDataFormModelItem(
             HbDataFormModelItem::TextItem, hbTrId("txt_irad_formlabel_station_name"));
+#else
+    iName = new HbDataFormModelItem(
+            HbDataFormModelItem::TextItem, hbTrId("Station name"));    
+#endif
     iName->setContentWidgetData("maxLength", MAX_URL_CHARACTOR_NUMBER);
     iModel->appendDataFormItem(iName);
 
@@ -229,7 +242,9 @@ void IROpenWebAddressView::play()
     }
 
     setUseNetworkReason(EIR_UseNetwork_OpenWebAddress);
-
+#ifdef HS_WIDGET_ENABLED	
+    iPlayController->setConnectingStationName(preset.name);
+#endif
     // Verify the connectivity
     if (false == iApplication->verifyNetworkConnectivity())
     {
@@ -282,7 +297,11 @@ bool IROpenWebAddressView::initPreset(IRQPreset &aPreset)
     // check the URL
     if (!IRQUtility::isValidUrl(server.url))
     {
-        popupNote(hbTrId("txt_irad_info_invalid_link_please_change_it"), HbMessageBox::MessageTypeInformation);
+#ifdef SUBTITLE_STR_BY_LOCID
+        popupNote(hbTrId("txt_irad_info_invalid_station_address"), HbMessageBox::MessageTypeInformation);
+#else
+        popupNote(hbTrId("Invalid station address"), HbMessageBox::MessageTypeInformation);        
+#endif
         return false;
     }
 
@@ -291,7 +310,11 @@ bool IROpenWebAddressView::initPreset(IRQPreset &aPreset)
     server.serverName = iName->contentWidgetData(QString("text")).toString();
     if (0 == server.serverName.size())
     {
-        server.serverName = hbTrId("txt_irad_info_unnamed");
+#ifdef SUBTITLE_STR_BY_LOCID
+        server.serverName = hbTrId("txt_irad_info_unnamed_station");
+#else
+        server.serverName = hbTrId("Unnamed station");        
+#endif
     }
 
     aPreset.insertChannelServer(server);
@@ -345,7 +368,11 @@ bool IROpenWebAddressView::eventFilter(QObject *object, QEvent *event)
     if( object == iNameEditorPtr
         && event->type() == QEvent::FocusIn )
     {
-        if(hbTrId("txt_irad_info_unnamed") == iName->contentWidgetData(QString("text")).toString())
+#ifdef SUBTITLE_STR_BY_LOCID
+        if(hbTrId("txt_irad_info_unnamed_station") == iName->contentWidgetData(QString("text")).toString())
+#else
+        if(hbTrId("Unnamed station") == iName->contentWidgetData(QString("text")).toString())            
+#endif
         {
             iName->setContentWidgetData(QString("text"), QString(""));
         }

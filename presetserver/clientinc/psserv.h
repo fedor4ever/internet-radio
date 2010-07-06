@@ -19,8 +19,9 @@
 #ifndef R_RPSSERV_H
 #define R_RPSSERV_H
 
-#include <pscommon.h>
 #include <s32mem.h>
+
+#include "pscommon.h"
 
 class CPSPresetInterface;
 

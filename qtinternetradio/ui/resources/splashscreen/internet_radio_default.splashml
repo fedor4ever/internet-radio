@@ -1,0 +1,6 @@
+<hbsplash version="1">
+    <docml>internet_radio_default.docml</docml>
+    <widget>internet_radio_defaultview</widget>
+    <appuid>0xe28364bb</appuid>
+    <tsappname>internet_radio_10_1</tsappname>     
+</hbsplash>

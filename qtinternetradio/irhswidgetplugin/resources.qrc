@@ -1,5 +1,6 @@
 <RCC>
     <qresource>
-        <file>resource/irhswidget.docml</file>
+        <file>resource/irhswidgetmetadatarow.docml</file>
+        <file>resource/irhswidgettitlerow.docml</file>
     </qresource>
 </RCC>

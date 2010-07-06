@@ -51,10 +51,17 @@ QVariant IRMainModel::data(const QModelIndex &aIndex, int aRole) const
 
 void IRMainModel::initModel()
 {
+#ifdef SUBTITLE_STR_BY_LOCID
     iPrimaryTexts << hbTrId("txt_irad_list_stations_by_country_region")
                   << hbTrId("txt_irad_list_stations_by_language")
-                  << hbTrId("txt_irad_list_recently_played_stations")
-                  << hbTrId("txt_irad_list_recently_played_songs");
+                  << hbTrId("txt_irad_list_stations_recently_played")
+                  << hbTrId("txt_irad_list_songs_recently_played");
+#else
+    iPrimaryTexts << hbTrId("Stations by country/region")
+                  << hbTrId("Stations by language")
+                  << hbTrId("Stations recently played")
+                  << hbTrId("Songs recently played");    
+#endif
 }
 
 void IRMainModel::checkUpdate()
@@ -64,7 +71,12 @@ void IRMainModel::checkUpdate()
         return;
     }
     
+#ifdef SUBTITLE_STR_BY_LOCID
     QString primary = hbTrId("txt_irad_subtitle_stations_from_play_list");
+#else
+    QString primary = hbTrId("Stations from play list");    
+#endif
+    
     if (iPlayList->getNumberOfEntries() > 0)
     {
         //if pls item is not in collections view, add

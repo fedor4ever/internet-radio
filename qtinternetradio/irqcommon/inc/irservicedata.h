@@ -19,7 +19,6 @@
 #define IRSERVICEDATA_H
 
 #include <QVariant>
-#include <QMetaType>
 #include <xqserviceipcmarshal.h>
 
 class IrServiceData
@@ -34,11 +33,11 @@ public:
 
     virtual ~IrServiceData() {}
 
+    int        mType;
+    QVariant   mData;
+    
     template <typename Stream> void serialize(Stream &aStream) const;
     template <typename Stream> void deserialize(Stream &aStream);
-
-    int         mType;
-    QVariant    mData;
 };
 
 template <typename Stream> inline void IrServiceData::serialize(Stream &aStream) const
@@ -53,8 +52,11 @@ template <typename Stream> inline void IrServiceData::deserialize(Stream &aStrea
     aStream >> mData;
 }
 
-Q_DECLARE_USER_METATYPE(IrServiceData)
 
+typedef QList<IrServiceData> IrServiceDataList;
+
+Q_DECLARE_USER_METATYPE(IrServiceData)
+Q_DECLARE_USER_METATYPE_NO_OPERATORS(IrServiceDataList)
 
 
 #endif // IRSERVICEDATA_H

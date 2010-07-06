@@ -32,7 +32,9 @@ USERINCLUDE     ../settingsinc
 USERINCLUDE     ../datastructuresinc
 USERINCLUDE     ../presetplugininc
 USERINCLUDE     ../xmlparserinc
-
+USERINCLUDE     ../../presetserver/include
+USERINCLUDE     ../../presetserver/clientinc
+USERINCLUDE     ../../presetserver/serverinc
 
 
 // Default system include paths for application layer modules.

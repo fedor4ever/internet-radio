@@ -667,6 +667,12 @@ void CIRHttpDataProvider::BuildHeadersL(const CIRHttpRequestData &aRequestInfo)
         IRLOG_DEBUG2( "CIRHttpDataProvider::BuildHeadersL - HTTP::EAcceptLanguage = %S", &logstr );
         }
 
+    // Add Accept-Encoding: gzip HTTP request header. The server will use compression to improve data
+	// transfer speed.
+    SetHeaderL( header, HTTP::EAcceptEncoding, KAcceptEncoding );
+    logstr.Copy(KAcceptEncoding);
+    IRLOG_DEBUG2( "CIRHttpDataProvider::BuildHeadersL - HTTP::EAcceptEncoding = %S", &logstr );
+
     // Set the If-Modified-Since header if required
    if ( aRequestInfo.isIfModifiedSet )
         {

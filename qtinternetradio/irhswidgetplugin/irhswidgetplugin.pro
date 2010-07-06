@@ -20,7 +20,8 @@ MOBILITY = serviceframework
 
 LIBS += -lxqsettingsmanager \
         -lxqservice \
-        -lxqserviceutil
+        -lxqserviceutil \
+        -lirqlogger 
 
 MOC_DIR = moc
         
@@ -29,6 +30,7 @@ SOURCES += ./src/*.cpp
 
 INCLUDEPATH += ./inc               
 INCLUDEPATH += ../irqcommon/inc
+INCLUDEPATH += ../irqlogger/inc 
 
 UID = E257CD03
 RESOURCES = resources.qrc

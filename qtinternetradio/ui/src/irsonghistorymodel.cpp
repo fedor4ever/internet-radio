@@ -68,13 +68,21 @@ QVariant IRSongHistoryModel::data(const QModelIndex &aIndex, int aRole) const
         QString artistName = mSongHistoryList.at(row)->getArtistName().trimmed();
         if( "" == artistName )
         {
-            artistName = hbTrId("txt_irad_list_unknown_artist");
+#ifdef SUBTITLE_STR_BY_LOCID
+            artistName = hbTrId("txt_irad_list_unknown_artist_p");
+#else
+            artistName = hbTrId("Unknown artist");            
+#endif
         }
       
         QString songName = mSongHistoryList.at(row)->getSongName().trimmed();
         if( "" == songName )
         {
-            songName = hbTrId("txt_irad_list_unknown_song");
+#ifdef SUBTITLE_STR_BY_LOCID
+            songName = hbTrId("txt_irad_list_unknown_song_p");
+#else
+            songName = hbTrId("Unknown song");
+#endif
         }
         
         QString stationName = mSongHistoryList.at(row)->getStationName().trimmed();       

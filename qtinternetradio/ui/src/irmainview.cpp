@@ -43,7 +43,7 @@ IRMainView::IRMainView(IRApplication* aApplication, TIRViewId aViewId) :
 	//if this view is not starting view, finish all initialization in constructor
 	if (getViewManager()->views().count() > 0)
 	{
-	    lazyInit();
+	    normalInit();
 	}
 }
 
@@ -172,7 +172,42 @@ void IRMainView::updateView()
     iMainModel->checkUpdate();
 }
 
+//from base class IRBaseView
+TIRHandleResult IRMainView::handleCommand(TIRViewCommand aCommand, TIRViewCommandReason aReason)
+{
+    if (!initCompleted())
+    {
+        return EIR_DoDefault;
+    }
+    
+    Q_UNUSED(aReason);
+    TIRHandleResult ret = IrAbstractListViewBase::handleCommand(aCommand, aReason);
+    
+    switch (aCommand)
+    {
+    case EIR_ViewCommand_ACTIVATED:
+        getViewManager()->saveScreenShot();
+        break;
+        
+    default:
+        break;
+    }
+    
+    return ret;
+}
+
 void IRMainView::lazyInit()
+{
+    if (!initCompleted())
+    {
+        normalInit();
+        
+        //initialization from handleCommand()
+        handleCommand(EIR_ViewCommand_ACTIVATED, EIR_ViewCommandReason_Show);
+    }
+}
+
+void IRMainView::normalInit()
 {
     if (!initCompleted())
     {

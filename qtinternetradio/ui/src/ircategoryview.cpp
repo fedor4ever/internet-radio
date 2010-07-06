@@ -94,6 +94,13 @@ TIRHandleResult IRCategoryView::handleCommand(TIRViewCommand aCommand, TIRViewCo
         }
         break;
 
+        case EIR_ViewCommand_ACTIVATED:
+            if (EIRViewPara_Genre == getViewParameter())
+            {
+                getViewManager()->saveScreenShot();
+            }
+            break;
+            
         default:
             break;
     }
@@ -103,23 +110,9 @@ TIRHandleResult IRCategoryView::handleCommand(TIRViewCommand aCommand, TIRViewCo
 
 void IRCategoryView::launchAction()
 {    
-    bool ret = false;
-    switch(iViewParameter)
-    {
-        case EIRViewPara_Genre:
-            ret = iIsdsClient->isdsIsCategoryCached(IRQIsdsClient::EGenre);
-            break;
-        case EIRViewPara_Language:
-            ret = iIsdsClient->isdsIsCategoryCached(IRQIsdsClient::ELanguages);
-            break;
-        case EIRViewPara_Country:
-            ret = iIsdsClient->isdsIsCategoryCached(IRQIsdsClient::ECountries);
-            break;
+    Q_ASSERT(EIRViewPara_Genre == iViewParameter);
+    bool ret = iIsdsClient->isdsIsCategoryCached(IRQIsdsClient::EGenre);
 
-        default:
-            break;
-    }
-    
     if ( !ret )
     {
         setUseNetworkReason(EIR_UseNetwork_StartingView);
@@ -173,7 +166,11 @@ void IRCategoryView::loadCategory(IRQIsdsClient::IRQIsdsClientInterfaceIDs aCate
         break;
         
     case IRQIsdsClient::ELanguages : 
+#ifdef SUBTITLE_STR_BY_LOCID
         setHeadingText(hbTrId("txt_irad_list_stations_by_language"));
+#else
+        setHeadingText(hbTrId("Stations by language"));        
+#endif
         if (EIRViewPara_Language != getViewParameter())
         {
             //the view is used for other categories other than Language
@@ -186,7 +183,11 @@ void IRCategoryView::loadCategory(IRQIsdsClient::IRQIsdsClientInterfaceIDs aCate
         break;
         
     case IRQIsdsClient::ECountries :
+#ifdef SUBTITLE_STR_BY_LOCID
         setHeadingText(hbTrId("txt_irad_list_stations_by_country_region"));
+#else
+        setHeadingText(hbTrId("Stations by country/region"));        
+#endif
         if (EIRViewPara_Country != getViewParameter())
         {
             //the view is used for other categories other than Country
@@ -390,7 +391,11 @@ void IRCategoryView::operationException(IRQError aError)
 
     disconnectIsdsClient();
     
+#ifdef SUBTITLE_STR_BY_LOCID
     popupNote(hbTrId("txt_irad_info_failed_to_connect"), HbMessageBox::MessageTypeWarning);
+#else
+    popupNote(hbTrId("Connecting failed"), HbMessageBox::MessageTypeWarning);
+#endif
     
     //if category view is starting view and failed to get data from ISDS server, back to main view
     if (getViewManager()->currentView() == this &&

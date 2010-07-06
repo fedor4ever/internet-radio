@@ -22,7 +22,10 @@ defFilePath = ..
 INCLUDEPATH += $$APP_LAYER_SYSTEMINCLUDE
 
 INCLUDEPATH += ../../internetradio2.0/datastructuresinc \
-               ../../internetradio2.0/presetplugininc
+               ../../internetradio2.0/presetplugininc \
+               ../../presetserver/include \
+               ../../presetserver/clientinc \
+               ../../presetserver/serverinc
 
 LIBS += -lirdatastructures \
         -lfbscli \

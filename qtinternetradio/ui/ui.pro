@@ -26,6 +26,33 @@ INCLUDEPATH += $$APP_LAYER_SYSTEMINCLUDE
 INCLUDEPATH += $${OS_LAYER_PUBLIC_EXPORT_PATH(http)}
 INCLUDEPATH += $${MW_LAYER_PUBLIC_EXPORT_PATH(http)}
 
+#the following is for splash screen in phone
+BLD_INF_RULES.prj_exports += "resources/splashscreen/internet_radio_default.splashml       /epoc32/data/z/resource/hb/splashml/internet_radio_default.splashml" \
+                             "resources/splashscreen/internet_radio_default.docml          /epoc32/data/z/resource/hb/splashml/internet_radio_default.docml" \
+                             "resources/splashscreen/internet_radio_normal.splashml        /epoc32/data/z/resource/hb/splashml/internet_radio_normal.splashml" \
+                             "resources/splashscreen/internet_radio_normal.docml           /epoc32/data/z/resource/hb/splashml/internet_radio_normal.docml" \
+                             "resources/splashscreen/internet_radio_nowplaying.splashml    /epoc32/data/z/resource/hb/splashml/internet_radio_nowplaying.splashml" \
+                             "resources/splashscreen/internet_radio_nowplaying.docml       /epoc32/data/z/resource/hb/splashml/internet_radio_nowplaying.docml"
+
+#the following is for splash screen in winscw_udeb
+BLD_INF_RULES.prj_exports += "resources/splashscreen/internet_radio_default.splashml      /epoc32/release/winscw/udeb/z/resource/hb/splashml/internet_radio_default.splashml" \
+                             "resources/splashscreen/internet_radio_default.docml         /epoc32/release/winscw/udeb/z/resource/hb/splashml/internet_radio_default.docml" \
+                             "resources/splashscreen/internet_radio_normal.splashml       /epoc32/release/winscw/udeb/z/resource/hb/splashml/internet_radio_normal.splashml" \
+                             "resources/splashscreen/internet_radio_normal.docml          /epoc32/release/winscw/udeb/z/resource/hb/splashml/internet_radio_normal.docml" \
+                             "resources/splashscreen/internet_radio_nowplaying.splashml   /epoc32/release/winscw/udeb/z/resource/hb/splashml/internet_radio_nowplaying.splashml" \
+                             "resources/splashscreen/internet_radio_nowplaying.docml      /epoc32/release/winscw/udeb/z/resource/hb/splashml/internet_radio_nowplaying.docml" 
+                                                      
+
+#the following is for splash screen in winscw_urel
+BLD_INF_RULES.prj_exports += "resources/splashscreen/internet_radio_default.splashml      /epoc32/release/winscw/urel/z/resource/hb/splashml/internet_radio_default.splashml" \
+                             "resources/splashscreen/internet_radio_default.docml         /epoc32/release/winscw/urel/z/resource/hb/splashml/internet_radio_default.docml" \
+                             "resources/splashscreen/internet_radio_normal.splashml       /epoc32/release/winscw/urel/z/resource/hb/splashml/internet_radio_normal.splashml" \
+                             "resources/splashscreen/internet_radio_normal.docml          /epoc32/release/winscw/urel/z/resource/hb/splashml/internet_radio_normal.docml" \
+                             "resources/splashscreen/internet_radio_nowplaying.splashml   /epoc32/release/winscw/urel/z/resource/hb/splashml/internet_radio_nowplaying.splashml" \
+                             "resources/splashscreen/internet_radio_nowplaying.docml      /epoc32/release/winscw/urel/z/resource/hb/splashml/internet_radio_nowplaying.docml"                            
+                              
+
+
 INCLUDEPATH += inc \
                ..\irqisdsclient\inc \
                ..\irqmediaplayer\inc \
@@ -63,7 +90,8 @@ LIBS += -lirqnetworkcontroller \
         -lirqlogger \
         -lshareui \
         -lirqsystemeventhandler \
-	-lxqservice \
+        -lxqsettingsmanager \
+        -lxqservice \
         -lxqserviceutil
         	
 symbian{
@@ -107,6 +135,8 @@ HEADERS += inc\irapplication.h \
            inc\irstationshare.h \
            inc\irstationdetailsview.h \
            inc\irtermsconsview.h \
+           inc\ircontrolservice.h \
+           inc\irmonitorservice.h \           
            inc\irplaylist.h \
            inc\irsearchresultdb.h \
            inc\irfileviewservice.h
@@ -143,6 +173,8 @@ SOURCES += main.cpp  \
            irstationshare.cpp \
            irstationdetailsview.cpp \
            irtermsconsview.cpp \
+           ircontrolservice.cpp \
+           irmonitorservice.cpp \
            irplaylist.cpp \
            irsearchresultdb.cpp \
            irfileviewservice.cpp

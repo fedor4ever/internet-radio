@@ -41,7 +41,7 @@ const uint KBitmapSize = 59;
 
 IRSearchChannelsView::IRSearchChannelsView(IRApplication* aApplication,
         TIRViewId aViewId): IRBaseView(aApplication, aViewId),
-        iHeadingLabel(NULL),iListView(NULL),iSearchPanelWidget(NULL),iSearchState(ESearch_init),
+        iListView(NULL),iSearchPanelWidget(NULL),iSearchState(ESearch_init),
         iChannelModel(NULL),iPreset(NULL),iLogoPreset(NULL),
         iConvertTimer(NULL) 
 {
@@ -124,10 +124,7 @@ void IRSearchChannelsView::loadLayout()
     QObjectList roots;
     roots.append( this );
     iLoader.setObjectTree( roots );
-    iLoader.load(SEARCH_CHANNELS_VIEW_LAYOUT_FILENAME);
-    
-    iHeadingLabel = qobject_cast<HbGroupBox *>(iLoader.findWidget(SEARCH_CHANNELS_VIEW_HEADINGTEXT_WIDGET));
-    
+    iLoader.load(SEARCH_CHANNELS_VIEW_LAYOUT_FILENAME);   
     
     iSearchPanelWidget = qobject_cast<HbSearchPanel *>(iLoader.findWidget(SEARCH_CHANNELS_VIEW_SEARCHPANEL_WIDGET));    
     
@@ -140,15 +137,7 @@ void IRSearchChannelsView::loadLayout()
     
     iChannelModel = new IrChannelModel(this);
     iChannelModel->initWithCache();
-    iListView->setModel(iChannelModel);    
-    //anywhere, before show the count, updated it ahead.
-#ifdef SUBTITLE_STR_BY_LOCID
-    QString headingStr = hbTrId("txt_irad_subtitle_search_results") + " (" + QString::number(iChannelModel->rowCount()) + ")"; 
-#else
-    QString headingStr = hbTrId("Search results") + " (" + QString::number(iChannelModel->rowCount()) + ")";
-#endif
-
-    setHeadingText(headingStr);  
+    iListView->setModel(iChannelModel);     
 }
 
 void IRSearchChannelsView::connectWidget()
@@ -200,14 +189,8 @@ void IRSearchChannelsView::switch2LoadingState()
 {   
     iSearchPanelWidget->clearFocus();
     iListView->setFocus();
-    iSearchState = ESearch_Loading;
-    
-    QSizeF searchPanelSize = iSearchPanelWidget->size();
-    QSizeF windowSize = getViewManager()->size();
-    QPointF pos(windowSize.width()/2,(windowSize.height() - searchPanelSize.height())/2);
-    QPointF iconPos(LOADING_ANIMATION_ICON_SIZE/2, LOADING_ANIMATION_ICON_SIZE/2);
-    pos -= iconPos;
-    iApplication->startLoadingAnimation(pos);
+    iSearchState = ESearch_Loading; 
+    iApplication->startLoadingAnimation(this, SLOT(minimizeSearchPanel()));
 }
 
 void IRSearchChannelsView::handleItemSelected()
@@ -299,10 +282,18 @@ void IRSearchChannelsView::operationException(IRQError aError)
     switch(aError)
     {
     case EIRQErrorNotFound:
-        errStr = hbTrId("txt_irad_info_no_matching_stations_found");
+#ifdef SUBTITLE_STR_BY_LOCID 
+        errStr = hbTrId("txt_irad_info_no_matching_station_found");
+#else
+        errStr = hbTrId("No matching station found");        
+#endif
         break;
     default:
+#ifdef SUBTITLE_STR_BY_LOCID
         errStr = hbTrId("txt_irad_info_failed_to_connect");
+#else
+        errStr = hbTrId("Connecting failed");        
+#endif
         break;   
     }
     
@@ -313,6 +304,11 @@ void IRSearchChannelsView::operationException(IRQError aError)
 void IRSearchChannelsView::clickItem(const QModelIndex&)
 {
     setUseNetworkReason(EIR_UseNetwork_SelectItem);
+#ifdef HS_WIDGET_ENABLED	
+    int index = iListView->currentIndex().row();
+    IRQChannelItem* currentItem = iChannelModel->getChannelItemByIndex(index);    
+    iPlayController->setConnectingStationName(currentItem->channelName,true);
+#endif	
     if (false == iApplication->verifyNetworkConnectivity())
     {
         switch2LoadingState();
@@ -346,25 +342,10 @@ void IRSearchChannelsView::convertAnother()
         startConvert(iIconIndexArray[0]);   
     }
 }
-
-//set the subtitle and counter;
-void IRSearchChannelsView::setHeadingText(const QString &aText)
-{
-    if (iHeadingLabel)
-    {
-        iHeadingLabel->setHeading(aText);
-    }    
-}
+ 
 void IRSearchChannelsView::dataChanged()
 {
-    switch2InitState(); 
-    //here update count in subtitle
-#ifdef SUBTITLE_STR_BY_LOCID
-    QString headingStr = hbTrId("txt_irad_subtitle_search_results") + " (" + QString::number(iChannelModel->rowCount()) + ")"; 
-#else
-    QString headingStr = hbTrId("Search results") + " (" + QString::number(iChannelModel->rowCount()) + ")";
-#endif
-    setHeadingText(headingStr);   
+    switch2InitState();      
     iListView->reset();
     if( iChannelModel->rowCount() )
     {
@@ -470,13 +451,7 @@ void IRSearchChannelsView::minimizeSearchPanel()
 {
     if( ESearch_Loading == iSearchState )
     {
-        if( ! ( iPlayController->isStopped() || iPlayController->isIdle() ) )
-        {
-            //cancel buffering
-            iPlayController->cancelBuffering();
-        }
-         
-        disconnectIsdsClient();
+        iPlayController->cancelBuffering(); 
         iIsdsClient->isdsCancelRequest();
         iConvertTimer->stop();
         iIsdsClient->isdsLogoDownCancelTransaction();

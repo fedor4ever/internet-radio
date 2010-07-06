@@ -39,6 +39,10 @@ protected:
     
     //from base class IRBaseView
     TIRHandleResult handleCommand(TIRViewCommand aCommand, TIRViewCommandReason aReason);
+#ifdef HS_WIDGET_ENABLED	
+    //from IrAbstractListViewBase
+    void itemAboutToBeSelected(bool &aNeedNetwork);
+#endif
     
 private slots:  
     void presetResponse(IRQPreset *aPreset);

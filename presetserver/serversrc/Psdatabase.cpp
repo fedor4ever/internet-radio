@@ -17,8 +17,8 @@
 
 
 #include <bautils.h>
-#include <pscommon.h>
 
+#include "pscommon.h"
 #include "psdebug.h"
 #include "pspendingpreset.h"
 #include "psdatabase.h"

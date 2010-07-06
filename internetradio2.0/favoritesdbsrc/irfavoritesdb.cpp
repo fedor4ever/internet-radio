@@ -16,9 +16,8 @@
 */
 
 
-#include <pspresetnotifier.h>
-#include <pstransaction.h>
-
+#include "pspresetnotifier.h"
+#include "pstransaction.h"
 #include "irdebug.h"
 #include "irfavoritesdb.h"
 #include "irisdspreset.h"

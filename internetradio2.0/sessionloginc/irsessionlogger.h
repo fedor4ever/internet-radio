@@ -460,7 +460,10 @@ private:
 	/**
 	* unicode buffer
 	*/ 
-	TBuf<256> iUniCodeBuf;  //Unicode
+	//"MAX_URL_CHARACTOR_NUMBER = 255" is defined 
+	// in iropenwebaddressview.cpp, it is 8bit len char.
+	// the memory should be double when tranfer 8bit to 16bit.  
+	TBuf<512> iUniCodeBuf;  //Unicode
 	
 	/**
 	* utf 8 buffer

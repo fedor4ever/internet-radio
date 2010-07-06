@@ -15,10 +15,9 @@
 *
 */
 
-
-#include <pscommon.h>
 #include <s32mem.h>
 
+#include "pscommon.h"
 #include "psdebug.h"
 #include "psserver.h"
 #include "pssession.h"

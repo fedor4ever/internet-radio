@@ -19,8 +19,8 @@
 #ifndef  IRFAVORITESDB_H
 #define  IRFAVORITESDB_H
 
-#include <pspresetobserver.h>
-#include <psserv.h>
+#include "pspresetobserver.h"
+#include "psserv.h"
 
 class CIRIsdsPreset;
 class CIRPreset;

@@ -46,6 +46,7 @@ SOURCE                  Pspropertyobserver.cpp
 
 USERINCLUDE             ../include
 USERINCLUDE             ../serverinc
+USERINCLUDE             ../clientinc
 
 APP_LAYER_SYSTEMINCLUDE
 SYSTEMINCLUDE   OS_LAYER_PUBLIC_EXPORT_PATH(ecom)

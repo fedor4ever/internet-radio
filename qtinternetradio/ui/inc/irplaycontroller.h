@@ -28,7 +28,7 @@ class IRQPreset;
 class IRQMetaData;
 class IRQSongHistoryEngine;
 class IRQStatisticsReporter;
-
+class HbMessageBox;
 /**
  * This class is a wrapper for IRQMediaPlayer.
  */
@@ -46,15 +46,47 @@ public:
     explicit IRPlayController(IRApplication* aApplication);
     ~IRPlayController();
 
+#ifdef HS_WIDGET_ENABLED
+    // MUST be called before prepare the network for playback
+    // i.e., called before IRApplication::verifyNetworkConnectivity
+    void setConnectingStationName(const QString &aStationName, bool aForceConnecting = false); 
+    QString getConnectingStationName() const; 
+	   
+    // used when nowplaying view is the starting view, to reload preset to the player
+    // because by default, the player will load the last played station preset into it
+    // But when nowplaying view as starting view due to open pls with only one url, 
+    // should reload the preset from pls file
+    void reloadNowplayingPreset(IRQPreset *aPreset, bool aIsLogoAvailable, IRQConnectedFrom aConnectedFrom);
+#endif    
     // Play a station
     void connectToChannel(IRQPreset *aPreset, IRQConnectedFrom aConnectedFrom);
 
+    void emitStationLogoUpdated(bool aIsLogoAvailable);	
+    bool isStationLogoAvailable() const;
+    
     // Play control methods
     void resume();
     void stop(IRQTerminatedType aStopReason);
     int getVolume() const;
     void setVolume(int aVolume);
 
+    enum EPlayState
+    {
+        //initial state, never ever played station
+        EIdle = 0,
+        //a station has been stopped
+        EStopped,
+#ifdef HS_WIDGET_ENABLED		
+        //connecting network
+        EConnecting,
+#endif		
+        //stream buffering
+        EBuffering,		
+        //playing
+        EPlaying
+    };
+    EPlayState state() const;
+    
     // Check the playing status
     bool isPlaying() const;
 
@@ -89,8 +121,21 @@ signals:
     // emitted when playing stopped
     void playingStopped();
 
-    // emitted when logo needs to update
-    void initializeLogo();
+#ifdef HS_WIDGET_ENABLED
+    // emitted when loading(connecting) started
+    void connectingStarted(const QString &aStationName);
+    
+    // emitted when buffering started
+    void bufferingStarted(const QString &aStationName);    
+	    
+    // emitted when connecting is cancelled
+    void connectingCancelled(const QString &aStationName);
+
+    // emitted when buffering is cancelled
+    void bufferingCancelled(const QString &aStationName);
+	
+	void stationLogoUpdated(bool aIsDefaultLogo);
+#endif	
 
 private slots:
     // slots connected with IRQMediaPlayer
@@ -104,8 +149,14 @@ private slots:
     void handleError();
 
 private:
-    void createNote(const QString &aNote = hbTrId("txt_irad_info_failed_to_connect"));
+#ifdef SUBTITLE_STR_BY_LOCID
+    void popupNote(const QString &aNote = hbTrId("txt_irad_info_failed_to_connect"));
+#else
+    void popupNote(const QString &aNote = hbTrId("Connecting failed"));
+#endif
     void connectSignalSlot();
+    
+    QString getFirstTryUrl(IRQPreset *aPreset);
 
     // Play next URL if the previous failed to connect.
     bool playNextUrl();
@@ -120,30 +171,32 @@ private:
     IRQMediaPlayer *iMediaPlayer;
     
     IRQStatisticsReporter *iStatisticsReporter;
-    IRQConnectedFrom iConnectedFrom;
     bool iGetServerResult;
-    
+	
+#ifdef HS_WIDGET_ENABLED    
+    QString   iConnectingStationName; // used for home screen widget
+#endif	
+
     IRQPreset *iNowPlayingPreset;
-    //reserve the info in nowplay view
     IRQPreset *iNowPlayingPresetBackup;
-    // reference of IRQMediaPlayer meta data
+    
+    QString iLastPlayedUrl;
+    QString iLastPlayedUrlBackup; 
+        
+    IRQConnectedFrom iConnectedFrom;
+    IRQConnectedFrom iConnectedFromBackup;
+            
+    bool  iStationLogoAvailable;
+    bool  iStationLogoAvailableBackup;            
+    
+    // reference of IRQMediaPlayer meta data        
     IRQMetaData *iMetaData;
     IRQSongHistoryEngine *iSongHistoryEngine;
 
-    enum EPlayState
-    {
-        //initial state
-        EIdle = 0,
-        //a station has been stopped
-        EStopped,
-        //connecting station and buffering
-        EBuffering,
-        //playing
-        EPlaying
-    };
-
     EPlayState iPlayState;
-    // If resuming the last played url fails, connect to all the preset.
+    
+    // If resuming the last played url fails, reset the player to init state
+    // i.e., call connectToChannel() once again.
     bool iResuming;
 
     // variants for play next URL
@@ -156,19 +209,15 @@ private:
     // the URLs of a specific bitrate
     QList<QString> *iUrlArray;
 
-#ifdef Q_CC_NOKIAX86
-    QString iLastPlayedChannelName;
-#endif
-
     // the bitrate from real station feedback.
     int iRealBitrate;
-    QString iLastPlayedUrl;
-    //reserve the info in nowplay view
-    QString iLastPlayedUrlBackup; 
+
     // To handle error async
     IRQError iLastError;
     
     IRQTerminatedType iStopReason;
+    
+    HbMessageBox *iErrorNote;
 };
 
 #endif  //IRPLAYCONTROLLER_H

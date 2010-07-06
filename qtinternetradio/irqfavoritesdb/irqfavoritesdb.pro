@@ -27,9 +27,10 @@ DEPENDPATH = src
 INCLUDEPATH += ../../internetradio2.0/favoritesdbinc \
                ../../internetradio2.0/datastructuresinc \
                ../../internetradio2.0/presetplugininc  \
-               ../irqcommon/inc
-             
-
+               ../irqcommon/inc \
+               ../../presetserver/include \
+               ../../presetserver/clientinc \
+               ../../presetserver/serverinc
                
                
 LIBS += -lirdatastructures \

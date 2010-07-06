@@ -20,7 +20,8 @@
 #define PSCOMMON_H
 
 #include <e32std.h>
-#include <pspresetobserver.h>
+
+#include "pspresetobserver.h"
 
 const TInt KPSVersionMajor = 1;     /**< Major version number of the server. */
 const TInt KPSVersionMinor = 0;     /**< Minor version number of the server. */

@@ -19,15 +19,16 @@
 #define IRHSWIDGET_H
 
 // System includes
-#include <QObject>
 #include <hbwidget.h>
-#include <hbicon.h>
 
 // User includes
 #include "irservicedef.h"
 
 // Forward declarations
-class HbLabel;
+class QString;
+class QGraphicsLinearLayout;
+class IrHsWidgetTitleRow;
+class IrHsWidgetMetaDataRow;
 class IrServiceClient;
 
 class IrHsWidget : public HbWidget
@@ -61,23 +62,22 @@ private:
     };
     void handleHsWidgetStateChange(IrHsWidgetState aNewState);
     
-    void loadStationLogo();
-    
+       
     void initHomeSreenWidget();
+    void resizeHomeScreenWidget();
+    
     void loadInitLayout();
     void loadStoppedLayout();
     void loadPlayingLayout();
     void loadLoadingLayout();
-
-    // from QObject
-    bool eventFilter(QObject *aObject, QEvent *aEvent);
+    
+    void enableUserAction();
+    void disableUserAction();
 
 private slots:
     // handle user press event
-    void handleLogoAreaAction();
+    void handleCommonAreaAction();
     void handleControlAreaAction();
-    void handleGoToIrAreaAction();
-    void handleCentralAreaAction();
     
     void handleControlFailed();
 
@@ -87,17 +87,12 @@ private slots:
     void handleMetaDataUpdated(const QString &aMetaData);
     void handleIrStateUpdated(IrAppState::Type aNewState);
 
-private:   
-    HbIcon   mLoadingIcon;
+private:    
+    bool mUserActionEnabled;
     
-    HbLabel *mLogoLabel;
-    HbLabel *mControlLabel;
-    HbLabel *mGoToIrLabel;
-    HbLabel *mStationNameLabel;
-    HbLabel *mMetadataLabel;
-
-    HbWidget *mInfoControlArea;
-    HbWidget *mCentralArea;
+    QGraphicsLinearLayout   *mRowLayout;
+    IrHsWidgetTitleRow      *mTitleRow;
+    IrHsWidgetMetaDataRow   *mMetaDataRow;
 
     IrServiceClient *mServiceClient;
 

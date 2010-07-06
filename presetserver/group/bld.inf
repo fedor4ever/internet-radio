@@ -21,14 +21,6 @@ PRJ_PLATFORMS
 ARMV5 WINSCW
 
 PRJ_EXPORTS
-../clientinc/pspresetinterface.h            /epoc32/include/pspresetinterface.h
-../clientinc/pspresetnotifier.h             /epoc32/include/pspresetnotifier.h
-../clientinc/psserv.h                       /epoc32/include/psserv.h
-../clientinc/psserv.inl                     /epoc32/include/psserv.inl
-../clientinc/pstransaction.h                /epoc32/include/pstransaction.h
-../include/pscommon.h                       /epoc32/include/pscommon.h
-../serverinc/pspresetobserver.h             /epoc32/include/pspresetobserver.h
-
 backup_registration.xml /epoc32/data/z/private/10281cb5/backup_registration.xml
 
 ../rom/presetserver.iby                     CORE_APP_LAYER_IBY_EXPORT_PATH(presetserver.iby)

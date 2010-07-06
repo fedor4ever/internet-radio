@@ -37,10 +37,52 @@ static const QString KIrServiceMonitorInterfaceName = "com.nokia.symbian.IIntern
 static const QString KIrServiceMonitorOperation     = "registerNotifications()";
 static const QString KIrServiceRefreshOperation     = "refreshAllData()";
 
+
+// Initialize the static member variable
+QMutex IrServiceClient::mMutex;
+int IrServiceClient::mRef = 0;
+bool IrServiceClient::mMonitoringStarted = false;    
+IrServiceClient *IrServiceClient::mInstatnce = NULL;
+
+
 // ==================== MEMBER FUNCTIONS ======================
+// Static function to get a singleton instance of IrServiceClient
+IrServiceClient* IrServiceClient::openInstance()
+{
+    mMutex.lock();
+    if (NULL == mInstatnce)
+    {
+        mInstatnce = new IrServiceClient();
+    }       
+    if (mInstatnce != NULL)
+    {
+        mRef++;
+    }
+    mMutex.unlock();
+    return mInstatnce;
+}
+
+// Close a singleton instance of IrServiceClient
+void IrServiceClient::closeInstance()
+{
+    if (mInstatnce != NULL)
+    {
+        mMutex.lock();
+        if (mRef > 0)
+        {
+            mRef--;
+        }
+        
+        if (0 == mRef)
+        {
+            delete mInstatnce;
+        }
+        mMutex.unlock();
+    }
+}
+
 // Constructor
-IrServiceClient::IrServiceClient(QObject *aParent) :
-    QObject(aParent),
+IrServiceClient::IrServiceClient() :
     mIrAppInspector(NULL),
     mMonitorReqOngoing(false),    
     mControlReqOngoing(false),
@@ -69,6 +111,14 @@ IrServiceClient::~IrServiceClient()
 
 bool IrServiceClient::startMonitoringIrState()
 {
+    if (mMonitoringStarted)
+    {
+        refreshAllActiveHsWidgets();
+        return true;
+    }
+       
+    // if this is the first active hs widget
+    mMonitoringStarted = true;
     bool retVal = false;
     if (mIrAppInspector->isIrRunning())
     {
@@ -82,37 +132,41 @@ bool IrServiceClient::startMonitoringIrState()
         }
         else
         {
-            emit irStateChanged(IrAppState::NoRunInit);
+            notifyIrStateChanged(IrAppState::NoRunInit);
         }
     }
     
     return mIrAppInspector->startInspectingIrRunningStatus() && retVal;    
 }
 
-void IrServiceClient::stopMonitoringIrState()
-{
-    delete mMonitorRequest;
-    mMonitorRequest = NULL;
-
-    delete mRefreshRequest;
-    mRefreshRequest = NULL;
-}
 
 void IrServiceClient::initHsWidgetNoRunStopped()
-{
-    emit irStateChanged(IrAppState::NoRunStopped);
-    
+{    
     QString stationName;
     if (loadStationName(stationName))
     {
-        emit stationNameUpdated(stationName);
+        notifyStationNameUpdated(stationName);
     }
     else
     {
-        emit stationNameUpdated(QString(""));
+#ifdef SUBTITLE_STR_BY_LOCID
+        notifyStationNameUpdated(hbTrId("txt_irad_info_unnamed_station"));
+#else
+        notifyStationNameUpdated(hbTrId("Unnamed station"));
+#endif
     }
     
-    emit stationLogoUpdated(loadStationLogoFlag());
+    notifyStationLogoUpdated(loadStationLogoFlag());
+    
+    notifyIrStateChanged(IrAppState::NoRunStopped);    
+}
+
+void IrServiceClient::refreshAllActiveHsWidgets()
+{
+    emit stationNameUpdated(mStationName);
+    emit stationLogoUpdated(mStationLogoAvailable);
+    emit metaDataUpdated(mMetaData);
+    emit irStateChanged(mIrState);
 }
 
 /******************************************************************
@@ -224,16 +278,13 @@ void IrServiceClient::handleMonitorRequestOk(const QVariant &aRetValue)
     doSendMonitorRequest();
 
     if (aRetValue.isValid()
-         && aRetValue.canConvert(QVariant::List))
+         && aRetValue.canConvert<IrServiceDataList>())
     {
-        QVariantList dataList = aRetValue.toList();
-        foreach (const QVariant& data, dataList)
+        IrServiceDataList dataList;
+        dataList = qVariantValue<IrServiceDataList>(aRetValue);
+        foreach (const IrServiceData& data, dataList)
         {
-            if (data.canConvert<IrServiceData>())
-            {
-                IrServiceData serviceData = data.value<IrServiceData>();
-                processNotificationData(serviceData);
-            }
+            processNotificationData(data);
         }
     }
 }
@@ -383,27 +434,35 @@ void IrServiceClient::handleIrRunningStatusChanged(IrAppInspector::IrRunningStat
             break;
             
         case IrAppInspector::Exiting :
-            stopMonitoringIrState();
-                    
-            if (isStationPlayed())
+        {
+            clearMonitorServiceRequest();
+            QString stationName;
+            if (loadStationName(stationName))
             {
-                resetHsWidgetExitStopped();
+                notifyMetaDataUpdated(QString(""));
+                notifyStationNameUpdated(stationName);        
+                notifyStationLogoUpdated(loadStationLogoFlag());
+                notifyIrStateChanged(IrAppState::NoRunStopped);
             }
             else
             {
-                emit irStateChanged(IrAppState::NoRunInit);
+                notifyIrStateChanged(IrAppState::NoRunInit);
             }            
             break;
+        }
             
         default:
             break;
     }
 }
 
-void IrServiceClient::resetHsWidgetExitStopped()
+void IrServiceClient::clearMonitorServiceRequest()
 {
-    emit irStateChanged(IrAppState::NoRunStopped);
-    emit metaDataUpdated(QString(""));
+    delete mMonitorRequest;
+    mMonitorRequest = NULL;
+
+    delete mRefreshRequest;
+    mRefreshRequest = NULL;
 }
 
 // used to process service data sent from IR app.
@@ -419,28 +478,28 @@ void IrServiceClient::processNotificationData(const IrServiceData &aServiceData)
         case IrServiceNotification::StationName:
             if (data.canConvert(QVariant::String))
             {
-                emit stationNameUpdated(data.toString());
+                notifyStationNameUpdated(data.toString());
             }
             break;
 
         case IrServiceNotification::MetaData:
             if (data.canConvert(QVariant::String))
             {
-                emit metaDataUpdated(data.toString());
+                notifyMetaDataUpdated(data.toString());
             }
             break;
 
         case IrServiceNotification::StationLogo:
             if (data.canConvert(QVariant::Bool))
             {
-                emit stationLogoUpdated(data.toBool());
+                notifyStationLogoUpdated(data.toBool());
             }            
             break;
 
         case IrServiceNotification::IrState:
             if (data.canConvert(QVariant::Int))
             {
-                emit irStateChanged((IrAppState::Type)data.toInt());
+                notifyIrStateChanged((IrAppState::Type)data.toInt());
             }
             break;
 
@@ -476,22 +535,46 @@ void IrServiceClient::prepareRequestInfo(XQAiwRequest *aRequest, IrAppVisibilty 
     aRequest->setInfo(reqInfo);
 }
 
+void IrServiceClient::notifyStationNameUpdated(const QString &aStationName)
+{
+    mStationName = aStationName;
+    emit stationNameUpdated(mStationName);
+}
+
+void IrServiceClient::notifyStationLogoUpdated(bool aIsLogoAvailable)
+{
+    mStationLogoAvailable = aIsLogoAvailable;
+    emit stationLogoUpdated(mStationLogoAvailable);    
+}
+
+void IrServiceClient::notifyMetaDataUpdated(const QString &aMetaData)
+{
+    mMetaData = aMetaData;
+    emit metaDataUpdated(mMetaData);    
+}
+
+void IrServiceClient::notifyIrStateChanged(IrAppState::Type aNewState)
+{
+    mIrState = aNewState;
+    emit irStateChanged(mIrState);    
+}       
+        
 bool IrServiceClient::isStationPlayed()
 {
-    QSettings settings(KIrSettingOrganization, KIrSettingApplicaton);
+    QSettings settings(KIrSettingOrganization, KIrSettingApplication);
     QString stationName = settings.value(KIrSettingStationName,KIrDefaultStationName).toString();
     return stationName != KIrDefaultStationName;
 }
 
 bool IrServiceClient::loadStationLogoFlag()
 {
-    QSettings settings(KIrSettingOrganization, KIrSettingApplicaton);
+    QSettings settings(KIrSettingOrganization, KIrSettingApplication);
     return settings.value(KIrSettingStationLogoAvailable,false).toBool();
 }
 
 bool IrServiceClient::loadStationName(QString &aStationName)
 {
-    QSettings settings(KIrSettingOrganization, KIrSettingApplicaton);
+    QSettings settings(KIrSettingOrganization, KIrSettingApplication);
     aStationName = settings.value(KIrSettingStationName,KIrDefaultStationName).toString();
     if(aStationName != KIrDefaultStationName)
     {
@@ -504,4 +587,5 @@ bool IrServiceClient::loadStationName(QString &aStationName)
 }
 
 Q_IMPLEMENT_USER_METATYPE(IrServiceData)
+Q_IMPLEMENT_USER_METATYPE_NO_OPERATORS(IrServiceDataList)
 

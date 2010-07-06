@@ -94,8 +94,9 @@ private:
     void updateMusicStoreStatus();
     void updateForLauchAction();
     
-    void updateStationLogo();
-
+    void updateStationLogo();	
+    void loadStationLogo();
+    
     void lazyInit();
     void normalInit();
     

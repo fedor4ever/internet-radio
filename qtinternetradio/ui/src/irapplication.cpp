@@ -16,6 +16,7 @@
 */
 
 #include <hbaction.h>
+#include <hbapplication.h>
 #include <qcoreapplication.h>
 #include <hbdevicemessagebox.h>
 #include <hbprogressdialog.h>
@@ -24,11 +25,18 @@
 #include <QFile>
 #include <QTextStream>
 #include <QDir>
+#include <hbmessagebox.h>
 
 #include <xqserviceutil.h>
 #include <hbiconitem.h>
 #include <hbiconanimator.h>
 #include <hbiconanimationmanager.h>
+#ifdef HS_WIDGET_ENABLED
+#include <XQSettingsManager>
+#include <XQPublishAndSubscribeSettingsKey>
+#include <XQPublishAndSubscribeUtils>
+#include <QDateTime>
+#endif
 
 #ifdef LOCALIZATION 
 #include <QTranslator>
@@ -51,6 +59,13 @@
 #include "irqsystemeventhandler.h"
 #include "irabstractlistviewbase.h"
 #include "irfileviewservice.h"
+#ifdef HS_WIDGET_ENABLED
+#include "irmonitorservice.h"
+#include "ircontrolservice.h"
+#include "irservicedef.h"
+#include "irqisdsdatastructure.h"
+#include "irsearchchannelsview.h"
+#endif
 /*
  * Description : constructor, initialize all data members
  * Parameters  : aViewManager : pointer to the view manager object
@@ -78,9 +93,15 @@ IRApplication::IRApplication(IRViewManager* aViewManager, IRQSystemEventHandler*
                                      #ifdef LOCALIZATION
                                      iTranslator(NULL),
                                      #endif
-                                     iSystemEventHandler(aSystemEventHandler),
-                                     iLoadingAnimation(NULL),
-                                     iFileViewService(NULL)
+                                     iSystemEventHandler(aSystemEventHandler), 
+                                     iUseNetworkReason(EIR_UseNetwork_NoReason),									 
+                                     iAppFullyStarted(false),
+									 #ifdef HS_WIDGET_ENABLED
+                                     iControlService(NULL),
+                                     iMonitorService(NULL),
+									 #endif                                     
+                                     iFileViewService(NULL),
+                                     iMessageBox(NULL)
                                      
 {
     LOG_METHOD;
@@ -96,13 +117,19 @@ IRApplication::IRApplication(IRViewManager* aViewManager, IRQSystemEventHandler*
     // get advertisement setting
     iSettings->getGlobalAdvFlag(iEnableGlobalAdv);
     setupConnection();
-    setLaunchView();
+    
+    if (!XQServiceUtil::isService())
+    {
+        setLaunchView();
+    }
     
     QString name = XQServiceUtil::interfaceName();
     if (name == QString("com.nokia.symbian.IFileView"))
     {
         iFileViewService = new IRFileViewService(this);
     }
+    
+    iMessageBox = new HbMessageBox(hbTrId("No network connection!"),HbMessageBox::MessageTypeWarning,NULL);
 } 
 
 /*
@@ -114,6 +141,8 @@ IRApplication::~IRApplication()
 {
     LOG_METHOD;
     setExitingView();
+    iViewManager->saveActivity();
+    
     destroyComponents();
     
     if (iLocalServer)
@@ -126,6 +155,9 @@ IRApplication::~IRApplication()
     
     delete iLoadingNote;
     iLoadingNote = NULL;
+    
+    delete iMessageBox;
+    iMessageBox = NULL;
     
     delete iSystemEventHandler;
     
@@ -140,6 +172,13 @@ IRApplication::~IRApplication()
     
     delete iFileViewService;
     iFileViewService = NULL;
+	
+#ifdef HS_WIDGET_ENABLED	
+    XQSettingsManager settingsManager;
+    XQPublishAndSubscribeUtils psUtils(settingsManager);
+    XQPublishAndSubscribeSettingsKey irStartupKey(KInternetRadioPSUid, KInternetRadioStartupKey);
+    psUtils.deleteProperty(irStartupKey);        
+#endif	
 }
 
  
@@ -151,10 +190,21 @@ IRApplication::~IRApplication()
  */
 void IRApplication::setLaunchView()
 {
-    if (!XQServiceUtil::isService())
+    //get starting view id according to activate reason
+    TIRViewId viewId = EIRView_CategoryView;
+    HbApplication *hbApp = qobject_cast<HbApplication*>(qApp);
+
+    if (hbApp->activateReason() == Hb::ActivationReasonActivity)
     {
-        //normal launch, launch starting view
-        TIRViewId viewId = EIRView_CategoryView;
+        QVariant data = hbApp->activateData();
+        QByteArray serializedModel = data.toByteArray();
+        QDataStream stream(&serializedModel, QIODevice::ReadOnly);
+        int id = 0;
+        stream>>id;
+        viewId = TIRViewId(id);
+    }
+    else
+    {
         iSettings->getStartingViewId(viewId);
         if (EIRView_PlayingView == viewId)
         {
@@ -164,9 +214,9 @@ void IRApplication::setLaunchView()
                 viewId = EIRView_CategoryView;
             }
         }
-        
-        launchStartingView(viewId);
     }
+    
+    launchStartingView(viewId);
 }
 
 /*
@@ -183,31 +233,18 @@ bool IRApplication::verifyNetworkConnectivity(const QString &aConnectingText)
     
     if (!iNetworkController->getNetworkStatus())
     {
+        LOG( "IRApplication::verifyNetworkConnectivity--1");
         ret = false;
         if (!iNetworkController->isConnectRequestIssued())
         {
+            LOG( "IRApplication::verifyNetworkConnectivity--2");
             iConnectingText = aConnectingText;
             iNetworkController->chooseAccessPoint();
         }
     }
     
     return ret;
-}
-
-void IRApplication::startLoadingAnimation(const QPointF& aPos)
-{
-    if( NULL == iLoadingAnimation )
-    {
-        getLoadingAnimation();
-    }
-    
-    if (iLoadingAnimation)
-    {
-        iLoadingAnimation->setPos(aPos);
-        iLoadingAnimation->show();
-        iLoadingAnimation->animator().startAnimation();
-    }    
-}
+} 
 
 void IRApplication::startLoadingAnimation(const QObject *aReceiver, const char *aFunc)
 {
@@ -217,18 +254,14 @@ void IRApplication::startLoadingAnimation(const QObject *aReceiver, const char *
     //is initiated by low layer, we don't show any dialog
     if (!iNetworkController->getNetworkStatus())
     {
-        IRBaseView *currentView = static_cast<IRBaseView*>(iViewManager->currentView());
-        if (currentView && EIR_UseNetwork_NoReason == currentView->getUseNetworkReason())
-        {
-            return;
+        if (EIR_UseNetwork_NoReason == iUseNetworkReason) // network is not used by the Application
+        {            
+            IRBaseView *currentView = static_cast<IRBaseView*>(iViewManager->currentView());
+            if (currentView && EIR_UseNetwork_NoReason == currentView->getUseNetworkReason())
+            {
+                return;
+            }
         }
-    }
-    
-    //if in search, we could not show the dialog
-    TIRViewId curViewID = static_cast<IRBaseView*>(iViewManager->currentView())->id();
-    if ( EIRView_SearchView == curViewID )
-    {
-        return;        
     }
     
     if (NULL == iLoadingNote)
@@ -237,7 +270,11 @@ void IRApplication::startLoadingAnimation(const QObject *aReceiver, const char *
         iLoadingNote->setModal(true);
         iLoadingNote->setTimeout(HbPopup::NoTimeout);
         QAction *action = iLoadingNote->actions().at(0);
+#ifdef SUBTITLE_STR_BY_LOCID
         action->setText(hbTrId("txt_common_button_cancel"));
+#else
+        action->setText(hbTrId("Cancel"));        
+#endif
     }
     
     iLoadingNote->disconnect(SIGNAL(cancelled()));
@@ -256,7 +293,11 @@ void IRApplication::startLoadingAnimation(const QObject *aReceiver, const char *
     }
     else
     {
+#ifdef SUBTITLE_STR_BY_LOCID
         iLoadingNote->setText(hbTrId("txt_common_info_loading"));
+#else
+        iLoadingNote->setText(hbTrId("Loading"));        
+#endif
     }
     
     iLoadingNote->show();
@@ -265,16 +306,19 @@ void IRApplication::startLoadingAnimation(const QObject *aReceiver, const char *
 void IRApplication::stopLoadingAnimation()
 {
     LOG_METHOD_ENTER;
+
+    // this function is the endpoint of cancel loading actions for all views
+	// so we can do cleanup action here, including player stop action.
+	// No need to stop the player in each views in the slot connected to the cancel signal of the loading note
+    if (!getPlayController()->isPlaying())
+    {
+        getPlayController()->stop(EIRQUnknownTermination);
+    }
+    
     if (iLoadingNote)
     {
         iLoadingNote->close();
-    }
-    
-    if( iLoadingAnimation )
-    {
-        iLoadingAnimation->animator().stopAnimation();
-        iLoadingAnimation->hide();         
-    }
+    } 
 }
 
 /*
@@ -407,6 +451,10 @@ void IRApplication::setTranslator(QTranslator* aTranslator)
 void IRApplication::createComponents()
 {
     getSettings();
+#ifdef HS_WIDGET_ENABLED    
+    iControlService = new IrControlService(this);
+    iMonitorService = new IrMonitorService(this);	
+#endif	
 }
 
 /*
@@ -445,6 +493,14 @@ void IRApplication::destroyComponents()
     
     delete iMediaKeyObserver;
     iMediaKeyObserver = NULL;
+	
+#ifdef HS_WIDGET_ENABLED    
+    delete iControlService;
+    iControlService = NULL;
+    
+    delete iMonitorService;
+    iMonitorService = NULL;
+#endif	
 }
 
 void IRApplication::setupConnection()
@@ -514,8 +570,14 @@ void IRApplication::networkEventNotified(IRQNetworkEvent aEvent)
             
         case EIRQDisplayNetworkMessageNoConnectivity:
             {
-                stopLoadingAnimation();
-                HbMessageBox::warning(hbTrId("txt_irad_info_no_network_connectiion"), (QObject*)NULL, NULL);
+                stopLoadingAnimation();                
+                LOG("IRApplication::networkEventNotified::no network connection");
+                if( !iMessageBox->isVisible() )
+                {
+                    LOG("IRApplication::networkEventNotified::no network connection -- show dialog");
+                    iMessageBox->show();
+                }
+                
                 if (!iDisconnected)
                 {
                     /* the handling is up to each view */
@@ -537,14 +599,12 @@ void IRApplication::loadGenre()
 
     if (!hasCache)
     {
-        IRBaseView *currView = static_cast<IRBaseView*>(iViewManager->currentView());
-        Q_ASSERT(currView);
-        currView->setUseNetworkReason(EIR_UseNetwork_LoadCategory);
+        iUseNetworkReason = EIR_UseNetwork_LoadCategory;
         if (false == verifyNetworkConnectivity())
         {
             return;
         }
-        currView->setUseNetworkReason(EIR_UseNetwork_NoReason);
+        iUseNetworkReason = EIR_UseNetwork_NoReason;
     }
     
     IRCategoryView *categoryView = static_cast<IRCategoryView*>(getViewManager()->getView(EIRView_CategoryView, true));
@@ -561,26 +621,7 @@ void IRApplication::newLocalSocketConnection()
     delete socket;
     
     iViewManager->raise();
-}
-
-void IRApplication::getLoadingAnimation()
-{
-    HbIconAnimationManager::global()->addDefinitionFile("qtg_anim_loading.axml");
-    iLoadingAnimation = new HbIconItem("qtg_anim_loading");
-    iLoadingAnimation->hide();
-    QGraphicsScene *targetScene = getViewManager()->scene();
-    QGraphicsScene *oldScene = iLoadingAnimation->scene();
-
-    if (targetScene != oldScene)
-    {
-        if (oldScene)
-        {
-            oldScene->removeItem(iLoadingAnimation);
-        }
-        targetScene->addItem(iLoadingAnimation); // takes ownership
-    }
-
-}
+} 
 
 void IRApplication::initApp()
 {
@@ -595,6 +636,19 @@ void IRApplication::initApp()
     getMediaKeyObserver();	
     startSystemEventMonitor();
     startLocalServer();
+    //when IR is running, remove activity. Otherwise user can see two items in task switcher
+    iViewManager->removeActivity();
+    
+#ifdef HS_WIDGET_ENABLED		
+    // Write the startup timestamp to P&S key for the homescreen widget
+    XQSettingsManager settingsManager;
+    XQPublishAndSubscribeUtils psUtils(settingsManager);
+    XQPublishAndSubscribeSettingsKey irStartupKey(KInternetRadioPSUid, KInternetRadioStartupKey);
+    if (psUtils.defineProperty(irStartupKey, XQSettingsManager::TypeInt))
+    {
+        settingsManager.writeItemValue(irStartupKey, (int)QDateTime::currentDateTime().toTime_t());
+    } 
+#endif        
 }
 
 bool IRApplication::event(QEvent* e)
@@ -610,18 +664,29 @@ bool IRApplication::event(QEvent* e)
 
 TIRHandleResult IRApplication::handleConnectionEstablished()
 {
-    IRBaseView *currView = static_cast<IRBaseView*>(iViewManager->currentView());
-    Q_ASSERT(currView);
-    
-    if (EIR_UseNetwork_LoadCategory == currView->getUseNetworkReason())
+    TIRHandleResult retVal = EIR_DoDefault;
+    switch (iUseNetworkReason)
     {
-        IRCategoryView *categoryView = static_cast<IRCategoryView*>(getViewManager()->getView(EIRView_CategoryView, true));
-        categoryView->loadCategory(IRQIsdsClient::EGenre);
-        currView->setUseNetworkReason(EIR_UseNetwork_NoReason);
-        return EIR_NoDefault;
+        case EIR_UseNetwork_LoadCategory:
+        {
+            IRCategoryView *categoryView = static_cast<IRCategoryView*>(getViewManager()->getView(EIRView_CategoryView, true));
+            categoryView->loadCategory(IRQIsdsClient::EGenre); 
+            retVal = EIR_NoDefault;        
+            break;    
+        }
+            
+#ifdef HS_WIDGET_ENABLED            
+        case EIR_UseNetwork_PlayStation: // play last station when player is in Idle state while there is no connection.
+            getPlayController()->resume();
+            retVal = EIR_NoDefault;        
+            break;  
+#endif
+        default:
+            break;
     }
     
-    return EIR_DoDefault;
+    iUseNetworkReason = EIR_UseNetwork_NoReason;    
+    return retVal;
 }
 
 void IRApplication::handleTermsConsAccepted()
@@ -639,35 +704,85 @@ void IRApplication::handleTermsConsAccepted()
 
 void IRApplication::launchStartingView(TIRViewId aViewId)
 {
-    bool isFirstTimeUsage = false;
-    iSettings->isFlagTermsAndConditions(isFirstTimeUsage);
     iStartingViewId = aViewId;
+    /* bool isFirstTimeUsage = false;
+    iSettings->isFlagTermsAndConditions(isFirstTimeUsage);
+    
     if(isFirstTimeUsage)
     {
         iViewManager->activateView(EIRView_TermsConsView);  
 		QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);    
     }
-    else
+    else*/
     {
         iViewManager->activateView(iStartingViewId);
         QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
         QEvent* initEvent = new QEvent(iInitEvent);
         QCoreApplication::postEvent(this, initEvent, Qt::HighEventPriority);         
-    }	
+    }
+    
+    iAppFullyStarted = true;
+}
+
+bool IRApplication::isAppFullyStarted() const
+{
+    return iAppFullyStarted;
 }
 
 void IRApplication::setExitingView()
-{
-    if (XQServiceUtil::isService())
-    {
-        return;
-    }    
+{  
     TIRViewId viewId = iViewManager->getExitingView();
     if(EIRView_InvalidId != viewId)
     {
         getSettings()->setStartingViewId(viewId);
     }
 }
+
+
+#ifdef HS_WIDGET_ENABLED
+bool IRApplication::startPlaying()
+{
+    // if any loading is in progress, disallow to play
+    if (iLoadingNote && iLoadingNote->isVisible())
+    {
+        LOG( "IRApplication::startPlaying() in the return false1");
+        return false;
+    }
+    
+    if (getPlayController()->isStopped())
+    {         
+        LOG_FORMAT( "IRApplication::startPlaying(), the station name is %s", 
+                STRING2CHAR(getPlayController()->getNowPlayingPreset()->name));
+        iUseNetworkReason = EIR_UseNetwork_PlayStation;
+        getPlayController()->setConnectingStationName(getPlayController()->getNowPlayingPreset()->name);
+        if (verifyNetworkConnectivity())
+        {
+            iUseNetworkReason = EIR_UseNetwork_NoReason;
+            getPlayController()->resume();
+        }
+        return true;
+    }
+    else
+    {
+        LOG( "IRApplication::startPlaying() in the return false2");
+        return false;
+    }
+}
+
+void IRApplication::cancelPlayerLoading()
+{
+    if (IRPlayController::EConnecting == getPlayController()->state() 
+        || IRPlayController::EBuffering == getPlayController()->state())
+    {       
+        if (iLoadingNote && iLoadingNote->isVisible())
+        {
+            iLoadingNote->cancel();
+        }      
+    }   
+}
+
+#endif
+
 
 void IRApplication::startLocalServer()
 {
@@ -745,8 +860,13 @@ void IRApplication::startSystemEventMonitor()
 void IRApplication::handleDiskSpaceLow(qint64 aCriticalLevel)
 {
     Q_UNUSED(aCriticalLevel);
-    HbDeviceMessageBox messageBox(hbTrId("txt_irad_info_no_space_on_c_drive_internet_radio_closed"),
+#ifdef SUBTITLE_STR_BY_LOCID
+    HbDeviceMessageBox messageBox(hbTrId("txt_irad_info_insufficient_disk_space"),
             HbMessageBox::MessageTypeWarning);
+#else
+    HbDeviceMessageBox messageBox(hbTrId("Insufficient disk space"),
+                HbMessageBox::MessageTypeWarning);    
+#endif
     messageBox.setTimeout(HbPopup::NoTimeout);
     messageBox.exec();
     qApp->quit();    

@@ -26,6 +26,14 @@ class IRApplication;
 class IRBaseView;
 class QTimer;
 
+class ActivityInformation
+{
+public:
+    QPixmap screenShot;
+    QString activityId;
+    TIRViewId viewId;
+};
+
 class IRViewManager : public HbMainWindow
 {
     Q_OBJECT
@@ -49,6 +57,12 @@ public:
     
     bool isExiting() const;
        
+    void saveScreenShot();
+    
+    void saveActivity();
+    
+    void removeActivity();
+    
 public slots:
     void backToPreviousView();
 
@@ -63,7 +77,8 @@ private slots:
     void handleCurrentViewChanged(HbView *aView);
     void crossLineReset();
     void exitTimeout();
-        
+    void handleSaveScreenShot();
+    
 private:
     void backToView(TIRViewId aViewId);
     IRBaseView* createView(IRApplication* aApplication, TIRViewId aViewId);
@@ -73,7 +88,8 @@ private:
     bool readyToQuit();
     
     void switchToNextView(IRBaseView *aView);
- 
+    void backupActivity();
+    
 private:
     IRApplication* iApplication;
     QStack<IRBaseView*> iViewStack;
@@ -93,6 +109,8 @@ private:
     QTimer *iExitTimer;
     
     bool iExiting;    
+    QMap<TIRViewId, QPixmap> iScreenShots;
+    ActivityInformation iActivityBackup;
 };
 
 #endif

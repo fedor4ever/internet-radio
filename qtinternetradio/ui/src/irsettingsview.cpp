@@ -48,7 +48,11 @@ void IRSettingsView::initView()
     setLayout(layout);
 
     HbGroupBox * titleText = new HbGroupBox();
-    titleText->setHeading( hbTrId("txt_common_opt_settings") ); 
+#ifdef SUBTITLE_STR_BY_LOCID
+    titleText->setHeading( hbTrId("txt_common_opt_settings") );
+#else
+    titleText->setHeading( hbTrId("Settings") );    
+#endif
     layout->addItem(titleText);
 
     iForm = new HbDataForm();
@@ -62,25 +66,44 @@ void IRSettingsView::initView()
     iForm->setModel(iModel);
     
     HbMenu *viewMenu = menu();
-    viewMenu->addAction(hbTrId("txt_common_opt_exit"),iApplication, SIGNAL(quit()));    
+#ifdef SUBTITLE_STR_BY_LOCID
+    viewMenu->addAction(hbTrId("txt_common_opt_exit"),iApplication, SIGNAL(quit()));
+#else
+    viewMenu->addAction(hbTrId("Exit"),iApplication, SIGNAL(quit()));    
+#endif
 }
 
 void IRSettingsView::setPreferredQuality()
 {
+#ifdef SUBTITLE_STR_BY_LOCID
     HbDataFormModelItem *preferredQualityItem = new HbDataFormModelItem(
             HbDataFormModelItem::ToggleValueItem, hbTrId("txt_irad_setlabel_download_quality"));
+#else
+    HbDataFormModelItem *preferredQualityItem = new HbDataFormModelItem(
+            HbDataFormModelItem::ToggleValueItem, hbTrId("Download quality"));    
+#endif
     iModel->appendDataFormItem(preferredQualityItem);
 
     IRQPreferredQuality settingValue = iSettings->getPreferredQuality();
     if(EIRQStandardQuality == settingValue)
     {
+#ifdef SUBTITLE_STR_BY_LOCID
         preferredQualityItem->setContentWidgetData("text", hbTrId("txt_irad_setlabel_download_quality_val_standard"));
         preferredQualityItem->setContentWidgetData("additionalText", hbTrId("txt_irad_setlabel_download_quality_val_high"));
+#else
+        preferredQualityItem->setContentWidgetData("text", hbTrId("Standard"));
+        preferredQualityItem->setContentWidgetData("additionalText", hbTrId("High"));        
+#endif
     }
     else if(EIRQHighQuality == settingValue)
     {
+#ifdef SUBTITLE_STR_BY_LOCID
         preferredQualityItem->setContentWidgetData("text", hbTrId("txt_irad_setlabel_download_quality_val_high"));
-        preferredQualityItem->setContentWidgetData("additionalText", hbTrId("txt_irad_setlabel_download_quality_val_standard"));    
+        preferredQualityItem->setContentWidgetData("additionalText", hbTrId("txt_irad_setlabel_download_quality_val_standard"));
+#else
+        preferredQualityItem->setContentWidgetData("text", hbTrId("High"));
+        preferredQualityItem->setContentWidgetData("additionalText", hbTrId("Standard"));        
+#endif
     }
     
     connect(iModel, SIGNAL(dataChanged(QModelIndex, QModelIndex)), 
@@ -95,17 +118,29 @@ void IRSettingsView::toggleChange(QModelIndex aStartIn, QModelIndex aEndIn)
     
     if(item->type() == HbDataFormModelItem::ToggleValueItem) 
     {
-        if(item->data(HbDataFormModelItem::LabelRole).toString() == hbTrId("txt_irad_setlabel_download_quality")) 
+#ifdef SUBTITLE_STR_BY_LOCID
+        if(item->data(HbDataFormModelItem::LabelRole).toString() == hbTrId("txt_irad_setlabel_download_quality"))
+#else
+        if(item->data(HbDataFormModelItem::LabelRole).toString() == hbTrId("Download quality"))            
+#endif
         {
             QVariant data = item->contentWidgetData("text");
             QString value = data.toString();
             
+#ifdef SUBTITLE_STR_BY_LOCID
             if(value == (hbTrId("txt_irad_setlabel_download_quality_val_standard")))
+#else
+            if(value == (hbTrId("Standard")))                
+#endif
             {    
                 // User has made it Standard.
                 iSettings->setPreferredQuality(EIRQStandardQuality);
             }
+#ifdef SUBTITLE_STR_BY_LOCID
             else if(value == (hbTrId("txt_irad_setlabel_download_quality_val_high")))
+#else
+            else if(value == (hbTrId("High")))                
+#endif
             {
                 // User has made it High.
                 iSettings->setPreferredQuality(EIRQHighQuality);

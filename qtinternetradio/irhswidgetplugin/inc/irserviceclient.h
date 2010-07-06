@@ -20,6 +20,7 @@
 
 // System includes
 #include <QObject>
+#include <QMutex>
 #include <xqappmgr.h>
 
 // User includes
@@ -37,12 +38,25 @@ class IrServiceClient : public QObject
 Q_OBJECT
 
 public:
-    explicit IrServiceClient(QObject *aParent = 0);
-    virtual ~IrServiceClient();
+    
+    /*!
+     *  Get the instance of IrServiceClient
+     *  @return IrServiceClient*
+     */
+    static IrServiceClient* openInstance();
+
+    /*!
+     *  Close the instance of IrServiceClient
+     */
+    void closeInstance();
+        
+private:
+    IrServiceClient();
+    virtual ~IrServiceClient();    
 
 public:
     bool startMonitoringIrState();
-    void stopMonitoringIrState();
+
 
     bool isStationPlayed();
     bool loadStationName(QString &aStationName);
@@ -64,6 +78,12 @@ signals:
     
     void controlFailed();
 
+private:
+    void notifyStationNameUpdated(const QString &aStationName);
+    void notifyStationLogoUpdated(bool aIsLogoAvailable);
+    void notifyMetaDataUpdated(const QString &aMetaData);
+    void notifyIrStateChanged(IrAppState::Type aNewState);
+
 private slots:
     // used for return value from Monitor Service via Qt HighWay
     void handleMonitorRequestOk(const QVariant &aRetValue);
@@ -80,6 +100,8 @@ private:
     bool createControlServiceRequest();
     bool createMonitorServiceRequest();
     bool createRefreshServiceRequest();
+    
+    void clearMonitorServiceRequest();
 
     enum IrAppVisibilty
     {
@@ -96,9 +118,20 @@ private:
     void processNotificationData(const IrServiceData &aServiceData);
     
     void initHsWidgetNoRunStopped();
-    void resetHsWidgetExitStopped();
     
-private:    
+    void refreshAllActiveHsWidgets();
+    
+private:
+    static QMutex           mMutex;
+    static int              mRef;  
+    static bool             mMonitoringStarted;
+    static IrServiceClient *mInstatnce;
+
+    QString          mStationName;
+    bool             mStationLogoAvailable; // true if station has its own logo
+    QString          mMetaData;
+    IrAppState::Type mIrState;
+                  
     IrAppInspector   *mIrAppInspector;
     
     bool  mMonitorReqOngoing;

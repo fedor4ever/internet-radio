@@ -37,7 +37,8 @@ SUBDIRS = irqlogger \
           irqnetworkcontroller \
           irqsonghistory \
           irqnwkinfoobserver \
-          irqstatisticsreporter \          
+          irqstatisticsreporter \ 
+          irhswidgetplugin \         
           ui 
           
 SYMBIAN_PLATFORMS = WINSCW ARMV5

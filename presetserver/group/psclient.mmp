@@ -40,6 +40,7 @@ SOURCE                  Psservsession.cpp
 SOURCE                  Pstransaction.cpp
 
 USERINCLUDE             ../clientinc
+USERINCLUDE             ../serverinc
 USERINCLUDE             ../include
 
 APP_LAYER_SYSTEMINCLUDE
