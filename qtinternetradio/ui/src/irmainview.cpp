@@ -14,6 +14,7 @@
 * Description:
 *
 */
+#include <hbtoolbar.h>
 #include <hbaction.h>
 #include <hblistview.h>
 
@@ -36,13 +37,13 @@ IRMainView::IRMainView(IRApplication* aApplication, TIRViewId aViewId) :
                                                       IrAbstractListViewBase(aApplication, aViewId),
                                                       iMainModel(NULL)
 {
-    setFlag(EViewFlag_ClearStackWhenActivate);
+    setFlag(EViewFlag_ClearStackWhenActivate|EViewFlag_StickyViewEnabled);
 	iLoader.load(ABSTRACT_LIST_VIEW_BASE_LAYOUT_FILENAME, ABSTRACT_LIST_VIEW_BASE_WITH_TOOLBAR_SECTION);
 	
 	//if this view is not starting view, finish all initialization in constructor
 	if (getViewManager()->views().count() > 0)
 	{
-	    lazyInit();
+	    normalInit();
 	}
 }
 
@@ -116,20 +117,18 @@ void IRMainView::networkRequestNotified(IRQNetworkEvent aEvent)
     switch (aEvent)
     {
     case EIRQNetworkConnectionEstablished:
-        iApplication->closeConnectingDialog();
-        
         if (EIR_UseNetwork_SelectItem == getUseNetworkReason())
         {
             handleItemSelected();
         }
-        setUseNetworkReason(EIR_UseNetwork_NoReason);
-        
         break;
         
     default:
         setCheckedAction();
         break;
     }
+    
+    setUseNetworkReason(EIR_UseNetwork_NoReason);
 }
 
 /*
@@ -173,12 +172,47 @@ void IRMainView::updateView()
     iMainModel->checkUpdate();
 }
 
+//from base class IRBaseView
+TIRHandleResult IRMainView::handleCommand(TIRViewCommand aCommand, TIRViewCommandReason aReason)
+{
+    if (!initCompleted())
+    {
+        return EIR_DoDefault;
+    }
+    
+    Q_UNUSED(aReason);
+    TIRHandleResult ret = IrAbstractListViewBase::handleCommand(aCommand, aReason);
+    
+    switch (aCommand)
+    {
+    case EIR_ViewCommand_ACTIVATED:
+        getViewManager()->saveScreenShot();
+        break;
+        
+    default:
+        break;
+    }
+    
+    return ret;
+}
+
 void IRMainView::lazyInit()
 {
     if (!initCompleted())
     {
-        IrAbstractListViewBase::lazyInit();
+        normalInit();
         
+        //initialization from handleCommand()
+        handleCommand(EIR_ViewCommand_ACTIVATED, EIR_ViewCommandReason_Show);
+    }
+}
+
+void IRMainView::normalInit()
+{
+    if (!initCompleted())
+    {
+        IrAbstractListViewBase::lazyInit();
+        initToolBar();
         setCheckedAction();
         
         connect(iNetworkController, SIGNAL(networkRequestNotified(IRQNetworkEvent)),
@@ -190,4 +224,13 @@ void IRMainView::lazyInit()
         
         setInitCompleted(true);
     }
+}
+
+void IRMainView::initToolBar()
+{
+    HbToolBar *viewToolBar = toolBar();
+    viewToolBar->addAction(iGenresAction);
+    viewToolBar->addAction(iCollectionsAction);
+    viewToolBar->addAction(iFavoritesAction);
+    viewToolBar->addAction(iSearchAction);
 }

@@ -667,6 +667,12 @@ void CIRHttpDataProvider::BuildHeadersL(const CIRHttpRequestData &aRequestInfo)
         IRLOG_DEBUG2( "CIRHttpDataProvider::BuildHeadersL - HTTP::EAcceptLanguage = %S", &logstr );
         }
 
+    // Add Accept-Encoding: gzip HTTP request header. The server will use compression to improve data
+	// transfer speed.
+    SetHeaderL( header, HTTP::EAcceptEncoding, KAcceptEncoding );
+    logstr.Copy(KAcceptEncoding);
+    IRLOG_DEBUG2( "CIRHttpDataProvider::BuildHeadersL - HTTP::EAcceptEncoding = %S", &logstr );
+
     // Set the If-Modified-Since header if required
    if ( aRequestInfo.isIfModifiedSet )
         {
@@ -740,12 +746,16 @@ void CIRHttpDataProvider::BuildHeadersL(const CIRHttpRequestData &aRequestInfo)
 		TInt pfCount = pf.Count();
         for(ii=0;ii<pf.Count();ii++)
             {
-            TBuf<KSize> z;
-            TBuf<KSize> z1;
+            RBuf z;
+            RBuf z1;
             TBool first;
             //file extensions
             const CDesC8Array &fe=pf[ii]->SupportedFileExtensions();
             first=TRUE;
+            z.CreateL(KSize);
+            z.CleanupClosePushL();
+            z1.CreateL(KSize);
+            z1.CleanupClosePushL();
             z1.Zero();
             for(j=0;j<fe.Count();j++)
                 {
@@ -787,7 +797,7 @@ void CIRHttpDataProvider::BuildHeadersL(const CIRHttpRequestData &aRequestInfo)
                 	tempD++;	                	
 	                }
                 };
-
+            CleanupStack::PopAndDestroy(2);
             };// for play formats
             }
    

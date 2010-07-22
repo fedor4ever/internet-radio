@@ -42,7 +42,8 @@ static void constructPlsElement( QTextStream &aOutput,
 // ---------------------------------------------------------------------------
 //
 IRStationShare::IRStationShare()
-            : iPlsFilePath(KPlsFilePath)
+            : iPlsFilePath(KPlsFilePath),
+              iShareDialog(NULL)
 {
 }             
 // ---------------------------------------------------------------------------
@@ -51,6 +52,7 @@ IRStationShare::IRStationShare()
 //
 IRStationShare::~IRStationShare()
 {
+    delete iShareDialog;
 }
 
 // ---------------------------------------------------------------------------
@@ -65,10 +67,14 @@ bool IRStationShare::shareStations(const QList<IRQPreset*> &aPresetList)
         return false;
     }
     
-    ShareUi shareDialog;
+
     QStringList fileList;
     fileList.append(iPlsFilePath);
-    return shareDialog.send(fileList,true);
+    if (NULL == iShareDialog)
+    {
+        iShareDialog = new ShareUi();
+    }    
+    return iShareDialog->send(fileList,true);
 }
 
 bool IRStationShare::shareStations(const IRQPreset &aPreset)
@@ -78,10 +84,13 @@ bool IRStationShare::shareStations(const IRQPreset &aPreset)
         return false;
     }
     
-    ShareUi shareDialog;
     QStringList fileList;
     fileList.append(iPlsFilePath);
-    return shareDialog.send(fileList,true);
+    if (NULL == iShareDialog)
+    {
+        iShareDialog = new ShareUi();
+    }      
+    return iShareDialog->send(fileList,true);
 }
 
 // ---------------------------------------------------------------------------

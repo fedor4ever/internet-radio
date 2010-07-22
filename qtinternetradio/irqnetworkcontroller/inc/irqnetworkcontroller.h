@@ -60,30 +60,6 @@ public:
      *  @return int Error code
      */
     IMPORT_C IRQError getIAPId(unsigned long& aIapId) const;
-
-    /**
-     *  Returns the list of available access points
-     *  @return QStringList &aList specifying the access point names
-     */
-    IMPORT_C void getAccessPointList(QStringList &aList);
-
-    /**
-     *  Returns the list of iap ids for available access points
-     *  @return QList<unsigned long> &aList specifying the iap ids
-     */
-    IMPORT_C void getApIdList(QList<unsigned long> &aList);
-
-    /**
-     *  Returns the list of bearer ids for available access points
-     *  @return QList<unsigned long> &aList specifying the bearer ids
-     */
-    IMPORT_C void getBearerList(QList<unsigned long> &aList);
-
-    /**
-     *  Returns the list of network ids for available access points
-     *  @return QList<unsigned long> &aList specifying the network ids
-     */
-    IMPORT_C void getNetworkList(QList<unsigned long> &aList);
     
     /**
      *  Configure the Access Point which is used by all the components for network connectivity

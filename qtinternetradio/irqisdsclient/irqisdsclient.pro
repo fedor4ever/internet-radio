@@ -17,6 +17,7 @@ TEMPLATE = lib
 TARGET = irqisdsclient
 TARGET.CAPABILITY += CAP_GENERAL_DLL
 
+defFilePath = ..
 MOC_DIR = moc
 DEPENDPATH = src
 
@@ -27,21 +28,25 @@ INCLUDEPATH += $${MW_LAYER_PUBLIC_EXPORT_PATH(http)}
 INCLUDEPATH += $${OS_LAYER_PUBLIC_EXPORT_PATH(mmf/common)}
 INCLUDEPATH += $${OS_LAYER_PUBLIC_EXPORT_PATH(xml)}
 
-INCLUDEPATH += ..\..\internetradio2.0\settingsinc \
-               ..\..\internetradio2.0\datastructuresinc \
-               ..\..\internetradio2.0\favoritesdbinc \
-               ..\..\internetradio2.0\networkcontrollerinc \
-               ..\..\internetradio2.0\isdsclientinc  \
-               ..\..\internetradio2.0\resources \
-               ..\..\internetradio2.0\include  \
-               ..\..\internetradio2.0\dataproviderinc \
-               ..\..\internetradio2.0\cachemgmtinc \
-               ..\..\internetradio2.0\xmlparserinc \
-               ..\..\internetradio2.0\sessionloginc \
-               ..\..\internetradio2.0\settingsinc \
-               ..\irqcommon\inc \
-               ..\irqfavoritesdb\inc
-               
+INCLUDEPATH += ../../internetradio2.0/settingsinc \
+               ../../internetradio2.0/datastructuresinc \
+               ../../internetradio2.0/favoritesdbinc \
+               ../../internetradio2.0/networkcontrollerinc \
+               ../../internetradio2.0/isdsclientinc  \
+               ../../internetradio2.0/resources \
+               ../../internetradio2.0/include  \
+               ../../internetradio2.0/dataproviderinc \
+               ../../internetradio2.0/cachemgmtinc \
+               ../../internetradio2.0/xmlparserinc \
+               ../../internetradio2.0/sessionloginc \
+               ../../internetradio2.0/settingsinc \
+               ../irqcommon/inc \
+               ../irqfavoritesdb/inc \
+               ../irqlogger/inc \
+               ../../presetserver/include \
+               ../../presetserver/clientinc \
+               ../../presetserver/serverinc
+
 LIBS += -lirdatastructures \
         -lirfavoritesdb \
         -lirqfavorites \
@@ -50,8 +55,9 @@ LIBS += -lirdatastructures \
         -lisdsclientinterface \
         -lirdataprovider \
         -lflogger \
-        -lirqutility
-
+        -lirqlogger \
+        -lirqutility       
+  
 
 symbian{
   TARGET.UID3 = 0xec6ecb67
@@ -66,7 +72,7 @@ HEADERS += inc\irqisdsclient.h \
 
 #source files list
 SOURCES += irqisdsclient.cpp \
-           irqisdscientimpl.cpp
+           irqisdsclientimpl.cpp
 
 SYMBIAN_PLATFORMS = WINSCW ARMV5
 

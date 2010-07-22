@@ -19,6 +19,7 @@ TARGET.CAPABILITY = CAP_GENERAL_DLL
 
 MOC_DIR = moc
 DEPENDPATH += src
+defFilePath = ..
 
 INCLUDEPATH += inc \
                ..\irqcommon\inc \

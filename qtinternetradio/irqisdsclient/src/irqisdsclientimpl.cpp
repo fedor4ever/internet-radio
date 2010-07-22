@@ -30,6 +30,7 @@
 #include "irbrowsechannelitems.h"
 #include "isdsclientdll.h"
 #include "irqisdsdatastructure.h"
+#include "irqlogger.h"
 
 #ifdef USER_DEFINED_ISDSURL
 static const char* KDefaultIsdsUrl = "http://88.114.146.238/isds";
@@ -66,6 +67,7 @@ IRQIsdsClientImpl::~IRQIsdsClientImpl()
 //
 void IRQIsdsClientImpl::IsdsErrorL(int aErrCode)
 {
+    LOG_FORMAT( "This is a QString %d", aErrCode);
     if (KNotFound == aErrCode)
     {
         emit operationExceptionImpl(EIRQErrorNotFound);
@@ -427,6 +429,8 @@ void IRQIsdsClientImpl::IsdsChannelDataReceivedL(CArrayPtrFlat<
             oneChannelItem->shortDescription = QString::fromUtf16(
                     aParsedStructure[i]->iShortDescription->Des().Ptr(),
                     aParsedStructure[i]->iShortDescription->Des().Length());
+            //added for search result's cache
+            oneChannelItem->channelID = aParsedStructure[i]->iChannelID;
 
             if (0 != aParsedStructure[i]->iImgUrl.Length())
             {

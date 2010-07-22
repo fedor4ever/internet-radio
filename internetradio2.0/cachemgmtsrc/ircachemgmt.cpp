@@ -450,15 +450,16 @@ void CIRCacheMgmt::FetchCachedDataL(TInt aType,TInt aCountItems,RDbView& aCacheV
 				{
 				iPtrCategory->ResetAndDestroy();
 				}
+			else
+			{
+				break;
+			}
 			for(TInt iter=0;iter<aCountItems;iter++)
 				{
 				ptr=CIRBrowseCatagoryItems::NewL();
 				CleanupStack::PushL(ptr);
 				instream>>*ptr;
-			    if (iPtrCategory)
-				    {				
-				    iPtrCategory->AppendL(ptr);
-				    }
+				iPtrCategory->AppendL(ptr);
 				CleanupStack::Pop(ptr);
 				}
 	        CleanupStack::PopAndDestroy( &instream );

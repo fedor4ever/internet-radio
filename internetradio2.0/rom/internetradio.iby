@@ -36,9 +36,6 @@ file=ABI_DIR\BUILD_DIR\ircachemgmt.dll                           SHARED_LIB_DIR\
 file=ABI_DIR\BUILD_DIR\irnetworkcontroller.dll                   SHARED_LIB_DIR\irnetworkcontroller.dll
 file=ABI_DIR\BUILD_DIR\irsettings.dll                          SHARED_LIB_DIR\irsettings.dll
 file=ABI_DIR\BUILD_DIR\irsessionlog.dll                          SHARED_LIB_DIR\irsessionlog.dll
-file=ABI_DIR\BUILD_DIR\irsonghistory.dll                    SHARED_LIB_DIR\irsonghistory.dll 
-
-data=DATAZ_\RESOURCE_FILES_DIR\apps\irnetworkcontroller.rsc		RESOURCE_FILES_DIR\apps\irnetworkcontroller.rsc
 
 data=DATAZ_\RESOURCE_FILES_DIR\plugins\presetplugin.rsc         	RESOURCE_FILES_DIR\plugins\presetplugin.rsc
 data=DATAZ_\RESOURCE_FILES_DIR\plugins\irrfsplugin.rsc  			RESOURCE_FILES_DIR\plugins\irrfsplugin.rsc

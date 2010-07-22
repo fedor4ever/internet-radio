@@ -53,30 +53,6 @@ public:
      *  @return int Error code
      */
     IRQError getIAPId(unsigned long& aIapId) const;
-
-    /**
-     *  Returns the list of available access points
-     *  @return QStringList &aList specifying the access point names
-     */
-    void getAccessPointList(QStringList &aList);
-
-    /**
-     *  Returns the list of iap ids for available access points
-     *  @return QList<unsigned long> &aList specifying the iap ids
-     */
-    void getApIdList(QList<unsigned long> &aList);
-
-    /**
-     *  Returns the list of bearer ids for available access points
-     *  @return QList<unsigned long> &aList specifying the bearer ids
-     */
-    void getBearerList(QList<unsigned long> &aList);
-
-    /**
-     *  Returns the list of network ids for available access points
-     *  @return QList<unsigned long> &aList specifying the network ids
-     */
-    void getNetworkList(QList<unsigned long> &aList);
     
     /**
      *  Configure the Access Point which is used by all the components for network connectivity

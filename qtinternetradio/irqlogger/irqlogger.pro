@@ -19,7 +19,7 @@ TEMPLATE    =  lib
 TARGET      =  irqlogger
 CONFIG      += dll
 DEFINES     += BUILD_IRQLOGGER_DLL
-
+defFilePath = ..
 
 
 MOC_DIR = moc

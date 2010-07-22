@@ -65,10 +65,10 @@ public:
     */
 
     IMPORT_C void updateSongHistoryDb(int aChannelId,
-                                      const QString& aChannelName,
-                                      const QString& aChannelUrl,
-                                      const QString& aImageUrl,
-                                      const QString& aMusicFlag);
+            const QString& aChannelName, const QString& aChannelUrl,
+            const QString& aImageUrl, const QString& aGenreName,
+            const QString& aCountryName, const QString& aLanguageName,
+            const QString& aMusicFlag);
 
     /**
     * Connected with play controller with the song name changed.
@@ -81,13 +81,19 @@ public:
     * @param    aMetaData   The meta data contains song name, artist and bitrate.
     * @param    aMusicshopStatus     The music shop status of the song
     */
-    IMPORT_C void handleSongMetaDataReceived(const IRQMetaData& aMetaData, QString& aMusicshopStatus);
+    IMPORT_C void handleSongMetaDataReceived(const IRQMetaData& aMetaData, const IRQPreset& preset);
     
     /*
      * delete one item from the station history db
      * @param   aIndex    the index of the item need deleted
      */
     IMPORT_C bool deleteOneItem(int aIndex);
+
+    /*
+     * delete one item from the song history db
+     * @param   aIndex    the index of the item need deleted
+     */
+    IMPORT_C bool deleteOneSongHistoryItem(int aIndex);
 
 private:
 
@@ -122,7 +128,7 @@ private:
     
     void handleMetaDataReceivedL(const IRQMetaData& aMetaData, const IRQPreset& aPreset);
 	void getAllHistoryL(QList<IRQSongHistoryInfo *>& aSongHistoryArr);
-	void handleSongMetaDataReceivedL(const IRQMetaData& aMetaData, QString& aMusicshopStatus);
+	void handleSongMetaDataReceivedL(const IRQMetaData& aMetaData, const IRQPreset& aPreset);
     void getAllSongHistoryL(QList<IRQSongInfo *>& aSongHistoryArr);
 
 private:

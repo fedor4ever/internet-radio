@@ -318,6 +318,8 @@ public:
 	*/
 	const TDesC& GetAdvertisementUrl() const;
 
+	const TDesC& GetAdvertisementInUse() const;
+	
 	/**
 	*CIRPresetImpl::GetImgUrl()
 	*gets the channel  image url
@@ -332,19 +334,14 @@ public:
 	*/
 	TInt GetUrlCount()const;
 
+	CIRChannelServerUrl& GetUrl(TInt aIndex) const;
+	
 	/*
 	*CIRPresetImpl::GetLogoData()
 	*gets the Logo Data
 	*@return TDesC8&
 	*/
     const TDesC8& GetLogoData() const;
-
-	/**
-	*CIRPresetImpl::GetUrl()
-	*gets the channel  url from zeroth position
-	*@return CIRChannelServerUrlImpl&
-	*/
-	CIRChannelServerUrlImpl& GetUrl(TInt aInt)const;
 	
 	/*
 	 * get the channel url at specified position
@@ -390,20 +387,6 @@ public:
 	*/
 	RArray<TInt>& GetAvailableBitrates();
 
-    /**
-	*CIRPresetImpl::UniqId()
-	*gets the unique id
-	*@return TUint32
-	*/
-	TUint32 UniqId() ;
-
-	/**
-	*CIRPresetImpl::SetUniqId()
-	*sets the unique id for the preset
-	*@param aId
-	*/
-	void SetUniqId( TUint32 aUniqId);
-
     /*
      * Returns the played times of the channel
      */
@@ -413,6 +396,10 @@ public:
      * Set the played times of the channel
      */
     void SetPlayedTimes(TInt aPlayedTimes);
+    
+    TBool GetRenamed() const;
+    
+    void SetRenamed();
     
 protected:
 
@@ -449,11 +436,6 @@ protected:
 private:
 
 	/**
-	 * unique id generated for the preset saved at favourite
-	 */
-	TUint32 iUniqId;
-
-	/**
 	 * no of channel urls
 	 */
 	TInt iChannelUrlCount;
@@ -462,11 +444,6 @@ private:
 	 * 0 for user defined 1 for isds type.
 	 */
 	TInt iType;
-
-	/**
-	 * index in the preset table
-	 */
-	//TInt iIndex;not required
 
 	/**
 	 * isds generated preset id
@@ -544,24 +521,21 @@ private:
 	 */
 	RBuf iMusicStoreStatus;
 
-
 	/**
 	 * url array
 	 */
-	CDesCArrayFlat* iUrlForBitrate;
-
-	/**
-	 * url array
-	 */
-	CArrayPtrFlat<CIRChannelServerUrlImpl>* iUrlArray;
+	CArrayPtrFlat<CIRChannelServerUrl>* iUrlArray;
 
 	/**
 	 * bitrate array
 	 */
 	RArray<TInt> iBitrateArray;
 	
-	//added by Peter on June 23rd, 2009
+	//how many times the station has been played
 	TInt iPlayedTimes;
+	
+	//if the station is renamed after it's added into favorites
+	TBool iRenamed;
 	};
 
 #endif	//end of IRPRESETIMPL_H

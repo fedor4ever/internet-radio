@@ -23,10 +23,6 @@
 #include <es_sock.h>
 #include <rhttpsession.h>
 
-//Added for ALR/SNAP
-#include <cmmanager.h>
-#include <connpref.h>
-#include <commdbconnpref.h>
 #include <comms-infras/cs_mobility_apiext.h>
 #include "iractivenetworkobserver.h"
 
@@ -37,25 +33,6 @@
 class CIRNetworkObserver;
 class CIRSettings;
 class MIRActiveNetworkObserver;
-
-typedef RArray<TUint32> RDestinationArray;
-
-//Added for ALR/SNAP
-enum TUserDefinedSelection
-   {
-    EUserDefinedSelectionAlwaysAsk = 0,
-    EUserDefinedSelectionDefaultConnection,
-    EUserDefinedSelectionDestination,
-    EUserDefinedSelectionConnectionMethod
-    };
-    
-    
-namespace CommsDat
-    {
-    class CMDBSession;
-    }
-
-using namespace CommsDat;
 
 /**
  * This class provides the interface to IRNetworkController component
@@ -101,18 +78,6 @@ using namespace CommsDat;
  * // This API returns the IAP id of the connected connection
  * // this is used by download manager for choosing the access point
  * iNetworkController->GetIAPId();
- *
- * // This API returns the list of available access points
- * iNetworkController->GetAccessPointList();
- *
- * // This API returns the list of bearer ids for available access points
- * iNetworkController->GetBearerList();
- *
- * // This API returns the list of network ids for available access points
- * iNetworkController->GetNetworkList();
- *
- * // This API returns the list of iap ids for available access points
- * iNetworkController->GetApList();
  *
  * // This API is called to initiate access point selection
  * iNetworkController->ChooseAccessPointL();
@@ -201,30 +166,6 @@ public:
 	 *  @return TInt Error code.
 	 */
 	IMPORT_C TInt GetIAPId(TUint32& aIapId) const;
-
-	/**
-	 *  Returns the list of available access points
-	 *  @return CDesCArray* array specifying the access point names
-	 */
-	IMPORT_C const CDesCArray* GetAccessPointList() const;
-
-	/**
-	 *  Returns the list of bearer ids for available access points
-	 *  @return const RArray<TUint32> array specifying the bearer ids
-	 */
-	IMPORT_C const RArray<TUint32> GetBearerList() const;
-
-	/**
-	 *  Returns the list of network ids for available access points
-	 *  @return const RArray<TUint32> array specifying the network ids
-	 */
-	IMPORT_C const RArray<TUint32> GetNetworkList() const;
-
-	/**
-	 *  Returns the list of iap ids for available access points
-	 *  @return const RArray<TUint32> array specifying the iap ids
-	 */
-	IMPORT_C const RArray<TUint32> GetApList() const;
 
 	/**
 	 *  Configures the Access Point which is used by all the components for network connectivity
@@ -520,21 +461,6 @@ private:
 	 * Access point list for settings view
 	 */
 	CDesCArrayFlat* iIapList;
-
-	/**
-	 * Array of bearer ids for access points
-	 */
-	RArray<TUint32> iBearerList;
-
-	/**
-	 * Array of network ids for access points
-	 */
-	RArray<TUint32> iNetworkList;
-
-	/**
-	 * Array of iap ids for access points
-	 */
-	RArray<TUint32> iIapIdList;
 
 	/**
 	 * Indicates if WiFi is supported or not

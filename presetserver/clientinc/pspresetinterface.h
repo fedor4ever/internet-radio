@@ -19,8 +19,8 @@
 #ifndef C_CPSPRESETINTERFACE_H
 #define C_CPSPRESETINTERFACE_H
 
-#include <pspresetobserver.h>
-#include <pstransaction.h>
+#include "pspresetobserver.h"
+#include "pstransaction.h"
 
 const TUid KPSPresetInterface = { 0x10281CB6 }; /**< The ECOM interface UID for preset plugins. */
 

@@ -18,12 +18,16 @@
 #include <hbapplication.h>
 #include <hbdevicemessagebox.h>
 #include <QLocalSocket>
+#include <hbsplashscreen.h>
+#include <QSettings>
 
 #include "irviewmanager.h"
 #include "irapplication.h"
 #include "irmemorycollector.h"
 #include "irqlogger.h"
 #include "irqsystemeventhandler.h"
+#include "irqsettings.h"
+#include "irservicedef.h"
 
 #ifdef LOCALIZATION 
 #include <QTranslator> 
@@ -32,10 +36,18 @@ void initLanguage(QTranslator*& aTranslator);
 
 bool isDiskSpaceLow(IRQSystemEventHandler* aEventHandler);
 bool isSecondInstance();
+void setSplashScreen();
+bool isSplashNowplaying();
 
 int main(int argc, char* argv[])
 {
+    installLogDir();
+    
     INSTALL_MESSAGE_HANDLER;
+    //the following is for splash screen, this must be placed 
+    //before the creating of HbApplication
+    setSplashScreen(); 
+    
     HbApplication app(argc, argv);
     
 #ifdef LOCALIZATION    
@@ -44,7 +56,11 @@ int main(int argc, char* argv[])
     Q_ASSERT( NULL != translator );
 #endif
     
+#ifdef SUBTITLE_STR_BY_LOCID
     QCoreApplication::setApplicationName(hbTrId("txt_irad_title_internet_radio"));
+#else
+    QCoreApplication::setApplicationName(hbTrId("Internet radio"));    
+#endif
     if (isSecondInstance())
     {
         return 0;
@@ -87,8 +103,13 @@ bool isDiskSpaceLow(IRQSystemEventHandler* aEventHandler)
     bool ret = aEventHandler->isBelowCriticalLevel();
     if(ret)
     {
-        HbDeviceMessageBox messageBox(hbTrId("txt_irad_info_no_space_on_c_drive_internet_radio_closed"),
+#ifdef SUBTITLE_STR_BY_LOCID
+        HbDeviceMessageBox messageBox(hbTrId("txt_irad_info_insufficient_disk_space"),
                 HbMessageBox::MessageTypeWarning);
+#else
+        HbDeviceMessageBox messageBox(hbTrId("Insufficient disk space"),
+                HbMessageBox::MessageTypeWarning);        
+#endif
         messageBox.setTimeout(HbPopup::NoTimeout);
         messageBox.exec();
     }
@@ -121,3 +142,22 @@ bool isSecondInstance()
         return false;
     }
 }
+
+void setSplashScreen()
+{     
+    if( isSplashNowplaying() )
+    {
+        HbSplashScreen::setScreenId("nowplaying_screen");
+    }
+    else
+    {
+        HbSplashScreen::setScreenId("normal_screen");
+    }    
+}
+
+bool isSplashNowplaying()
+{
+    QSettings settings(KIrSettingOrganization, KIrSettingApplication);
+    return settings.value(KIrSettingSplashNowplaying,false).toBool();
+}
+ 

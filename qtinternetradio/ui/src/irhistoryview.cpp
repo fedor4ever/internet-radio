@@ -17,6 +17,7 @@
 #include <hblistview.h>
 #include <hbmenu.h>
 #include <hbaction.h>
+#include <hbnotificationdialog.h>
 #include <QPixmap>
 #include <QTimer>
 
@@ -58,24 +59,29 @@ IRHistoryView::IRHistoryView(IRApplication *aApplication, TIRViewId aViewId) :
     iListView->setModel(iModel);
     iListView->setCurrentIndex(iModel->index(0));
     
-    iClearHistoryAction = new HbAction(hbTrId("txt_irad_opt_clear_station_history"), menu());
-
+#ifdef SUBTITLE_STR_BY_LOCID
+    iClearHistoryAction = new HbAction(hbTrId("txt_irad_opt_clear_list"), menu());
+#else
+    iClearHistoryAction = new HbAction(hbTrId("Clear list"), menu());    
+#endif
     
     iConvertTimer = new QTimer(this);
     iConvertTimer->setInterval(10);
     
-    connect(iClearHistoryAction, SIGNAL(triggered()), this, SLOT(clearAllList()));
+    connect(iClearHistoryAction, SIGNAL(triggered()), this, SLOT(popupClearHistoryConfirmMessageBox()));
     connect(iNetworkController, SIGNAL(networkRequestNotified(IRQNetworkEvent)),
     this, SLOT(networkRequestNotified(IRQNetworkEvent)));
     connect(iModel, SIGNAL(modelChanged()), this, SLOT(modelChanged()));
     connect(iConvertTimer, SIGNAL(timeout()), this, SLOT(convertAnother()));
 }
-
-void IRHistoryView::gotoSongHistory()
+void IRHistoryView::popupClearHistoryConfirmMessageBox()
 {
-    getViewManager()->activateView(EIRView_SongHistoryView);
+#ifdef SUBTITLE_STR_BY_LOCID
+    HbMessageBox::question(hbTrId("txt_irad_info_clear_station_list"), this, SLOT(clearAllList(HbAction*)), hbTrId("txt_common_button_ok"), hbTrId("txt_common_button_cancel"));
+#else
+    HbMessageBox::question(hbTrId("Clear station list?"), this, SLOT(clearAllList(HbAction*)), hbTrId("Ok"), hbTrId("Cancel"));    
+#endif
 }
-
 /* 
  * Description : destructor
  */
@@ -100,17 +106,18 @@ TIRHandleResult IRHistoryView::handleCommand(TIRViewCommand aCommand,
     
     switch (aCommand)
     {
+        
+    case EIR_ViewCommand_TOBEACTIVATED:       
+        showHistory();
+        ret = EIR_NoDefault;
+        break;
+                
     case EIR_ViewCommand_ACTIVATED:
-        connect(iIsdsClient, SIGNAL(presetResponse(IRQPreset *)),
-                this, SLOT(presetResponse(IRQPreset *)));
-        connect(iIsdsClient, SIGNAL(operationException(IRQError)),
-                this, SLOT(operationException(IRQError)));
         connect(iIsdsClient, SIGNAL(presetLogoDownloaded(IRQPreset* )),
                 this, SLOT(presetLogoDownload(IRQPreset* )));
         connect(iIsdsClient, SIGNAL(presetLogoDownloadError()),
                 this, SLOT(presetLogoDownloadError()));
         
-        showHistory();
         leftCount = iIconIndexArray.count();
         if( leftCount > 0 )
         {
@@ -128,11 +135,7 @@ TIRHandleResult IRHistoryView::handleCommand(TIRViewCommand aCommand,
         //iIconIndexArray must be cleared, because timer call back convertAnother() might be
         //called after view is deactivated. In that case, iModel->getImgURL(aIndex); will crash
         iIconIndexArray.clear();
-                
-        disconnect(iIsdsClient, SIGNAL(presetResponse(IRQPreset *)),
-                   this, SLOT(presetResponse(IRQPreset *)));
-        disconnect(iIsdsClient, SIGNAL(operationException(IRQError)),
-                   this, SLOT(operationException(IRQError)));
+
         disconnect(iIsdsClient, SIGNAL(presetLogoDownloaded(IRQPreset*)),
                    this, SLOT(presetLogoDownload(IRQPreset* )));
         disconnect(iIsdsClient, SIGNAL(presetLogoDownloadError()),
@@ -163,48 +166,30 @@ void IRHistoryView::handleItemSelected()
         return;
     }
 
+    IRQPreset preset;
+    convertStationHistory2Preset(*hisInfo, preset);
+    
     if (hisInfo->getChannelType())
     {
-        // channel from isds server, get this preset
-        iPlayController->createBufferingDialog(this, SLOT(cancelRequest()));
-        iIsdsClient->isdsListenRequest(hisInfo->getChannelId(), true);
+        // channel from isds server
+        iPlayController->connectToChannel(&preset, EIRQHistoryIsds);
     }
     else
     {
         // user defined channel
-        IRQChannelServerURL server;
-        server.bitrate = hisInfo->getBitrate();
-        server.url = hisInfo->getStreamUrl();
-        server.serverName = hisInfo->getChannelName();
-        IRQPreset preset;
-        preset.insertChannelServer(server);
-        preset.name = hisInfo->getChannelName();
-        preset.description = hisInfo->getChannelDesc();
-        preset.shortDesc = hisInfo->getChannelDesc();
-        preset.type = 0;
-        preset.uniqID = 0;
-        preset.presetId = 0;
-
         iPlayController->connectToChannel(&preset,EIRQHistoryAdhoc);
     }
 }
 
-// ---------------------------------------------------------------------------
-// IRHistoryView::presetResponse()
-// gets the preset from isds client and play
-//---------------------------------------------------------------------------
-void IRHistoryView::presetResponse(IRQPreset *aPreset)
+#ifdef HS_WIDGET_ENABLED
+void IRHistoryView::itemAboutToBeSelected(bool &aNeedNetwork)
 {
-    iPlayController->connectToChannel(aPreset,EIRQHistoryIsds);
+    aNeedNetwork =  true;
+    
+    int index = iListView->currentIndex().row();
+    iPlayController->setConnectingStationName(iModel->getHistoryInfo(index)->getChannelName()); 
 }
-
-void IRHistoryView::operationException(IRQError aError)
-{
-    Q_UNUSED(aError);
-    iPlayController->closeBufferingDialog();
-
-    popupNote(hbTrId("txt_irad_info_failed_to_connect"), HbMessageBox::MessageTypeWarning);
-}
+#endif
 
 void IRHistoryView::networkRequestNotified(IRQNetworkEvent aEvent)
 {
@@ -216,25 +201,18 @@ void IRHistoryView::networkRequestNotified(IRQNetworkEvent aEvent)
     switch (aEvent)
     {
     case EIRQNetworkConnectionEstablished:
-        iApplication->closeConnectingDialog();
-
         if (EIR_UseNetwork_SelectItem == getUseNetworkReason())
         {
             handleItemSelected();
         }
-        
-        setUseNetworkReason(EIR_UseNetwork_NoReason);
         break;
         
     default:
         setCheckedAction();
         break;
     }
-}
-
-void IRHistoryView::cancelRequest()
-{
-    iIsdsClient->isdsCancelRequest();
+    
+    setUseNetworkReason(EIR_UseNetwork_NoReason);
 }
 
 // ---------------------------------------------------------------------------
@@ -266,13 +244,20 @@ void IRHistoryView::showHistory()
 // IRHistoryView::clearAllList()
 // gets the List which was stored earlier
 //---------------------------------------------------------------------------
-void IRHistoryView::clearAllList()
+void IRHistoryView::clearAllList(HbAction *aAction)
 {
-    iIconIndexArray.clear();
-    iModel->clearAllList();
-    iConvertTimer->stop();
-    iIsdsClient->isdsLogoDownCancelTransaction();
-    iListView->reset();
+    HbMessageBox *dialog = static_cast<HbMessageBox*>(sender());
+    if (dialog)
+    {
+        if (aAction == dialog->actions().at(0))
+        {
+            iIconIndexArray.clear();
+            iModel->clearAllList();
+            iConvertTimer->stop();
+            iIsdsClient->isdsLogoDownCancelTransaction();
+            iListView->reset();
+        }
+    }    
 }
 
 void IRHistoryView::prepareMenu()
@@ -364,7 +349,12 @@ void IRHistoryView::convertAnother()
 
 void IRHistoryView::modelChanged()
 {
-    QString headingStr = hbTrId("Station History") + " (" + QString::number(iModel->rowCount()) + ")";  
+#ifdef SUBTITLE_STR_BY_LOCID
+    QString headingStr = hbTrId("txt_irad_subtitle_recently_played_stations") + " (" + QString::number(iModel->rowCount()) + ")"; 
+#else
+    QString headingStr = hbTrId("Recently played stations") + " (" + QString::number(iModel->rowCount()) + ")";
+#endif
+  
     setHeadingText(headingStr);
 }
  
@@ -383,7 +373,7 @@ void IRHistoryView::actionClicked(HbAction *aAction)
         }
         else if( objectName == KActionDetailsName)
         {
-            detailContextAction();
+            detailsContextAction();
         }
     }
 }
@@ -396,23 +386,45 @@ void IRHistoryView::addContextAction()
     convertStationHistory2Preset(*currentInfo, preset);   
     int retValue = iFavorites->addPreset(preset);
 
+    HbNotificationDialog *add2FavNote = new HbNotificationDialog();
+    add2FavNote->setModal(true);
+    add2FavNote->setAttribute(Qt::WA_DeleteOnClose);
+        
     switch (retValue)
     {
     case EIRQErrorNone:
-	    popupNote(hbTrId("txt_irad_menu_add_to_favorite"), HbMessageBox::MessageTypeInformation);
-        
+#ifdef SUBTITLE_STR_BY_LOCID
+        add2FavNote->setTitle(hbTrId("txt_irad_info_added_to_favorites"));
+#else
+        add2FavNote->setTitle(hbTrId("Added to Favorites"));        
+#endif
+        //add2FavNote->setIcon(HbIcon( QString("qtg_large_ok")));
+        add2FavNote->show();
         break;
 
     case EIRQErrorOutOfMemory:
-	    popupNote(hbTrId("txt_irad_info_can_not_add_more"), HbMessageBox::MessageTypeInformation);
-		break;
+#ifdef SUBTITLE_STR_BY_LOCID
+        add2FavNote->setTitle(hbTrId("txt_irad_info_can_not_add_more"));
+#else
+        add2FavNote->setTitle(hbTrId("Can't add more"));        
+#endif
+        //add2FavNote->setIcon(HbIcon( QString("qtg_large_ok")));
+        add2FavNote->show();        
+        break;
 
     case EIRQErrorAlreadyExist:
-	    popupNote(hbTrId("txt_irad_info_favorite_updated"), HbMessageBox::MessageTypeInformation);
-		break;
+#ifdef SUBTITLE_STR_BY_LOCID
+        add2FavNote->setTitle(hbTrId("txt_irad_info_favorite_updated"));
+#else
+        add2FavNote->setTitle(hbTrId("Favorite updated"));        
+#endif
+        //add2FavNote->setIcon(HbIcon( QString("qtg_large_ok")));
+        add2FavNote->show();           
+        break;
  
-    default:         
-    break;
+    default:
+        Q_ASSERT(false);         
+        break;
     }    
 } 
 
@@ -422,16 +434,25 @@ void IRHistoryView::deleteContextAction()
     bool ret = iModel->deleteOneItem(current);     
     if( !ret )
 	  {
+#ifdef SUBTITLE_STR_BY_LOCID
 	    popupNote(hbTrId("txt_irad_info_operation_failed"), HbMessageBox::MessageTypeWarning);
+#else
+	    popupNote(hbTrId("Operation failed"), HbMessageBox::MessageTypeWarning);	    
+#endif
 	  }
 }
-void IRHistoryView::detailContextAction()
-{
-    getViewManager()->activateView(EIRView_StationDetailsView);
-    IRStationDetailsView *channelHistoryView = static_cast<IRStationDetailsView*>(getViewManager()->getView(EIRView_StationDetailsView));
+void IRHistoryView::detailsContextAction()
+{   
     int selectedItemIndex = iListView->currentIndex().row();
     IRQSongHistoryInfo *channelDetailInfo = iModel->getHistoryInfo(selectedItemIndex);
-    channelHistoryView->setDetails(channelDetailInfo);
+
+    IRQPreset channelPreset;
+    convertStationHistory2Preset(*channelDetailInfo, channelPreset);
+
+    IRStationDetailsView *stationDetailsView = static_cast<IRStationDetailsView*>(getViewManager()->getView(EIRView_StationDetailsView, true));    
+    stationDetailsView->setDetails(&channelPreset);
+
+    getViewManager()->activateView(EIRView_StationDetailsView);
 }
 
 void IRHistoryView::listViewLongPressed(HbAbstractViewItem *aItem, const QPointF& aCoords)
@@ -444,11 +465,23 @@ void IRHistoryView::listViewLongPressed(HbAbstractViewItem *aItem, const QPointF
     contextMenu->setAttribute(Qt::WA_DeleteOnClose);
     connect(contextMenu, SIGNAL(triggered(HbAction*)), this, SLOT(actionClicked(HbAction*)));
     
+#ifdef SUBTITLE_STR_BY_LOCID
     action = contextMenu->addAction(hbTrId("txt_irad_menu_add_to_favorite"));
+#else
+    action = contextMenu->addAction(hbTrId("Add to favorites"));    
+#endif
     action->setObjectName(KActionAddName);
+#ifdef SUBTITLE_STR_BY_LOCID
     action = contextMenu->addAction(hbTrId("txt_common_menu_delete"));
+#else
+    action = contextMenu->addAction(hbTrId("Delete"));    
+#endif
     action->setObjectName(KActionDeleteName);
+#ifdef SUBTITLE_STR_BY_LOCID
     action = contextMenu->addAction(hbTrId("txt_common_menu_details"));
+#else
+    action = contextMenu->addAction(hbTrId("Details"));    
+#endif
     action->setObjectName(KActionDetailsName);
     
     contextMenu->open();
@@ -457,6 +490,7 @@ void IRHistoryView::listViewLongPressed(HbAbstractViewItem *aItem, const QPointF
 void IRHistoryView::convertStationHistory2Preset(const IRQSongHistoryInfo& aHistoryInfo, IRQPreset& aPreset)
 {
     IRQChannelServerURL url;
+    url.serverName = aHistoryInfo.getChannelName();
     url.url = aHistoryInfo.getStreamUrl();
     url.bitrate = aHistoryInfo.getBitrate();
     aPreset.name = aHistoryInfo.getChannelName();
@@ -465,6 +499,9 @@ void IRHistoryView::convertStationHistory2Preset(const IRQSongHistoryInfo& aHist
     aPreset.presetId = aHistoryInfo.getChannelId();
     aPreset.shortDesc = aHistoryInfo.getChannelDesc();  
     aPreset.imgUrl = aHistoryInfo.getImageUrl();
+    aPreset.genreName = aHistoryInfo.getGenreName();
+    aPreset.countryName = aHistoryInfo.getCountryName();
+    aPreset.languageName = aHistoryInfo.getLanguageName();
     aPreset.description = aHistoryInfo.getChannelDesc();
     aPreset.musicStoreStatus = aHistoryInfo.getMusicStoreStatus();
 }

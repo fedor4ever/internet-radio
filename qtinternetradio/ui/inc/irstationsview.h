@@ -24,7 +24,6 @@
 class IRQPreset;
 class IrChannelModel;
 class QTimer;
-class HbProgressDialog;
 
 class IRStationsView : public IrAbstractListViewBase
 {
@@ -35,18 +34,15 @@ public:
     
     void loadCategoryStations(int aIndex, const QString &aHeadingText);
     
-    void loadPopularStations(bool aShowWaitDialog);
-    
-    void loadSearchResult(const QString &aStr);
-    
 protected:
     IRStationsView(IRApplication* aApplication, TIRViewId aViewId);
     
     //from base class IRBaseView
     TIRHandleResult handleCommand(TIRViewCommand aCommand, TIRViewCommandReason aReason);
-    
-    //from base class IRBaseView
-    void launchAction();
+#ifdef HS_WIDGET_ENABLED	
+    //from IrAbstractListViewBase
+    void itemAboutToBeSelected(bool &aNeedNetwork);
+#endif
     
 private slots:  
     void presetResponse(IRQPreset *aPreset);
@@ -82,14 +78,10 @@ private:
     
     void disconnectIsdsClient();
     
-    void createWaitDialog(const QString &aStr);   
-    
 private:
     IRQPreset *iLogoPreset;
     IRQPreset *iPreset; //the object is created by IsdsClient, but application is responsible for free
-    HbProgressDialog *iWaitDialog;
     int iLastSelectitem;
-    int iLastPopularItem;
     
     //the following are used to support the img
     QList<int> iIconIndexArray;

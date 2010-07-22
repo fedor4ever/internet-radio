@@ -20,7 +20,8 @@
 #define R_RPSSERVSESSION_H
 
 #include <e32base.h>
-#include <pscommon.h>
+
+#include "pscommon.h"
 
 class RPSServ;
 

@@ -39,6 +39,9 @@ private slots:
     
 private:
     //from base class IrAbstractListViewBase
+#ifdef HS_WIDGET_ENABLED	
+    void itemAboutToBeSelected(bool &aNeedNetwork);    
+#endif
     void handleItemSelected();
     void listViewLongPressed(HbAbstractViewItem *aItem, const QPointF &aCoords);
     void launchAction();

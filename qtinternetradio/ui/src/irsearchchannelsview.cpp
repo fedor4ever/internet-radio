@@ -20,6 +20,12 @@
 #include <hbsearchpanel.h>
 #include <hbaction.h>
 #include <hbprogressdialog.h>
+#include <hbscrollbar.h> 
+#include <hbiconitem.h>
+#include <hbiconanimator.h>
+#include <hblabel.h> 
+#include <hbiconanimationmanager.h>
+#include <HbGroupBox>
 
 #include "irsearchchannelsview.h"
 #include "iruidefines.h"
@@ -31,13 +37,13 @@
 #include "irqisdsdatastructure.h"
 #include "irplaycontroller.h"
  
-const uint KBitmapSize = 59; 
+const uint KBitmapSize = 59;
 
 IRSearchChannelsView::IRSearchChannelsView(IRApplication* aApplication,
         TIRViewId aViewId): IRBaseView(aApplication, aViewId),
-        iListView(NULL),iSearchPanelWidget(NULL),
-        iSearchState(ESearch_init),iChannelModel(NULL),iSearchingDialog(NULL),
-        iPreset(NULL),iLogoPreset(NULL),iConvertTimer(NULL)
+        iListView(NULL),iSearchPanelWidget(NULL),iSearchState(ESearch_init),
+        iChannelModel(NULL),iPreset(NULL),iLogoPreset(NULL),
+        iConvertTimer(NULL) 
 {
     //if this view is not starting view, finish all initialization in constructor
     if (getViewManager()->views().count() > 0)
@@ -73,7 +79,9 @@ void IRSearchChannelsView::normalInit()
 
 void IRSearchChannelsView::initMenu()
 {
-
+    HbMenu *viewMenu = menu();
+    QObject *exitAction = iLoader.findObject(EXIT_ACTION);
+    connect(exitAction, SIGNAL(triggered()), iApplication, SIGNAL(quit()));
 }
 
 void IRSearchChannelsView::initTimer()
@@ -84,15 +92,10 @@ void IRSearchChannelsView::initTimer()
     connect(iConvertTimer, SIGNAL(timeout()), this, SLOT(convertAnother()));
 }
 
+ 
+
 IRSearchChannelsView::~IRSearchChannelsView()
-{
-    if( iSearchingDialog != NULL )
-    {
-        iSearchingDialog->close();
-        delete iSearchingDialog;
-        iSearchingDialog = NULL;
-    }
-    
+{   
     if( iPreset != NULL )
     {
         delete iPreset;
@@ -104,22 +107,37 @@ IRSearchChannelsView::~IRSearchChannelsView()
         delete iLogoPreset;
         iLogoPreset = NULL;
     }
+    
+    if( NULL != iChannelModel )
+    {
+        iChannelModel->save2Cache();
+    }
+ 
 }
 
 void IRSearchChannelsView::loadLayout()
 {
     // Create widget hierarchy
     setObjectName( SEARCH_CHANNELS_VIEW_OBJECT_VIEW );
-    iChannelModel = new IrChannelModel(this);
     // List existing root elements - this allows us to refer to objects in the XML 
     // which are created outside the document.
     QObjectList roots;
     roots.append( this );
     iLoader.setObjectTree( roots );
-    iLoader.load(SEARCH_CHANNELS_VIEW_LAYOUT_FILENAME);
+    iLoader.load(SEARCH_CHANNELS_VIEW_LAYOUT_FILENAME);   
+    
     iSearchPanelWidget = qobject_cast<HbSearchPanel *>(iLoader.findWidget(SEARCH_CHANNELS_VIEW_SEARCHPANEL_WIDGET));    
-    iListView = qobject_cast<HbListView *>(iLoader.findWidget(SEARCH_CHANNELS_VIEW_SEARCHLISTVIEW_WIDGET));     
-    iListView->setModel(iChannelModel);
+    
+    iListView = qobject_cast<HbListView *>(iLoader.findWidget(SEARCH_CHANNELS_VIEW_SEARCHLISTVIEW_WIDGET));   
+    iListView->setFlag(ItemIsFocusable);
+    HbScrollBar *scrollbar = iListView->verticalScrollBar();
+    scrollbar->setVisible(true);
+    scrollbar->setInteractive(true);
+    iListView->setVerticalScrollBarPolicy(HbScrollArea::ScrollBarAsNeeded);
+    
+    iChannelModel = new IrChannelModel(this);
+    iChannelModel->initWithCache();
+    iListView->setModel(iChannelModel);     
 }
 
 void IRSearchChannelsView::connectWidget()
@@ -128,6 +146,7 @@ void IRSearchChannelsView::connectWidget()
     connect(iChannelModel, SIGNAL(dataAvailable()), this, SLOT(dataChanged()));
     connect(iNetworkController, SIGNAL(networkRequestNotified(IRQNetworkEvent)), this, SLOT(networkRequestNotified(IRQNetworkEvent)));     
     connect(iSearchPanelWidget,SIGNAL(criteriaChanged(const QString&)),this,SLOT(searchTextAlready(const QString&)));
+    connect(iSearchPanelWidget, SIGNAL(exitClicked()), this, SLOT(minimizeSearchPanel()));
 }
 
 void IRSearchChannelsView::connectIsdsClient()
@@ -160,95 +179,38 @@ void IRSearchChannelsView::disconnectIsdsClient()
                        this, SLOT(presetLogoDownloadError()));  
 }
 
-
 void IRSearchChannelsView::switch2InitState()
-{
-    iLoader.load(SEARCH_CHANNELS_VIEW_LAYOUT_FILENAME,SEARCH_CHANNELS_VIEW_NO_LISTVIEW_SECTION);    
-    iSearchState = ESearch_init;     
-}
-
-void IRSearchChannelsView::switch2SearchedState()
-{
-    iLoader.load(SEARCH_CHANNELS_VIEW_LAYOUT_FILENAME,SEARCH_CHANNELS_VIEW_LISTVIEW_SECTION);    
-    iSearchState = ESearch_Searched;     
-}
-void IRSearchChannelsView::switch2SearchingState()
 {    
-    iSearchState = ESearch_Searching;     
-    startSearchingAnimation();
-}
- 
-void IRSearchChannelsView::createSearchingDialog()
-{
-    if ( NULL == iSearchingDialog)
-    {
-        //needs to add this , otherwise memory leak
-        iSearchingDialog = new HbProgressDialog(HbProgressDialog::WaitDialog);
-        iSearchingDialog->setModal(true);
-        iSearchingDialog->setTimeout(HbPopup::NoTimeout);
-        QAction *cancelAction = iSearchingDialog->actions().at(0);
-        cancelAction->setText(hbTrId("txt_common_button_cancel"));
-        connect(cancelAction, SIGNAL(triggered()), this, SLOT(cancelRequest()));
-    }
-    
-    iSearchingDialog->setText(hbTrId("txt_common_info_searching"));
-    iSearchingDialog->show();
-}
+    iSearchState = ESearch_init;     
+    iApplication->stopLoadingAnimation();
+} 
 
-void IRSearchChannelsView::closeSearchingDialog()
-{
-    if( iSearchingDialog )
-    {
-        iSearchingDialog->close();
-        iSearchingDialog->deleteLater();
-        iSearchingDialog = NULL;
-    }
+void IRSearchChannelsView::switch2LoadingState()
+{   
+    iSearchPanelWidget->clearFocus();
+    iListView->setFocus();
+    iSearchState = ESearch_Loading; 
+    iApplication->startLoadingAnimation(this, SLOT(minimizeSearchPanel()));
 }
-
-void IRSearchChannelsView::startSearchingAnimation()
-{
-    
-}
-
-void IRSearchChannelsView::stopSearchingAnimation()
-{
-    
-}
-
 
 void IRSearchChannelsView::handleItemSelected()
 {
     if (iListView)
     {
         int index = iListView->currentIndex().row();
-        if (index != -1)  
+        IRQChannelItem* aItem = iChannelModel->getChannelItemByIndex(index);
+        if( NULL != aItem )
         {
-            if (iIsdsClient)
-            {              
-                //once an item is selected, we show a dialog to prevent user from clicking the
-                //item again
-                iPlayController->createBufferingDialog(this, SLOT(cancelRequest()));
-                
-                if (iIsdsClient->isdsIsChannelBanner())
-                {
-                    iIsdsClient->isdsListenRequest(index + 1);
-                }
-                else
-                {
-                    iIsdsClient->isdsListenRequest(index);
-                }
-            }
-        }
+            iIsdsClient->isdsListenRequest(aItem->channelID,true);
+        }        
     }
+ 
 }
 
 void IRSearchChannelsView::cancelRequest()
-{
-    iSearchState = ESearch_init;
+{     
     iIsdsClient->isdsCancelRequest();    
-    stopSearchingAnimation();    
-    //the following will remove into the stopSearchingAnimation() function
-    closeSearchingDialog();
+    switch2InitState(); 
 } 
 
 void IRSearchChannelsView::networkRequestNotified(IRQNetworkEvent aEvent)
@@ -265,7 +227,7 @@ void IRSearchChannelsView::networkRequestNotified(IRQNetworkEvent aEvent)
         if(EIR_UseNetwork_StartSearch == getUseNetworkReason())
         {
             Q_ASSERT( !iKeyText.isEmpty() );
-            iIsdsClient->isdsSearchRequest(iKeyText);
+            iIsdsClient->isdsSearchRequest(iKeyText);             
         }
         else if( EIR_UseNetwork_SelectItem == getUseNetworkReason() )
         {            
@@ -275,11 +237,8 @@ void IRSearchChannelsView::networkRequestNotified(IRQNetworkEvent aEvent)
         break;        
      
     default:             
-        stopSearchingAnimation();
-        //the following will remove into the stopSearchingAnimation() function
-        closeSearchingDialog();
-        setUseNetworkReason(EIR_UseNetwork_NoReason);
-        iSearchState = ESearch_init;
+        switch2InitState();         
+        setUseNetworkReason(EIR_UseNetwork_NoReason);        
         break;
     }   
 } 
@@ -294,51 +253,70 @@ void IRSearchChannelsView::searchTextAlready(const QString& aSearchCriteria)
         return;
     }  
     
-    setUseNetworkReason(EIR_UseNetwork_StartSearch);
-    if (false == iApplication->verifyNetworkConnectivity(hbTrId("txt_common_info_searching")))
+    setUseNetworkReason(EIR_UseNetwork_StartSearch);     
+    if (false == iApplication->verifyNetworkConnectivity())
     {        
-        switch2SearchingState();
+        switch2LoadingState();
         return;
     }
     
+    //if previouse request is in progress, cancel it
+    if( ESearch_Loading == iSearchState )
+    {
+        iIsdsClient->isdsCancelRequest();            
+        iConvertTimer->stop();
+        iIsdsClient->isdsLogoDownCancelTransaction();
+    }
+ 
+    
     setUseNetworkReason(EIR_UseNetwork_NoReason);    
-    switch2SearchingState();
-    iIsdsClient->isdsSearchRequest(iKeyText);     
-    createSearchingDialog();
+    switch2LoadingState();
+    iIsdsClient->isdsSearchRequest(iKeyText);    
 }
 
-
-
 void IRSearchChannelsView::operationException(IRQError aError)
-{    
-    iApplication->closeConnectingDialog();
-    iPlayController->closeBufferingDialog();    
-    closeSearchingDialog();
-    stopSearchingAnimation();     
-    iSearchState = ESearch_init;
+{        
+    switch2InitState();
     
-    QString errStr;
-    
+    QString errStr;    
     switch(aError)
     {
     case EIRQErrorNotFound:
-        errStr = hbTrId("txt_irad_info_no_matching_stations_found");
+#ifdef SUBTITLE_STR_BY_LOCID 
+        errStr = hbTrId("txt_irad_info_no_matching_station_found");
+#else
+        errStr = hbTrId("No matching station found");        
+#endif
         break;
     default:
+#ifdef SUBTITLE_STR_BY_LOCID
         errStr = hbTrId("txt_irad_info_failed_to_connect");
+#else
+        errStr = hbTrId("Connecting failed");        
+#endif
         break;   
     }
+    
     popupNote(errStr, HbMessageBox::MessageTypeWarning);     
+    iChannelModel->cleanupDatabase();
 }
 
 void IRSearchChannelsView::clickItem(const QModelIndex&)
 {
     setUseNetworkReason(EIR_UseNetwork_SelectItem);
+#ifdef HS_WIDGET_ENABLED	
+    int index = iListView->currentIndex().row();
+    IRQChannelItem* currentItem = iChannelModel->getChannelItemByIndex(index);    
+    iPlayController->setConnectingStationName(currentItem->channelName,true);
+#endif	
     if (false == iApplication->verifyNetworkConnectivity())
     {
+        switch2LoadingState();
         return;
     }
     setUseNetworkReason(EIR_UseNetwork_NoReason);
+    
+    switch2LoadingState();
     handleItemSelected();
 }
 
@@ -364,26 +342,20 @@ void IRSearchChannelsView::convertAnother()
         startConvert(iIconIndexArray[0]);   
     }
 }
-
+ 
 void IRSearchChannelsView::dataChanged()
 {
-    iApplication->closeConnectingDialog();     
-    stopSearchingAnimation();
-    
-    //the following will remove into the stopSearchingAnimation() function
-    closeSearchingDialog();    
-    switch2SearchedState(); 
+    switch2InitState();      
     iListView->reset();
-    iListView->setCurrentIndex(iChannelModel->index(0));
-    iListView->scrollTo(iChannelModel->index(0)); 
-    GraphicsItemFlags  flags = iListView->flags();
-    bool focusEnable = flags & QGraphicsItem::ItemIsFocusable;
-    if( focusEnable )
+    if( iChannelModel->rowCount() )
     {
-        //we move the focus to the listview and the search panel will
-        //hide the virtual keyboard at the same time
-        iListView->setFocus(Qt::OtherFocusReason);            
+        iListView->setCurrentIndex(iChannelModel->index(0));
+        iListView->scrollTo(iChannelModel->index(0));         
     }
+    
+    //we move the focus to the listview and the search panel will
+    //hide the virtual keyboard at the same time
+    iListView->setFocus();            
     
     iIconIndexArray.clear();
     //initialize the iconindices
@@ -398,7 +370,7 @@ void IRSearchChannelsView::dataChanged()
     if( iIconIndexArray.count() > 0 )
     {
         iConvertTimer->start();        
-    } 
+    }   
 }
 
 void IRSearchChannelsView::startConvert(int aIndex)
@@ -475,23 +447,52 @@ void IRSearchChannelsView::presetLogoDownloadError()
     }     
 }
 
-TIRHandleResult IRSearchChannelsView::handleCommand(TIRViewCommand aCommand, TIRViewCommandReason aReason)
+void IRSearchChannelsView::minimizeSearchPanel()
+{
+    if( ESearch_Loading == iSearchState )
+    {
+        iPlayController->cancelBuffering(); 
+        iIsdsClient->isdsCancelRequest();
+        iConvertTimer->stop();
+        iIsdsClient->isdsLogoDownCancelTransaction();
+        switch2InitState();      
+    }
+    
+    int count = iChannelModel->rowCount();
+    if (0 == count)
+    {         
+        iSearchPanelWidget->clearFocus();
+        iListView->setFocus();        
+        getViewManager()->backToPreviousView();
+    }
+    else
+    {
+        iSearchPanelWidget->clearFocus();
+        iListView->setFocus();        
+    }
+}
+ 
+
+TIRHandleResult IRSearchChannelsView::handleCommand(TIRViewCommand aCommand,
+        TIRViewCommandReason aReason)
 {
     TIRHandleResult ret = IRBaseView::handleCommand(aCommand, aReason);
     
     switch (aCommand)
     {   
-    case EIR_ViewCommand_ACTIVATED:
-        //wether to start logo downloading when activated needs more discussing and testing, future.
-        iIconIndexArray.clear();
-        connectIsdsClient(); 
+    case EIR_ViewCommand_ACTIVATED:         
+        iIconIndexArray.clear();        
+        iListView->clearFocus();
+        iSearchPanelWidget->setFocus();        
+        connectIsdsClient();
         break;
         
     case EIR_ViewCommand_DEACTIVATE:     
         disconnectIsdsClient();
         iIsdsClient->isdsCancelRequest();            
         iConvertTimer->stop();
-        iIsdsClient->isdsLogoDownCancelTransaction(); 
+        iIsdsClient->isdsLogoDownCancelTransaction();
+        switch2InitState();
         break;
 
     default:

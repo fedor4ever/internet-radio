@@ -20,9 +20,11 @@
 #define IRPRESET_H
 
 #include <badesca.h>
-#include <pspresetinterface.h>
+
+#include "pspresetinterface.h"
 
 class CIRIsdsPreset;
+class CIRChannelServerUrl;
 
 const TUid KIRPreset = { 0x10009DC1 };
 
@@ -295,6 +297,13 @@ public:
 	*/
 	virtual const TDesC& GetAdvertisementUrl() const=0;
 
+    /**
+    *CIRPreset::GetAdvertisementInUse()
+    *gets the channel  advertisement In Use
+    *@return TDesC
+    */
+    virtual const TDesC& GetAdvertisementInUse() const = 0;
+	
 	/**
 	*CIRPreset::GetImgUrl()
 	*gets the channel  image url
@@ -309,6 +318,8 @@ public:
 	*/
 	virtual TInt GetUrlCount()const=0;
 
+	virtual CIRChannelServerUrl& GetUrl(TInt aIndex) const = 0;
+	
 	/*
 	 * get the channel url at specified position
 	 *
@@ -337,20 +348,6 @@ public:
 	*/
 	virtual void CopyPresetData(CIRIsdsPreset& aIsdsPreset) const =0;
 
-	/**
-	*CIRPreset::UniqId()
-	*gets the unique id
-	*@return TUint32
-	*/
-	virtual TUint32 UniqId()=0;
-
-	/**
-	*CIRPreset::SetUniqId()
-	*sets the unique id for the preset
-	*@param aId
-	*/
-	virtual void SetUniqId( const TUint32 aId)=0;
-
 	 /**
      * Sets the logo data for this preset for a specific size.
      *
@@ -376,6 +373,10 @@ public:
      * Set the played times of the channel
      */
     virtual void SetPlayedTimes(TInt aPlayedTimes) = 0;
+    
+    virtual TBool GetRenamed() const = 0;
+    
+    virtual void SetRenamed() = 0;
 	};
 
 #endif	//end of IRPRESET_H

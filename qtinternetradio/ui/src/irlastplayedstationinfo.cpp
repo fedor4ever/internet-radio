@@ -16,6 +16,10 @@
 */
 #include <QDataStream>
 #include <QFile>
+#ifdef HS_WIDGET_ENABLED
+#include <QSettings>
+#include "irservicedef.h"
+#endif
 
 #include "irqisdsdatastructure.h"
 #include "irlastplayedstationinfo.h"
@@ -56,6 +60,11 @@ void IRLastPlayedStationInfo::commitLastPlayedStation()
     {
         return;
     }
+    
+#ifdef HS_WIDGET_ENABLED	
+    QSettings settings(KIrSettingOrganization, KIrSettingApplication);
+    settings.setValue(KIrSettingStationName,iLastPlayedStation->name);
+#endif
     
     QFile file(KFileName);
     bool ret = file.open(QIODevice::Truncate | QIODevice::WriteOnly);

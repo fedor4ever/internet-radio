@@ -18,7 +18,6 @@
 #include <hblistview.h>
 #include <hbaction.h>
 #include <QTimer>
-#include <hbprogressdialog.h>
 
 #include "irviewmanager.h"
 #include "irstationsview.h"
@@ -42,9 +41,7 @@ const uint KConnectTimeOut = 15000; //if the connecting take more than 15 second
 IRStationsView::IRStationsView(IRApplication* aApplication, TIRViewId aViewId) 
                                : IrAbstractListViewBase(aApplication, aViewId),
                                iLogoPreset(NULL),  iPreset(NULL), 
-                               iWaitDialog(NULL),
-                               iLastSelectitem(0),
-                               iLastPopularItem(0)                          
+                               iLastSelectitem(0)                        
 {       
     //this view won't be starting view, don't need lazy init
     IrAbstractListViewBase::lazyInit();
@@ -78,71 +75,25 @@ IRStationsView::~IRStationsView()
 
     delete iLogoPreset;
     iLogoPreset = NULL;
-
-    delete iWaitDialog;
-    iWaitDialog = NULL;
-    
- 
- 
 }
 
 void IRStationsView::loadCategoryStations(int aIndex, const QString &aHeadingText)
 {
     connectToIsdsClient();
     setHeadingText(aHeadingText);
-    setViewParameter(EIRViewPara_CategoryStations);
     
     bool cache = false;
     iIsdsClient->isdsChannelRequest(aIndex, cache);
     
     if (!cache)
     {
-        createWaitDialog(hbTrId("txt_common_info_loading"));
+        iApplication->startLoadingAnimation(this, SLOT(cancelRequest()));
     }
-}
-
-void IRStationsView::loadPopularStations(bool aShowWaitDialog)
-{
-    connectToIsdsClient();
-    setViewParameter(EIRViewPara_PopularStations);
-    setHeadingText(tr("Popular stations"));
-    bool cache = false;
-    iIsdsClient->isdsCategoryRequest(IRQIsdsClient::Ehotpicks, cache);
-     
-    if (!cache && aShowWaitDialog)
-    {
-        createWaitDialog(hbTrId("txt_common_info_loading"));
-    }
-}
-
-void IRStationsView::loadSearchResult(const QString &aStr)
-{
-    connectToIsdsClient();
-    setViewParameter(EIRViewPara_SearchResults);
-    setHeadingText(hbTrId("txt_irad_subtitle_search_result"));
-    iIsdsClient->isdsSearchRequest(aStr);    
-    if( iConnectTimer->isActive() )
-    {
-        iConnectTimer->stop();
-    }
-    
-    iConnectTimer->start();
-    createWaitDialog(hbTrId("txt_common_info_searching"));
 }
 
 void IRStationsView::storeCurrentItem()
 {
-    switch (getViewParameter())
-    {
-    case EIRViewPara_PopularStations:
-        iLastPopularItem = iListView->currentIndex().row();
-        break;
-    case EIRViewPara_CategoryStations:
-        iLastSelectitem = iListView->currentIndex().row();
-        break;
-    default:
-        break;
-    }
+    iLastSelectitem = iListView->currentIndex().row();
 }
 
 void IRStationsView::resetCurrentItem()
@@ -206,11 +157,15 @@ TIRHandleResult IRStationsView::handleCommand(TIRViewCommand aCommand, TIRViewCo
     return ret;
 }
 
-void IRStationsView::launchAction()
+#ifdef HS_WIDGET_ENABLED
+void IRStationsView::itemAboutToBeSelected(bool &aNeedNetwork)
 {
-    setUseNetworkReason(EIR_UseNetwork_StartingView);
-    iApplication->verifyNetworkConnectivity();
+    aNeedNetwork =  true;
+    
+    int index = iListView->currentIndex().row();
+    iPlayController->setConnectingStationName(iChannelModel->getChannelItemByIndex(index)->channelName);
 }
+#endif
 
 //                                      slots functions
 
@@ -233,7 +188,7 @@ void IRStationsView::handleItemSelected()
                 
                 //once an item is selected, we show a dialog to prevent user from clicking the
                 //item again
-                iPlayController->createBufferingDialog(this, SLOT(cancelRequest()));
+                iApplication->startLoadingAnimation(this, SLOT(cancelRequest()));
                 
                 if (iIsdsClient->isdsIsChannelBanner())
                 {
@@ -254,32 +209,14 @@ void IRStationsView::handleItemSelected()
  */
 void IRStationsView::dataChanged()
 {
-	
-	int currentItem = 0;
-    iApplication->closeConnectingDialog();
     iConnectTimer->stop();
     
     disconnectIsdsClient();
     cleanupResource();
- 
-    
-    switch (getViewParameter())
-    {
-    case EIRViewPara_SearchResults:
-        currentItem = 0;
-        break;
-    case EIRViewPara_PopularStations:
-        currentItem = iLastPopularItem;
-        break;
-    case EIRViewPara_CategoryStations:
-        currentItem = iLastSelectitem;
-        break;
-	  default:
-        break;
-    }
+
     iListView->reset();
-    iListView->setCurrentIndex(iChannelModel->index(currentItem));
-    iListView->scrollTo(iChannelModel->index(currentItem));
+    iListView->setCurrentIndex(iChannelModel->index(iLastSelectitem));
+    iListView->scrollTo(iChannelModel->index(iLastSelectitem));
 
     //initialize the iconindices
     for (int i = 0; i < iChannelModel->rowCount(); ++i)
@@ -291,10 +228,7 @@ void IRStationsView::dataChanged()
     }
 
     getViewManager()->activateView(this);
-    if (iWaitDialog)
-    {
-        iWaitDialog->close();
-    }
+    iApplication->stopLoadingAnimation();
 }
 
 /*
@@ -324,21 +258,23 @@ void IRStationsView::presetResponse(IRQPreset *aPreset)
  */
 void IRStationsView::operationException(IRQError aError)
 {
-    iApplication->closeConnectingDialog();
-    iPlayController->closeBufferingDialog();
-    
-    if (iWaitDialog)
-    {
-        iWaitDialog->close();
-    }
-    
+    iApplication->stopLoadingAnimation();
+
     disconnectIsdsClient();
+#ifdef SUBTITLE_STR_BY_LOCID
     QString errorString = hbTrId("txt_irad_info_failed_to_connect");
+#else
+    QString errorString = hbTrId("Connecting failed");    
+#endif
     
     switch (aError)
     {   
     case EIRQErrorNotFound:
-        errorString = hbTrId("txt_irad_info_no_matching_stations_found");
+#ifdef SUBTITLE_STR_BY_LOCID
+        errorString = hbTrId("txt_irad_info_no_matching_station_found");
+#else
+        errorString = hbTrId("No matching station found");        
+#endif
         if (iConnectTimer->isActive())
         {
             iConnectTimer->stop();
@@ -353,17 +289,13 @@ void IRStationsView::operationException(IRQError aError)
 
 void IRStationsView::cancelRequest()
 {
-    if( iWaitDialog )
-    {
-        iWaitDialog->close();
-    }
-    
     if( iConnectTimer->isActive())
     {
         iConnectTimer->stop();
     }    
     iIsdsClient->isdsCancelRequest();
     disconnectIsdsClient();
+    iApplication->stopLoadingAnimation();
 }
 
 void IRStationsView::startConvert(int aIndex)
@@ -373,23 +305,6 @@ void IRStationsView::startConvert(int aIndex)
     IRQPreset tempPreset;
     tempPreset.imgUrl = url;
     tempPreset.type = IRQPreset::EIsds;
-    
-    bool cached = iIsdsClient->isdsIsLogoCached(&tempPreset, KBitmapSize, KBitmapSize);
-    
-    if( !cached )
-    {
-        bool network = iApplication->verifyNetworkConnectivity(hbTrId("txt_irad_info_downloading_logos"));
-        if( !network )
-        {
-            //if user has clicked an item and the connection is being setup, we don't change the reason
-            if (EIR_UseNetwork_NoReason == getUseNetworkReason())
-            {
-                setUseNetworkReason(EIR_UseNetwork_DownloadLogo);
-            }
-            iConvertTimer->stop();
-            return;
-        }        
-    }
     
     iIsdsClient->isdsLogoDownSendRequest(&tempPreset, 0, KBitmapSize, KBitmapSize); 
 }
@@ -463,23 +378,8 @@ void IRStationsView::networkRequestNotified(IRQNetworkEvent aEvent)
     switch (aEvent)
     {
     case EIRQNetworkConnectionEstablished:
-        if (EIR_UseNetwork_StartingView == getUseNetworkReason())
+        if (EIR_UseNetwork_SelectItem == getUseNetworkReason())
         {
-            //when stations view is starting view(used to show popular stations), don't show wait dialog 
-            loadPopularStations(false);
-        }
-        else if(EIR_UseNetwork_DownloadLogo == getUseNetworkReason())
-        {
-            iApplication->closeConnectingDialog();
-            int leftCount = iIconIndexArray.count();
-            if(0 != leftCount)
-            {
-            	  iConvertTimer->start();
-            }            
-        }
-        else if (EIR_UseNetwork_SelectItem == getUseNetworkReason())
-        {
-            iApplication->closeConnectingDialog();
             handleItemSelected();
             int leftCount = iIconIndexArray.count();
             if(0 != leftCount)
@@ -487,28 +387,15 @@ void IRStationsView::networkRequestNotified(IRQNetworkEvent aEvent)
                 iConvertTimer->start();
             }
         }
-        setUseNetworkReason(EIR_UseNetwork_NoReason);
         
-        break;
-        
-    case EIRQConnectingCancelled:
-    case EIRQDisplayNetworkMessageNoConnectivity:
-        if (iListView->model()->rowCount() == 0)
-        {
-            getViewManager()->activateView(EIRView_MainView);
-        }
-        else
-        {
-            setCheckedAction();
-        }
-        setUseNetworkReason(EIR_UseNetwork_NoReason);
         break;
         
     default:
-        setCheckedAction();
-        setUseNetworkReason(EIR_UseNetwork_NoReason);
+        setCheckedAction();       
         break;
     }
+    
+    setUseNetworkReason(EIR_UseNetwork_NoReason);
 }
 
 void IRStationsView::connectToIsdsClient()
@@ -529,24 +416,6 @@ void IRStationsView::disconnectIsdsClient()
                this, SLOT(operationException(IRQError)));
 }
 
-void IRStationsView::createWaitDialog(const QString &aStr)
-{
-    if (!iWaitDialog)
-    {
-        iWaitDialog = new HbProgressDialog(HbProgressDialog::WaitDialog);
-        iWaitDialog->setTimeout(HbPopup::NoTimeout);
-        iWaitDialog->setModal(true);
-        iWaitDialog->setDismissPolicy(HbPopup::NoDismiss);
-        QList<QAction*> actionsList = iWaitDialog->actions();
-        QAction *action = actionsList.at(0);
-        action->setText(hbTrId("txt_common_button_cancel"));
-        connect(action, SIGNAL(triggered()), this, SLOT(cancelRequest()));
-    }
-
-    iWaitDialog->setText(aStr);
-    iWaitDialog->open();
-}
-
 void IRStationsView::convertAnother()
 {
     iConvertTimer->stop();
@@ -562,5 +431,9 @@ void IRStationsView::connectTimeOut()
 {    
     iConnectTimer->stop();
     cancelRequest();   
+#ifdef SUBTITLE_STR_BY_LOCID
     popupNote(hbTrId("txt_irad_info_connecting_timout"), HbMessageBox::MessageTypeWarning);
+#else
+    popupNote(hbTrId("Connecting timeout"), HbMessageBox::MessageTypeWarning);    
+#endif
 }

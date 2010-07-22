@@ -18,11 +18,14 @@ TARGET.CAPABILITY += CAP_GENERAL_DLL
 
 MOC_DIR = moc
 DEPENDPATH = src
-
+defFilePath = ..
 INCLUDEPATH += $$APP_LAYER_SYSTEMINCLUDE
 
 INCLUDEPATH += ../../internetradio2.0/datastructuresinc \
-               ../../internetradio2.0/presetplugininc
+               ../../internetradio2.0/presetplugininc \
+               ../../presetserver/include \
+               ../../presetserver/clientinc \
+               ../../presetserver/serverinc
 
 LIBS += -lirdatastructures \
         -lfbscli \
@@ -30,7 +33,9 @@ LIBS += -lirdatastructures \
         -lws32 \
         -lapgrfx \
         -lxqsettingsmanager \
-        -lapmime
+        -lapmime \
+        -lapparc \
+        -lpsclient100
         
 symbian{
   TARGET.UID3 = 0xef3c4675
@@ -41,7 +46,9 @@ symbian{
 
 #header files list
 HEADERS += inc\irqisdsdatastructure.h \
-           inc\irqutility.h
+           inc\irqutility.h \
+           inc\irservicedata.h \
+           inc\irservicedef.h
                        
 
 #source files list

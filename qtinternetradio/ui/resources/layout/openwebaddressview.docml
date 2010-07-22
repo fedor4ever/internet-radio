@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <hbdocument context="IROpenWebAddressView" version="0.9">
     <object name="setting_act" type="HbAction">
-        <string locid="txt_irad_opt_network_setting" name="text"/>
+        <string locid="txt_common_opt_settings" name="text"/>
     </object>  
     <object name="exit_act" type="HbAction">
         <string locid="txt_common_opt_exit" name="text"/>

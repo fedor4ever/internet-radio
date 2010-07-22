@@ -33,6 +33,11 @@ static const char* EXIT_ACTION          = "exit_act";
 static const char* SETTINGS_ACTION      = "setting_act"; 
 static const char* GO_TO_STATION_ACTION = "go2station_act";
 static const char* OBJECT_TOOLBAR       = "toolbar";
+static const char* VIEW_CONTAINER       = "container";
+
+// Common Sections
+static const char* PORTRAIT_SEC  = "prt_section";
+static const char* LANDSCAPE_SEC  = "lsc_section";
 
 
 // IrAbstractListViewBase -- Object Name
@@ -62,11 +67,10 @@ static const char* OPEN_WEB_ADDRESS_VIEW_OBJECT_DATA_FORM                  = "da
 static const char* OPEN_WEB_ADDRESS_VIEW_OBJECT_PLAY_BUTTON                = "playButton";
 
 // SearchView -- Object Name
-static const char* SEARCH_CHANNELS_VIEW_OBJECT_VIEW                   = "ext-IRSearchChannelsView";
-static const char* SEARCH_CHANNELS_VIEW_NO_LISTVIEW_SECTION           = "section_without_listview";
-static const char* SEARCH_CHANNELS_VIEW_LISTVIEW_SECTION              = "section_with_listview";
+static const char* SEARCH_CHANNELS_VIEW_OBJECT_VIEW                   = "ext-IRSearchChannelsView"; 
 static const char* SEARCH_CHANNELS_VIEW_SEARCHPANEL_WIDGET            = "search_panel";
 static const char* SEARCH_CHANNELS_VIEW_SEARCHLISTVIEW_WIDGET         = "search_listview";
+ 
 
 // IRNowplayingView  -- Object Name
 static const char* NOW_PLAYING_VIEW_OBJECT_NAME                       = "ext-nowplayingview"; 
@@ -85,8 +89,6 @@ static const char* NOW_PLAYING_VIEW_OBJECT_STATION_NAME               = "station
 static const char* NOW_PLAYING_VIEW_OBJECT_ADVERTISEMENT_IMAGE        = "advertisementImage";
 #endif
 // IRNowplayingView  -- section
-static const char* NOW_PLAYING_VIEW_PRT_SEC  = "prt_section";
-static const char* NOW_PLAYING_VIEW_LSC_SEC  = "lsc_section";
 static const char* NOW_PLAYING_VIEW_SONG_RECOG_YES_SEC    = "song_recog_yes_section";
 static const char* NOW_PLAYING_VIEW_SONG_RECOG_NO_SEC     = "song_recog_no_section";
 
@@ -106,7 +108,10 @@ static const char* STATION_DETAILS_VIEW_OBJECT_STATION_URL          = "stationUr
 // IRTermsConsView -- Object Name
 static const char* TERMS_CONS_VIEW_BASE_OBJECT_VIEW  = "ext-IRTermsConsView";
 // IRTermsConsView -- widget
-static const char* TERMS_CONS_VIEW_ACCEPT_BTN        = "accept_btn";
-static const char* TERMS_CONS_VIEW_DENY_BTN          = "deny_btn";
+static const char* TERMS_CONS_VIEW_ACCEPT_BTN   = "accept_btn";
+static const char* TERMS_CONS_VIEW_DECLINE_BTN  = "decline_btn";
+static const char* TERMS_CONS_VIEW_TEXT_EDIT  = "text_edit";
+
+#define LOADING_ANIMATION_ICON_SIZE 50
 
 #endif /* IRUIDEFINES_H_ */

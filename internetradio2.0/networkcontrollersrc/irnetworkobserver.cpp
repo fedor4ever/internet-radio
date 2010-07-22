@@ -181,7 +181,14 @@ void CIRNetworkObserver::EventL(const CConnMonEventBase &aConnMonEvent)
 				{
 				if(iMonitoringRequired)
 					{
-					iMonitorObserver->IRNetworkEventL(ENetworkConnectionDisconnected);
+				    if (iMonitorObserver)
+					{
+				        iMonitorObserver->IRNetworkEventL(ENetworkConnectionDisconnected);
+					}
+				    else
+				    {
+				        iNetworkController->NotifyActiveNetworkObserversL(ENetworkConnectionDisconnected);
+				    }
 					}
 				}			
 			}
@@ -369,60 +376,30 @@ void CIRNetworkObserver::IRNetworkObserverRunL()
 			        case EBearerGPRS:
 			            {
 			            iIRConnectionType = EGprs;
-			            if(iMonitoringRequired)
-			             {
-			             // Intimate the connection established event
-			                 iMonitorObserver->IRNetworkEventL(
-			                     ENetworkConnectionEstablished);
-			             }
 			            }
 			        break;
                     
 			        case EBearerEdgeGPRS:
 			            {
 			            iIRConnectionType = EEdge;
-			            if(iMonitoringRequired)
-			             {
-			             // Intimate the connection established event
-			                 iMonitorObserver->IRNetworkEventL(
-			                     ENetworkConnectionEstablished);
-			             }
 			            }
 			        break;
                     
 			        case EBearerWLAN:
 			            {
 			            iIRConnectionType = EWiFi;    
-			            if(iMonitoringRequired)
-			                {
-			                // Intimate the connection established event
-			                iMonitorObserver->IRNetworkEventL(
-			                    ENetworkConnectionEstablished);
-			                }
 			            }
 			        break;
                     
 			        case EBearerWCDMA:
 			            {
 			            iIRConnectionType = EWcdma;
-			            if(iMonitoringRequired)
-			            {
-			            // Intimate the connection established event
-			                iMonitorObserver->IRNetworkEventL(
-			                    ENetworkConnectionEstablished);
-			            }
 			            }
                     break;
 			            
 			        case EBearerCDMA2000:
 			            {
 			            iIRConnectionType = ECdma2000;
-			            if(iMonitoringRequired)
-			            {
-			            // Intimate the connection established event
-			                iMonitorObserver->IRNetworkEventL(
-			                    ENetworkConnectionEstablished);
-			            }
 			            }
 			        break;
 			        
@@ -430,17 +407,25 @@ void CIRNetworkObserver::IRNetworkObserverRunL()
 			            {
 			            #ifdef __WINS__
 			            iIRConnectionType = EGprs;
-			            if(iMonitoringRequired)
-			             {
-			             // Intimate the connection established event
-			                 iMonitorObserver->IRNetworkEventL(
-			                     ENetworkConnectionEstablished);
-			             }
 			            #endif
 			            }
 			        break;
 			    }
 			    
+                
+                if (iMonitoringRequired)
+                {
+                    if (iMonitorObserver)    
+                    {
+                        // Intimate the connection established event
+                        iMonitorObserver->IRNetworkEventL(ENetworkConnectionEstablished);
+                    }
+                    else
+                    {
+                        iNetworkController->NotifyActiveNetworkObserversL(ENetworkConnectionEstablished);
+                    }
+                }
+                
 			    iNetworkController->ResetHandingOverConnection();
 			}
 			break;

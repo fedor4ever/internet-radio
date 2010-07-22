@@ -40,6 +40,9 @@ private slots:
 	void networkRequestNotified(IRQNetworkEvent aEvent);
 	
 private:
+    //from base class IRBaseView
+    TIRHandleResult handleCommand(TIRViewCommand aCommand, TIRViewCommandReason aReason);
+    
     //from base class IrAbstractListViewBase
     void handleItemSelected();
  
@@ -51,6 +54,10 @@ private:
     void updateView();
     
     void lazyInit();
+    
+    void normalInit();
+    
+    void initToolBar();
     
 private:
     IRMainModel *iMainModel;

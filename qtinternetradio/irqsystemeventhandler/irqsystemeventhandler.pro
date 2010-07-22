@@ -11,35 +11,45 @@ MOC_DIR = moc
 DEPENDPATH += . inc src
 INCLUDEPATH += .
 
+defFilePath = ..
+
 DEFINES += BUILD_IRQSYSTEMEVENTHANDLEREXPORTS_DLL
 
-INCLUDEPATH += $$APP_LAYER_SYSTEMINCLUDE
+INCLUDEPATH += $$APP_LAYER_SYSTEMINCLUDE \
+               ..\irqlogger\inc
 
 LIBS += -lalarmclient \
         -lefsrv \
-        -lplatformenv
-  
-
+        -lirqlogger \
+        -lplatformenv \
+        -laccclient
+                
 # Input
-HEADERS += inc/iralarmobserverinterface.h \           
+HEADERS += inc/irsystemeventobserverinterface.h \        
+           inc/irpropertychangeao.h \   
+           inc/iraccessoryobserver.h \      
+           inc/irpropertyobserver.h \
            inc/iralarmobserver.h \
-           inc/irdiskspaceobserver.h \
-           inc/irdiskspaceobserverinterface.h \
+           inc/irdiskspaceobserver.h \          
            inc/irqsystemeventhandler.h \
-           inc/irqsystemeventhandlerexport.h \
+           inc/irqsystemeventhandlerexport.h \                      
            inc/irqsystemeventhandler_p.h
            
            
 SOURCES += src/iralarmobserver.cpp \
            src/irdiskspaceobserver.cpp \
-           src/irqsystemeventhandler.cpp \
-           src/irqsystemeventhandler_p.cpp
+           src/iraccessoryobserver.cpp \
+           src/irpropertychangeao.cpp \
+           src/irpropertyobserver.cpp \
+           src/irqsystemeventhandler.cpp \          
+           src/irqsystemeventhandler_p.cpp         
 
 symbian{
   TARGET.UID3 = 0xEa421d0b
   TARGET.EPOCALLOWDLLDATA = 1
-}
+} 
 
+SYMBIAN_PLATFORMS = WINSCW ARMV5
 QT -= gui
            
 include(../common.pri)

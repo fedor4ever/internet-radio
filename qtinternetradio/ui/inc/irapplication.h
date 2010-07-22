@@ -17,9 +17,10 @@
 #ifndef IRAPPLICATION_H
 #define IRAPPLICATION_H
 
+#include <QObject>
 #include <QEvent>
 #include <hbglobal.h>
-#include <xqserviceprovider.h>
+#include <qpoint.h>
 
 #include "irqevent.h"
 #include "irviewdefinitions.h"
@@ -39,14 +40,19 @@ class QLocalServer;
 class IRQAdvClient;
 class HbProgressDialog;
 class IRQSystemEventHandler;
-class XQSharableFile;
 class IRPlayList;
+#ifdef HS_WIDGET_ENABLED
+class IrMonitorService;
+class IrControlService;
+#endif 
+class IRFileViewService;
+class HbMessageBox;
 
 #ifdef LOCALIZATION
 class QTranslator;
 #endif
 
-class IRApplication : public XQServiceProvider
+class IRApplication : public QObject
 {
     Q_OBJECT
     
@@ -54,12 +60,19 @@ public:
     IRApplication(IRViewManager *aViewManager, IRQSystemEventHandler* aSystemEventHandler);    
 
     ~IRApplication();
+#ifdef SUBTITLE_STR_BY_LOCID
+    bool verifyNetworkConnectivity(const QString &aConnectingText = hbTrId("txt_common_info_loading"));
+#else
+    bool verifyNetworkConnectivity(const QString &aConnectingText = hbTrId("Loading"));
+#endif
     
-    bool verifyNetworkConnectivity(const QString &aConnectingText = hbTrId("Connecting to server..."));
-    
-    void createConnectingDialog();
-    
-    void closeConnectingDialog();
+    void startLoadingAnimation(const QObject *aReceiver, const char *aFunc);    
+    void stopLoadingAnimation();
+	
+#ifdef HS_WIDGET_ENABLED    
+    bool startPlaying();
+    void cancelPlayerLoading();
+#endif
     
     IRViewManager* getViewManager() const;
     IRQNetworkController* getNetworkController();
@@ -71,6 +84,11 @@ public:
     IRMediaKeyObserver* getMediaKeyObserver();
     IRQAdvClient* getAdvClient(); 
     IRPlayList* getPlayList() const;
+	
+    void setLaunchView();    
+    void launchStartingView(TIRViewId aViewId);
+    
+    bool isAppFullyStarted() const;
     
 #ifdef LOCALIZATION
     /*
@@ -86,10 +104,6 @@ public:
 public:
     bool iTestPreferredBitrate;
 #endif
-
-public slots:
-    void view(const QString &aFileName);
-    void view(const XQSharableFile &aSharableFile);
     
 signals:
     void quit();
@@ -102,17 +116,18 @@ private slots:
     void newLocalSocketConnection();
     void handleDiskSpaceLow(qint64 aCriticalLevel);
     void handleTermsConsAccepted();
+    void handleCallActivated();
+    void handleCallDeactivated();
+    void handleHeadsetConnected();
+    void handleHeadsetDisconnected();
     
 private:
     void createComponents();
     void destroyComponents();
     void setupConnection();
-    void setLaunchView();
-    void launchStartingView(TIRViewId aViewId);
     void startSystemEventMonitor();
     void initApp();
-    void setExitingView();
-    
+    void setExitingView(); 
     TIRHandleResult handleConnectionEstablished();
     
     void startLocalServer();
@@ -155,15 +170,24 @@ private:
     
     QLocalServer *iLocalServer;
     
-    HbProgressDialog *iConnectingNote;
+    HbProgressDialog *iLoadingNote;
     
 #ifdef LOCALIZATION
     QTranslator  *iTranslator;
 #endif
     
-    IRQSystemEventHandler *iSystemEventHandler;
+    IRQSystemEventHandler *iSystemEventHandler;    	
+    TIRUseNetworkReason iUseNetworkReason;	
     
-    IRPlayList *iPlayList;
+    bool iAppFullyStarted;
+    
+#ifdef HS_WIDGET_ENABLED    
+    IrControlService    *iControlService;
+    IrMonitorService    *iMonitorService;
+#endif	
+      
+    IRFileViewService   *iFileViewService;
+    HbMessageBox *iMessageBox;
 };
 
 #endif

@@ -18,14 +18,15 @@
 #ifndef IRQSYSTEMEVENTHANDLER_P_H
 #define IRQSYSTEMEVENTHANDLER_P_H
  
-#include "irdiskspaceobserverinterface.h"
-#include "iralarmobserverinterface.h" 
+#include "irsystemeventobserverinterface.h"
 
 class IRQSystemEventHandler; 
 class CIRAlarmObserver;
 class CIRDiskSpaceObserver;
+class CIRPropertyObserver;
 
-class IRQSystemEventHandlerPrivate : public MIRAlarmObserverInterface, public MIRDiskSpaceObserverInterface
+class IRQSystemEventHandlerPrivate : public MIRAlarmObserverInterface, public MIRDiskSpaceObserverInterface,
+                                     public MIRPropertyObserverInterface, public MIRHeadsetObserverInterface
 {
 public:
     
@@ -39,6 +40,9 @@ public:
     void cancel();    
     void start();     
     
+    bool   isCallActive() const;
+    int    getErrorCode() const;
+    
 private:    
     //to initialize all the symbian components here
     void initializeL();
@@ -47,6 +51,13 @@ private:
     void alarmStopped();   
     //from MIRDisSpaceObserver
     void notifyLowDiskSpace(qint64 aCriticalLevel);
+    //from MIRPropertyObserverInterface
+    void callIsActivated();
+    void callIsDeactivated();
+    void errorCallback(int aError);
+    //from MIRHeadsetObserverInterface
+    void headsetIsConnected();
+    void headsetIsDisconnected();
     
 #ifdef USER_DEFINED_DISKSPACE
     void getDiskSpaceCriticalLevel(qint64 & aLevel);  
@@ -59,7 +70,9 @@ private:
     qint64                        mDefaultLevel;   
     
     CIRAlarmObserver*             mAlarmObserver;
-    CIRDiskSpaceObserver*         mDiskSpaceObserver;     
+    CIRDiskSpaceObserver*         mDiskSpaceObserver;   
+    CIRPropertyObserver *         mPropertyObserver;
+    int                           mErrorCode;
 };
 
 #endif  //IRQSYSTEMEVENTHANDLER_P_H

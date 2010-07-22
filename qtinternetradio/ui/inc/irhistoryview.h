@@ -38,20 +38,16 @@ protected:
     TIRHandleResult handleCommand(TIRViewCommand aCommand, TIRViewCommandReason aReason);
    
 private slots:
-    void clearAllList();
-    void presetResponse(IRQPreset *aPreset);
-    void operationException(IRQError aError);
+    void clearAllList(HbAction *aAction);
     void networkRequestNotified(IRQNetworkEvent aEvent);
-    void cancelRequest();
     //to start the convertion asynchronously
     void convertAnother();
     void presetLogoDownload(IRQPreset* aPreset);
     void presetLogoDownloadError();
     void modelChanged();
-    void gotoSongHistory();
     
     void actionClicked(HbAction *aAction);
-    
+    void popupClearHistoryConfirmMessageBox();    
 private:
     void showHistory();
     void handleItemSelected();
@@ -59,11 +55,14 @@ private:
     
     //from IrAbstractListViewBase
     void prepareMenu();
+#ifdef HS_WIDGET_ENABLED	
+    void itemAboutToBeSelected(bool &aNeedNetwork);
+#endif	
     void startConvert(int aIndex); 
     void convertStationHistory2Preset(const IRQSongHistoryInfo& aHistoryInfo, IRQPreset& aPreset);
     void addContextAction();
     void deleteContextAction();
-    void detailContextAction();
+    void detailsContextAction();
 
 private:  
     IRHistoryModel *iModel;

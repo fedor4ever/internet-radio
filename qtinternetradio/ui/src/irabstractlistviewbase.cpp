@@ -19,11 +19,13 @@
 #include <hbtoolbar.h>
 #include <hbaction.h>
 #include <hblistview.h>
-#include <hbabstractviewitem.h>
+#include <hblistviewitem.h>
 #include <hbscrollbar.h>
 #include <HbGroupBox>
 #include <HbMarqueeItem>
 #include <HbLabel>
+#include <hbframedrawer.h>
+#include <hbframeitem.h>
 
 #include "irviewmanager.h"
 #include "irabstractlistviewbase.h"
@@ -36,6 +38,7 @@
 #include "iruidefines.h"
  
 const int KAnimationLoopTimes = 2; // Animation loop times
+#define NOW_PLAYING_BANNER_FRAME "qtg_fr_multimedia_trans"
 
 IrAbstractListViewBase::IrAbstractListViewBase(IRApplication *aApplication, TIRViewId aViewId)
     : IRBaseView(aApplication, aViewId),
@@ -117,6 +120,18 @@ void IrAbstractListViewBase::initContentWidget()
     iArtistSongName->setLoopCount(KAnimationLoopTimes);
 
     iListView = qobject_cast<HbListView *>(iLoader.findObject(ABSTRACT_LIST_VIEW_BASE_OBJECT_LISTVIEW));
+    iListView->listItemPrototype()->setGraphicsSize(HbListViewItem::LargeIcon);
+    
+    // draw background for now playing banner
+    HbFrameDrawer* drawer = new HbFrameDrawer(NOW_PLAYING_BANNER_FRAME, HbFrameDrawer::NinePieces);
+    HbFrameItem* backgroundItem = new HbFrameItem(drawer, iPlayingBanner);
+    if (backgroundItem)
+    {
+        // set item to fill the whole widget
+        backgroundItem->setGeometry(QRectF(QPointF(0, 0), iPlayingBanner->size()));
+        backgroundItem->setZValue(0);
+        iPlayingBanner->setBackgroundItem(backgroundItem);
+    }
 }
 
 void IrAbstractListViewBase::initScrollBar()
@@ -136,6 +151,13 @@ void IrAbstractListViewBase::setViewParameter(TIRViewParameter aParameter)
 TIRViewParameter IrAbstractListViewBase::getViewParameter() const
 {
     return iViewParameter;
+}
+
+void IrAbstractListViewBase::setPlayingBannerTextColor(const QString &aColor)
+{
+    QColor color(aColor);
+    iStationName->setTextColor(color);
+    iArtistSongName->setTextColor(color);
 }
 
 void IrAbstractListViewBase::setCheckedAction()

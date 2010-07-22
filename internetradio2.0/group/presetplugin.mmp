@@ -27,13 +27,14 @@ SOURCEPATH    ../presetpluginsrc
 
 
 SOURCE		irpresetimpl.cpp
-SOURCE		irchannelserverurlimpl.cpp
 SOURCE		irpresetpluginproxy.cpp
 
 
 USERINCLUDE   ../presetplugininc
 USERINCLUDE   ../include
 USERINCLUDE   ../datastructuresinc
+USERINCLUDE   ../../presetserver/clientinc
+USERINCLUDE   ../../presetserver/serverinc
 
 // Default system include paths for application layer modules.
 APP_LAYER_SYSTEMINCLUDE

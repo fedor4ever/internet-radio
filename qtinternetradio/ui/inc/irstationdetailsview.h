@@ -34,7 +34,7 @@ class IRStationDetailsView : public IRBaseView
 public:
     ~IRStationDetailsView();
     void setDetails();
-    void setDetails(IRQSongHistoryInfo *aCurChannelInfo);
+    void setDetails(IRQPreset * aPreset);
     
 protected:
     IRStationDetailsView(IRApplication* aApplication, TIRViewId aViewId);

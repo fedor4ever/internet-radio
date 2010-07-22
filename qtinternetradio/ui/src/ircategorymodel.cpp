@@ -53,13 +53,20 @@ QVariant IRCategoryModel::data(const QModelIndex &aIndex, int aRole) const
     if (aRole == Qt::DisplayRole)
     {
         int row = aIndex.row();
-        
-        QString catNum;
-        catNum.sprintf(" (%d)", iItems->at(row)->size);
-        QString category = iItems->at(row)->catName + catNum;
-        
         QVariantList list;
-        list.append(category);
+        
+        QString category = iItems->at(row)->catName;
+        if (category.contains('(') && category.contains('-') && category.contains(')'))
+        {
+            list.append(category);
+        }
+        else
+        {
+            QString catNum;
+            catNum.sprintf(" (%d)", iItems->at(row)->size);
+            list.append(category + catNum);
+        }
+        
         return list;
     }
 

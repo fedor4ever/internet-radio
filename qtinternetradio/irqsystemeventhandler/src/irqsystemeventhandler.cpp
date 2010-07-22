@@ -11,7 +11,7 @@
 *
 * Contributors:
 *
-* Description:  Contains logic for watching certain disk's space
+* Description:
 *
 */
 

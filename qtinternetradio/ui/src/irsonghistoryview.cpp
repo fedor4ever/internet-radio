@@ -31,7 +31,8 @@
 #include "irqsettings.h"
 #include "iruidefines.h"
 
- 
+const QString KActionSearchInMusicStoreName("SearchInMusicStore");
+const QString KActionDeleteName("Delete");
 
 //                                         public functions
 
@@ -51,17 +52,20 @@ IRSongHistoryView::IRSongHistoryView(IRApplication *aApplication, TIRViewId aVie
     iListView->setModel(iModel);
     iListView->setCurrentIndex(iModel->index(0));
     
-    iClearSongHistoryAction = new HbAction(hbTrId("txt_irad_opt_clear_song_history"), this);
+#ifdef SUBTITLE_STR_BY_LOCID
+    iClearSongHistoryAction = new HbAction(hbTrId("txt_irad_opt_clear_list"), this);
+#else
+    iClearSongHistoryAction = new HbAction(hbTrId("Clear list"), this);    
+#endif
     iStatisticsReporter = IRQStatisticsReporter::openInstance();
-    
-    
+
     iShowPrompt = iSettings->getSongHistoryShow();    
     if( iShowPrompt )
     {
         iSettings->setSongHistoryShow(0);
     }  
     
-    connect(iClearSongHistoryAction, SIGNAL(triggered()), this, SLOT(clearHisotrySongDB()));    
+    connect(iClearSongHistoryAction, SIGNAL(triggered()), this, SLOT(popupClearHistoryConfirmMessageBox()));    
     connect(iModel, SIGNAL(modelChanged()), this, SLOT(modelChanged()));        
 }
 
@@ -91,10 +95,13 @@ TIRHandleResult IRSongHistoryView::handleCommand(TIRViewCommand aCommand,
 
     switch (aCommand)
     {
+    case EIR_ViewCommand_TOBEACTIVATED:       
+        showSongHistory();
+        ret = EIR_NoDefault;
+        break;
+                
     case EIR_ViewCommand_ACTIVATED:        
         connect(iPlayController, SIGNAL(metaDataAvailable(IRQMetaData*)), this, SLOT(newMetadataAdded(IRQMetaData*)));
-        showSongHistory();
-        
         if( iShowPrompt )
         {             
             QTimer::singleShot(5, this, SLOT(showPrompt()));
@@ -139,7 +146,11 @@ void IRSongHistoryView::handleItemSelected()
 
     // TODO : Add the report in future. Add the channel id in the song info db
     // iStatisticsReporter->logNmsEvents(EIRQFind,channelId);
-    popupNote(hbTrId("txt_irad_info_music_store_not_available"), HbMessageBox::MessageTypeInformation);    
+#ifdef SUBTITLE_STR_BY_LOCID
+    popupNote(hbTrId("txt_irad_info_music_store_not_available"), HbMessageBox::MessageTypeInformation);
+#else
+    popupNote(hbTrId("Music store not available"), HbMessageBox::MessageTypeInformation);    
+#endif
 }
    
 
@@ -173,7 +184,13 @@ void IRSongHistoryView::prepareMenu()
 void IRSongHistoryView::modelChanged()
 {    
     iListView->reset();
-    QString headingStr = hbTrId("txt_irad_list_recently_played_songs") + " (" + QString::number(iModel->rowCount()) + ")";    
+    
+#ifdef SUBTITLE_STR_BY_LOCID
+    QString headingStr = hbTrId("txt_irad_subtitle_recently_played_songs") + " (" + QString::number(iModel->rowCount()) + ")";   
+#else
+    QString headingStr = hbTrId("Recently played songs") + " (" + QString::number(iModel->rowCount()) + ")";
+#endif    
+ 
     setHeadingText(headingStr);   
 }
 
@@ -184,14 +201,33 @@ void IRSongHistoryView::newMetadataAdded(IRQMetaData *aMetadata)
      
 }
 
-void IRSongHistoryView::clearHisotrySongDB()
+void IRSongHistoryView::popupClearHistoryConfirmMessageBox()
 {
-    iModel->clearHisotrySongDB();  
+#ifdef SUBTITLE_STR_BY_LOCID
+    HbMessageBox::question(hbTrId("txt_irad_info_clear_song_list"), this, SLOT(clearList(HbAction*)), hbTrId("txt_common_button_ok"), hbTrId("txt_common_button_cancel"));
+#else
+    HbMessageBox::question(hbTrId("Clear song list?"), this, SLOT(clearList(HbAction*)), hbTrId("Ok"), hbTrId("Cancel"));    
+#endif
+}
+void IRSongHistoryView::clearList(HbAction *aAction)
+{
+    HbMessageBox *dialog = static_cast<HbMessageBox*>(sender());
+    if (dialog)
+    {
+        if (aAction == dialog->actions().at(0))
+        {
+            iModel->clearList();
+        }
+    }
 }
 
 void IRSongHistoryView::showPrompt()
 {
+#ifdef SUBTITLE_STR_BY_LOCID
     QString str = hbTrId("txt_irad_info_click_the_song_and_find_it_in_nokia_music_store");
+#else
+    QString str = hbTrId("Click the song and find it in nokia music store");    
+#endif
     popupNote(str, HbMessageBox::MessageTypeInformation);
 }
 
@@ -200,7 +236,56 @@ void IRSongHistoryView::itemAboutToBeSelected(bool& needNetwork)
     /* for in song history view, the data will retrived from the web browser*/
     needNetwork = false;
 }
- 
+
+void IRSongHistoryView::listViewLongPressed(HbAbstractViewItem *aItem, const QPointF& aCoords)
+{
+    Q_UNUSED(aItem);
+    Q_UNUSED(aCoords);
+
+    HbAction *action = NULL;
+    HbMenu *contextMenu = new HbMenu;
+    contextMenu->setAttribute(Qt::WA_DeleteOnClose);
+    connect(contextMenu, SIGNAL(triggered(HbAction*)), this, SLOT(actionClicked(HbAction*)));
+
+#ifdef SUBTITLE_STR_BY_LOCID
+    action = contextMenu->addAction(hbTrId("txt_irad_menu_search_in_music_store"));
+#else
+    action = contextMenu->addAction(hbTrId("Search in music store"));    
+#endif
+    action->setObjectName(KActionSearchInMusicStoreName);
+#ifdef SUBTITLE_STR_BY_LOCID
+    action = contextMenu->addAction(hbTrId("txt_common_menu_delete"));
+#else
+    action = contextMenu->addAction(hbTrId("Delete"));    
+#endif
+    action->setObjectName(KActionDeleteName);
+
+    contextMenu->open();
+}
+
+void IRSongHistoryView::searchInMusicStoreContextAction()
+{
+    // Need to log the find song in NMS event, iStatisticsReporter->logNmsEvent(IRQStatisticsReporter::EIRFind,channelId);  
+#ifdef SUBTITLE_STR_BY_LOCID
+    popupNote(hbTrId("txt_irad_info_music_store_not_available"), HbMessageBox::MessageTypeInformation);
+#else
+    popupNote(hbTrId("Music store not available"), HbMessageBox::MessageTypeInformation);    
+#endif
+}
+void IRSongHistoryView::deleteContextAction()
+{
+    int current = iListView->currentIndex().row();     
+    bool ret = iModel->deleteOneItem(current);     
+    if( !ret )
+    {
+#ifdef SUBTITLE_STR_BY_LOCID
+        popupNote(hbTrId("txt_irad_info_operation_failed"), HbMessageBox::MessageTypeWarning);
+#else
+        popupNote(hbTrId("Operation failed"), HbMessageBox::MessageTypeWarning);        
+#endif
+    }
+}
+
 void IRSongHistoryView::gotoStationHistory()
 {
 	  getViewManager()->activateView(EIRView_HistoryView);
@@ -211,4 +296,20 @@ void IRSongHistoryView::handleOrientationChanged(Qt::Orientation aOrientation)
     IrAbstractListViewBase::handleOrientationChanged(aOrientation);
     iModel->setOrientation(aOrientation);
     iListView->reset();
+}
+
+void IRSongHistoryView::actionClicked(HbAction *aAction)
+{
+    if ( aAction )
+    {
+        QString objectName = aAction->objectName();
+        if ( objectName == KActionSearchInMusicStoreName )
+        {
+            searchInMusicStoreContextAction();
+        }
+        else if( objectName == KActionDeleteName)
+        {
+            deleteContextAction();
+        }
+    }
 }

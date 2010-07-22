@@ -20,6 +20,7 @@
 #include "irtermsconsview.h"
 #include "irapplication.h"
 #include "iruidefines.h"
+#include "irviewmanager.h"
 
 IRTermsConsView::IRTermsConsView(IRApplication* aApplication, TIRViewId aViewId) 
     : IRBaseView(aApplication, aViewId)
@@ -43,13 +44,28 @@ void IRTermsConsView::initViewContents()
     iLoader.setObjectTree(roots);
     iLoader.load(TERMS_CONS_VIEW_LAYOUT_FILENAME);        
     
-    HbPushButton *acceptButton = qobject_cast<HbPushButton *>(iLoader.findObject("accept_btn"));
-    HbPushButton *denyButton = qobject_cast<HbPushButton *>(iLoader.findObject("deny_btn"));
+	// load correct orientation
+    connect( getViewManager(), SIGNAL( orientationChanged(Qt::Orientation) ),
+             this, SLOT( handleOrientationChanged(Qt::Orientation) ) );
+	handleOrientationChanged(getViewManager()->orientation());
+	        
+    HbPushButton *acceptButton = qobject_cast<HbPushButton *>(iLoader.findObject(TERMS_CONS_VIEW_ACCEPT_BTN));
+    HbPushButton *declineButton = qobject_cast<HbPushButton *>(iLoader.findObject(TERMS_CONS_VIEW_DECLINE_BTN));
     
     connect( acceptButton, SIGNAL(released()),
              iApplication, SLOT(handleTermsConsAccepted()) );    
-    connect( denyButton, SIGNAL(released()),
+    connect( declineButton, SIGNAL(released()),
              iApplication, SIGNAL(quit()) );      
 }
 
-
+void IRTermsConsView::handleOrientationChanged(Qt::Orientation aOrientation)
+{
+    if (aOrientation == Qt::Vertical)
+    {
+        iLoader.load(TERMS_CONS_VIEW_LAYOUT_FILENAME, PORTRAIT_SEC);
+    }
+    else
+    {
+        iLoader.load(TERMS_CONS_VIEW_LAYOUT_FILENAME, LANDSCAPE_SEC);
+    }
+}	

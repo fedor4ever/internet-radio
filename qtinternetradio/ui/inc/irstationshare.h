@@ -21,6 +21,7 @@
 #include <QString>
 #include <QList>
 
+class ShareUi;
 class IRQPreset;
 
 class IRStationShare
@@ -41,7 +42,8 @@ private:
     bool constructPlsFile(const IRQPreset &aPreset);
         
 private:
-    QString  iPlsFilePath;     
+    QString  iPlsFilePath;    
+    ShareUi *iShareDialog;
 };
 
 #endif // IRSTATIONSHARE_H_

@@ -41,6 +41,9 @@ USERINCLUDE    ../favoritesdbinc
 USERINCLUDE    ../presetplugininc
 USERINCLUDE    ../cachemgmtinc
 USERINCLUDE    ../sessionloginc
+USERINCLUDE    ../../presetserver/include
+USERINCLUDE    ../../presetserver/clientinc
+USERINCLUDE    ../../presetserver/serverinc
 
 APP_LAYER_SYSTEMINCLUDE
 // TODO will be removed after the changes of /epoc32/include
@@ -85,7 +88,7 @@ LIBRARY nifman.lib
 LIBRARY pops.lib
 LIBRARY responsemsg.lib
 LIBRARY smts.lib
-
+LIBRARY ezlib.lib
 
 //test end
 

@@ -1,46 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <hbdocument version="1.0">     
+    <object name="exit_act" type="HbAction">
+        <string locid="txt_common_opt_exit" name="text"/>
+    </object>
     <widget name="ext-IRSearchChannelsView" type="HbView">
         <widget name="content" role="HbView:widget" type="HbWidget">
+            <contentsmargins bottom="0un" left="0un" right="0un" top="0un"/>           
             <widget name="search_listview" type="HbListView">                 
             </widget>
+            
             <widget name="search_panel" type="HbSearchPanel">
                 <bool name="progressive" value="FALSE"/>
             </widget>
+            
             <real name="z" value="0"/>
             <layout orientation="Vertical" type="linear">
-                <linearitem itemname="search_listview"/>
-                <stretchitem stretchfactor="1"/>
-                <linearitem itemname="search_panel"/>
+                <contentsmargins bottom="0un" left="0un" right="0un" top="0un"/>                
+                <linearitem itemname="search_listview" spacing="0un"/>                
+                <linearitem itemname="search_panel" spacing="0un"/>
             </layout>
         </widget> 
+        <widget name="view_menu" role="HbView:menu" type="HbMenu">            
+            <ref object="exit_act" role="HbMenu:addAction"/>
+        </widget>
         <string locid="txt_irad_title_internet_radio" name="title"/>
     </widget>
-    <section name="section_without_listview">
-        <widget name="search_listview" type="HbListView">
-            <bool name="visible" value="FALSE"/>
-        </widget>
-        <widget name="content" role="HbView:widget" type="HbWidget">             
-            <layout orientation="Vertical" type="linear">               
-                <stretchitem stretchfactor="1"/>
-                <linearitem itemname="search_panel"/>
-            </layout>
-        </widget> 
-    </section>
-    <section name="section_with_listview">
-        <widget name="search_listview" type="HbListView">
-            <bool name="visible" value="TRUE"/>
-        </widget>
-        <widget name="content" role="HbView:widget" type="HbWidget">             
-            <layout orientation="Vertical" type="linear">
-                <linearitem itemname="search_listview"/>    
-                <stretchitem stretchfactor="1"/>             
-                <linearitem itemname="search_panel"/>
-            </layout>
-        </widget>        
-    </section>
+    
     <metadata activeUIState="ui_state_listview" display="NHD portrait" unit="un">
         <uistate name="Common ui state" sections="#common"/>       
-        <uistate name="ui_state_listview" sections="#common section_without_listview section_with_listview"/>        
     </metadata>
 </hbdocument>

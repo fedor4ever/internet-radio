@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2006-2007 Nokia Corporation and/or its subsidiary(-ies). 
+* Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies). 
 * All rights reserved.
 * This component and the accompanying materials are made available
 * under the terms of "Eclipse Public License v1.0"
@@ -11,8 +11,8 @@
 *
 * Contributors:
 *
-* Description:  a new wrapper class in QT 
- *
+* Description:
+*
 */
 
 #ifndef IRQISDSCLIENT_H
@@ -111,7 +111,11 @@ public:
     /**
      *IRQIsdsClient::IsdsListenRequestL()
      *issue a listen request to the isds client. 
-     *@param int,bool, the current index of channel, the history tag  
+     *@param int,bool, 
+     *if we set the aHistoryBool to false, the aCurrentIndex means the current song's index
+     *in the current list.
+     *if we set the aHistoryBool to true,  the aCurrentIndex means the channel ID you expect 
+     *to listen, for sometimes, the channel ID is saved in the DB so we could get it directly
      **/
     IMPORT_C void isdsListenRequest(int aCurrentIndex, bool aHistoryBool =
             false);

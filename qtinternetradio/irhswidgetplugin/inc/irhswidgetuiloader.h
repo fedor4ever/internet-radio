@@ -14,14 +14,16 @@
 * Description:
 *
 */
-#ifndef IRALARMOBSERVERINTERFACE_H
-#define IRALARMOBSERVERINTERFACE_H
 
-class MIRAlarmObserverInterface
+#ifndef IRHSWIDGETUILOADER_H_
+#define IRHSWIDGETUILOADER_H_
+
+#include <hbdocumentloader.h>
+
+class IRHsWidgetUiLoader : public HbDocumentLoader
 {
 public:
-    virtual void alarmStarted()= 0;    
-    virtual void alarmStopped() = 0;
+    virtual QObject *createObject(const QString& aType, const QString &aName);
 };
 
-#endif // IRALARMOBSERVERINTERFACE_H
+#endif /* IRHSWIDGETUILOADER_H_ */

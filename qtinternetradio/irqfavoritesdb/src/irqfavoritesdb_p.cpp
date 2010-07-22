@@ -197,6 +197,23 @@ void IRQFavoritesDBPrivate::increasePlayedTimes(const IRQPreset &aPreset)
     TRAP_IGNORE(increasePlayedTimesL(aPreset));
 }
 
+int IRQFavoritesDBPrivate::renamePreset(const IRQPreset &aPreset, const QString &aNewName)
+{
+    int returnCode = 0;
+    TRAPD(err, returnCode = renamePresetL(aPreset, aNewName));
+    
+    int result = 0;
+    if (KErrNone != err)
+    {
+        IRQUtility::convertSError2QError(err, result);
+    }
+    else
+    {
+        IRQUtility::convertSError2QError(returnCode, result);
+    }
+    return result;
+}
+
 /* from MPSPresetObserver */
 void IRQFavoritesDBPrivate::HandlePresetChangedL(TInt aId, TUid aDataHandler, MPSPresetObserver::TPSReason aType)
 {
@@ -253,4 +270,15 @@ void IRQFavoritesDBPrivate::increasePlayedTimesL(const IRQPreset &aPreset)
     IRQUtility::convertIRQPreset2CIRIsdsPreset(aPreset, *cirPreset);
     mIRFavoritesDb->IncreasePlayedTimesL(*cirPreset);    
     CleanupStack::PopAndDestroy(cirPreset);
+}
+
+int IRQFavoritesDBPrivate::renamePresetL(const IRQPreset &aPreset, const QString &aNewName)
+{
+    CIRIsdsPreset * cirPreset = CIRIsdsPreset::NewLC();
+    IRQUtility::convertIRQPreset2CIRIsdsPreset(aPreset, *cirPreset);
+    TPtrC newName(reinterpret_cast<const TUint16*>(aNewName.utf16()), aNewName.length());
+    int ret = mIRFavoritesDb->RenamePresetL(*cirPreset, newName);
+    CleanupStack::PopAndDestroy(cirPreset);
+    
+    return ret;
 }

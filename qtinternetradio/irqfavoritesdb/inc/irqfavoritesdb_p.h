@@ -19,7 +19,8 @@
 #define IRQFAVORITESDB_P_H
 
 #include <QObject>
-#include <pspresetobserver.h>
+
+#include "pspresetobserver.h"
 
 class CIRFavoritesDb;
 class IRQPreset;
@@ -66,6 +67,8 @@ public:
     
     void increasePlayedTimes(const IRQPreset &aPreset);
     
+    int renamePreset(const IRQPreset &aPreset, const QString &aNewName);
+    
 private:
     /* from MPSPresetObserver */
     void HandlePresetChangedL(TInt aId, TUid aDataHandler, MPSPresetObserver::TPSReason aType);
@@ -77,6 +80,8 @@ private:
     void replaceUserDefinedPresetL(const IRQPreset& aNewPreset);
         
     void increasePlayedTimesL(const IRQPreset &aPreset);
+    
+    int renamePresetL(const IRQPreset &aPreset, const QString &aNewName);
     
 private:
     IRQFavoritesDB * const q_ptr;

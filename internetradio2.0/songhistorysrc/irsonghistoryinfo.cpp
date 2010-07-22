@@ -59,7 +59,10 @@ EXPORT_C CIRSongHistoryInfo::~CIRSongHistoryInfo()
 		
 		iChannelDescription.Close();
 
-		iImageUrl.Close();
+        iImageUrl.Close();
+        iGenreName.Close();
+        iCountryName.Close();
+        iLanguageName.Close();
 		
 		iMusicStoreStatus.Close();
 		
@@ -124,7 +127,7 @@ CIRSongHistoryInfo::CIRSongHistoryInfo()
  {
  	iChannelDescription.Create(aChannelDesc);
  }
- // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // CIRSongHistoryInfo::SetImageUrl
 // Sets Channel image Url
 // ---------------------------------------------------------------------------
@@ -133,6 +136,36 @@ CIRSongHistoryInfo::CIRSongHistoryInfo()
  {
     iImageUrl.Create(aImageUrl);
  }
+ 
+ // ---------------------------------------------------------------------------
+ // CIRSongHistoryInfo::SetGenreName
+ // Set channel genre name
+ // ---------------------------------------------------------------------------
+ //
+void CIRSongHistoryInfo::SetGenreName(const RBuf& aGenreName)
+{
+    iGenreName.Create(aGenreName);
+}
+
+// ---------------------------------------------------------------------------
+// CIRSongHistoryInfo::SetCountryName
+// Set channel country name
+// ---------------------------------------------------------------------------
+//
+void CIRSongHistoryInfo::SetCountryName(const RBuf& aCountryName)
+{
+    iCountryName.Create(aCountryName);
+}
+
+// ---------------------------------------------------------------------------
+// CIRSongHistoryInfo::SetLanguageName
+// Set channel language name
+// ---------------------------------------------------------------------------
+//
+void CIRSongHistoryInfo::SetLanguageName(const RBuf& aLanguageName)
+{
+    iLanguageName.Create(aLanguageName);
+}
  // ---------------------------------------------------------------------------
 // CIRSongHistoryInfo::SetChannelMusicStatus
 // Sets Channel's MusicStoreStatus
@@ -175,6 +208,7 @@ CIRSongHistoryInfo::CIRSongHistoryInfo()
 // Sets Song History Information.
 // ---------------------------------------------------------------------------
 //
+
  EXPORT_C void CIRSongHistoryInfo::SetHistoryInfo(RBuf& aSongName,
 												  RBuf& aArtist, 
 												  RBuf& aStreamUrl, 
@@ -183,7 +217,10 @@ CIRSongHistoryInfo::CIRSongHistoryInfo()
 												  TInt aChannelId,
 												  TInt aBitrate,
 												  RBuf& aChannelDesc,
-												  RBuf& aImageUrl,
+                                                  RBuf& aImageUrl,
+                                                  RBuf& aGenreName,
+                                                  RBuf& aCountryName,
+                                                  RBuf& aLanguageName,
 												  RBuf& aMusicStoreStatus
 												   )
  {
@@ -196,6 +233,9 @@ CIRSongHistoryInfo::CIRSongHistoryInfo()
     SetBitrate(aBitrate);
     SetChannelDesc(aChannelDesc);
     SetImageUrl(aImageUrl);
+    SetGenreName(aGenreName);
+    SetCountryName(aCountryName);
+    SetLanguageName(aLanguageName);
     SetChannelMusicStatus(aMusicStoreStatus);
 	
  }
@@ -249,15 +289,45 @@ CIRSongHistoryInfo::CIRSongHistoryInfo()
  	return iChannelDescription;
  }
 
- // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // CIRSongHistoryInfo::GetImageUrl
 // Gets Channel image Url
 // ---------------------------------------------------------------------------
 //
-EXPORT_C const RBuf& CIRSongHistoryInfo::GetImageUrl() const 
-{
-   return iImageUrl;
-}
+ EXPORT_C const RBuf& CIRSongHistoryInfo::GetImageUrl() const 
+ {
+    return iImageUrl;
+ }
+ // ---------------------------------------------------------------------------
+ // CIRSongHistoryInfo::GetGenreName
+ // Get channel genre name
+ // ---------------------------------------------------------------------------
+ //
+ 
+const RBuf& CIRSongHistoryInfo::GetGenreName() const 
+ {
+    return iGenreName;
+ }
+ 
+// ---------------------------------------------------------------------------
+// CIRSongHistoryInfo::GetCountryName
+// Get channel country name
+// ---------------------------------------------------------------------------
+//
+const RBuf& CIRSongHistoryInfo::GetCountryName() const 
+ {
+    return iCountryName;
+ }
+ 
+// ---------------------------------------------------------------------------
+// CIRSongHistoryInfo::GetLanguageName
+// Get channel language name
+// ---------------------------------------------------------------------------
+//
+const RBuf& CIRSongHistoryInfo::GetLanguageName() const 
+ {
+    return iLanguageName;
+ }
 
   // ---------------------------------------------------------------------------
 // CIRSongHistoryInfo::GetChannelType

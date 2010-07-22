@@ -11,12 +11,12 @@
 *
 * Contributors:
 *
-* Description:  Contains logic for watching certain disk's space
+* Description:
 *
 */
 #include <pathinfo.h>
 #include "irdiskspaceobserver.h"
-#include "irdiskspaceobserverinterface.h"
+#include "irsystemeventobserverinterface.h"
 
 const TDriveNumber KQtIRDefaultDrive = EDriveC;
 
@@ -33,13 +33,17 @@ static TDriveNumber phoneMemRootDrive();
 //
 CIRDiskSpaceObserver* CIRDiskSpaceObserver::NewL(MIRDiskSpaceObserverInterface* aObserver)
 {
-    CIRDiskSpaceObserver* self = new (ELeave) CIRDiskSpaceObserver(aObserver);
+    CIRDiskSpaceObserver* self = NewLC(aObserver);   
+    CleanupStack::Pop(self);
+    return self;    
+}
 
+CIRDiskSpaceObserver* CIRDiskSpaceObserver::NewLC(MIRDiskSpaceObserverInterface* aObserver)
+{     
+    CIRDiskSpaceObserver* self = new (ELeave) CIRDiskSpaceObserver(aObserver);
     CleanupStack::PushL(self);
     self->ConstructL();
-    CleanupStack::Pop(self);
     return self;
-    
 }
 
 // ---------------------------------------------------------------------------

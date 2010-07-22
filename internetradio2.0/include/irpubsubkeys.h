@@ -164,5 +164,10 @@ const TUint32 KIRPSControlSetPlayState = { KIRPubSubBase + 0x00000011 };
 
 const TUint32 KIRPSBufferingState = { KIRPubSubBase + 0x00000012 };
 
+/********************************************************************
+*  KIRPubSubBase + 0x00000015 should be reserved for startup key which is defined in \qtinternetradio\irqcommon\inc\irservicedef.h
+*const unsigned long int KInternetRadioStartupKey = 0x00000035; // = KIRPubSubBase + 0x00000015
+*/
+
 #endif // IRPUBSUBKEYS_H
 

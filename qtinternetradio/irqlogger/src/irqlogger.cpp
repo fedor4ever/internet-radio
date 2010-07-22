@@ -16,9 +16,16 @@
 */
 
 #include <QFile>
+#include <QDir>
 #include <QTextStream>
 #include <QDateTime>
 #include "irqlogger.h"
+
+#if defined(TRACE_TO_FILE) || defined(IRDEBUG_TRACE_TO_FILE)
+static const char* KTraceOutputDir = "c:/logs/internetradio";
+static const char* KTraceOutputFileName = "c:/logs/internetradio/internetradiolog.txt";
+static const char* KReadableFileName = "c:/data/internetradiolog.txt";
+#endif
 
 // ============================================================================
 // SymbianLogger Defenition
@@ -154,6 +161,37 @@ void FileLogger::handleMessage( QtMsgType aType, const char* aMsg )
         }
     }
 }
+
+
+// ============================================================================
+// Create log dir
+// ============================================================================
+void installLogDir()
+{
+#if defined(TRACE_TO_FILE) || defined(IRDEBUG_TRACE_TO_FILE)  
+    QDir logDir(KTraceOutputDir);
+    if(!logDir.exists())
+    {
+        logDir.mkpath(KTraceOutputDir);
+    }
+
+    QFile logFile(KTraceOutputFileName);
+    if(logFile.exists())
+    {
+        logFile.remove(KReadableFileName);
+        logFile.copy(KTraceOutputFileName , KReadableFileName);
+    }
+
+    QFile logFileIRUI("c:/logs/internetradio/iruilog.txt");
+    if (logFileIRUI.exists()) 
+    {
+        logFileIRUI.remove("c:/data/iruilog.txt");     
+        logFileIRUI.copy("c:/logs/internetradio/iruilog.txt" , "c:/data/iruilog.txt");    
+    }
+#endif    
+}         
+         
+         
 // ============================================================================
 // SIGNAL/SLOT CONNECTION CHECKER
 // ============================================================================
@@ -181,4 +219,6 @@ bool connectAndAssert( const QObject* aSender, const char* aSignal,
     Q_ASSERT( connected );
     return connected;
 }
+
+
 

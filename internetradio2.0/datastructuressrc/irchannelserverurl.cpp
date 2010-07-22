@@ -114,7 +114,7 @@ EXPORT_C const TDesC& CIRChannelServerUrl::GetServerName() const
 	if( NULL == iServerName )
 	{
 	    CIRChannelServerUrl *tempUrl = const_cast<CIRChannelServerUrl*>(this);
-	    tempUrl->iServerName = HBufC::NewL(0);
+	    tempUrl->iServerName = HBufC::New(0);
 	}
 	return *iServerName;
 	}
@@ -131,7 +131,7 @@ EXPORT_C const TDesC& CIRChannelServerUrl::GetServerUrl() const
 	if( NULL == iURL )
 	{
 	    CIRChannelServerUrl *tempUrl = const_cast<CIRChannelServerUrl*>(this);
-	    tempUrl->iURL = HBufC::NewL(0);
+	    tempUrl->iURL = HBufC::New(0);
 	}	
 	return *iURL;
 	}
@@ -212,28 +212,24 @@ EXPORT_C void CIRChannelServerUrl::ExternalizeL(RWriteStream& aWriteStream)
 	{
 	IRLOG_DEBUG( "CIRChannelServerUrl::ExternalizeL - Entering" );
 	TInt len;
-	if( !iServerName )
+	if(iServerName && (len=iServerName->Length()) > 0)
 		{
-		len=0;
-		aWriteStream.WriteInt32L(len);
-		}
-	else
-		{
-		len=iServerName->Length();
 		aWriteStream.WriteInt32L(len);
 		aWriteStream << *iServerName;
 		}
-		
-	if(!iURL )
+	else
 		{
-		len=0;
+		aWriteStream.WriteInt32L(0);
+		}
+		
+	if(iURL && (len=iURL->Length()) > 0)
+		{
 		aWriteStream.WriteInt32L(len);
+		aWriteStream << *iURL;
 		}
 	else
 		{
-		len=iURL->Length();
-		aWriteStream.WriteInt32L(len);
-		aWriteStream << *iURL;
+		aWriteStream.WriteInt32L(0);
 		}
 		
 	aWriteStream.WriteInt32L(iBitrate);

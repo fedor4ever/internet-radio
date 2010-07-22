@@ -29,10 +29,12 @@ void IRQChannelServerURL::externalize(QDataStream &aStream) const
     aStream<<serverName<<url<<bitrate;
 }
 
-EXPORT_C IRQPreset::IRQPreset()
+//we need to initialize all the member for sometimes, it will 
+//crash by overflow if we don't do this. 
+EXPORT_C IRQPreset::IRQPreset():uniqID(0),type(0),presetId(0),
+                                iIsSorted(false),iChannelUrlCount(0)
 {
-    iIsSorted = false;
-    iChannelUrlCount = 0;
+ 
 }
 
 EXPORT_C IRQPreset::~IRQPreset()
@@ -61,7 +63,6 @@ EXPORT_C IRQPreset& IRQPreset::operator =(const IRQPreset& aOther)
     this->imgUrl = aOther.imgUrl;
     this->advertisementInUse = aOther.advertisementInUse;
     this->advertisementUrl = aOther.advertisementUrl;
-    this->bitrate = aOther.bitrate;
     this->genreId = aOther.genreId;
     this->genreName = aOther.genreName;
     this->shortDesc = aOther.shortDesc;
@@ -76,7 +77,6 @@ EXPORT_C IRQPreset& IRQPreset::operator =(const IRQPreset& aOther)
     this->languageName = aOther.languageName;
     this->name = aOther.name;
     this->presetId = aOther.presetId;
-    this->index = aOther.index;
     this->type = aOther.type;
     this->iChannelUrlCount = aOther.iChannelUrlCount;
     this->uniqID = aOther.uniqID;
@@ -85,7 +85,7 @@ EXPORT_C IRQPreset& IRQPreset::operator =(const IRQPreset& aOther)
 
 EXPORT_C void IRQPreset::internalize(QDataStream &aStream)
 {
-    aStream>>uniqID>>presetId>>index>>type>>iChannelUrlCount;
+    aStream>>uniqID>>presetId>>type>>iChannelUrlCount;
     
     aStream>>languageCode>>languageName 
            >>countryCode>>countryName
@@ -106,7 +106,7 @@ EXPORT_C void IRQPreset::internalize(QDataStream &aStream)
 
 EXPORT_C void IRQPreset::externalize(QDataStream &aStream) const
 {
-    aStream<<uniqID<<presetId<<index<<type<<iChannelUrlCount;
+    aStream<<uniqID<<presetId<<type<<iChannelUrlCount;
     
     aStream<<languageCode<<languageName
            <<countryCode<<countryName

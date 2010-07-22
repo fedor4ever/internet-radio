@@ -19,9 +19,8 @@
 #ifndef C_CPSSERVER_H
 #define C_CPSSERVER_H
 
-#include <pscommon.h>
-#include <pspresetobserver.h>
-
+#include "pscommon.h"
+#include "pspresetobserver.h"
 #include "psdatabase.h"
 #include "pspropertyobserver.h"
 

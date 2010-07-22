@@ -15,9 +15,9 @@
 *
 */
 
+#include <hbtoolbar.h>
 #include <hbaction.h>
 #include <hblistview.h>
-#include <hbprogressdialog.h>
 
 #include "irapplication.h"
 #include "irviewmanager.h"
@@ -34,11 +34,10 @@
  */
 IRCategoryView::IRCategoryView(IRApplication* aApplication, TIRViewId aViewId) 
                                : IrAbstractListViewBase(aApplication, aViewId),
-                                 iWaitDialog(NULL),
                                  iLastSelectItem(0)
 {	
     setViewParameter(EIRViewPara_Genre);
-    setFlag(EViewFlag_ClearStackWhenActivate);
+    setFlag(EViewFlag_ClearStackWhenActivate|EViewFlag_StickyViewEnabled);
     
     //if this view is not starting view, finish all initialization in constructor
     if (getViewManager()->views().count() > 0)
@@ -52,8 +51,6 @@ IRCategoryView::IRCategoryView(IRApplication* aApplication, TIRViewId aViewId)
  */
 IRCategoryView::~IRCategoryView()
 {
-    delete iWaitDialog;
-    iWaitDialog = NULL;
 }
 
 /*
@@ -82,6 +79,7 @@ TIRHandleResult IRCategoryView::handleCommand(TIRViewCommand aCommand, TIRViewCo
                 {
                     iLoader.load(ABSTRACT_LIST_VIEW_BASE_LAYOUT_FILENAME, ABSTRACT_LIST_VIEW_BASE_WITH_TOOLBAR_SECTION);
                     iLoadedSection = ABSTRACT_LIST_VIEW_BASE_WITH_TOOLBAR_SECTION;
+                    initToolBar();
                 }
             }
             else
@@ -90,19 +88,16 @@ TIRHandleResult IRCategoryView::handleCommand(TIRViewCommand aCommand, TIRViewCo
                 {
                     iLoader.load(ABSTRACT_LIST_VIEW_BASE_LAYOUT_FILENAME, ABSTRACT_LIST_VIEW_BASE_NO_TOOLBAR_SECTION);
                     iLoadedSection = ABSTRACT_LIST_VIEW_BASE_NO_TOOLBAR_SECTION;
+                    setToolBar(NULL);
                 }
             }
         }
         break;
-        
+
         case EIR_ViewCommand_ACTIVATED:
-        break;
-        
-        case EIR_ViewCommand_DEACTIVATE:
-            if (iWaitDialog)
+            if (EIRViewPara_Genre == getViewParameter())
             {
-                iWaitDialog->close();
-                ret = EIR_NoDefault;
+                getViewManager()->saveScreenShot();
             }
             break;
             
@@ -115,23 +110,9 @@ TIRHandleResult IRCategoryView::handleCommand(TIRViewCommand aCommand, TIRViewCo
 
 void IRCategoryView::launchAction()
 {    
-    bool ret = false;
-    switch(iViewParameter)
-    {
-        case EIRViewPara_Genre:
-            ret = iIsdsClient->isdsIsCategoryCached(IRQIsdsClient::EGenre);
-            break;
-        case EIRViewPara_Language:
-            ret = iIsdsClient->isdsIsCategoryCached(IRQIsdsClient::ELanguages);
-            break;
-        case EIRViewPara_Country:
-            ret = iIsdsClient->isdsIsCategoryCached(IRQIsdsClient::ECountries);
-            break;
+    Q_ASSERT(EIRViewPara_Genre == iViewParameter);
+    bool ret = iIsdsClient->isdsIsCategoryCached(IRQIsdsClient::EGenre);
 
-        default:
-            break;
-    }
-    
     if ( !ret )
     {
         setUseNetworkReason(EIR_UseNetwork_StartingView);
@@ -180,31 +161,41 @@ void IRCategoryView::loadCategory(IRQIsdsClient::IRQIsdsClientInterfaceIDs aCate
             resetCurrentItem();
         }
         setViewParameter(EIRViewPara_Genre);
-        setFlag(EViewFlag_ClearStackWhenActivate);
+        setFlag(EViewFlag_ClearStackWhenActivate|EViewFlag_StickyViewEnabled);
         iIsdsClient->isdsCategoryRequest(IRQIsdsClient::EGenre, cache);
         break;
         
     case IRQIsdsClient::ELanguages : 
+#ifdef SUBTITLE_STR_BY_LOCID
         setHeadingText(hbTrId("txt_irad_list_stations_by_language"));
+#else
+        setHeadingText(hbTrId("Stations by language"));        
+#endif
         if (EIRViewPara_Language != getViewParameter())
         {
             //the view is used for other categories other than Language
             resetCurrentItem();
         }
         setViewParameter(EIRViewPara_Language);
-        setFlag(EViewFlag_None);
+        clearFlag(EViewFlag_ClearStackWhenActivate);
+        clearFlag(EViewFlag_StickyViewEnabled);
         iIsdsClient->isdsCategoryRequest(IRQIsdsClient::ELanguages, cache);
         break;
         
     case IRQIsdsClient::ECountries :
+#ifdef SUBTITLE_STR_BY_LOCID
         setHeadingText(hbTrId("txt_irad_list_stations_by_country_region"));
+#else
+        setHeadingText(hbTrId("Stations by country/region"));        
+#endif
         if (EIRViewPara_Country != getViewParameter())
         {
             //the view is used for other categories other than Country
             resetCurrentItem();
         }
         setViewParameter(EIRViewPara_Country);
-        setFlag(EViewFlag_None);
+        clearFlag(EViewFlag_ClearStackWhenActivate);
+        clearFlag(EViewFlag_StickyViewEnabled);
         iIsdsClient->isdsCategoryRequest(IRQIsdsClient::ECountries, cache);
         break;
         
@@ -215,7 +206,7 @@ void IRCategoryView::loadCategory(IRQIsdsClient::IRQIsdsClientInterfaceIDs aCate
     
     if (!cache)
     {
-        createWaitDialog(hbTrId("txt_common_info_loading"));
+        iApplication->startLoadingAnimation(this, SLOT(cancelRequest()));
     }
 }
 
@@ -275,15 +266,14 @@ void IRCategoryView::networkRequestNotified(IRQNetworkEvent aEvent)
             connectToIsdsClient();
             bool cache = false;
             iIsdsClient->isdsCategoryRequest(request, cache);
+            iApplication->startLoadingAnimation(this, SLOT(cancelRequest()));
         }
         //for there may be some cache, and when we click, we need to handle here        
         else if ( EIR_UseNetwork_SelectItem == getUseNetworkReason())
         {
-            iApplication->closeConnectingDialog();
             handleItemSelected();               
         }        
         
-        setUseNetworkReason(EIR_UseNetwork_NoReason);
         break;
        
     case EIRQConnectingCancelled:
@@ -303,6 +293,8 @@ void IRCategoryView::networkRequestNotified(IRQNetworkEvent aEvent)
         setCheckedAction();
         break;
     }
+    
+    setUseNetworkReason(EIR_UseNetwork_NoReason);
 }
 
 
@@ -362,17 +354,12 @@ void IRCategoryView::handleItemSelected()
 void IRCategoryView::dataChanged()
 {
     disconnectIsdsClient();
-    iApplication->closeConnectingDialog();
+    iApplication->stopLoadingAnimation();
 
     iListView->reset();
     iListView->setCurrentIndex(iModel->index(iLastSelectItem));
     iListView->scrollTo(iModel->index(iLastSelectItem));
     getViewManager()->activateView(this);
-    
-    if (iWaitDialog)
-    {
-        iWaitDialog->close();
-    }
 }
 
 /*
@@ -383,6 +370,14 @@ void IRCategoryView::cancelRequest()
 {
     iIsdsClient->isdsCancelRequest();
     disconnectIsdsClient();
+    iApplication->stopLoadingAnimation();
+    
+    //if this function is called and this view is current view, it indicates that this view is starting view and 
+    //data has not been loaded yet, so we need to back to collections view
+    if (getViewManager()->currentView() == this)
+    {
+        getViewManager()->activateView(EIRView_MainView);
+    }
 }
 
 /*
@@ -392,16 +387,15 @@ void IRCategoryView::cancelRequest()
 void IRCategoryView::operationException(IRQError aError)
 {
     Q_UNUSED(aError);
-    iApplication->closeConnectingDialog();
-    
-    if (iWaitDialog)
-    {
-        iWaitDialog->close();
-    }
-    
+    iApplication->stopLoadingAnimation();
+
     disconnectIsdsClient();
     
+#ifdef SUBTITLE_STR_BY_LOCID
     popupNote(hbTrId("txt_irad_info_failed_to_connect"), HbMessageBox::MessageTypeWarning);
+#else
+    popupNote(hbTrId("Connecting failed"), HbMessageBox::MessageTypeWarning);
+#endif
     
     //if category view is starting view and failed to get data from ISDS server, back to main view
     if (getViewManager()->currentView() == this &&
@@ -412,27 +406,6 @@ void IRCategoryView::operationException(IRQError aError)
 }
 
 //                                        private functions
-
-/*
- * Description : Show a wait dialog to inform user that data is being loaded. If wait dialog doesn't
- *               exist yet, create first
- */
-void IRCategoryView::createWaitDialog(const QString &aText)
-{
-    if (!iWaitDialog)
-    {
-        iWaitDialog = new HbProgressDialog(HbProgressDialog::WaitDialog);
-        iWaitDialog->setTimeout(HbPopup::NoTimeout);
-        iWaitDialog->setModal(true);
-        iWaitDialog->setDismissPolicy(HbPopup::NoDismiss);
-        QAction *action = iWaitDialog->actions().at(0);
-        action->setText(hbTrId("txt_common_button_cancel"));
-        connect(action, SIGNAL(triggered()), this, SLOT(cancelRequest()));
-    }
-    
-    iWaitDialog->setText(aText);
-    iWaitDialog->open();
-}
 
 void IRCategoryView::connectToIsdsClient()
 {
@@ -498,4 +471,16 @@ void IRCategoryView::normalInit()
     
         setInitCompleted(true);
     }
+}
+
+void IRCategoryView::initToolBar()
+{
+    //add HbActions to the toolbar, the HbActions have been created in IrAbstractListViewBase
+    HbToolBar *viewToolBar = toolBar();
+    viewToolBar->clearActions();
+    viewToolBar->addAction(iGenresAction);
+    viewToolBar->addAction(iCollectionsAction);
+    viewToolBar->addAction(iFavoritesAction);
+    viewToolBar->addAction(iSearchAction);
+    viewToolBar->setVisible(true);
 }

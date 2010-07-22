@@ -58,6 +58,9 @@ _LIT( KSongHistoryDBChannelIdColumn,   "ChannelId"  );
 _LIT( KSongHistoryDBBitrateColumn,   "Bitrate"  );
 _LIT( KSongHistoryDBChannelDescColumn,   "ChannelDescription"  );
 _LIT( KSongHistoryDBImageUrlColumn,   "ImageUrl"  );
+_LIT( KSongHistoryDBGenreNameColumn,   "GenreName"  );
+_LIT( KSongHistoryDBCountryNameColumn,   "CountryName"  );
+_LIT( KSongHistoryDBLanguageNameColumn,   "LanguageName"  );
 _LIT( KSongHistoryDBMusicStatusColumn,   "MusicStoreStatus"  );
 
 _LIT(KSongHistoryDbFile,"songhistoryDb.db");
@@ -154,20 +157,23 @@ void CIRSongHistoryDb::CreateDbCondition(const TFileName& aSongHistoryDbFile)
 // ---------------------------------------------------------------------------
 //
 TBool CIRSongHistoryDb::AddToSongHistoryDbL(const TDesC& aSongName,
-											const TDesC& aArtistName, 
-											const TDesC& aChannelName, 
-											const TDesC& aChannelUrl,
-											RBuf& aDelSongName, 
-											RBuf& aDelArtistName, 
-											RBuf& aDelChannelName, 
-											RBuf& aDelChannelUrl,
-											TInt  aChannelType,
-											TInt aChannelId,
-											TInt aBitrate,
-											const TDesC& aChannelDesc,
-											const TDesC& aImageUrl,
-											const TDesC& aMusicFlag
-											)
+                                            const TDesC& aArtistName, 
+                                            const TDesC& aChannelName, 
+                                            const TDesC& aChannelUrl,
+                                            RBuf& aDelSongName, 
+                                            RBuf& aDelArtistName, 
+                                            RBuf& aDelChannelName, 
+                                            RBuf& aDelChannelUrl,
+                                            TInt  aChannelType,
+                                            TInt aChannelId,
+                                            TInt aBitrate,
+                                            const TDesC& aChannelDesc,
+                                            const TDesC& aImageUrl,
+                                            const TDesC& aGenreName,
+                                            const TDesC& aCountryName,
+                                            const TDesC& aLanguageName,                                                
+                                            const TDesC& aMusicFlag
+                                            )
 {
 	IRLOG_DEBUG( "CIRSongHistoryDb::AddSongHistoryStartL" );
 
@@ -215,6 +221,9 @@ TBool CIRSongHistoryDb::AddToSongHistoryDbL(const TDesC& aSongName,
 	const TPtrC &channelUrl = aChannelUrl.Left(KIRDbMaxStrLen);
     const TPtrC &channelDesc = aChannelDesc.Left(KIRDbMaxStrLen);
     const TPtrC &imageUrl = aImageUrl.Left(KIRDbMaxStrLen);
+    const TPtrC &genreName = aGenreName.Left(KIRDbMaxStrLen);
+    const TPtrC &countryName = aCountryName.Left(KIRDbMaxStrLen);
+    const TPtrC &languageName = aLanguageName.Left(KIRDbMaxStrLen);
 	
 	TInt songLen = aSongName.Length();
 	TInt artistLen = aArtistName.Length();
@@ -235,6 +244,9 @@ TBool CIRSongHistoryDb::AddToSongHistoryDbL(const TDesC& aSongName,
 		iSongHistoryTable.SetColL(columns->ColNo( KSongHistoryDBBitrateColumn ), aBitrate);
         iSongHistoryTable.SetColL(columns->ColNo( KSongHistoryDBChannelDescColumn ), channelDesc);
         iSongHistoryTable.SetColL(columns->ColNo( KSongHistoryDBImageUrlColumn ), imageUrl);
+        iSongHistoryTable.SetColL(columns->ColNo( KSongHistoryDBGenreNameColumn ), genreName);
+        iSongHistoryTable.SetColL(columns->ColNo( KSongHistoryDBCountryNameColumn ), countryName);
+        iSongHistoryTable.SetColL(columns->ColNo( KSongHistoryDBLanguageNameColumn ), languageName);
         iSongHistoryTable.SetColL(columns->ColNo( KSongHistoryDBMusicStatusColumn ), aMusicFlag);
 		iSongHistoryTable.PutL();
 		);
@@ -256,9 +268,10 @@ TBool CIRSongHistoryDb::AddToSongHistoryDbL(const TDesC& aSongName,
 // adds the history song into the db
 // Returns ETure if songHistory count exceeds 100, else EFalse
 // ---------------------------------------------------------------------------
- 
+
 TBool CIRSongHistoryDb::AddToSongHistoryDb2L( const TDesC& aSongName,
                                     const TDesC& aArtistName,                                   
+                                    const TDesC& aChannelName,
                                     const TDesC& aMusicFlag)
 {
     IRLOG_DEBUG( "CIRSongHistoryDb::AddToSongHistoryDb2L" );
@@ -323,14 +336,15 @@ TBool CIRSongHistoryDb::AddToSongHistoryDb2L( const TDesC& aSongName,
     
     const TPtrC &songName = aSongName.Left(KIRDbMaxStrLen);
     const TPtrC &artistName = aArtistName.Left(KIRDbMaxStrLen);
+    const TPtrC &channelName = aChannelName.Left(KIRDbMaxStrLen);
     const TPtrC &musicFlag = aMusicFlag.Left(KIRDbMaxStrLen);
      
     
     TInt songLen = aSongName.Length();
     TInt artistLen = aArtistName.Length();
-    if(  songLen + artistLen > KMaxSize )
+    if(  songLen + artistLen > KMaxSize || aChannelName.Length() > KMaxSize)
     {
-        IRLOG_DEBUG3( "CIRSongHistoryDb::AddSongHistoryStartL - LONG METADATA %d, %d", songLen, artistLen );
+        IRLOG_DEBUG3( "CIRSongHistoryDb::AddToSongHistoryDb2L - too long song info: %d or channel info: %d", songLen+artistLen, aChannelName.Length() );
     }
     
     TRAP(error,//trap start
@@ -338,6 +352,7 @@ TBool CIRSongHistoryDb::AddToSongHistoryDb2L( const TDesC& aSongName,
         iSongHistoryTable2.InsertL();
         iSongHistoryTable2.SetColL(columns->ColNo( KSongHistoryDBSongNameColumn ), songName);
         iSongHistoryTable2.SetColL(columns->ColNo( KSongHistoryDBArtistNameColumn ), artistName);        
+        iSongHistoryTable2.SetColL(columns->ColNo( KSongHistoryDBChannelNameColumn ), channelName);        
         iSongHistoryTable2.SetColL(columns->ColNo( KSongHistoryDBMusicStatusColumn ), musicFlag);
         iSongHistoryTable2.PutL();
         );
@@ -378,6 +393,9 @@ void CIRSongHistoryDb::GetAllSongHistoryListL(RPointerArray<CIRSongHistoryInfo>&
     TInt bitrateColumn = columns->ColNo( KSongHistoryDBBitrateColumn );
     TInt channelDescColumn = columns->ColNo( KSongHistoryDBChannelDescColumn );
     TInt imageUrlColumn = columns->ColNo( KSongHistoryDBImageUrlColumn );
+    TInt genreNameColumn = columns->ColNo( KSongHistoryDBGenreNameColumn );
+    TInt countryNameColumn = columns->ColNo( KSongHistoryDBCountryNameColumn );
+    TInt languageNameColumn = columns->ColNo( KSongHistoryDBLanguageNameColumn );
     TInt musicStatusColumn = columns->ColNo( KSongHistoryDBMusicStatusColumn );
 
     delete columns;
@@ -399,6 +417,9 @@ void CIRSongHistoryDb::GetAllSongHistoryListL(RPointerArray<CIRSongHistoryInfo>&
         TInt bitrate;
         RBuf channelDesc;
         RBuf imageUrl;
+        RBuf genreName;
+        RBuf countryName;
+        RBuf languageName;
         RBuf channelMusicStatus;
         
         songName.CreateL(iSongHistoryTable.ColDes( songColumn ));
@@ -425,16 +446,26 @@ void CIRSongHistoryDb::GetAllSongHistoryListL(RPointerArray<CIRSongHistoryInfo>&
         imageUrl.CreateL(iSongHistoryTable.ColDes( imageUrlColumn ));
         imageUrl.CleanupClosePushL();
 
+        genreName.CreateL(iSongHistoryTable.ColDes( genreNameColumn ));
+        genreName.CleanupClosePushL();
+
+        countryName.CreateL(iSongHistoryTable.ColDes( countryNameColumn ));
+        countryName.CleanupClosePushL();
+
+        languageName.CreateL(iSongHistoryTable.ColDes( languageNameColumn ));
+        languageName.CleanupClosePushL();
+
         channelMusicStatus.CreateL(iSongHistoryTable.ColDes( musicStatusColumn ));
         channelMusicStatus.CleanupClosePushL();
  
         aHistoryDataArr[song]->SetHistoryInfo(songName, artistName, channelUrl,
                          channelName,channelType,channelId,bitrate,channelDesc ,
-                         imageUrl, channelMusicStatus);
-        ++song;
- 
-        
+                         imageUrl, genreName, countryName, languageName, channelMusicStatus);
+        ++song;        
         CleanupStack::PopAndDestroy(&channelMusicStatus);
+        CleanupStack::PopAndDestroy(&languageName);
+        CleanupStack::PopAndDestroy(&countryName);
+        CleanupStack::PopAndDestroy(&genreName);
         CleanupStack::PopAndDestroy(&imageUrl);
         CleanupStack::PopAndDestroy(&channelDesc);
         CleanupStack::PopAndDestroy(&channelUrl);
@@ -465,6 +496,7 @@ void CIRSongHistoryDb::GetAllSongHistoryList2L(RPointerArray<CIRSongHistoryInfo>
     CDbColSet* columns = iSongHistoryTable2.ColSetL();
     TInt songColumn = columns->ColNo( KSongHistoryDBSongNameColumn );
     TInt artistColumn = columns->ColNo( KSongHistoryDBArtistNameColumn );     
+    TInt channelNameColumn = columns->ColNo( KSongHistoryDBChannelNameColumn );     
     TInt musicStatusColumn = columns->ColNo( KSongHistoryDBMusicStatusColumn );
 
     delete columns;
@@ -477,7 +509,7 @@ void CIRSongHistoryDb::GetAllSongHistoryList2L(RPointerArray<CIRSongHistoryInfo>
         iSongHistoryTable2.GetL();
          
         RBuf songName;
-        RBuf artistInfo;
+        RBuf artistInfo, channelName;
         RBuf musicStatus;
         
         songName.Create(iSongHistoryTable2.ColDes( songColumn ));
@@ -486,15 +518,20 @@ void CIRSongHistoryDb::GetAllSongHistoryList2L(RPointerArray<CIRSongHistoryInfo>
         artistInfo.Create(iSongHistoryTable2.ColDes( artistColumn ));
         artistInfo.CleanupClosePushL();
         
+        channelName.Create(iSongHistoryTable2.ColDes( channelNameColumn ));
+        channelName.CleanupClosePushL();
+
         musicStatus.Create(iSongHistoryTable2.ColDes(musicStatusColumn));
         musicStatus.CleanupClosePushL();
         
         aSongEntries[song]->SetSongName(songName);
         aSongEntries[song]->SetArtist(artistInfo);
+        aSongEntries[song]->SetChannelName(channelName);
         aSongEntries[song]->SetChannelMusicStatus(musicStatus);
         ++song;         
         
         CleanupStack::PopAndDestroy(&musicStatus);
+        CleanupStack::PopAndDestroy(&channelName);
         CleanupStack::PopAndDestroy(&artistInfo);
         CleanupStack::PopAndDestroy(&songName);        
     }
@@ -586,6 +623,54 @@ TInt CIRSongHistoryDb::DeleteOneHistoryL(TInt aIndex)
     return KErrNone;    
 }
 
+TInt CIRSongHistoryDb::DeleteOneSongHistory(TInt aIndex)
+{
+    IRLOG_DEBUG( "CIRSongHistoryDb::DeleteOneSongHistory - Entering" );
+    
+    TInt retValue = 0;
+    TRAPD(error,(retValue = DeleteOneSongHistoryL(aIndex)));
+    
+    if( KErrNone != error )
+    {
+        return error;
+    }
+    
+    if( KErrNone != retValue)
+    {
+        return retValue;
+    }    
+    IRLOG_DEBUG( "CIRSongHistoryDb::DeleteOneSongHistory - exiting" );    
+    return KErrNone;
+}
+
+TInt CIRSongHistoryDb::DeleteOneSongHistoryL(TInt aIndex)
+{
+    IRLOG_DEBUG( "CIRSongHistoryDb::DeleteOneSongHistoryL - Entering" );
+    TInt totalCount = iSongHistoryTable2.CountL();     
+    if (aIndex < 0 || aIndex >= totalCount)
+    {
+        return KErrArgument;
+    }
+    
+    iSongHistoryTable2.LastL();
+    TInt tempIndex = 0;     
+    while (tempIndex < aIndex)
+    {
+        TRAPD(error,iSongHistoryTable2.PreviousL());
+        if (KErrNone != error)
+        {
+            Compact();
+            return error;
+        }
+        tempIndex++;
+    }
+    
+    iSongHistoryTable2.GetL();
+    iSongHistoryTable2.DeleteL();
+    IRLOG_DEBUG( "CIRSongHistoryDb::DeleteOneSongHistoryL - exiting" );   
+    return KErrNone;    
+}
+
 // ---------------------------------------------------------------------------
 // Function : ClearAllSongHistoryFromDb2
 // delete all the entries from the database.
@@ -667,9 +752,9 @@ void CIRSongHistoryDb::CloseSongHistoryDb()
 * ---------------------------------------------------------------------------
 * SongHistoryTable
 *---------------------------
-*| SongName | ArtistName | ChannelName | ChannelUrl | ChannelType | ChannelId | Bitrate | ChannelDesc | ImageUrl 
+*| SongName | ArtistName | ChannelName | ChannelUrl | ChannelType | ChannelId    | Bitrate      | ChannelDesc | ImageUrl   | GenreName  | CountryName | LanguageName | MusicStatus
 *---------------------------
-*|EDbColText| EDbColText | EDbColText | EDbColText | EDbColUint8 | EDbColUint16 | EDbColUint16 | EDbColText | EDbColText
+*|EDbColText| EDbColText | EDbColText  | EDbColText | EDbColUint8 | EDbColUint16 | EDbColUint16 | EDbColText  | EDbColText | EDbColText | EDbColText  | EDbColText   | EDbColText 
 *----------------------------------------------------------------------------
 */
 void CIRSongHistoryDb::CreateSongHistoryTablesL()
@@ -687,6 +772,9 @@ void CIRSongHistoryDb::CreateSongHistoryTablesL()
     columns->AddL( TDbCol( KSongHistoryDBBitrateColumn, EDbColUint16 ) );
     columns->AddL( TDbCol( KSongHistoryDBChannelDescColumn, EDbColText, KMaxColumnLength ) );
     columns->AddL( TDbCol( KSongHistoryDBImageUrlColumn, EDbColText, KMaxColumnLength ) );
+    columns->AddL( TDbCol( KSongHistoryDBGenreNameColumn, EDbColText, KMaxColumnLength ) );
+    columns->AddL( TDbCol( KSongHistoryDBCountryNameColumn, EDbColText, KMaxColumnLength ) );
+    columns->AddL( TDbCol( KSongHistoryDBLanguageNameColumn, EDbColText, KMaxColumnLength ) );
     columns->AddL( TDbCol( KSongHistoryDBMusicStatusColumn, EDbColText, KMaxColumnLength ) );
     );
 	User::LeaveIfError( error );
@@ -704,9 +792,9 @@ void CIRSongHistoryDb::CreateSongHistoryTablesL()
 * ---------------------------------------------------------------------------
 * SongHistoryTable
 *---------------------------
-*| SongName | ArtistName | MusicStatusFlag 
+*| SongName | ArtistName | ChannelName | MusicStatusFlag 
 *---------------------------
-*|EDbColText| EDbColText | EDbColText 
+*|EDbColText| EDbColText | EDbColText  | EDbColText 
 *----------------------------------------------------------------------------
 */
 void CIRSongHistoryDb::CreateSongHistoryTables2L()
@@ -716,7 +804,8 @@ void CIRSongHistoryDb::CreateSongHistoryTables2L()
 
     TRAPD( error,
     columns->AddL( TDbCol( KSongHistoryDBSongNameColumn, EDbColText, KMaxColumnLength ) );
-    columns->AddL( TDbCol( KSongHistoryDBArtistNameColumn, EDbColText, KMaxColumnLength) );     
+    columns->AddL( TDbCol( KSongHistoryDBArtistNameColumn, EDbColText, KMaxColumnLength) );
+    columns->AddL( TDbCol( KSongHistoryDBChannelNameColumn, EDbColText, KMaxColumnLength) );
     columns->AddL( TDbCol( KSongHistoryDBMusicStatusColumn, EDbColText, KMaxColumnLength ) );
     );
 	User::LeaveIfError( error );
@@ -942,6 +1031,9 @@ void CIRSongHistoryDb::SyncSongHistoryDbL(TInt aChannelId)
     TInt bitrateColumn = columns->ColNo( KSongHistoryDBBitrateColumn );
     TInt channelDescColumn = columns->ColNo( KSongHistoryDBChannelDescColumn );
     TInt imageUrlColumn = columns->ColNo( KSongHistoryDBImageUrlColumn );
+    TInt genreNameColumn = columns->ColNo( KSongHistoryDBGenreNameColumn );
+    TInt countryNameColumn = columns->ColNo( KSongHistoryDBCountryNameColumn );
+    TInt languageNameColumn = columns->ColNo( KSongHistoryDBLanguageNameColumn );
     TInt musicStatusColumn = columns->ColNo( KSongHistoryDBMusicStatusColumn );
 
     delete columns;
@@ -953,12 +1045,18 @@ void CIRSongHistoryDb::SyncSongHistoryDbL(TInt aChannelId)
 			iSongHistoryTable.GetL();
 			// Extracting the values from the database.
 				TInt channelId;
-				RBuf imageUrl;
+				RBuf imageUrl, genreName, countryName, languageName;
                 RBuf channelMusicStatus;
                 
 				channelId=iSongHistoryTable.ColUint16( channelIdColumn );
-				imageUrl.Create(iSongHistoryTable.ColDes( imageUrlColumn ));
-				imageUrl.CleanupClosePushL();
+                imageUrl.Create(iSongHistoryTable.ColDes( imageUrlColumn ));
+                imageUrl.CleanupClosePushL();
+                genreName.Create(iSongHistoryTable.ColDes( genreNameColumn ));
+                genreName.CleanupClosePushL();
+                countryName.Create(iSongHistoryTable.ColDes( countryNameColumn ));
+                countryName.CleanupClosePushL();
+                languageName.Create(iSongHistoryTable.ColDes( languageNameColumn ));
+                languageName.CleanupClosePushL();
 				channelMusicStatus.Create(iSongHistoryTable.ColDes( musicStatusColumn ));
                 channelMusicStatus.CleanupClosePushL();
 
@@ -968,11 +1066,17 @@ void CIRSongHistoryDb::SyncSongHistoryDbL(TInt aChannelId)
 	                iSongHistoryTable.UpdateL();
 		            iSongHistoryTable.SetColL(channelTypeColumn, 0);
 		            iSongHistoryTable.SetColL(channelIdColumn, 0);
-		            iSongHistoryTable.SetColL(imageUrlColumn, KNo);
+                    iSongHistoryTable.SetColL(imageUrlColumn, KNo);
+                    iSongHistoryTable.SetColL(genreNameColumn, KNo);
+                    iSongHistoryTable.SetColL(countryNameColumn, KNo);
+                    iSongHistoryTable.SetColL(languageNameColumn, KNo);
 		            iSongHistoryTable.SetColL(musicStatusColumn, KNo);
 		            iSongHistoryTable.PutL();
 	                }
                 CleanupStack::PopAndDestroy(&channelMusicStatus);
+                CleanupStack::PopAndDestroy(&languageName);
+                CleanupStack::PopAndDestroy(&countryName);
+                CleanupStack::PopAndDestroy(&genreName);
                 CleanupStack::PopAndDestroy(&imageUrl);
 		}
 	iSongHistoryTable.Reset();
@@ -1032,17 +1136,18 @@ TBool CIRSongHistoryDb::GetIdPresentInDbL(TInt aChannelId)
 //
 
 TInt CIRSongHistoryDb::UpdateSongHistoryDbL(	TInt aChannelId,
-											const TDesC& aChannelName, 
 											const TDesC& aChannelUrl,
-											const TDesC& aImageUrl,
+                                            const TDesC& aImageUrl,
+                                            const TDesC& aGenreName,
+                                            const TDesC& aCountryName,
+                                            const TDesC& aLanguageName,
 											const TDesC& aMusicFlag)
 {
  	IRLOG_DEBUG( "CIRSongHistoryDb::UpdateSongHistoryDbL" );
 
  	TBool channelChanged = EFalse ;
- 	TInt compFlagName ;
  	TInt compFlagUrl ;
- 	TInt compFlagImageUrl ;
+ 	TInt compFlagImageUrl, compFlagGenreName, compFlagCountryName, compFlagLanguageName;
  	TInt compFlagMusic ;
  	TInt compUrlChange ;
 
@@ -1052,12 +1157,14 @@ TInt CIRSongHistoryDb::UpdateSongHistoryDbL(	TInt aChannelId,
     }
 
     CDbColSet* columns = iSongHistoryTable.ColSetL();
-    TInt channelColumn = columns->ColNo( KSongHistoryDBChannelNameColumn );
     TInt channelUrlColumn = columns->ColNo( KSongHistoryDBChannelUrlColumn );
     TInt channelTypeColumn = columns->ColNo( KSongHistoryDBChannelTypeColumn );
     TInt channelIdColumn = columns->ColNo( KSongHistoryDBChannelIdColumn );
     TInt channelDescColumn = columns->ColNo( KSongHistoryDBChannelDescColumn );
     TInt imageUrlColumn = columns->ColNo( KSongHistoryDBImageUrlColumn );
+    TInt genreNameColumn = columns->ColNo( KSongHistoryDBGenreNameColumn );
+    TInt countryNameColumn = columns->ColNo( KSongHistoryDBCountryNameColumn );
+    TInt languageNameColumn = columns->ColNo( KSongHistoryDBLanguageNameColumn );
     TInt musicStatusColumn = columns->ColNo( KSongHistoryDBMusicStatusColumn );
 
     delete columns;
@@ -1069,19 +1176,22 @@ TInt CIRSongHistoryDb::UpdateSongHistoryDbL(	TInt aChannelId,
 		{
 			iSongHistoryTable.GetL();
 			// Extracting the values from the database.
-				RBuf channelName;
 				RBuf channelUrl;
-				RBuf imageUrl;
+				RBuf imageUrl, genreName, countryName, languageName;
 				TInt channelId;
                 RBuf channelMusicStatus;
-				channelName.Create(iSongHistoryTable.ColDes( channelColumn ));
-				channelName.CleanupClosePushL();
 				
 				channelUrl.Create(iSongHistoryTable.ColDes( channelUrlColumn ));
 				channelUrl.CleanupClosePushL();
 				
 				imageUrl.Create(iSongHistoryTable.ColDes( imageUrlColumn ));
 				imageUrl.CleanupClosePushL();
+                genreName.Create(iSongHistoryTable.ColDes( genreNameColumn ));
+                genreName.CleanupClosePushL();
+                countryName.Create(iSongHistoryTable.ColDes( countryNameColumn ));
+                countryName.CleanupClosePushL();
+                languageName.Create(iSongHistoryTable.ColDes( languageNameColumn ));
+                languageName.CleanupClosePushL();
 
 				channelId=iSongHistoryTable.ColUint16( channelIdColumn );
                 
@@ -1090,17 +1200,12 @@ TInt CIRSongHistoryDb::UpdateSongHistoryDbL(	TInt aChannelId,
                 
                 if(aChannelId == channelId)
 	                {
-					compFlagName =  (channelName).Compare(aChannelName);
 	                compFlagUrl =   (channelUrl).Compare(aChannelUrl);
-	                compFlagImageUrl = (imageUrl).Compare(aImageUrl);
+                    compFlagImageUrl = (imageUrl).Compare(aImageUrl);
+                    compFlagGenreName = (genreName).Compare(aGenreName);
+                    compFlagCountryName = (countryName).Compare(aCountryName);
+                    compFlagLanguageName = (languageName).Compare(aLanguageName);
 	                compFlagMusic = (channelMusicStatus).Compare(aMusicFlag);
-	                if(compFlagName)
-		                {
-	                    iSongHistoryTable.UpdateL();
-		                iSongHistoryTable.SetColL(channelColumn, aChannelName);
-		                iSongHistoryTable.PutL();
-		                channelChanged = ETrue ;
-		                }
 		            compUrlChange = (aChannelUrl).Compare(KNo);
 		                
 	                if(compFlagUrl && compUrlChange)
@@ -1110,13 +1215,34 @@ TInt CIRSongHistoryDb::UpdateSongHistoryDbL(	TInt aChannelId,
 		                iSongHistoryTable.PutL();
 		                channelChanged = ETrue ;
 		                }
-	                if(compFlagImageUrl)
-	                    {
-	                    iSongHistoryTable.UpdateL();
-	                    iSongHistoryTable.SetColL(imageUrlColumn, aImageUrl);
-	                    iSongHistoryTable.PutL();
-	                    channelChanged = ETrue ;
-	                    }
+                    if(compFlagImageUrl)
+                        {
+                        iSongHistoryTable.UpdateL();
+                        iSongHistoryTable.SetColL(imageUrlColumn, aImageUrl);
+                        iSongHistoryTable.PutL();
+                        channelChanged = ETrue ;
+                        }
+                    if(compFlagGenreName)
+                        {
+                        iSongHistoryTable.UpdateL();
+                        iSongHistoryTable.SetColL(genreNameColumn, aGenreName);
+                        iSongHistoryTable.PutL();
+                        channelChanged = ETrue ;
+                        }
+                    if(compFlagCountryName)
+                        {
+                        iSongHistoryTable.UpdateL();
+                        iSongHistoryTable.SetColL(countryNameColumn, aCountryName);
+                        iSongHistoryTable.PutL();
+                        channelChanged = ETrue ;
+                        }
+                    if(compFlagLanguageName)
+                        {
+                        iSongHistoryTable.UpdateL();
+                        iSongHistoryTable.SetColL(languageNameColumn, aLanguageName);
+                        iSongHistoryTable.PutL();
+                        channelChanged = ETrue ;
+                        }
 	                if(compFlagMusic)
 		                {
 		                iSongHistoryTable.UpdateL();
@@ -1127,9 +1253,11 @@ TInt CIRSongHistoryDb::UpdateSongHistoryDbL(	TInt aChannelId,
 	                
 	                }
                 CleanupStack::PopAndDestroy(&channelMusicStatus);
+                CleanupStack::PopAndDestroy(&languageName);
+                CleanupStack::PopAndDestroy(&countryName);
+                CleanupStack::PopAndDestroy(&genreName);
                 CleanupStack::PopAndDestroy(&imageUrl);
 				CleanupStack::PopAndDestroy(&channelUrl);
-				CleanupStack::PopAndDestroy(&channelName);
 
 		}
 	iSongHistoryTable.Reset();
@@ -1138,12 +1266,13 @@ TInt CIRSongHistoryDb::UpdateSongHistoryDbL(	TInt aChannelId,
 }
 
 void CIRSongHistoryDb::SearchAndDeleteRecordL(const TDesC& aChannelName, const TDesC& aChannelUrl,
-                                              TInt aChannelType)
+                                              TInt aChannelType, TInt aPresetId)
 {
     CDbColSet* columns = iSongHistoryTable.ColSetL();
     TInt channelNameColumn = columns->ColNo( KSongHistoryDBChannelNameColumn );
     TInt channelUrlColumn = columns->ColNo( KSongHistoryDBChannelUrlColumn );
     TInt channelTypeColumn = columns->ColNo( KSongHistoryDBChannelTypeColumn );
+    TInt channelIdColumn = columns->ColNo(KSongHistoryDBChannelIdColumn);
     
     delete columns;
     columns = NULL;
@@ -1154,11 +1283,27 @@ void CIRSongHistoryDb::SearchAndDeleteRecordL(const TDesC& aChannelName, const T
         TPtrC channelName = iSongHistoryTable.ColDes(channelNameColumn);
         TPtrC channelUrl  = iSongHistoryTable.ColDes(channelUrlColumn);
         TInt channelType = iSongHistoryTable.ColInt(channelTypeColumn);
+        TInt channelId = iSongHistoryTable.ColInt(channelIdColumn);
         
-        if (aChannelName == channelName && aChannelUrl == channelUrl && aChannelType == channelType)
+        if (0 == aChannelType)
         {
-            iSongHistoryTable.DeleteL();  
-            return;
+            //user-defined channel
+            if (aChannelName == channelName && aChannelUrl == channelUrl)
+            {
+                iSongHistoryTable.DeleteL();  
+                break;
+            }
+        }
+        else
+        {
+            //channel from ISDS server
+            if (aChannelName == channelName && aPresetId == channelId)
+            {
+                iSongHistoryTable.DeleteL();  
+                break;
+            }
         }
     }
+    
+    iSongHistoryTable.Reset();
 }

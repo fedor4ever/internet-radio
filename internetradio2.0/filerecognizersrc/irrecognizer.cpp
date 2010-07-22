@@ -17,6 +17,7 @@
 
 
 #include <implementationproxy.h>
+#include <f32file.h>
 
 #include "irdebug.h"
 #include "irrecognizer.h"
@@ -26,8 +27,7 @@
 //(32 bits to 31 bits)
 // Uid of the recogniser
 //const TUid KUidIRRecognizer={0x2000B499}
-// maximum amount of buffer space we will ever use
-const TInt KMaxBufferLength=4*1024;
+
 // If the file name length > 4, the file extension might be valid                  
 const TInt KPlsFileExtensionsMightBeValid = 4;  
 const TInt KM3uFileExtensionsMightBeValid = 4;
@@ -38,7 +38,6 @@ _LIT(KPlsExtension, ".pls");
 _LIT8(KPlsMimeType,"audio/x-scpls");
 
 _LIT(KM3uExtension, ".m3u");
-_LIT8(KM3uMimeType, "audio/x-mpegurl");
 
 
 // ================= MEMBER FUNCTIONS =======================
@@ -52,8 +51,8 @@ CApaRecognizerEx::CApaRecognizerEx():CApaDataRecognizerType(KIRRecognizerDllUid,
 	CApaDataRecognizerType::EHigh)
     {
     IRLOG_DEBUG( "CApaRecognizerEx::CApaRecognizerEx()" );
-    // It supports 2 mime type
-    iCountDataTypes = 2;
+    // It only supports 1 mime type
+    iCountDataTypes = 1;
     IRLOG_DEBUG( "CApaRecognizerEx::CApaRecognizerEx() - Exiting." );
     }
 
@@ -89,7 +88,7 @@ CApaDataRecognizerType* CApaRecognizerEx::CreateRecognizerL()
 TUint CApaRecognizerEx::PreferredBufSize()
     {
     IRLOG_DEBUG( "CApaRecognizerEx::PreferredBufSize" );
-    return KMaxBufferLength;
+    return 0;
     }
 
 // ---------------------------------------------------------------------------
@@ -104,11 +103,7 @@ TDataType CApaRecognizerEx::SupportedDataTypeL(TInt aIndex) const
 	{
         return TDataType(KPlsMimeType);
 	}
-    else if (1 == aIndex)
-    {
-        return TDataType(KM3uMimeType);
-    }
-    else
+	else
     {
         ASSERT(0);
         return TDataType(KNullDesC8);
@@ -140,7 +135,7 @@ void CApaRecognizerEx::DoRecognizeL(const TDesC& aName,
 		else if (aName.Right(KM3uFileExtensionsMightBeValid).CompareF(
             KM3uExtension)==0)
 		{
-		    RecognizeM3uFileL(aBuffer);
+		    RecognizeM3uFileL(aName);
 		    IRLOG_DEBUG( "CApaRecognizerEx::DoRecognizeL - Exiting (2)." );
 		    return;
 		}
@@ -148,15 +143,93 @@ void CApaRecognizerEx::DoRecognizeL(const TDesC& aName,
 		}
     }
 
-void CApaRecognizerEx::RecognizeM3uFileL(const TDesC8& /*aBuffer*/)
+void CApaRecognizerEx::RecognizeM3uFileL(const TDesC& aFileName)
 {
-   // _LIT8(KHttpProtocol, "http");
-   // _LIT8(KMmsProtocol, "mms");
-   // _LIT8(KRtspProtocol, "rtsp");
+    _LIT8(KHttpProtocol, "http");
+    _LIT8(KMmsProtocol, "mms");
+    _LIT8(KRtspProtocol, "rtsp");
+
+    RFs fs;
+    User::LeaveIfError(fs.Connect());
+    RFile file;
+    TInt ret = file.Open(fs, aFileName, EFileRead);
+    if (KErrNone != ret)
+    {
+        fs.Close();
+        return;
+    }
+    
+    RBuf8 content;
+    TInt maxLen = 0;
+    file.Size(maxLen);
+    content.Create(maxLen);
+    file.Read(content);
     
     //try to use descriptor method to parse the buffer
-    iConfidence = ECertain;
-    iDataType = TDataType(KM3uMimeType);
+    if (CheckStreamingLinks(content, KHttpProtocol) ||
+        CheckStreamingLinks(content, KMmsProtocol) ||
+        CheckStreamingLinks(content, KRtspProtocol))
+    {
+        iConfidence = ECertain;
+        iDataType = TDataType(KPlsMimeType);
+    }
+    
+    content.Close();
+    file.Close();
+    fs.Close();
+}
+
+TBool CApaRecognizerEx::CheckStreamingLinks(TDes8& aBuffer, const TDesC8& aProtocol)
+{
+    TBool ret = EFalse;
+    _LIT8(KNewLine, "\n");
+    
+    //initially, remain points to aBuffer
+    TPtrC8 remain(aBuffer);
+    TInt newLinePos = remain.Find(KNewLine);
+    
+    while (KErrNotFound != newLinePos)
+    {
+        //copy a new line to RBuf8
+        RBuf8 left;
+        left.Create(remain.Left(newLinePos));
+        left.TrimLeft();
+        left.LowerCase();
+        
+        //after trim left, does this line start with aProtocol?
+        if (left.Left(aProtocol.Length()) == aProtocol)
+        {
+            ret = ETrue;
+        }
+        left.Close();
+        
+        if (ret)
+        {
+            break;
+        }
+        else
+        {
+            //remain points to the right part
+            remain.Set(remain.Right(remain.Length() - newLinePos - 1));
+            newLinePos = remain.Find(KNewLine);
+        }
+    }
+    
+    if (!ret && remain.Length() > 0)
+    {
+        //last line doesn't end with '\n'
+        RBuf8 last;
+        last.Create(remain);
+        last.TrimLeft();
+        last.LowerCase();
+        if (last.Left(aProtocol.Length()) == aProtocol)
+        {
+            ret = ETrue;
+        }
+        last.Close();
+    }
+    
+    return ret;
 }
 
 // -----------------------------------------------------------------------------

@@ -11,7 +11,7 @@
 *
 * Contributors:
 *
-* Description:  Contains logic for watching certain disk's space
+* Description:
 *
 */
 
@@ -19,6 +19,8 @@
 #include "irqsystemeventhandler_p.h"
 #include "irdiskspaceobserver.h"
 #include "iralarmobserver.h"
+#include "irpropertyobserver.h"
+#include "irqlogger.h"
 
 #ifdef USER_DEFINED_DISKSPACE 
 #include <QFile>
@@ -26,9 +28,11 @@
 #include <QStringList> 
 #endif
 
+#define DEFAULT_DISKSPACE_LOW_LEVEL   (3*1024*1024)
 
 IRQSystemEventHandlerPrivate::IRQSystemEventHandlerPrivate(IRQSystemEventHandler *aSystemEventHandler) : q_ptr(aSystemEventHandler),
-                              mAlarmOn(false),mDefaultLevel(3*1024*1024),mAlarmObserver(NULL), mDiskSpaceObserver(NULL)
+                              mAlarmOn(false),mDefaultLevel(DEFAULT_DISKSPACE_LOW_LEVEL),mAlarmObserver(NULL), mDiskSpaceObserver(NULL),
+                              mPropertyObserver(NULL),mErrorCode(0)
 { 
 }
 
@@ -37,6 +41,7 @@ IRQSystemEventHandlerPrivate::~IRQSystemEventHandlerPrivate()
     cancel();
     delete mDiskSpaceObserver;
     delete mAlarmObserver;   
+    delete mPropertyObserver;
 }
 
 bool IRQSystemEventHandlerPrivate::init()
@@ -52,8 +57,9 @@ bool IRQSystemEventHandlerPrivate::init()
     }
     else
     {
-        mDiskSpaceObserver = NULL;
         mAlarmObserver = NULL;
+        mDiskSpaceObserver = NULL;
+        mPropertyObserver = NULL;        
     }
     
     
@@ -76,8 +82,10 @@ qint64 IRQSystemEventHandlerPrivate::diskCriticalLevel() const
 void IRQSystemEventHandlerPrivate::initializeL()
 {
     mAlarmObserver = CIRAlarmObserver::NewLC(this);    
-    mDiskSpaceObserver = CIRDiskSpaceObserver::NewL(this);
-    CleanupStack::Pop(mAlarmObserver);
+    mDiskSpaceObserver = CIRDiskSpaceObserver::NewLC(this);
+    mPropertyObserver = CIRPropertyObserver::NewL(this);   
+    CleanupStack::Pop(mDiskSpaceObserver);
+    CleanupStack::Pop(mAlarmObserver);    
 }
 
 void IRQSystemEventHandlerPrivate::cancel()
@@ -103,8 +111,9 @@ void IRQSystemEventHandlerPrivate::start()
     if( mDiskSpaceObserver )
     {
         mDiskSpaceObserver->Start((TInt64)mDefaultLevel);            
-    }    
+    }       
 }
+
 
 bool IRQSystemEventHandlerPrivate::isBelowCriticalLevel(const qint64 aCriticalLevel)
 {
@@ -114,6 +123,16 @@ bool IRQSystemEventHandlerPrivate::isBelowCriticalLevel(const qint64 aCriticalLe
     }
     
     return mDiskSpaceObserver->IsBelowCriticalLevel((TInt64)aCriticalLevel );
+}
+
+bool IRQSystemEventHandlerPrivate::isCallActive() const
+{
+    return mPropertyObserver->IsCallActive();
+}
+
+int IRQSystemEventHandlerPrivate::getErrorCode() const
+{
+    return mErrorCode;
 }
 
 #ifdef USER_DEFINED_DISKSPACE
@@ -167,6 +186,36 @@ void IRQSystemEventHandlerPrivate::notifyLowDiskSpace(qint64 aCriticalLevel)
 {
     emit q_ptr->diskSpaceLowNotification(aCriticalLevel);
 }
+
+void IRQSystemEventHandlerPrivate::callIsActivated()
+{
+    LOG_METHOD;
+    emit q_ptr->callActivated();    
+}
+
+void IRQSystemEventHandlerPrivate::callIsDeactivated()
+{
+    LOG_METHOD;
+    emit q_ptr->callDeactivated();    
+}
+
+void IRQSystemEventHandlerPrivate::errorCallback(int aError)
+{
+    mErrorCode = aError;
+}
+
+void IRQSystemEventHandlerPrivate::headsetIsConnected()
+{
+    LOG_METHOD;    
+    emit q_ptr->headsetConnected();
+}
+
+void IRQSystemEventHandlerPrivate::headsetIsDisconnected()
+{
+    LOG_METHOD;
+    emit q_ptr->headsetDisconnected();
+}
+
  
 
 

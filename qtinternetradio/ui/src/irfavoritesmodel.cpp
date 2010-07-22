@@ -14,6 +14,7 @@
 * Description:
 *
 */
+#include <QtAlgorithms>
 #include <hbicon.h>
 
 #include "irqfavoritesdb.h"
@@ -80,6 +81,20 @@ void IRFavoritesModel::setLogo(HbIcon *aIcon, int aIndex)
     }
     iLogos[aIndex] = aIcon;
     emit dataChanged(index(aIndex), index(aIndex));
+}
+
+bool IRFavoritesModel::isLogoReady(int aIndex) const
+{
+    int logoListCount = iLogos.count();
+    if (aIndex >= 0 
+        && aIndex < logoListCount)
+    {
+        return iLogos[aIndex] != NULL;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 QVariant IRFavoritesModel::data(const QModelIndex &aIndex, int aRole) const
@@ -166,14 +181,29 @@ void IRFavoritesModel::clearFavoriteDB()
     }
     
     int presetSize = iPresetsList->count();
-    int uniqId = 0;
-         
-    for (int i = 0; i < presetSize; ++i)
+
+    if(!presetSize)
     {
-        uniqId = iFavoritesDb->getUniqId(i);
+    	return;
+    }
+
+    int uniqId = 0;
+    
+    while(presetSize--)
+    {
+        uniqId = iFavoritesDb->getUniqId(presetSize);
+        
+        //There is the probability that the return value<0, so I added this judgment.
+        if(uniqId < 0 )
+        {
+        	//if here, the Id, which is mapped to preset's item, can't be found. 
+        	//jump out from while 
+        	break; 
+        }
         iFavoritesDb->deletePreset(uniqId);
-    }    
- 
+    	
+    }
+
     clearPresetList();
     clearAndDestroyLogos();
     emit modelChanged();
@@ -209,6 +239,7 @@ bool IRFavoritesModel::deleteOneFavorite(int aIndex)
     }
     
     beginRemoveRows(QModelIndex(), aIndex, aIndex);
+    delete preset;
     iPresetsList->removeAt(aIndex);
     
     if (aIndex<iLogos.size())
@@ -218,7 +249,67 @@ bool IRFavoritesModel::deleteOneFavorite(int aIndex)
     }
     iLogos.removeAt(aIndex);
     endRemoveRows();
-    emit modelChanged();
     return true;    
 }
 
+bool IRFavoritesModel::deleteMultiFavorites(const QModelIndexList &aIndexList)
+{
+    if (aIndexList.empty())
+    {
+        return true;
+    }
+
+    int index = 0;
+    bool retVal = true;
+    QList<int> indexToBeDelete;
+    
+    // delete from DB
+    for (int i = 0; i < aIndexList.count(); i++)
+    {
+        index = aIndexList.at(i).row();
+        
+        if (index < 0 || index >= iPresetsList->size())
+        {
+            continue;
+        }
+        
+        if (0 != iFavoritesDb->deletePreset(iPresetsList->at(index)->uniqID))
+        {
+            retVal = false;
+            continue;
+        }
+        indexToBeDelete.append(index);
+    }
+    
+    qSort(indexToBeDelete);
+    
+    
+    // delete from model
+    for (int i = indexToBeDelete.count() - 1; i >= 0; i--)
+    { 
+        index = indexToBeDelete.at(i);
+        
+        beginRemoveRows(QModelIndex(), index, index);
+        IRQPreset *preset = iPresetsList->at(index);
+        delete preset;
+        iPresetsList->removeAt(index);
+        if (index<iLogos.size())
+        {
+            delete iLogos[index];
+            iLogos[index] = NULL;
+        }
+        iLogos.removeAt(index);
+        endRemoveRows();         
+    }
+
+    return retVal;    
+}
+
+void IRFavoritesModel::updateFavoriteName(int aIndex, const QString &aNewName)
+{
+    if (aIndex >= 0 && aIndex < iPresetsList->count())
+    {
+        iPresetsList->at(aIndex)->name = aNewName;
+        emit dataChanged(index(aIndex), index(aIndex));
+    }
+}

@@ -22,6 +22,7 @@
 #include "irqmetadata.h"
 #include "irqenums.h"
 #include "irqmmfadapter.h"
+#include "irqlogger.h"
 
 //Constants
 const TUid KUidController        = { 0x101F8514 }; // Helix Video controller UID
@@ -76,6 +77,7 @@ IRQMMFAdapter::~IRQMMFAdapter()
 //
 void IRQMMFAdapter::playStation(const QString &aUrl, int aApId)
 {
+    LOG_METHOD;
     TRAPD(error, playL(aUrl, aApId));
     if (NULL == iQMetaData)
     {
@@ -156,6 +158,7 @@ void IRQMMFAdapter::stop()
 //
 void IRQMMFAdapter::setVolume(int aVolume)
 {
+    LOG_METHOD;
     if (iVideoPlayer && iPlayState > EOpenning)
     {
         // aVolume is a percentage
@@ -214,6 +217,7 @@ void* IRQMMFAdapter::getPlayerInstance()
 //
 void IRQMMFAdapter::MvpuoOpenComplete(TInt aError)
 {
+    LOG_METHOD;
     if (KErrNone == aError)
     {
         if (NULL == iPrepareTimer)
@@ -255,6 +259,7 @@ void IRQMMFAdapter::MvpuoOpenComplete(TInt aError)
 //
 void IRQMMFAdapter::MvpuoPrepareComplete(TInt aError)
 {
+    LOG_METHOD;
     // Cancel the previous request if pending
     if (iPrepareTimer->IsActive())
     {
@@ -306,6 +311,7 @@ void IRQMMFAdapter::MvpuoPrepareComplete(TInt aError)
 //
 void IRQMMFAdapter::MvpuoPlayComplete(TInt aError)
 {
+    LOG_METHOD;
     if (KErrNone != aError)
     {
         emit errorOccured(EIRQPlayerErrorGeneral);
@@ -320,6 +326,8 @@ void IRQMMFAdapter::MvpuoPlayComplete(TInt aError)
 //
 void IRQMMFAdapter::MvpuoEvent(TMMFEvent const & aEvent)
 {
+    LOG_METHOD;
+    LOG_FORMAT( "aevent is %d", (int)aEvent);
     if (KMMFEventCategoryVideoPlayerGeneralError == aEvent.iEventType)
     {
         switch (aEvent.iErrorCode)
@@ -375,6 +383,7 @@ void IRQMMFAdapter::MvpuoFrameReady(CFbsBitmap& aFrame,TInt aError)
 //
 void IRQMMFAdapter::MvloLoadingStarted()
 {
+    LOG_METHOD;
     // Get buffering progress and send it to application
     int percentageComplete = 0;
 
@@ -399,6 +408,7 @@ void IRQMMFAdapter::MvloLoadingStarted()
 //
 void IRQMMFAdapter::MvloLoadingComplete()
 {
+    LOG_METHOD;
     iPlayState = EPlaying;
 
     // Send signal to update progress, 100%
@@ -412,6 +422,7 @@ void IRQMMFAdapter::MvloLoadingComplete()
 //
 void IRQMMFAdapter::getRefreshedMetaDataL(TInt index)
 {
+    LOG_METHOD;
     if (iQMetaData)
     {
         CMMFMetaDataEntry* pMetadataEntry = iVideoPlayer->MetaDataEntryL(index);
@@ -506,6 +517,7 @@ TInt IRQMMFAdapter::isPrepareCompleted(TAny* aPtr)
 //
 void IRQMMFAdapter::checkPrepare()
 {
+    LOG_METHOD;
     if (iPrepareTimer->IsActive())
     {
         // Cancel the previous request if pending

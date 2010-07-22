@@ -17,6 +17,10 @@
 #include <hbaction.h>
 #include <QApplication>
 #include <QTimer>
+#include <HbApplication>
+#include <HbActivityManager>
+#include <xqserviceutil.h>
+
 
 #include "irviewmanager.h"
 #include "irapplication.h"
@@ -45,6 +49,9 @@ const int KCrossLineMaxAngle = 75; // degree
 
 static bool crossLineReady(const QLineF &aLine);
 static bool crossLineIntersected(const QLineF &aLineA, const QLineF &aLineB);
+
+static const QString KActivityMainView("InternetRadioMainView");
+static const QString KActivityPlayingView("InternetRadioNowPlayingView");
 
 enum CrossLineAngleType
 {
@@ -124,6 +131,38 @@ IRBaseView* IRViewManager::getView(TIRViewId aViewId, bool aCreateIfNotExist)
     return NULL;
 }
 
+TIRViewId IRViewManager::getExitingView()
+{
+    if(0 == views().count())
+    {
+        return EIRView_InvalidId;
+    }
+    else
+    {
+        IRBaseView* lastView = static_cast<IRBaseView*>(currentView());
+        if(lastView->testFlag(IRBaseView::EViewFlag_StickyViewEnabled))
+        {
+            return lastView->id();
+        }
+        
+        if(iViewStack.empty())
+        {
+            return EIRView_InvalidId;
+        }
+        
+        for(int i = iViewStack.size()-1; i >= 0 ; i--)
+        {
+            IRBaseView* lastView = iViewStack.at(i);
+            if(lastView->testFlag(IRBaseView::EViewFlag_StickyViewEnabled))
+            {
+                return lastView->id();
+            }
+        }    
+ 
+        return EIRView_InvalidId;
+    }
+}
+
 /*
  * Description : Judge if a view is in the view stack.
  * Parameters  : aViewId : the view's id
@@ -176,14 +215,14 @@ void IRViewManager::activateView(TIRViewId aViewId, bool aPushCurrentView)
     
     if (view)
     {
-        if (EViewFlag_ClearStackWhenActivate == view->flag())
+        if (view->testFlag(IRBaseView::EViewFlag_ClearStackWhenActivate))
         {
             clearStack();
         }
         else
         {    if (aPushCurrentView)
              {
-                 if (baseView && EViewFlag_UnStackable != baseView->flag())
+                 if (baseView && !baseView->testFlag(IRBaseView::EViewFlag_UnStackable))
                  {
                      iViewStack.push(baseView);
                  }
@@ -317,7 +356,96 @@ void IRViewManager::pushViewById(TIRViewId aViewId)
     Q_ASSERT(curView);
     iViewStack.push(curView);
 }
- 
+
+void IRViewManager::saveScreenShot()
+{
+    //if capture screen shot immediately for first view, can't get correct result
+    //use timer as a temp solution, will raise error to Orbit
+    QTimer::singleShot(200, this, SLOT(handleSaveScreenShot()));
+}
+
+void IRViewManager::saveActivity()
+{
+    HbActivityManager *activityManager = qobject_cast<HbApplication*>(qApp)->activityManager();
+    
+    //for embedded applications, don't publish activity. If backup activity is available, need to restore
+    if (XQServiceUtil::isEmbedded())
+    {
+        if (!iActivityBackup.activityId.isEmpty())
+        {
+            QVariantHash metadata;
+            metadata.insert("screenshot", iActivityBackup.screenShot);
+            
+            QByteArray serializedActivity;
+            QDataStream stream(&serializedActivity, QIODevice::WriteOnly | QIODevice::Append);
+            stream<<iActivityBackup.viewId;
+            activityManager->addActivity(iActivityBackup.activityId, serializedActivity, metadata);
+        }
+        return;
+    }
+    
+    removeActivity();
+    
+    
+    QVariantHash metadata;
+        
+    QByteArray serializedActivity;
+    QDataStream stream(&serializedActivity, QIODevice::WriteOnly | QIODevice::Append);
+    
+    TIRViewId viewId = getExitingView();
+    switch (viewId)
+    {
+    case EIRView_MainView:
+    case EIRView_FavoritesView:
+    case EIRView_CategoryView:
+        stream<<viewId;
+        metadata.insert("screenshot", iScreenShots[viewId]);
+        activityManager->addActivity(KActivityMainView, serializedActivity, metadata);
+        break;
+        
+    case EIRView_PlayingView:
+        stream<<viewId;
+        metadata.insert("screenshot", iScreenShots[viewId]);
+        activityManager->addActivity(KActivityPlayingView, serializedActivity, metadata);
+        break;
+        
+    default:
+        break;
+    }
+}
+
+void IRViewManager::removeActivity()
+{
+    if (XQServiceUtil::isEmbedded())
+    {
+        backupActivity();
+    }
+    
+    HbActivityManager *activityManager = qobject_cast<HbApplication*>(qApp)->activityManager();
+    activityManager->removeActivity(KActivityMainView);
+    activityManager->removeActivity(KActivityPlayingView);
+}
+
+void IRViewManager::backupActivity()
+{
+    HbApplication *hbApp = qobject_cast<HbApplication*>(qApp);
+    HbActivityManager *activityManager = hbApp->activityManager();
+    QList<QVariantHash> params = activityManager->activities();
+    TInt count = params.count();
+    if (count > 0)
+    {
+        QVariantHash activity = params[0];        
+        QString path = activity.value(activity.keys().at(2)).toString();
+        iActivityBackup.screenShot = QPixmap(path);
+        iActivityBackup.activityId = activity.value(activity.keys().at(1)).toString();
+        
+        QByteArray serializedModel = activityManager->activityData(iActivityBackup.activityId).toByteArray();
+        QDataStream stream(&serializedModel, QIODevice::ReadOnly);
+        int id = 0;
+        stream>>id;
+        iActivityBackup.viewId = TIRViewId(id);
+    }
+}
 
 //                                     slot functions
 
@@ -448,7 +576,7 @@ void IRViewManager::updateSoftkey()
     IRBaseView *topView = static_cast<IRBaseView*>(currentView());
     if (topView)
     {
-        if (EViewFlag_ClearStackWhenActivate == topView->flag())
+        if (topView->testFlag(IRBaseView::EViewFlag_ClearStackWhenActivate))
         {
             topView->setNavigationAction(iExitAction);
         }
@@ -456,6 +584,15 @@ void IRViewManager::updateSoftkey()
         {
             topView->setNavigationAction(iBackAction);
         }
+    }
+}
+
+void IRViewManager::handleSaveScreenShot()
+{
+    if (!XQServiceUtil::isEmbedded())
+    {
+        TIRViewId id = currentViewId();
+        iScreenShots[id] = QPixmap::grabWidget(this, rect());
     }
 }
 
@@ -559,7 +696,11 @@ void IRViewManager::exitTimeout()
 {
     crossLineReset();
     viewport()->repaint();
+#ifdef SUBTITLE_STR_BY_LOCID
     HbMessageBox::information(hbTrId("txt_common_info_exiting"), (QObject*)NULL, NULL);
+#else
+    HbMessageBox::information(hbTrId("Exiting..."), (QObject*)NULL, NULL);    
+#endif
     qApp->quit();
     iExiting = true;
 }

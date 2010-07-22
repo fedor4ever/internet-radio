@@ -80,7 +80,12 @@ private:
 	/*
 	 * try to recognize a m3u file and decide whether it should be launched by InternetRadio application
 	 */
-	void RecognizeM3uFileL(const TDesC8& aBuffer);
+	void RecognizeM3uFileL(const TDesC& aFileName);
+	
+	/*
+	 * check if specified protocol streaming links are in aBuffer
+	 */
+	TBool CheckStreamingLinks(TDes8& aBuffer, const TDesC8& aProtocol);
     };
 
 #endif //IRRECOGNIZER_H

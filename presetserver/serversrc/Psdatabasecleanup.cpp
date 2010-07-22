@@ -17,8 +17,8 @@
 
 
 #include <ecom.h>
-#include <pspresetinterface.h>
 
+#include "pspresetinterface.h"
 #include "psdatabase.h"
 #include "psdatabasecleanup.h"
 #include "psdebug.h"

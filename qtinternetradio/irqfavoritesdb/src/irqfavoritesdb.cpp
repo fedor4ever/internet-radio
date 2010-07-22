@@ -159,29 +159,7 @@ void IRQFavoritesDB::increasePlayedTimes(const IRQPreset &aPreset)
     d_ptr->increasePlayedTimes(aPreset);
 }
 
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+int IRQFavoritesDB::renamePreset(const IRQPreset &aPreset, const QString &aNewName)
+{
+    return d_ptr->renamePreset(aPreset, aNewName);
+}

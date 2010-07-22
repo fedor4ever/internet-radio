@@ -19,8 +19,8 @@
 #ifndef R_RPSPRESETNOTIFIER_H
 #define R_RPSPRESETNOTIFIER_H
 
-#include <pscommon.h>
-#include <pspresetobserver.h>
+#include "pscommon.h"
+#include "pspresetobserver.h"
 
 class RPSServ;
 

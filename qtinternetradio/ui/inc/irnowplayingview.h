@@ -23,8 +23,8 @@
 class HbAction;
 class IRQPreset;
 class IRQStatisticsReporter;
-class IRQNetworkController;
 class IRQMetaData;
+class IRStationShare;
 class HbLabel;
 
 /**
@@ -94,8 +94,9 @@ private:
     void updateMusicStoreStatus();
     void updateForLauchAction();
     
-    void updateStationLogo();
-
+    void updateStationLogo();	
+    void loadStationLogo();
+    
     void lazyInit();
     void normalInit();
     
@@ -106,7 +107,7 @@ private:
     
 private:
     IRQStatisticsReporter *iStatisticsReporter;
-    IRQNetworkController  *iNetworkController;
+    IRStationShare *iStationShare;
 
     // tool bar actions
     HbAction *iPlayStopAction;

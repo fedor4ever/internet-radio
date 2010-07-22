@@ -19,8 +19,8 @@
 #ifndef  IRFAVORITESDB_H
 #define  IRFAVORITESDB_H
 
-#include <pspresetobserver.h>
-#include <psserv.h>
+#include "pspresetobserver.h"
+#include "psserv.h"
 
 class CIRIsdsPreset;
 class CIRPreset;
@@ -198,6 +198,8 @@ public:
      *          KErrNotFound if the preset is not in the favorites
      */
 	IMPORT_C TInt IncreasePlayedTimesL(const CIRIsdsPreset &aIsdsPreset);
+	
+	IMPORT_C TInt RenamePresetL(const CIRIsdsPreset &aIsdsPreset, const TDesC &aNewName);
 	
 	private:
 

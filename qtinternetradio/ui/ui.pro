@@ -26,6 +26,33 @@ INCLUDEPATH += $$APP_LAYER_SYSTEMINCLUDE
 INCLUDEPATH += $${OS_LAYER_PUBLIC_EXPORT_PATH(http)}
 INCLUDEPATH += $${MW_LAYER_PUBLIC_EXPORT_PATH(http)}
 
+#the following is for splash screen in phone
+BLD_INF_RULES.prj_exports += "resources/splashscreen/internet_radio_default.splashml       /epoc32/data/z/resource/hb/splashml/internet_radio_default.splashml" \
+                             "resources/splashscreen/internet_radio_default.docml          /epoc32/data/z/resource/hb/splashml/internet_radio_default.docml" \
+                             "resources/splashscreen/internet_radio_normal.splashml        /epoc32/data/z/resource/hb/splashml/internet_radio_normal.splashml" \
+                             "resources/splashscreen/internet_radio_normal.docml           /epoc32/data/z/resource/hb/splashml/internet_radio_normal.docml" \
+                             "resources/splashscreen/internet_radio_nowplaying.splashml    /epoc32/data/z/resource/hb/splashml/internet_radio_nowplaying.splashml" \
+                             "resources/splashscreen/internet_radio_nowplaying.docml       /epoc32/data/z/resource/hb/splashml/internet_radio_nowplaying.docml"
+
+#the following is for splash screen in winscw_udeb
+BLD_INF_RULES.prj_exports += "resources/splashscreen/internet_radio_default.splashml      /epoc32/release/winscw/udeb/z/resource/hb/splashml/internet_radio_default.splashml" \
+                             "resources/splashscreen/internet_radio_default.docml         /epoc32/release/winscw/udeb/z/resource/hb/splashml/internet_radio_default.docml" \
+                             "resources/splashscreen/internet_radio_normal.splashml       /epoc32/release/winscw/udeb/z/resource/hb/splashml/internet_radio_normal.splashml" \
+                             "resources/splashscreen/internet_radio_normal.docml          /epoc32/release/winscw/udeb/z/resource/hb/splashml/internet_radio_normal.docml" \
+                             "resources/splashscreen/internet_radio_nowplaying.splashml   /epoc32/release/winscw/udeb/z/resource/hb/splashml/internet_radio_nowplaying.splashml" \
+                             "resources/splashscreen/internet_radio_nowplaying.docml      /epoc32/release/winscw/udeb/z/resource/hb/splashml/internet_radio_nowplaying.docml" 
+                                                      
+
+#the following is for splash screen in winscw_urel
+BLD_INF_RULES.prj_exports += "resources/splashscreen/internet_radio_default.splashml      /epoc32/release/winscw/urel/z/resource/hb/splashml/internet_radio_default.splashml" \
+                             "resources/splashscreen/internet_radio_default.docml         /epoc32/release/winscw/urel/z/resource/hb/splashml/internet_radio_default.docml" \
+                             "resources/splashscreen/internet_radio_normal.splashml       /epoc32/release/winscw/urel/z/resource/hb/splashml/internet_radio_normal.splashml" \
+                             "resources/splashscreen/internet_radio_normal.docml          /epoc32/release/winscw/urel/z/resource/hb/splashml/internet_radio_normal.docml" \
+                             "resources/splashscreen/internet_radio_nowplaying.splashml   /epoc32/release/winscw/urel/z/resource/hb/splashml/internet_radio_nowplaying.splashml" \
+                             "resources/splashscreen/internet_radio_nowplaying.docml      /epoc32/release/winscw/urel/z/resource/hb/splashml/internet_radio_nowplaying.docml"                            
+                              
+
+
 INCLUDEPATH += inc \
                ..\irqisdsclient\inc \
                ..\irqmediaplayer\inc \
@@ -63,17 +90,16 @@ LIBS += -lirqnetworkcontroller \
         -lirqlogger \
         -lshareui \
         -lirqsystemeventhandler \
-	-lxqservice \
+        -lxqsettingsmanager \
+        -lxqservice \
         -lxqserviceutil
         	
 symbian{
   TARGET.UID3 = 0xE28364bb
   TARGET.EPOCHEAPSIZE = 0x020000 0x2000000
   TARGET.VID = VID_DEFAULT
-  ICON = resources/qtg_large_internet_radio.svg
-  datatype_list = "datatype_list={DATATYPE{priority=EDataTypePriorityHigh;type=\"audio/x-scpls\";}," \
-                                 "DATATYPE{priority=EDataTypePriorityHigh;type=\"audio/x-mpegurl\";}" \
-                  "};"
+  SKINICON = qtg_large_internet_radio
+  datatype_list = "datatype_list={DATATYPE{priority=EDataTypePriorityHigh;type=\"audio/x-scpls\";}};"
   RSS_RULES += datatype_list 
 }
 
@@ -109,7 +135,11 @@ HEADERS += inc\irapplication.h \
            inc\irstationshare.h \
            inc\irstationdetailsview.h \
            inc\irtermsconsview.h \
-           inc\irplaylist.h
+           inc\ircontrolservice.h \
+           inc\irmonitorservice.h \           
+           inc\irplaylist.h \
+           inc\irsearchresultdb.h \
+           inc\irfileviewservice.h
            
 #source files list
 SOURCES += main.cpp  \
@@ -143,7 +173,11 @@ SOURCES += main.cpp  \
            irstationshare.cpp \
            irstationdetailsview.cpp \
            irtermsconsview.cpp \
-           irplaylist.cpp
+           ircontrolservice.cpp \
+           irmonitorservice.cpp \
+           irplaylist.cpp \
+           irsearchresultdb.cpp \
+           irfileviewservice.cpp
           	   
 #resource
 RESOURCES += resources/irui.qrc

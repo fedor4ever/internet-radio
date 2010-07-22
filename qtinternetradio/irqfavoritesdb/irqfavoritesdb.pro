@@ -19,6 +19,7 @@ TARGET.CAPABILITY += CAP_GENERAL_DLL
 QT -= gui
 CONFIG += dll
 DEFINES += BUILD_IRQFAVORITES_DLL
+defFilePath = ..
 
 MOC_DIR = moc
 DEPENDPATH = src
@@ -26,9 +27,10 @@ DEPENDPATH = src
 INCLUDEPATH += ../../internetradio2.0/favoritesdbinc \
                ../../internetradio2.0/datastructuresinc \
                ../../internetradio2.0/presetplugininc  \
-               ../irqcommon/inc
-             
-
+               ../irqcommon/inc \
+               ../../presetserver/include \
+               ../../presetserver/clientinc \
+               ../../presetserver/serverinc
                
                
 LIBS += -lirdatastructures \
