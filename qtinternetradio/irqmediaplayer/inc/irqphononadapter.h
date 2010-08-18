@@ -37,6 +37,8 @@ public:
     void  setVolume(int aVolume);
     int   getVolume();
     void* getPlayerInstance();
+    void  enableStereoEffect();
+    void  disableStereoEffect();
 };
 
 #endif /* IRQPHONONADAPTER_H_ */

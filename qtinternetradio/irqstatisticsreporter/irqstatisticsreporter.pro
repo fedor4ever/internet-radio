@@ -24,6 +24,7 @@ symbian{
   TARGET.EPOCALLOWDLLDATA = 1
   TARGET.CAPABILITY = CAP_GENERAL_DLL
   SYMBIAN_PLATFORMS = WINSCW ARMV5
+  MMP_RULES += SMPSAFE
 }
 
 ########## Dependency Path ##############################
@@ -31,14 +32,14 @@ MOC_DIR = moc
 DEPENDPATH += src
 INCLUDEPATH += /epoc32/include/platform \
                inc \
-               ../irqcommon\inc \
+               ../irqcommon/inc \
                ../irqisdsclient/inc \
                ../irqnetworkcontroller/inc \
                ../irqnwkinfoobserver/inc \
                ../irqlogger/inc \
                ../irqsettings/inc
 symbian{
-INCLUDEPATH += ../../internetradio2.0/sessionloginc
+INCLUDEPATH += ../../internetradio2.0/irsessionlog/inc
 }
 
 

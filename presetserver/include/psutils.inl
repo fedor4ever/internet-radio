@@ -16,11 +16,7 @@
 */
 
 
-#if defined __SERIES60_30__ || defined __SERIES60_31__
-_LIT( KPSDatabaseFileName, "\\data\\pspresets.db" );    // File name of the preset database.
-#else
 _LIT( KPSDatabaseFileName, "pspresets.db" );            // File name of the preset database.
-#endif
 
 // ---------------------------------------------------------------------------
 // Gets the full file name and path to the preset database file.
@@ -35,9 +31,6 @@ inline void PSUtils::GetDatabaseFullNameL( TFileName& aFullName )
 
     TParse parse;
 
-#if defined __SERIES60_30__ || defined __SERIES60_31__
-    parse.Set( KPSDatabaseFileName, &drive, NULL );
-#else
     // The database file resides in the server's private directory from 3.2 onwards.
     TFileName privatePath;
     
@@ -49,7 +42,6 @@ inline void PSUtils::GetDatabaseFullNameL( TFileName& aFullName )
     parse.Set( privatePath, &KPSDatabaseFileName, &drive );
 
     CleanupStack::PopAndDestroy( &fsSession );
-#endif
 
     aFullName = parse.FullName();
 

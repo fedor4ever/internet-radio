@@ -46,6 +46,8 @@ USERINCLUDE             ../include
 APP_LAYER_SYSTEMINCLUDE
 SYSTEMINCLUDE   OS_LAYER_PUBLIC_EXPORT_PATH(ecom)
 
+SMPSAFE
+
 LIBRARY                 ecom.lib
 LIBRARY                 euser.lib
 LIBRARY                 estor.lib

@@ -28,6 +28,7 @@ class HbGroupBox;
 class HbAction;
 class IRQMetaData;
 class HbAbstractViewItem;
+class IRPlayingBanner;
 
 class IrAbstractListViewBase : public IRBaseView
 {
@@ -40,8 +41,6 @@ public:
     TIRViewParameter getViewParameter() const;
     
     ~IrAbstractListViewBase();
-
-    void setPlayingBannerTextColor(const QString &aColor);
     
 protected:    
     IrAbstractListViewBase(IRApplication *aApplication, TIRViewId aViewId);
@@ -87,6 +86,8 @@ private slots:
 	void openWebAddress();
 	
 	virtual void listViewLongPressed(HbAbstractViewItem *aItem, const QPointF &aCoords);
+
+	void playingBannerTapFinished();
 	
 private:
     void initMenu();
@@ -98,7 +99,6 @@ private:
     
 protected:
 	HbListView    *iListView;
-	HbWidget      *iPlayingBanner;
 	HbLabel       *iStationName;
 	HbMarqueeItem *iArtistSongName;
 	HbGroupBox    *iHeadingLabel;

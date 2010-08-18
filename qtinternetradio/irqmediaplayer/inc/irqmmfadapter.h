@@ -22,6 +22,7 @@
 #include "irqplayeradapterinterface.h"
 
 class IRQMetaData;
+class CStereoWidening;
 
 /**
  * This class wraps the MMF interface CVideoPlayerUtility
@@ -42,6 +43,8 @@ public:
     void  setVolume(int aVolume);                      // Set volume to player
     int   getVolume();                                 // Get current volume from player
     void* getPlayerInstance();                         // Get audio player instance for stereo effect
+    void  enableStereoEffect();                        //Turns on the stereo effect
+    void  disableStereoEffect();                       //Turns off the stereo effect
 
     // Callback functions, MVideoPlayerUtilityObserver methods
     void MvpuoOpenComplete(TInt aError);                  // Opening url completed
@@ -62,7 +65,8 @@ private:
     void setMetadataEventConfig();                  // Enable meta data event
     static TInt isPrepareCompleted(TAny* aPointer); // Periodic called function
     void checkPrepare();                            // Check if preparation completed
-
+    void enableStereoEffectL();
+    
 private:
     CVideoPlayerUtility2*  iVideoPlayer;
     IRQMetaData*          iQMetaData;       // Saving meta data
@@ -73,6 +77,11 @@ private:
      */
     CPeriodic*            iPrepareTimer;
     QString               iLastArtistSongName;
+    
+    /**
+     *  Used for handling Stereo Mode
+     */
+    CStereoWidening* iStereoEffect;
 };
 
 #endif /* IRQMMFADAPTER_H_ */

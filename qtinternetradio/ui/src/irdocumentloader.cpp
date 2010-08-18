@@ -17,6 +17,7 @@
 #include <HbTextItem>
 #include <HbMarqueeItem>
 #include "irdocumentloader.h" 
+#include "irplayingbanner.h"
 
 QObject *IRDocumentLoader::createObject(const QString& aType, const QString &aName)
 {
@@ -29,6 +30,12 @@ QObject *IRDocumentLoader::createObject(const QString& aType, const QString &aNa
     else if (aType == HbMarqueeItem::staticMetaObject.className())
     {
         QObject *object = new HbMarqueeItem;
+        object->setObjectName(aName);
+        return object;
+    }
+    else if (aType == IRPlayingBanner::staticMetaObject.className())
+    {
+        QObject *object = new IRPlayingBanner;
         object->setObjectName(aName);
         return object;
     }

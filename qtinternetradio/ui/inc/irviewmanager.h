@@ -61,7 +61,8 @@ public:
     
     void saveActivity();
     
-    void removeActivity();
+    void removeActivity();    
+    
     
 public slots:
     void backToPreviousView();
@@ -111,6 +112,7 @@ private:
     bool iExiting;    
     QMap<TIRViewId, QPixmap> iScreenShots;
     ActivityInformation iActivityBackup;
+    bool iIsEmbedded;
 };
 
 #endif

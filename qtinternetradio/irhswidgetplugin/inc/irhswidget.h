@@ -86,6 +86,9 @@ private slots:
     void handleStationLogoUpdated(bool aLogoAvailable);
     void handleMetaDataUpdated(const QString &aMetaData);
     void handleIrStateUpdated(IrAppState::Type aNewState);
+    
+    // used for timer event for launch nowplaying view
+    void launchNowplayingView();
 
 private:    
     bool mUserActionEnabled;

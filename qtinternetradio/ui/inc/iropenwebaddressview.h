@@ -51,6 +51,7 @@ private:
     void initDataForm();
     bool initPreset(IRQPreset &aPreset);
     bool eventFilter(QObject *object, QEvent *event);
+    void hideVkb();
 
 private slots:
     // play this station
@@ -72,6 +73,7 @@ private:
     HbDataFormModelItem *iUrl;
     HbDataFormModelItem *iName;
     HbLineEdit          *iNameEditorPtr;
+    HbLineEdit          *iUrlEditorPtr;
     
     HbPushButton        *iPlayButton;
     friend class         IRViewManager;

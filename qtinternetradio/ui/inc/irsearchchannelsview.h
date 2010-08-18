@@ -57,6 +57,7 @@ private: //functions
     void lazyInit();
     void startConvert(int aIndex);   
     void initTimer();
+    bool eventFilter(QObject *object, QEvent *event);
     
 private slots: //slots
      
@@ -72,7 +73,8 @@ private slots: //slots
     void convertAnother();
     void presetLogoDownload(IRQPreset* aPreset);
     void presetLogoDownloadError();
-    
+    void hideVkb();
+
 public slots:    
     //this slot is used to back to previouse view or minimize the search widget
     void minimizeSearchPanel();   
@@ -97,6 +99,7 @@ private: // members
     IRQPreset           *iLogoPreset;     
     QTimer              *iConvertTimer;
     QList<int>           iIconIndexArray;
+    IRQSettings          *iSettings;    
     friend class IRViewManager;
 };
 #endif //IRSEARCHCHANNELSVIEW_H

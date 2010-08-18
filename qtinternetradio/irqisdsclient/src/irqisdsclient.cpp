@@ -15,80 +15,77 @@
 *
 */
 
-#include "irqisdsclientimpl.h"   
- 
+#include "irqisdsclientimpl_symbian.h"   
+
+QMutex IRQIsdsClient::mMutex;
+int IRQIsdsClient::mRef = 0;
+IRQIsdsClient *IRQIsdsClient::mInstance = NULL;
+
 //Static function
 //to get an instance of the IRQIsdsClient
 //@return IRQIsdsClient *
-EXPORT_C IRQIsdsClient *IRQIsdsClient::openInstance()
+IRQIsdsClient *IRQIsdsClient::openInstance()
 {
-    IRQIsdsClient* irqisdsclient =
-            reinterpret_cast<IRQIsdsClient*> (Dll::Tls());
-
-    if (NULL == irqisdsclient)
+    mMutex.lock();
+    if (NULL == mInstance)
     {
-        irqisdsclient = new IRQIsdsClient();
-        int result = 0;
-        result = Dll::SetTls(irqisdsclient); 
-        
-        if( KErrNone != result )
-        {
-            delete irqisdsclient;
-            return NULL;
-        }
-        
-        irqisdsclient->iSingletonInstances = 1;
+        mInstance = new IRQIsdsClient();
     }
-    else
-        irqisdsclient->iSingletonInstances++;
+	if (NULL != mInstance)
+    {
+        mInstance->mRef++;
+	}
 
-    return irqisdsclient;
+    mMutex.unlock();
+    return mInstance;
 }
 
 //
 //close the instance.
 //@return void
-EXPORT_C void IRQIsdsClient::closeInstance()
+void IRQIsdsClient::closeInstance()
 {
-    iSingletonInstances--;
+    mMutex.lock();
+    mRef--;
 
-    if (0 == iSingletonInstances)
+    if (0 == mRef)
     {
-        Dll::SetTls(NULL);
+        mInstance = NULL;
         delete this;
     }
 
+    mMutex.unlock();
     return;
 }
 
 //Issue a search request to the isds server
 //@param QString, the requested search string
 //
-EXPORT_C void IRQIsdsClient::isdsSearchRequest(const QString& aIsdsSearchString)
+void IRQIsdsClient::isdsSearchRequest(const QString& aIsdsSearchString)
 {
-    iImpl->isdsSearchRequestImpl(aIsdsSearchString);     
+    d_ptr->isdsSearchRequestImpl(aIsdsSearchString);     
 }
 
 //Send the category request by the category type
 // 
-EXPORT_C void IRQIsdsClient::isdsCategoryRequest(
+void IRQIsdsClient::isdsCategoryRequest(
         IRQIsdsClient::IRQIsdsClientInterfaceIDs aIDType, bool& aCache)
 { 
-    iImpl->isdsCategoryRequestImpl(aIDType, aCache);
+    d_ptr->isdsCategoryRequestImpl(aIDType, aCache);
 }
 
-EXPORT_C bool IRQIsdsClient::isdsIsCategoryCached(IRQIsdsClient::IRQIsdsClientInterfaceIDs aIDType)
+bool IRQIsdsClient::isdsIsCategoryCached(IRQIsdsClient::IRQIsdsClientInterfaceIDs aIDType)
 {
-    return iImpl->isdsIsCategoryCachedImpl(aIDType);
+    return d_ptr->isdsIsCategoryCachedImpl(aIDType);
 }
 
-EXPORT_C bool IRQIsdsClient::isdsIsChannelCached(int aIndex)
+bool IRQIsdsClient::isdsIsChannelCached(int aIndex)
 {
-    return iImpl->isdsIsChannelCachedImpl(aIndex);
+    return d_ptr->isdsIsChannelCachedImpl(aIndex);
 }
 //Send the channels request by the channel index in the specify category
 //
-EXPORT_C void IRQIsdsClient::isdsChannelRequest(int aIndex, bool& aCache)
+void IRQIsdsClient::isdsChannelRequest(int aIndex, bool& aCache)
 {
     
     if( 0 > aIndex )
@@ -98,13 +95,13 @@ EXPORT_C void IRQIsdsClient::isdsChannelRequest(int aIndex, bool& aCache)
     if( isdsIsCategoryBanner() && 0 == aIndex )
         return;
     
-    iImpl->isdsChannelRequestImpl(aIndex, aCache);
+    d_ptr->isdsChannelRequestImpl(aIndex, aCache);
 }
 
 //issue a listen request to the isds client
 //@param int,bool, the current index of channel, the history tag  
 //
-EXPORT_C void IRQIsdsClient::isdsListenRequest(int aCurrentIndex,
+void IRQIsdsClient::isdsListenRequest(int aCurrentIndex,
         bool aHistoryBool)
 { 
     if (0 > aCurrentIndex)
@@ -114,26 +111,26 @@ EXPORT_C void IRQIsdsClient::isdsListenRequest(int aCurrentIndex,
     if (isdsIsChannelBanner() && 0 == aCurrentIndex)
         return;
     
-    iImpl->isdsListenRequestImpl(aCurrentIndex,aHistoryBool); 
+    d_ptr->isdsListenRequestImpl(aCurrentIndex,aHistoryBool); 
 }
 
 //to syncronize presets
 //@param int,QString, the preset id and the last modified tag for the preset   
 //
-EXPORT_C int IRQIsdsClient::isdsSyncPreset(int aPresetId,
+int IRQIsdsClient::isdsSyncPreset(int aPresetId,
         const QString& aIfModifySince, IRQFavoritesDB *aFavPresets)
 {     
     TInt result = 0;
-    result = iImpl->isdsSyncPresetImpl(aPresetId, aIfModifySince, aFavPresets);
+    result = d_ptr->isdsSyncPresetImpl(aPresetId, aIfModifySince, aFavPresets);
     return result;
 } 
 
 //Cacel the request sent by the UI.
 //@param None
 //
-EXPORT_C void IRQIsdsClient::isdsCancelRequest()
+void IRQIsdsClient::isdsCancelRequest()
 {
-    iImpl->isdsCancelRequestImpl();  
+    d_ptr->isdsCancelRequestImpl();  
 }
 
  
@@ -141,89 +138,89 @@ EXPORT_C void IRQIsdsClient::isdsCancelRequest()
 //to see wether category view has a banner.
 //@param None
 //
-EXPORT_C bool IRQIsdsClient::isdsIsCategoryBanner()
+bool IRQIsdsClient::isdsIsCategoryBanner()
 {
-    return iImpl->isdsIsCategoryBannerImpl();
+    return d_ptr->isdsIsCategoryBannerImpl();
 }
 
 //
 //to see wether channel view has a banner.
 //@param None
-EXPORT_C bool IRQIsdsClient::isdsIsChannelBanner()
+bool IRQIsdsClient::isdsIsChannelBanner()
 {
-    return iImpl->isdsIsChannelBannerImpl();
+    return d_ptr->isdsIsChannelBannerImpl();
 }
 
 //the api is called from the UI(nowplaying view) to download logo.
 //@param None
 //
-EXPORT_C void IRQIsdsClient::isdsLogoDownSendRequest(IRQPreset* aPreset,
+void IRQIsdsClient::isdsLogoDownSendRequest(IRQPreset* aPreset,
         int aNPVReq, int aXValue, int aYValue)
 { 
-    iImpl->isdsLogoDownSendRequestImpl(aPreset, aNPVReq, aXValue, aYValue);
+    d_ptr->isdsLogoDownSendRequestImpl(aPreset, aNPVReq, aXValue, aYValue);
 }
 
-EXPORT_C bool IRQIsdsClient::isdsIsLogoCached(IRQPreset* aPreset, int aXValue, int aYValue)
+bool IRQIsdsClient::isdsIsLogoCached(IRQPreset* aPreset, int aXValue, int aYValue)
 {
-    return iImpl->isdsIsLogoCachedImpl(aPreset, aXValue, aYValue);
+    return d_ptr->isdsIsLogoCachedImpl(aPreset, aXValue, aYValue);
 }
 //
 //the api is called to cancel the current transaction
 //@param None
 //
-EXPORT_C void IRQIsdsClient::isdsLogoDownCancelTransaction()
+void IRQIsdsClient::isdsLogoDownCancelTransaction()
 {
-    iImpl->isdsLogoDownCancelTransactionImpl();
+    d_ptr->isdsLogoDownCancelTransactionImpl();
 }
 
 //
 //To know the status of downloading logo
-EXPORT_C bool IRQIsdsClient::isdsLogoDownIsRunning() const
+bool IRQIsdsClient::isdsLogoDownIsRunning() const
 {
-    return iImpl->isdsLogoDownIsRunningImpl();
+    return d_ptr->isdsLogoDownIsRunningImpl();
 }
 
 //takes the url as a parameter and returns the logo data which is in cache
 //this API is called form the search results for to display logo on the view
 //@param QString: the url of the img, int: the status for getting
 //
-EXPORT_C void IRQIsdsClient::isdsLogoDownCheckCacheLogo(const QString& aURL,
+void IRQIsdsClient::isdsLogoDownCheckCacheLogo(const QString& aURL,
         int& aStatus)
 { 
-    iImpl->isdsLogoDownCheckCacheLogoImpl(aURL, aStatus);
+    d_ptr->isdsLogoDownCheckCacheLogoImpl(aURL, aStatus);
 }
 
 //get the cache logo from the logodown engine. The "send" is the point from a logodown engine
 //@param None
 //
-EXPORT_C TDesC8& IRQIsdsClient::isdsLogoDownSendCacheLogo()
+TDesC8& IRQIsdsClient::isdsLogoDownSendCacheLogo()
 {
-    return iImpl->isdsLogoDownSendCacheLogoImpl();
+    return d_ptr->isdsLogoDownSendCacheLogoImpl();
 }
 
-EXPORT_C void IRQIsdsClient::isdsPostLog(const QString& aFileName)
+void IRQIsdsClient::isdsPostLog(const QString& aFileName)
 {
-    iImpl->isdsPostLogImpl(aFileName);
+    d_ptr->isdsPostLogImpl(aFileName);
 }
 
-EXPORT_C void IRQIsdsClient::isdsGetIRID()
+void IRQIsdsClient::isdsGetIRID()
 {
-    iImpl->isdsGetIRIDImpl();
+    d_ptr->isdsGetIRIDImpl();
 }
 
-EXPORT_C void IRQIsdsClient::isdsGetBrowseBanner(QString& aBannerUrl, QString& aClickThroughUrl)
+void IRQIsdsClient::isdsGetBrowseBanner(QString& aBannerUrl, QString& aClickThroughUrl)
 {
-    iImpl->isdsGetBrowseBannerImpl(aBannerUrl, aClickThroughUrl);
+    d_ptr->isdsGetBrowseBannerImpl(aBannerUrl, aClickThroughUrl);
 }
 
-EXPORT_C void IRQIsdsClient::isdsMultSearch(QString aGenreID, QString aCountryID, QString aLanguageID, QString aSearchText)
+void IRQIsdsClient::isdsMultSearch(QString aGenreID, QString aCountryID, QString aLanguageID, QString aSearchText)
 {
-    iImpl->isdsMultSearchImpl(aGenreID, aCountryID, aLanguageID, aSearchText);
+    d_ptr->isdsMultSearchImpl(aGenreID, aCountryID, aLanguageID, aSearchText);
 }
 
-EXPORT_C bool IRQIsdsClient::isdsIsConstructSucceed() const
+bool IRQIsdsClient::isdsIsConstructSucceed() const
 {
-    return iImpl->isdsIsConstructSucceed();
+    return d_ptr->isdsIsConstructSucceed();
 }
 
 /************************ private functions **************************/
@@ -231,45 +228,13 @@ EXPORT_C bool IRQIsdsClient::isdsIsConstructSucceed() const
 // private
 IRQIsdsClient::~IRQIsdsClient()
 {    
-    delete iImpl;
+    delete d_ptr;
 }
 
 
 IRQIsdsClient::IRQIsdsClient()
 {    
-    iImpl = new IRQIsdsClientImpl(); 
-    Q_ASSERT(iImpl);
-    
-    connect(iImpl, SIGNAL(categoryItemsChangedImpl(QList<IRQBrowseCategoryItem *> *)),
-                this, SIGNAL(categoryItemsChanged(QList<IRQBrowseCategoryItem *> *)));
-    
-    connect(iImpl, SIGNAL(channelItemsChangedImpl(QList<IRQChannelItem *> *)),
-                    this, SIGNAL(channelItemsChanged(QList<IRQChannelItem *> *)));
-    
-    connect(iImpl, SIGNAL(operationExceptionImpl(IRQError)),
-            this, SIGNAL(operationException(IRQError)));
-    
-    
-    connect(iImpl, SIGNAL(presetResponseImpl(IRQPreset *)),
-            this, SIGNAL(presetResponse(IRQPreset *)));
-   
-    
-    connect(iImpl, SIGNAL(syncPresetResultImpl(IRQSycPresetStatus, IRQPreset*)),
-                this, SIGNAL(syncPresetResult(IRQSycPresetStatus,  IRQPreset*)));
-    
-    
-    connect(iImpl, SIGNAL(presetLogoDownloadedImpl(IRQPreset*)),
-                    this, SIGNAL(presetLogoDownloaded(IRQPreset*)));
-   
-    
-    connect(iImpl, SIGNAL(presetLogoDownloadErrorImpl()),
-                        this, SIGNAL(presetLogoDownloadError()));     
-   
-    
-    connect(iImpl, SIGNAL(iridReceivedImpl(QString)), 
-                        this, SIGNAL(iridReceived(QString)));
-    
-}
-
- 
+    d_ptr = new IRQIsdsClientImpl(this); 
+    Q_ASSERT(d_ptr);
+} 
  

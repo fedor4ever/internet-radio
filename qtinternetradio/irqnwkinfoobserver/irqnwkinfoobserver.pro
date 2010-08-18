@@ -19,6 +19,7 @@ TARGET.CAPABILITY = CAP_GENERAL_DLL ReadDeviceData
 
 MOC_DIR = moc
 DEPENDPATH += src
+DEFINES += BUILD_IRQNWKINFOOBSERVER_DLL
 defFilePath = ..
 
 INCLUDEPATH += inc
@@ -26,17 +27,18 @@ INCLUDEPATH += inc
 symbian{
   TARGET.UID3 = 0xe906e618
   TARGET.EPOCALLOWDLLDATA = 1
+  MMP_RULES += SMPSAFE
 }
 
 LIBS += -letel3rdparty
 
 # Input
-HEADERS += inc\irqnwkinfoobserver.h \
-           inc\irqnwkinfoobserverimpl.h \
-           inc\irqnwkobserverinterface.h
+HEADERS += inc/irqnwkinfoobserverexport.h \
+           inc/irqnwkinfoobserver.h \
+           inc/irqnwkinfoobserver_p.h \
 
 SOURCES += irqnwkinfoobserver.cpp \
-           irqnwkinfoobserverimpl.cpp
+           irqnwkinfoobserver_p.cpp
 
 SYMBIAN_PLATFORMS = WINSCW ARMV5
 

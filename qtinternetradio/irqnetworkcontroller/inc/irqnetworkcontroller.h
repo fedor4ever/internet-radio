@@ -18,11 +18,13 @@
 #define IRQNETWORKCONTROLLER_H_
 
 #include <QObject>
+#include <QMutex>
 
+#include "irqnetworkcontrollerexport.h"
 #include "irqenums.h"
 #include "irqevent.h"
 
-class IRQNetworkControllerBody;
+class IRQNetworkControllerPrivate;
 
 /**
  * This class provides the interface to IR Network Controller component
@@ -32,7 +34,7 @@ class IRQNetworkControllerBody;
  *
  */
 
-class IRQNetworkController : public QObject
+class IRQNETWORKCONTROLLER_DLL_EXPORT IRQNetworkController : public QObject
 {
     Q_OBJECT
 
@@ -42,72 +44,72 @@ public:
      *  Get the instance of IRQNetworkController
      *  @return IRQNetworkController*
      */
-    IMPORT_C static  IRQNetworkController* openInstance();
+    static  IRQNetworkController* openInstance();
 
     /**
      *  Close the instance of IRQNetworkController
      */
-    IMPORT_C void closeInstance();
+    void closeInstance();
 
     /**
      *  Return the variable which indicates if connection is active or not
      *  @return bool
      */
-    IMPORT_C bool getNetworkStatus() const;
+    bool getNetworkStatus() const;
 
     /**
      *  Return the IAP Id of the chosen IAP
      *  @return int Error code
      */
-    IMPORT_C IRQError getIAPId(unsigned long& aIapId) const;
+    IRQError getIAPId(unsigned long& aIapId) const;
     
     /**
      *  Configure the Access Point which is used by all the components for network connectivity
      */
-    IMPORT_C void  chooseAccessPoint();
+    void  chooseAccessPoint();
 
     /*
      * Cancel configuring access point
      */
-    IMPORT_C void cancelConnecting();
+    void cancelConnecting();
     
     /**
      *  This api is used to determine if the phone is in offline mode
      *  @return True if the phone is in offline mode else False
      */
-    IMPORT_C bool isOfflineMode();
+    bool isOfflineMode();
 
     /**
      *  This api is used to determine if the phone supports WLan usage
      *  @return True if the phone supports else False
      */
-    IMPORT_C bool isWlanSupported() const;
+    bool isWlanSupported() const;
 
     /**
      *  Reset the connection status to Disconnected state
      */
-    IMPORT_C void resetConnectionStatus();
+    void resetConnectionStatus();
 
     /**
      *  Used to determine the type of connection
      *  @return enum describing the type of connection ( GPRS/3G/WiFi )
      */
-    IMPORT_C IRQConnectionType identifyConnectionType() const;
+    IRQConnectionType identifyConnectionType() const;
 
     /**
      *  Notifies all observers whose network request is active to reissue the request
      */
-    IMPORT_C void notifyActiveNetworkObservers(IRQNetworkEvent aEvent);
+    void notifyActiveNetworkObservers(IRQNetworkEvent aEvent);
 
     /**
      *  Indicates if the hand over of network connection has happened
      */
-    IMPORT_C bool isHandlingOverConnection();
+    bool isHandlingOverConnection();
 
     /**
      *  Indicates if chooseAccessPoint is called
      */
-    IMPORT_C bool isConnectRequestIssued() const;
+    bool isConnectRequestIssued() const;
     
 signals:
 
@@ -131,14 +133,8 @@ signals:
      */
     void errorOccured(IRQError aError);
 
-private:
-    /**
-     *  Creates IRQNetworkController instance
-     */
-    static IRQNetworkController* createInstanceL();
-        
-    void constructL();
-
+private:     
+    
     /**
      *  Default C++ Constructor
      */
@@ -150,16 +146,35 @@ private:
     ~IRQNetworkController();
 
 private:
-
-    /**
-     *  IRQNetworkControllerBody instance
-     */
-    IRQNetworkControllerBody* iBody;
-
+    
     /**
      * Number of objects currently referring to the singleton object IRQNetworkController
      */
-    int iSingletonInstances;
+    int mRefCount;
+    
+    /**
+     * The instance of IRQStatisticsReporter singleton
+     */
+    static IRQNetworkController *mInstance;
+    
+    /**
+     * Mutex for the thread-safe of openInstance()
+     */
+    static QMutex mMutex;
+        
+    /**
+     *  IRQNetworkControllerPrivate instance
+     */
+    IRQNetworkControllerPrivate* const d_ptr;
+    
+    /**
+     *  The successful mark for initialization of private data
+     */
+    bool mInitPrivateSuccess;
+     
+    Q_DISABLE_COPY(IRQNetworkController)
+    
+    friend class IRQNetworkControllerPrivate;
 };
 
 #endif /* IRQNETWORKCONTROLLER_H_ */

@@ -19,13 +19,12 @@
 #include <hbapplication.h>
 #include <qcoreapplication.h>
 #include <hbdevicemessagebox.h>
-#include <hbprogressdialog.h>
-#include <QLocalServer>
-#include <QLocalSocket>
+#include <hbprogressdialog.h> 
 #include <QFile>
 #include <QTextStream>
 #include <QDir>
 #include <hbmessagebox.h>
+#include <HbEvent>
 
 #include <xqserviceutil.h>
 #include <hbiconitem.h>
@@ -38,10 +37,7 @@
 #include <QDateTime>
 #endif
 
-#ifdef LOCALIZATION 
-#include <QTranslator>
-#include "irqutility.h" 
-#endif
+ 
 
 #include "irviewmanager.h"
 #include "irapplication.h"
@@ -87,12 +83,8 @@ IRApplication::IRApplication(IRViewManager* aViewManager, IRQSystemEventHandler*
                                      iAdvertisementClient(NULL),                                    
                                      iEnableGlobalAdv(true),
                                      iDisconnected(false),
-                                     iConnectingCanceled(false),
-                                     iLocalServer(NULL),
-                                     iLoadingNote(NULL),
-                                     #ifdef LOCALIZATION
-                                     iTranslator(NULL),
-                                     #endif
+                                     iConnectingCanceled(false),                                     
+                                     iLoadingNote(NULL), 
                                      iSystemEventHandler(aSystemEventHandler), 
                                      iUseNetworkReason(EIR_UseNetwork_NoReason),									 
                                      iAppFullyStarted(false),
@@ -101,7 +93,8 @@ IRApplication::IRApplication(IRViewManager* aViewManager, IRQSystemEventHandler*
                                      iMonitorService(NULL),
 									 #endif                                     
                                      iFileViewService(NULL),
-                                     iMessageBox(NULL)
+                                     iMessageBox(NULL),
+                                     iIsEmbedded(XQServiceUtil::isEmbedded())
                                      
 {
     LOG_METHOD;
@@ -118,7 +111,7 @@ IRApplication::IRApplication(IRViewManager* aViewManager, IRQSystemEventHandler*
     iSettings->getGlobalAdvFlag(iEnableGlobalAdv);
     setupConnection();
     
-    if (!XQServiceUtil::isService())
+    if ( !iIsEmbedded )
     {
         setLaunchView();
     }
@@ -141,14 +134,12 @@ IRApplication::~IRApplication()
 {
     LOG_METHOD;
     setExitingView();
-    iViewManager->saveActivity();
-    
-    destroyComponents();
-    
-    if (iLocalServer)
+    if (iViewManager)
     {
-        iLocalServer->close();
+        iViewManager->saveActivity();
     }
+    
+    destroyComponents(); 
     
     delete iLastPlayedStationInfo;
     iLastPlayedStationInfo = NULL;
@@ -159,25 +150,18 @@ IRApplication::~IRApplication()
     delete iMessageBox;
     iMessageBox = NULL;
     
-    delete iSystemEventHandler;
-    
-#ifdef LOCALIZATION
-    if( iTranslator )
-    {
-        qApp->removeTranslator(iTranslator);
-        delete iTranslator;
-        iTranslator = NULL;
-    }
-#endif
-    
+    delete iSystemEventHandler;   
     delete iFileViewService;
     iFileViewService = NULL;
 	
 #ifdef HS_WIDGET_ENABLED	
-    XQSettingsManager settingsManager;
-    XQPublishAndSubscribeUtils psUtils(settingsManager);
-    XQPublishAndSubscribeSettingsKey irStartupKey(KInternetRadioPSUid, KInternetRadioStartupKey);
-    psUtils.deleteProperty(irStartupKey);        
+    if( !iIsEmbedded )
+    {
+        XQSettingsManager settingsManager;
+        XQPublishAndSubscribeUtils psUtils(settingsManager);
+        XQPublishAndSubscribeSettingsKey irStartupKey(KInternetRadioPSUid, KInternetRadioStartupKey);
+        psUtils.deleteProperty(irStartupKey);           
+    }     
 #endif	
 }
 
@@ -209,10 +193,16 @@ void IRApplication::setLaunchView()
         if (EIRView_PlayingView == viewId)
         {
             //handle error case
-            if (NULL == getLastPlayedStationInfo()->getLastPlayedStation())
+            IRLastPlayedStationInfo *lastPlayedStationInfo = getLastPlayedStationInfo();            
+            if (lastPlayedStationInfo)
             {
-                viewId = EIRView_CategoryView;
-            }
+                IRQPreset *lastPreset = NULL;
+                lastPreset = lastPlayedStationInfo->getLastPlayedStation();
+                if( NULL == lastPreset )
+                {
+                    viewId = EIRView_CategoryView;
+                }
+            } 
         }
     }
     
@@ -377,6 +367,11 @@ IRPlayController* IRApplication::getPlayController()
 
 IRLastPlayedStationInfo* IRApplication::getLastPlayedStationInfo()
 {
+    if( iIsEmbedded )
+    {
+        return NULL;
+    } 
+    
     if(NULL == iLastPlayedStationInfo)
     {
         iLastPlayedStationInfo = new IRLastPlayedStationInfo();
@@ -432,16 +427,6 @@ IRPlayList* IRApplication::getPlayList() const
     return iFileViewService->getPlayList();
 }
 
-#ifdef LOCALIZATION
-/*
-* this function will take ownership of the translator
-*/
-void IRApplication::setTranslator(QTranslator* aTranslator)
-{
-    iTranslator = aTranslator;        
-}
-#endif
-
 /*
  * Description : create all the application level components, including network controller,
  *               favorites db, isds client, play controller, etc
@@ -452,8 +437,12 @@ void IRApplication::createComponents()
 {
     getSettings();
 #ifdef HS_WIDGET_ENABLED    
-    iControlService = new IrControlService(this);
-    iMonitorService = new IrMonitorService(this);	
+    if( !iIsEmbedded )
+    {
+        iControlService = new IrControlService(this);
+        iMonitorService = new IrMonitorService(this);        
+    } 
+     
 #endif	
 }
 
@@ -609,18 +598,6 @@ void IRApplication::loadGenre()
     
     IRCategoryView *categoryView = static_cast<IRCategoryView*>(getViewManager()->getView(EIRView_CategoryView, true));
     categoryView->loadCategory(IRQIsdsClient::EGenre);
-}
-
-void IRApplication::newLocalSocketConnection()
-{
-    QLocalSocket *socket = iLocalServer->nextPendingConnection();
-    if (!socket)
-    {
-        return;
-    }
-    delete socket;
-    
-    iViewManager->raise();
 } 
 
 void IRApplication::initApp()
@@ -635,19 +612,23 @@ void IRApplication::initApp()
     }
     getMediaKeyObserver();	
     startSystemEventMonitor();
-    startLocalServer();
+
+
     //when IR is running, remove activity. Otherwise user can see two items in task switcher
     iViewManager->removeActivity();
     
 #ifdef HS_WIDGET_ENABLED		
-    // Write the startup timestamp to P&S key for the homescreen widget
-    XQSettingsManager settingsManager;
-    XQPublishAndSubscribeUtils psUtils(settingsManager);
-    XQPublishAndSubscribeSettingsKey irStartupKey(KInternetRadioPSUid, KInternetRadioStartupKey);
-    if (psUtils.defineProperty(irStartupKey, XQSettingsManager::TypeInt))
+    if( !iIsEmbedded )
     {
-        settingsManager.writeItemValue(irStartupKey, (int)QDateTime::currentDateTime().toTime_t());
-    } 
+        // Write the startup timestamp to P&S key for the homescreen widget
+        XQSettingsManager settingsManager;
+        XQPublishAndSubscribeUtils psUtils(settingsManager);
+        XQPublishAndSubscribeSettingsKey irStartupKey(KInternetRadioPSUid, KInternetRadioStartupKey);
+        if (psUtils.defineProperty(irStartupKey, XQSettingsManager::TypeInt))
+        {
+            settingsManager.writeItemValue(irStartupKey, (int)QDateTime::currentDateTime().toTime_t());
+        } 
+    }
 #endif        
 }
 
@@ -729,6 +710,10 @@ bool IRApplication::isAppFullyStarted() const
     return iAppFullyStarted;
 }
 
+bool IRApplication::isEmbeddedInstance() const
+{
+    return iIsEmbedded;
+}
 void IRApplication::setExitingView()
 {  
     TIRViewId viewId = iViewManager->getExitingView();
@@ -784,69 +769,8 @@ void IRApplication::cancelPlayerLoading()
 #endif
 
 
-void IRApplication::startLocalServer()
-{
-    QString serverName = QCoreApplication::applicationName();
-    iLocalServer = new QLocalServer(this);
-    connect(iLocalServer, SIGNAL(newConnection()),
-            this, SLOT(newLocalSocketConnection()));
-    
-    if (!iLocalServer->listen(serverName)) 
-    {
-        QAbstractSocket::SocketError error = iLocalServer->serverError();
-        QString fullServerName;
-        fullServerName = QDir::cleanPath(QDir::tempPath());
-        fullServerName += QLatin1Char('/') + serverName;
-        bool fileExists = QFile::exists(fullServerName);
-        
-        if (error == QAbstractSocket::AddressInUseError && fileExists) 
-        {
-            QFile::remove(fullServerName);
-            bool ret = iLocalServer->listen(serverName);
-            //following lines aim to fix coverity errors
-            if (!ret)
-            {
-                Q_ASSERT(false);
-            }
-        }
-    }
-}
+ 
 
-bool IRApplication::eventFilter(QObject *object, QEvent *event)
-{
-    bool eventWasConsumed = false;
-
-    if (object->objectName() == ABSTRACT_LIST_VIEW_BASE_OBJECT_PLAYINGBANNER)
-    {
-        if (NULL == iViewManager->currentView())
-        {
-            return false;
-        }
-        
-        if( (EIRView_PlayingView == static_cast<IRBaseView*>(iViewManager->currentView())->id()) \
-        	||(EIRView_SearchView == static_cast<IRBaseView*>(iViewManager->currentView())->id()) )
-        {
-            return false;
-        }    
-	
-        if (event->type() == QEvent::GraphicsSceneMousePress)
-        {
-            eventWasConsumed = true;
-            Q_ASSERT(iPlayController->isPlaying());
-            IrAbstractListViewBase* listview = static_cast<IrAbstractListViewBase*>(iViewManager->currentView());
-            listview->setPlayingBannerTextColor("qtc_multimedia_trans_pressed");
-        }
-        else if(event->type() == QEvent::GraphicsSceneMouseRelease)
-        {
-            eventWasConsumed = true;
-            Q_ASSERT(iPlayController->isPlaying());
-            IrAbstractListViewBase* listview = static_cast<IrAbstractListViewBase*>(iViewManager->currentView());
-            listview->setPlayingBannerTextColor("qtc_multimedia_trans_normal");
-            iViewManager->activateView(EIRView_PlayingView);
-        }
-    }
-    return eventWasConsumed;
-}
 
 void IRApplication::startSystemEventMonitor()
 {     

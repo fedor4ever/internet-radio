@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <hbdocument version="1.1">
     <object name="go2station_act" type="HbAction">
-        <string locid="txt_irad_opt_go_to_station" name="text"/>
+        <string locid="Go to station" name="text"/>
     </object>
     <object name="share_station_act" type="HbAction">
         <string locid="txt_irad_opt_share" name="text"/>
@@ -10,7 +10,7 @@
         <string locid="txt_irad_opt_identify_song" name="text"/>
     </object>
     <object name="setting_act" type="HbAction">
-        <string locid="txt_irad_opt_network_setting" name="text"/>
+        <string locid="txt_common_opt_settings" name="text"/>
     </object>
     <object name="exit_act" type="HbAction">
         <string locid="txt_common_opt_exit" name="text"/>
@@ -42,26 +42,45 @@
                 <string name="plainText" value="Artist Name"/>
                 <fontspec name="fontSpec" role="Secondary" textheight="var(hb-param-text-height-secondary)"/>
             </widget>
-            <widget name="song_name" type="HbLabel">
-                <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
-                <sizehint height="expr(var(hb-param-text-height-primary)+2*var(hb-param-margin-label))" type="PREFERRED"/>
-                <string name="plainText" value="Song Name"/>
-                <fontspec name="fontSpec" role="Primary" textheight="var(hb-param-text-height-primary)"/>
-            </widget>
             <widget name="station_name" type="HbLabel">
                 <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
                 <sizehint height="expr(var(hb-param-text-height-secondary)+2*var(hb-param-margin-label))" type="PREFERRED"/>
                 <string name="plainText" value="Station Name"/>
                 <fontspec name="fontSpec" role="Secondary" textheight="var(hb-param-text-height-secondary)"/>
             </widget>
+            <widget name="song_name_stack_layout" type="HbWidget">
+                <widget name="song_name_label" type="HbLabel">
+                    <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
+                    <sizehint height="expr(var(hb-param-text-height-primary)+2*var(hb-param-margin-label))" type="PREFERRED"/>
+                    <string name="plainText" value="Song Name"/>
+                    <fontspec name="fontSpec" role="Primary" textheight="var(hb-param-text-height-primary)"/>
+                    <bool name="visible" value="FALSE"/>
+                </widget>
+                <widget name="song_name_marquee" type="HbMarqueeItem">
+                    <sizehint height="expr(var(hb-param-text-height-primary)+2*var(hb-param-margin-label))" type="PREFERRED"/>
+                    <fontspec name="fontSpec" role="Primary" textheight="var(hb-param-text-height-primary)"/>
+                    <bool name="visible" value="FALSE"/>
+                </widget>
+                <contentsmargins bottom="0un" left="0un" right="0un" top="0un"/>
+                <layout type="stacked">
+                    <stackitem itemname="song_name_label"/>
+                    <stackitem itemname="song_name_marquee"/>
+                </layout>
+            </widget>
             <layout orientation="Vertical" type="linear">
                 <linearitem itemname="station_logo"/>
                 <linearitem itemname="artist_name"/>
-                <linearitem itemname="song_name"/>
+                <linearitem itemname="song_name_stack_layout"/>
                 <linearitem itemname="station_name"/>
             </layout>
         </widget>
-        <widget name="viewToolbar" role="HbView:toolBar" type="HbToolBar"/>
+        <widget name="viewToolbar" role="HbView:toolBar" type="HbToolBar">
+            <enums name="orientation" value="Horizontal"/>
+            <ref object="musicstore_act" role="HbWidget:addAction"/>
+            <ref object="play_stop_act" role="HbWidget:addAction"/>
+            <ref object="add_2_fav_act" role="HbWidget:addAction"/>
+            <ref object="detail_act" role="HbWidget:addAction"/>
+        </widget>
         <string locid="txt_irad_title_internet_radio" name="title"/>
     </widget>
     <section name="song_recog_yes_section">
@@ -91,17 +110,17 @@
                 <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
                 <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
                 <sizehint height="38un" type="FIXED" width="38un"/>
-                <sizehint height="38un" type="MAXIMUM" width="38un"/>
                 <sizehint height="38un" type="MINIMUM" width="38un"/>
+                <sizehint height="38un" type="MAXIMUM" width="38un"/>
             </widget>
             <contentsmargins bottom="var(hb-param-margin-gene-screen)" left="var(hb-param-margin-gene-screen)" right="var(hb-param-margin-gene-screen)" top="var(hb-param-margin-gene-screen)"/>
             <layout type="anchor">
                 <anchoritem dst="station_name" dstEdge="LEFT" spacing="0un" src="" srcEdge="LEFT"/>
-                <anchoritem dst="station_name" dstEdge="TOP" spacing="var(hb-param-margin-gene-middle-horizontal)" src="song_name" srcEdge="BOTTOM"/>
+                <anchoritem dst="station_name" dstEdge="TOP" spacing="var(hb-param-margin-gene-middle-horizontal)" src="song_name_stack_layout" srcEdge="BOTTOM"/>
                 <anchoritem dst="station_name" dstEdge="RIGHT" spacing="0un" src="" srcEdge="RIGHT"/>
-                <anchoritem dst="song_name" dstEdge="LEFT" spacing="0un" src="" srcEdge="LEFT"/>
-                <anchoritem dst="song_name" dstEdge="TOP" spacing="var(hb-param-margin-gene-middle-horizontal)" src="artist_name" srcEdge="BOTTOM"/>
-                <anchoritem dst="song_name" dstEdge="RIGHT" spacing="0un" src="" srcEdge="RIGHT"/>
+                <anchoritem dst="song_name_stack_layout" dstEdge="LEFT" spacing="0un" src="" srcEdge="LEFT"/>
+                <anchoritem dst="song_name_stack_layout" dstEdge="TOP" spacing="var(hb-param-margin-gene-middle-horizontal)" src="artist_name" srcEdge="BOTTOM"/>
+                <anchoritem dst="song_name_stack_layout" dstEdge="RIGHT" spacing="0un" src="" srcEdge="RIGHT"/>
                 <anchoritem dst="station_logo" dstEdge="TOP" spacing="5un" src="" srcEdge="TOP"/>
                 <anchoritem dst="station_logo" dstEdge="CENTERH" spacing="0un" src="" srcEdge="CENTERH"/>
                 <anchoritem dst="artist_name" dstEdge="LEFT" spacing="0un" src="" srcEdge="LEFT"/>
@@ -123,19 +142,19 @@
             <layout type="anchor">
                 <anchoritem dst="station_logo" dstEdge="LEFT" spacing="5un" src="" srcEdge="LEFT"/>
                 <anchoritem dst="station_logo" dstEdge="TOP" spacing="5un" src="" srcEdge="TOP"/>
-                <anchoritem dst="song_name" dstEdge="LEFT" spacing="5un" src="station_logo" srcEdge="RIGHT"/>
-                <anchoritem dst="song_name" dstEdge="RIGHT" spacing="-2un" src="" srcEdge="RIGHT"/>
-                <anchoritem dst="song_name" dstEdge="CENTERV" spacing="0un" src="" srcEdge="CENTERV"/>
+                <anchoritem dst="song_name_stack_layout" dstEdge="LEFT" spacing="5un" src="station_logo" srcEdge="RIGHT"/>
+                <anchoritem dst="song_name_stack_layout" dstEdge="RIGHT" spacing="-2un" src="" srcEdge="RIGHT"/>
+                <anchoritem dst="song_name_stack_layout" dstEdge="CENTERV" spacing="0un" src="" srcEdge="CENTERV"/>
                 <anchoritem dst="artist_name" dstEdge="LEFT" spacing="5un" src="station_logo" srcEdge="RIGHT"/>
                 <anchoritem dst="artist_name" dstEdge="RIGHT" spacing="-2un" src="" srcEdge="RIGHT"/>
-                <anchoritem dst="artist_name" dstEdge="BOTTOM" spacing="-var(hb-param-margin-gene-middle-vertical)" src="song_name" srcEdge="TOP"/>
+                <anchoritem dst="artist_name" dstEdge="BOTTOM" spacing="-var(hb-param-margin-gene-middle-vertical)" src="song_name_stack_layout" srcEdge="TOP"/>
                 <anchoritem dst="station_name" dstEdge="LEFT" spacing="5un" src="station_logo" srcEdge="RIGHT"/>
-                <anchoritem dst="station_name" dstEdge="TOP" spacing="var(hb-param-margin-gene-middle-vertical)" src="song_name" srcEdge="BOTTOM"/>
+                <anchoritem dst="station_name" dstEdge="TOP" spacing="var(hb-param-margin-gene-middle-vertical)" src="song_name_stack_layout" srcEdge="BOTTOM"/>
                 <anchoritem dst="station_name" dstEdge="RIGHT" spacing="-2un" src="" srcEdge="RIGHT"/>
             </layout>
         </widget>
     </section>
-    <metadata activeUIState="prt_ui" display="NHD-3.2-inch_portrait" unit="un">
+    <metadata activeUIState="Common ui state" display="NHD-3.2-inch_portrait" unit="un">
         <uistate name="Common ui state" sections="#common"/>
         <uistate name="prt_ui" sections="#common prt_section"/>
         <uistate name="lsc_ui" sections="#common lsc_section"/>

@@ -26,6 +26,7 @@
 #include <HbLabel>
 #include <hbframedrawer.h>
 #include <hbframeitem.h>
+#include <HbColorScheme>
 
 #include "irviewmanager.h"
 #include "irabstractlistviewbase.h"
@@ -36,14 +37,14 @@
 #include "irqisdsclient.h"
 #include "irqenums.h"
 #include "iruidefines.h"
+#include "irplayingbanner.h"
  
 const int KAnimationLoopTimes = 2; // Animation loop times
 #define NOW_PLAYING_BANNER_FRAME "qtg_fr_multimedia_trans"
 
 IrAbstractListViewBase::IrAbstractListViewBase(IRApplication *aApplication, TIRViewId aViewId)
     : IRBaseView(aApplication, aViewId),
-	  iListView(NULL),
-      iPlayingBanner(NULL),
+      iListView(NULL),
       iStationName(NULL),
       iArtistSongName(NULL),
       iHeadingLabel(NULL),
@@ -64,6 +65,14 @@ IrAbstractListViewBase::IrAbstractListViewBase(IRApplication *aApplication, TIRV
     iLoader.load(ABSTRACT_LIST_VIEW_BASE_LAYOUT_FILENAME);
         
     iLoader.load(ABSTRACT_LIST_VIEW_BASE_LAYOUT_FILENAME, ABSTRACT_LIST_VIEW_BASE_NO_PLAYINGBANNER_SECTION);
+    
+#ifdef SUBTITLE_STR_BY_LOCID
+    setTitle(hbTrId("txt_irad_title_internet_radio"));
+         
+#else
+    setTitle("Internet radio");      
+#endif
+   
 }
 
 IrAbstractListViewBase::~IrAbstractListViewBase()
@@ -112,25 +121,29 @@ void IrAbstractListViewBase::initContentWidget()
     font.setBold(true);
     iHeadingLabel->setFont(font);
     
-    iPlayingBanner = qobject_cast<HbWidget *>(iLoader.findWidget(ABSTRACT_LIST_VIEW_BASE_OBJECT_PLAYINGBANNER)); 
-    iPlayingBanner->installEventFilter(iApplication);
+    IRPlayingBanner *playingBanner = qobject_cast<IRPlayingBanner *>(iLoader.findWidget(ABSTRACT_LIST_VIEW_BASE_OBJECT_PLAYINGBANNER)); 
     iStationName = qobject_cast<HbLabel *>(iLoader.findWidget(ABSTRACT_LIST_VIEW_BASE_OBJECT_STATIONNAME));
     iStationName->setFont(font);
     iArtistSongName = qobject_cast<HbMarqueeItem *>(iLoader.findWidget(ABSTRACT_LIST_VIEW_BASE_OBJECT_ARTISTSONGNAME));
     iArtistSongName->setLoopCount(KAnimationLoopTimes);
+    QColor color = HbColorScheme::color(KNowPlayingBannerColorNormal);
+    iStationName->setTextColor(color);
+    iArtistSongName->setTextColor(color);
+
+    connect(playingBanner, SIGNAL(playingBannerTapFinished()), this, SLOT(playingBannerTapFinished()));
 
     iListView = qobject_cast<HbListView *>(iLoader.findObject(ABSTRACT_LIST_VIEW_BASE_OBJECT_LISTVIEW));
     iListView->listItemPrototype()->setGraphicsSize(HbListViewItem::LargeIcon);
     
     // draw background for now playing banner
     HbFrameDrawer* drawer = new HbFrameDrawer(NOW_PLAYING_BANNER_FRAME, HbFrameDrawer::NinePieces);
-    HbFrameItem* backgroundItem = new HbFrameItem(drawer, iPlayingBanner);
+    HbFrameItem* backgroundItem = new HbFrameItem(drawer, playingBanner);
     if (backgroundItem)
     {
         // set item to fill the whole widget
-        backgroundItem->setGeometry(QRectF(QPointF(0, 0), iPlayingBanner->size()));
+        backgroundItem->setGeometry(QRectF(QPointF(0, 0), playingBanner->size()));
         backgroundItem->setZValue(0);
-        iPlayingBanner->setBackgroundItem(backgroundItem);
+        playingBanner->setBackgroundItem(backgroundItem);
     }
 }
 
@@ -151,13 +164,6 @@ void IrAbstractListViewBase::setViewParameter(TIRViewParameter aParameter)
 TIRViewParameter IrAbstractListViewBase::getViewParameter() const
 {
     return iViewParameter;
-}
-
-void IrAbstractListViewBase::setPlayingBannerTextColor(const QString &aColor)
-{
-    QColor color(aColor);
-    iStationName->setTextColor(color);
-    iArtistSongName->setTextColor(color);
 }
 
 void IrAbstractListViewBase::setCheckedAction()
@@ -372,6 +378,11 @@ void IrAbstractListViewBase::listViewLongPressed(HbAbstractViewItem *aItem, cons
 {    
     Q_UNUSED(aItem);
     Q_UNUSED(aCoords);
+}
+
+void IrAbstractListViewBase::playingBannerTapFinished()
+{
+    getViewManager()->activateView(EIRView_PlayingView);
 }
 
 void IrAbstractListViewBase::clickItem(const QModelIndex &aIndex)

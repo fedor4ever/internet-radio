@@ -17,5 +17,8 @@
 #ifndef IRHSWIDGETPLUGIN_RESOURCES_IBY
 #define IRHSWIDGETPLUGIN_RESOURCES_IBY
 
+#include <data_caging_paths_for_iby.hrh>
+
+data=DATAZ_\QT_TRANSLATIONS_DIR\iradhswidget.qm QT_TRANSLATIONS_DIR\iradhswidget.qm
 
 #endif  // IRHSWIDGETPLUGIN_RESOURCES_IBY

@@ -14,7 +14,6 @@
 * Description:
 *
 */
-#include <hbtoolbar.h>
 #include <hbaction.h>
 #include <hblistview.h>
 
@@ -204,6 +203,7 @@ void IRMainView::lazyInit()
         
         //initialization from handleCommand()
         handleCommand(EIR_ViewCommand_ACTIVATED, EIR_ViewCommandReason_Show);
+        emit applicationReady();
     }
 }
 
@@ -212,7 +212,7 @@ void IRMainView::normalInit()
     if (!initCompleted())
     {
         IrAbstractListViewBase::lazyInit();
-        initToolBar();
+        
         setCheckedAction();
         
         connect(iNetworkController, SIGNAL(networkRequestNotified(IRQNetworkEvent)),
@@ -224,13 +224,4 @@ void IRMainView::normalInit()
         
         setInitCompleted(true);
     }
-}
-
-void IRMainView::initToolBar()
-{
-    HbToolBar *viewToolBar = toolBar();
-    viewToolBar->addAction(iGenresAction);
-    viewToolBar->addAction(iCollectionsAction);
-    viewToolBar->addAction(iFavoritesAction);
-    viewToolBar->addAction(iSearchAction);
 }

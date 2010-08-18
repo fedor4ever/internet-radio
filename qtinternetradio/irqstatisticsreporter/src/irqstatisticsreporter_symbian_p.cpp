@@ -198,7 +198,7 @@ void IRQStatisticsReporterPrivate::sessionEnded(const IRQStatisticsReporter::IRT
     if(mBody && mSessionOngoing)
     {
         updateTerminatedBy(aTerminatedBy);
-        TRAP_IGNORE(mBody->SessionEndL(EFalse));
+        TRAP_IGNORE(mBody->SessionEndL());
     }
     mSessionOngoing = false;
 }

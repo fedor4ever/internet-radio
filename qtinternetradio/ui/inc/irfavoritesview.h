@@ -32,6 +32,9 @@ class IRFavoritesView : public IrAbstractListViewBase
 public:
     ~IRFavoritesView();
     
+signals:
+    void applicationReady();
+
 protected:
     IRFavoritesView(IRApplication *aApplication, TIRViewId aViewId);
     
@@ -48,6 +51,7 @@ private slots:
     void actionClicked(HbAction *aAction);
     void renameConfirmed(HbAction *aAction);
     void deleteDialogClosed(HbAction *aAction);
+    void deleteContext(HbAction *aAction);
     
 private:
     //from IrAbstractListViewBase
@@ -64,6 +68,7 @@ private:
     void renameContextAction();
     void detailsContextAction();
     void updateIconIndexArray();
+    void popupDeleteContextConfirmMessageBox();
     
     //from base view 
     void listViewLongPressed(HbAbstractViewItem *aItem, const QPointF& aCoords);

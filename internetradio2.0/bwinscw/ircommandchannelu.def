@@ -1,9 +1,0 @@
-EXPORTS
-	?AudioFadeInOut@CIRCtrlCmdObserver@@QAEXAAW4TIRControlCommmand@@H@Z @ 1 NONAME ; void CIRCtrlCmdObserver::AudioFadeInOut(enum TIRControlCommmand &, int)
-	?DoAudioFadeOut@CIRCtrlCmdObserver@@QAEXXZ @ 2 NONAME ; void CIRCtrlCmdObserver::DoAudioFadeOut(void)
-	?FetchVolume@CIRCtrlCmdObserver@@QAEHXZ @ 3 NONAME ; int CIRCtrlCmdObserver::FetchVolume(void)
-	?FilltheBuffer@CIRCtrlCmdObserver@@QAEXAAVTDes8@@@Z @ 4 NONAME ; void CIRCtrlCmdObserver::FilltheBuffer(class TDes8 &)
-	?NewL@CIRCtrlCmdObserver@@SAPAV1@PAVMIRCtrlCmdObserver@@PAVMIRStreamFill@@@Z @ 5 NONAME ; class CIRCtrlCmdObserver * CIRCtrlCmdObserver::NewL(class MIRCtrlCmdObserver *, class MIRStreamFill *)
-	?NewLC@CIRCtrlCmdObserver@@SAPAV1@PAVMIRCtrlCmdObserver@@PAVMIRStreamFill@@@Z @ 6 NONAME ; class CIRCtrlCmdObserver * CIRCtrlCmdObserver::NewLC(class MIRCtrlCmdObserver *, class MIRStreamFill *)
-	?SentRequest@CIRCtrlCmdObserver@@QAEXW4TIRControlCommmand@@H@Z @ 7 NONAME ; void CIRCtrlCmdObserver::SentRequest(enum TIRControlCommmand, int)
-

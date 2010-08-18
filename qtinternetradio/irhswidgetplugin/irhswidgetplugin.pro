@@ -15,6 +15,7 @@
 
 TEMPLATE = lib
 TARGET   = irhswidgetplugin
+TRANSLATIONS += iradhswidget.ts
 CONFIG += plugin mobility hb
 MOBILITY = serviceframework
 
@@ -50,10 +51,10 @@ symbian: {
     widgetResources.path = $${DESTDIR}
     widgetResources.sources += resource/$${TARGET}.xml    
     widgetResources.sources += resource/$${TARGET}.manifest
-    widgetResources.sources += resource/$${TARGET}.png
         
     DEPLOYMENT += plugins \
                   widgetResources
+    MMP_RULES += SMPSAFE
 }
 
 win32: {
@@ -69,7 +70,7 @@ win32: {
     DESTDIR = $$PWD/../../../../bin/$${SUBDIRPART}/$${PLUGIN_SUBDIR}
 
     manifest.path = $${DESTDIR}
-    manifest.files = ./resource/*.manifest ./resource/*.xml ./resource/*.png
+    manifest.files = ./resource/*.manifest ./resource/*.xml
     
     INSTALLS += manifest    
     

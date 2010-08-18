@@ -19,22 +19,24 @@ TARGET.CAPABILITY = CAP_GENERAL_DLL
 
 MOC_DIR = moc
 DEPENDPATH += src
+DEFINES += BUILD_IRQSETTINGS_DLL
 defFilePath = ..
 
 INCLUDEPATH += inc \
-               ..\irqcommon\inc \
-               ..\..\internetradio2.0\settingsinc
+               ../irqcommon/inc \
+               ../../internetradio2.0/inc
 
-LIBS += -lirsettings
+LIBS += -lxqsettingsmanager
 
 symbian{
   TARGET.UID3 = 0xe7437cbb
   TARGET.EPOCALLOWDLLDATA = 1
+  MMP_RULES += SMPSAFE
 }
 
 # Input
-HEADERS += inc\irqsettings.h
-SOURCES += irqsettings.cpp
+HEADERS += inc/irqsettings.h inc/irqsettings_p.h
+SOURCES += irqsettings.cpp irqsettings_p.cpp
 
 SYMBIAN_PLATFORMS = WINSCW ARMV5
 

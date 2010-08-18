@@ -26,6 +26,8 @@
 #include <hblabel.h> 
 #include <hbiconanimationmanager.h>
 #include <HbGroupBox>
+#include <qinputcontext.h>
+#include <qapplication.h>
 
 #include "irsearchchannelsview.h"
 #include "iruidefines.h"
@@ -36,6 +38,8 @@
 #include "irchannelmodel.h"
 #include "irqisdsdatastructure.h"
 #include "irplaycontroller.h"
+#include "irqlogger.h"
+#include "irqsettings.h"
  
 const uint KBitmapSize = 59;
 
@@ -45,6 +49,8 @@ IRSearchChannelsView::IRSearchChannelsView(IRApplication* aApplication,
         iChannelModel(NULL),iPreset(NULL),iLogoPreset(NULL),
         iConvertTimer(NULL) 
 {
+    LOG_METHOD;
+    iSettings = IRQSettings::openInstance();    
     //if this view is not starting view, finish all initialization in constructor
     if (getViewManager()->views().count() > 0)
     {
@@ -57,6 +63,7 @@ IRSearchChannelsView::IRSearchChannelsView(IRApplication* aApplication,
 
 void IRSearchChannelsView::lazyInit()
 {
+    LOG_METHOD;
     if (!initCompleted())
     {
         normalInit();                     
@@ -65,6 +72,7 @@ void IRSearchChannelsView::lazyInit()
 
 void IRSearchChannelsView::normalInit()
 {
+    LOG_METHOD;
     if (!initCompleted())
     { 
         IRBaseView::lazyInit();
@@ -79,6 +87,7 @@ void IRSearchChannelsView::normalInit()
 
 void IRSearchChannelsView::initMenu()
 {
+    LOG_METHOD;
     HbMenu *viewMenu = menu();
     QObject *exitAction = iLoader.findObject(EXIT_ACTION);
     connect(exitAction, SIGNAL(triggered()), iApplication, SIGNAL(quit()));
@@ -86,6 +95,7 @@ void IRSearchChannelsView::initMenu()
 
 void IRSearchChannelsView::initTimer()
 {     
+    LOG_METHOD;
     iConvertTimer = new QTimer(this);
     iConvertTimer->setInterval(10); 
     
@@ -96,6 +106,14 @@ void IRSearchChannelsView::initTimer()
 
 IRSearchChannelsView::~IRSearchChannelsView()
 {   
+    LOG_METHOD;
+    
+    if (iSettings)
+    {
+        iSettings->setSearchText(iKeyText);
+        iSettings->closeInstance();
+    }    
+    
     if( iPreset != NULL )
     {
         delete iPreset;
@@ -117,6 +135,7 @@ IRSearchChannelsView::~IRSearchChannelsView()
 
 void IRSearchChannelsView::loadLayout()
 {
+    LOG_METHOD;
     // Create widget hierarchy
     setObjectName( SEARCH_CHANNELS_VIEW_OBJECT_VIEW );
     // List existing root elements - this allows us to refer to objects in the XML 
@@ -127,7 +146,11 @@ void IRSearchChannelsView::loadLayout()
     iLoader.load(SEARCH_CHANNELS_VIEW_LAYOUT_FILENAME);   
     
     iSearchPanelWidget = qobject_cast<HbSearchPanel *>(iLoader.findWidget(SEARCH_CHANNELS_VIEW_SEARCHPANEL_WIDGET));    
-    
+    QString searchText;
+    iSettings->getSearchText(searchText);
+    iKeyText = searchText;
+    iSearchPanelWidget->setCriteria(searchText);
+   
     iListView = qobject_cast<HbListView *>(iLoader.findWidget(SEARCH_CHANNELS_VIEW_SEARCHLISTVIEW_WIDGET));   
     iListView->setFlag(ItemIsFocusable);
     HbScrollBar *scrollbar = iListView->verticalScrollBar();
@@ -137,11 +160,23 @@ void IRSearchChannelsView::loadLayout()
     
     iChannelModel = new IrChannelModel(this);
     iChannelModel->initWithCache();
-    iListView->setModel(iChannelModel);     
+    iListView->setModel(iChannelModel);
+    scrollbar->setValue(0.0);    
+    
+    iListView->installEventFilter(this);
+          
+#ifdef SUBTITLE_STR_BY_LOCID
+    setTitle(hbTrId("txt_irad_title_internet_radio"));
+         
+#else
+    setTitle("Internet radio");      
+#endif
+
 }
 
 void IRSearchChannelsView::connectWidget()
 {     
+    LOG_METHOD;
     connect(iListView, SIGNAL(activated(const QModelIndex&)), this, SLOT(clickItem(const QModelIndex&)));
     connect(iChannelModel, SIGNAL(dataAvailable()), this, SLOT(dataChanged()));
     connect(iNetworkController, SIGNAL(networkRequestNotified(IRQNetworkEvent)), this, SLOT(networkRequestNotified(IRQNetworkEvent)));     
@@ -151,6 +186,7 @@ void IRSearchChannelsView::connectWidget()
 
 void IRSearchChannelsView::connectIsdsClient()
 {
+    LOG_METHOD;
     connect(iIsdsClient, SIGNAL(channelItemsChanged(QList<IRQChannelItem *> *)),
             iChannelModel, SLOT(updateData(QList<IRQChannelItem *> *)));    
     connect(iIsdsClient, SIGNAL(operationException(IRQError)),
@@ -167,6 +203,7 @@ void IRSearchChannelsView::connectIsdsClient()
 
 void IRSearchChannelsView::disconnectIsdsClient()
 { 
+    LOG_METHOD;
     disconnect(iIsdsClient, SIGNAL(channelItemsChanged(QList<IRQChannelItem *> *)),
             iChannelModel, SLOT(updateData(QList<IRQChannelItem *> *)));
     disconnect(iIsdsClient, SIGNAL(operationException(IRQError)), this,
@@ -181,12 +218,14 @@ void IRSearchChannelsView::disconnectIsdsClient()
 
 void IRSearchChannelsView::switch2InitState()
 {    
+    LOG_METHOD;
     iSearchState = ESearch_init;     
     iApplication->stopLoadingAnimation();
 } 
 
 void IRSearchChannelsView::switch2LoadingState()
 {   
+    LOG_METHOD;
     iSearchPanelWidget->clearFocus();
     iListView->setFocus();
     iSearchState = ESearch_Loading; 
@@ -195,6 +234,7 @@ void IRSearchChannelsView::switch2LoadingState()
 
 void IRSearchChannelsView::handleItemSelected()
 {
+    LOG_METHOD;
     if (iListView)
     {
         int index = iListView->currentIndex().row();
@@ -208,13 +248,16 @@ void IRSearchChannelsView::handleItemSelected()
 }
 
 void IRSearchChannelsView::cancelRequest()
-{     
+{   
+    LOG_METHOD;  
     iIsdsClient->isdsCancelRequest();    
     switch2InitState(); 
 } 
 
 void IRSearchChannelsView::networkRequestNotified(IRQNetworkEvent aEvent)
-{        
+{       
+    LOG_METHOD;
+    LOG_FORMAT("aEvent = %d", (int)aEvent ); 
     if (getViewManager()->currentView() != this)
     {       
         return;
@@ -245,6 +288,7 @@ void IRSearchChannelsView::networkRequestNotified(IRQNetworkEvent aEvent)
 
 void IRSearchChannelsView::searchTextAlready(const QString& aSearchCriteria)
 {
+    LOG_METHOD;
     iKeyText = aSearchCriteria.trimmed();
     
     if( iKeyText.isEmpty() )
@@ -276,6 +320,7 @@ void IRSearchChannelsView::searchTextAlready(const QString& aSearchCriteria)
 
 void IRSearchChannelsView::operationException(IRQError aError)
 {        
+    LOG_METHOD;
     switch2InitState();
     
     QString errStr;    
@@ -303,6 +348,7 @@ void IRSearchChannelsView::operationException(IRQError aError)
 
 void IRSearchChannelsView::clickItem(const QModelIndex&)
 {
+    LOG_METHOD;
     setUseNetworkReason(EIR_UseNetwork_SelectItem);
 #ifdef HS_WIDGET_ENABLED	
     int index = iListView->currentIndex().row();
@@ -323,6 +369,7 @@ void IRSearchChannelsView::clickItem(const QModelIndex&)
 
 void IRSearchChannelsView::presetResponse(IRQPreset *aPreset)
 {    
+    LOG_METHOD;
     delete iPreset;
     iPreset = aPreset;
     
@@ -334,6 +381,7 @@ void IRSearchChannelsView::presetResponse(IRQPreset *aPreset)
 
 void IRSearchChannelsView::convertAnother()
 {
+    LOG_METHOD;
     iConvertTimer->stop();
     int leftCount = iIconIndexArray.count();
     
@@ -345,12 +393,13 @@ void IRSearchChannelsView::convertAnother()
  
 void IRSearchChannelsView::dataChanged()
 {
+    LOG_METHOD;
     switch2InitState();      
     iListView->reset();
     if( iChannelModel->rowCount() )
     {
         iListView->setCurrentIndex(iChannelModel->index(0));
-        iListView->scrollTo(iChannelModel->index(0));         
+        iListView->verticalScrollBar()->setValue(0.0);
     }
     
     //we move the focus to the listview and the search panel will
@@ -375,6 +424,7 @@ void IRSearchChannelsView::dataChanged()
 
 void IRSearchChannelsView::startConvert(int aIndex)
 {
+    LOG_METHOD;
     QString url = iChannelModel->imageUrl(aIndex);
  
     IRQPreset tempPreset;
@@ -400,6 +450,7 @@ void IRSearchChannelsView::startConvert(int aIndex)
 //if the logo is downloaded ok
 void IRSearchChannelsView::presetLogoDownload(IRQPreset* aPreset)
 {
+    LOG_METHOD;
     if( NULL == aPreset )
     {
         presetLogoDownloadError();
@@ -438,6 +489,7 @@ void IRSearchChannelsView::presetLogoDownload(IRQPreset* aPreset)
 //if the logo download fails
 void IRSearchChannelsView::presetLogoDownloadError()
 {
+    LOG_METHOD;
     // if the logo download fails, try to download the next
     iIconIndexArray.removeAt(0);
     int leftCount = iIconIndexArray.count();
@@ -449,6 +501,7 @@ void IRSearchChannelsView::presetLogoDownloadError()
 
 void IRSearchChannelsView::minimizeSearchPanel()
 {
+    LOG_METHOD;
     if( ESearch_Loading == iSearchState )
     {
         iPlayController->cancelBuffering(); 
@@ -470,12 +523,16 @@ void IRSearchChannelsView::minimizeSearchPanel()
         iSearchPanelWidget->clearFocus();
         iListView->setFocus();        
     }
+
+    hideVkb();
 }
  
 
 TIRHandleResult IRSearchChannelsView::handleCommand(TIRViewCommand aCommand,
         TIRViewCommandReason aReason)
 {
+    LOG_METHOD;
+    LOG_FORMAT("aCommand = %d", (int)aCommand);
     TIRHandleResult ret = IRBaseView::handleCommand(aCommand, aReason);
     
     switch (aCommand)
@@ -502,7 +559,25 @@ TIRHandleResult IRSearchChannelsView::handleCommand(TIRViewCommand aCommand,
     return ret;
 }
 
-
- 
+bool IRSearchChannelsView::eventFilter(QObject *object, QEvent *event)
+{
+    if( object == iListView
+        && event->type() == QEvent::FocusOut )
+    {
+        hideVkb();
+    }
+  
+    return false;
+}
+void IRSearchChannelsView::hideVkb()
+{
+    QInputContext *ic = qApp->inputContext(); 
+    if (ic)
+    {
+        QEvent *event = new QEvent(QEvent::CloseSoftwareInputPanel);
+        ic->filterEvent(event);
+        delete event;
+    }
+}
 
 

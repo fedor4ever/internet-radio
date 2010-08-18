@@ -43,6 +43,8 @@ USERINCLUDE             ../rfsplugininc
 APP_LAYER_SYSTEMINCLUDE
 SYSTEMINCLUDE   OS_LAYER_PUBLIC_EXPORT_PATH(ecom)
 
+SMPSAFE
+
 LIBRARY                 ecom.lib
 LIBRARY                 efsrv.lib
 LIBRARY                 euser.lib

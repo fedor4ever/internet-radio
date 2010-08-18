@@ -135,11 +135,11 @@ void IRBaseView::popupNote(const QString &aNote, const HbMessageBox::MessageBoxT
     switch (aNoteType)
     {
     case HbMessageBox::MessageTypeInformation:
-        HbMessageBox::information(aNote, (QObject*)NULL, NULL);
+        HbMessageBox::information(aNote, (QObject*)NULL, NULL, HbMessageBox::Ok);
         break;
         
     case HbMessageBox::MessageTypeWarning:
-        HbMessageBox::warning(aNote, (QObject*)NULL, NULL);
+        HbMessageBox::warning(aNote, (QObject*)NULL, NULL, HbMessageBox::Ok);
         break;
         
     default:

@@ -77,9 +77,9 @@ IRHistoryView::IRHistoryView(IRApplication *aApplication, TIRViewId aViewId) :
 void IRHistoryView::popupClearHistoryConfirmMessageBox()
 {
 #ifdef SUBTITLE_STR_BY_LOCID
-    HbMessageBox::question(hbTrId("txt_irad_info_clear_station_list"), this, SLOT(clearAllList(HbAction*)), hbTrId("txt_common_button_ok"), hbTrId("txt_common_button_cancel"));
+    HbMessageBox::question(hbTrId("txt_irad_info_clear_station_list"), this, SLOT(clearAllList(HbAction*)), HbMessageBox::Ok | HbMessageBox::Cancel);
 #else
-    HbMessageBox::question(hbTrId("Clear station list?"), this, SLOT(clearAllList(HbAction*)), hbTrId("Ok"), hbTrId("Cancel"));    
+    HbMessageBox::question(hbTrId("Clear station list?"), this, SLOT(clearAllList(HbAction*)), HbMessageBox::Ok | HbMessageBox::Cancel);    
 #endif
 }
 /* 

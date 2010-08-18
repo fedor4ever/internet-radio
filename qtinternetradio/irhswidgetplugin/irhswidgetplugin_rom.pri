@@ -22,6 +22,6 @@ BLD_INF_RULES.prj_exports += \
 "rom/irhswidgetplugin.iby  CORE_APP_LAYER_IBY_EXPORT_PATH(irhswidgetplugin.iby)"
 
 #iby exports to language
-#BLD_INF_RULES.prj_exports += \
-#"rom/irhswidgetplugin_resources.iby  LANGUAGE_APP_LAYER_IBY_EXPORT_PATH(irhswidgetplugin_resources.iby)"
+BLD_INF_RULES.prj_exports += \
+"rom/irhswidgetplugin_resources.iby  LANGUAGE_APP_LAYER_IBY_EXPORT_PATH(irhswidgetplugin_resources.iby)"
 

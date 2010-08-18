@@ -16,10 +16,10 @@
 */
 #ifndef IRQISDSDATASTRUCTURE_H
 #define IRQISDSDATASTRUCTURE_H
+
+#include "irqcommonexport.h"
 #include <QList>
 #include <QString>
-
-#include <e32base.h>
 
 #define DEBUG_ISDS_DATA 0
 
@@ -55,7 +55,7 @@ public:
    int     bitrate;
 };
 
-class IRQPreset
+class IRQCOMMMON_DLL_EXPORT IRQPreset
 {
 public:
   enum IRQPresetType  
@@ -65,40 +65,40 @@ public:
     };
   
    
-   IMPORT_C IRQPreset();
-   IMPORT_C ~IRQPreset();  
-   IMPORT_C IRQPreset& operator = (const IRQPreset& aOther); 
+   IRQPreset();
+   ~IRQPreset();  
+   IRQPreset& operator = (const IRQPreset& aOther); 
    
-   IMPORT_C void internalize(QDataStream &aStream);
-   IMPORT_C void externalize(QDataStream &aStream) const;
+   void internalize(QDataStream &aStream);
+   void externalize(QDataStream &aStream) const;
    
    /* get the bitrates of the preset.
     */
-   IMPORT_C void getAvailableBitrates(QList<int>& aBitrates) const;
+   void getAvailableBitrates(QList<int>& aBitrates) const;
    /* get the url for the specify bitrate
     * the caller should delete the QList */
-   IMPORT_C QList<QString> * getURLsForBitrate(int aBitrate) const;
+   QList<QString> * getURLsForBitrate(int aBitrate) const;
    /* the following functions may be changed in future */
-   IMPORT_C int getChannelUrlAt(int aIndex, QString& aURL) const;   
-   IMPORT_C int getChannelBitrate(unsigned int aIndex, unsigned int &aBitrate) const;    
+   int getChannelUrlAt(int aIndex, QString& aURL) const;   
+   int getChannelBitrate(unsigned int aIndex, unsigned int &aBitrate) const;    
    
    /* sort the urlArray with bitrates by ascending. for 
     * there are not many items, here we use bubble sorting.
     */
-   IMPORT_C void sortURLArray();
+   void sortURLArray();
    /* check wether the internal list is sorted 
     */
-   IMPORT_C bool isSorted() const;
+   bool isSorted() const;
    /* append a channel server into a internal list 
     */
-   IMPORT_C void insertChannelServer(const IRQChannelServerURL& aURL);
+   void insertChannelServer(const IRQChannelServerURL& aURL);
    /* clear the internal list 
     */
-   IMPORT_C void clearChannelServerList();   
+   void clearChannelServerList();   
    
-   IMPORT_C int getChannelURLCount() const;
+   int getChannelURLCount() const;
    
-   IMPORT_C bool setUrlBitrate(const unsigned int aUrlIndex, const unsigned int aBitrate);
+   bool setUrlBitrate(const unsigned int aUrlIndex, const unsigned int aBitrate);
   
    int uniqID; //unique id generated for the preset saved at favourite
    

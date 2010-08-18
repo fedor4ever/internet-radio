@@ -24,9 +24,9 @@ defFilePath = ..
 MOC_DIR = moc
 DEPENDPATH = src
 
-INCLUDEPATH += ../../internetradio2.0/favoritesdbinc \
-               ../../internetradio2.0/datastructuresinc \
-               ../../internetradio2.0/presetplugininc  \
+INCLUDEPATH += ../../internetradio2.0/irfavoritesdb/inc \
+               ../../internetradio2.0/ircommon/inc \
+               ../../internetradio2.0/irpresetplugin/inc  \
                ../irqcommon/inc \
                ../../presetserver/include \
                ../../presetserver/clientinc \
@@ -41,6 +41,7 @@ LIBS += -lirdatastructures \
 symbian{
   TARGET.UID3 = 0xecbde2d8
   TARGET.EPOCALLOWDLLDATA = 1
+  MMP_RULES += SMPSAFE
 }
 
 

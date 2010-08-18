@@ -17,6 +17,7 @@ include(../common.pri)
 
 TEMPLATE = app
 TARGET = internet_radio_10_1
+TRANSLATIONS += internet_radio_10_1.ts
 TARGET.CAPABILITY += NetworkServices  AllFiles  ReadDeviceData WriteDeviceData ReadUserData WriteUserData
 
 MOC_DIR = moc
@@ -27,55 +28,47 @@ INCLUDEPATH += $${OS_LAYER_PUBLIC_EXPORT_PATH(http)}
 INCLUDEPATH += $${MW_LAYER_PUBLIC_EXPORT_PATH(http)}
 
 #the following is for splash screen in phone
-BLD_INF_RULES.prj_exports += "resources/splashscreen/internet_radio_default.splashml       /epoc32/data/z/resource/hb/splashml/internet_radio_default.splashml" \
-                             "resources/splashscreen/internet_radio_default.docml          /epoc32/data/z/resource/hb/splashml/internet_radio_default.docml" \
-                             "resources/splashscreen/internet_radio_normal.splashml        /epoc32/data/z/resource/hb/splashml/internet_radio_normal.splashml" \
+BLD_INF_RULES.prj_exports += "resources/splashscreen/internet_radio_normal.splashml        /epoc32/data/z/resource/hb/splashml/internet_radio_normal.splashml" \
                              "resources/splashscreen/internet_radio_normal.docml           /epoc32/data/z/resource/hb/splashml/internet_radio_normal.docml" \
                              "resources/splashscreen/internet_radio_nowplaying.splashml    /epoc32/data/z/resource/hb/splashml/internet_radio_nowplaying.splashml" \
-                             "resources/splashscreen/internet_radio_nowplaying.docml       /epoc32/data/z/resource/hb/splashml/internet_radio_nowplaying.docml"
+                             "resources/splashscreen/internet_radio_nowplaying.docml       /epoc32/data/z/resource/hb/splashml/internet_radio_nowplaying.docml" \
+                             "resources/splashscreen/internet_radio_termscons.splashml     /epoc32/data/z/resource/hb/splashml/internet_radio_termscons.splashml" \
+                             "resources/splashscreen/internet_radio_termscons.docml        /epoc32/data/z/resource/hb/splashml/internet_radio_termscons.docml"
 
 #the following is for splash screen in winscw_udeb
-BLD_INF_RULES.prj_exports += "resources/splashscreen/internet_radio_default.splashml      /epoc32/release/winscw/udeb/z/resource/hb/splashml/internet_radio_default.splashml" \
-                             "resources/splashscreen/internet_radio_default.docml         /epoc32/release/winscw/udeb/z/resource/hb/splashml/internet_radio_default.docml" \
-                             "resources/splashscreen/internet_radio_normal.splashml       /epoc32/release/winscw/udeb/z/resource/hb/splashml/internet_radio_normal.splashml" \
+BLD_INF_RULES.prj_exports += "resources/splashscreen/internet_radio_normal.splashml       /epoc32/release/winscw/udeb/z/resource/hb/splashml/internet_radio_normal.splashml" \
                              "resources/splashscreen/internet_radio_normal.docml          /epoc32/release/winscw/udeb/z/resource/hb/splashml/internet_radio_normal.docml" \
                              "resources/splashscreen/internet_radio_nowplaying.splashml   /epoc32/release/winscw/udeb/z/resource/hb/splashml/internet_radio_nowplaying.splashml" \
-                             "resources/splashscreen/internet_radio_nowplaying.docml      /epoc32/release/winscw/udeb/z/resource/hb/splashml/internet_radio_nowplaying.docml" 
-                                                      
+                             "resources/splashscreen/internet_radio_nowplaying.docml      /epoc32/release/winscw/udeb/z/resource/hb/splashml/internet_radio_nowplaying.docml" \
+                             "resources/splashscreen/internet_radio_termscons.splashml    /epoc32/release/winscw/udeb/z/resource/hb/splashml/internet_radio_termscons.splashml" \
+                             "resources/splashscreen/internet_radio_termscons.docml       /epoc32/release/winscw/udeb/z/resource/hb/splashml/internet_radio_termscons.docml" 
 
 #the following is for splash screen in winscw_urel
-BLD_INF_RULES.prj_exports += "resources/splashscreen/internet_radio_default.splashml      /epoc32/release/winscw/urel/z/resource/hb/splashml/internet_radio_default.splashml" \
-                             "resources/splashscreen/internet_radio_default.docml         /epoc32/release/winscw/urel/z/resource/hb/splashml/internet_radio_default.docml" \
-                             "resources/splashscreen/internet_radio_normal.splashml       /epoc32/release/winscw/urel/z/resource/hb/splashml/internet_radio_normal.splashml" \
+BLD_INF_RULES.prj_exports += "resources/splashscreen/internet_radio_normal.splashml       /epoc32/release/winscw/urel/z/resource/hb/splashml/internet_radio_normal.splashml" \
                              "resources/splashscreen/internet_radio_normal.docml          /epoc32/release/winscw/urel/z/resource/hb/splashml/internet_radio_normal.docml" \
                              "resources/splashscreen/internet_radio_nowplaying.splashml   /epoc32/release/winscw/urel/z/resource/hb/splashml/internet_radio_nowplaying.splashml" \
-                             "resources/splashscreen/internet_radio_nowplaying.docml      /epoc32/release/winscw/urel/z/resource/hb/splashml/internet_radio_nowplaying.docml"                            
-                              
+                             "resources/splashscreen/internet_radio_nowplaying.docml      /epoc32/release/winscw/urel/z/resource/hb/splashml/internet_radio_nowplaying.docml" \                         
+                             "resources/splashscreen/internet_radio_termscons.splashml    /epoc32/release/winscw/urel/z/resource/hb/splashml/internet_radio_termscons.splashml" \
+                             "resources/splashscreen/internet_radio_termscons.docml       /epoc32/release/winscw/urel/z/resource/hb/splashml/internet_radio_termscons.docml"
+                             
 
 
 INCLUDEPATH += inc \
-               ..\irqisdsclient\inc \
-               ..\irqmediaplayer\inc \
-               ..\irqcommon\inc \
-               ..\irqstatisticsreporter\inc \
-               ..\irqfavoritesdb\inc \
-               ..\irqnetworkcontroller\inc \
-               ..\irqsonghistory\inc \
-               ..\irqsettings\inc    \                
-               ..\irqlogger\inc \                      
-               ..\irqsystemeventhandler\inc
+               ../irqisdsclient/inc \
+               ../irqmediaplayer/inc \
+               ../irqcommon/inc \
+               ../irqstatisticsreporter/inc \
+               ../irqfavoritesdb/inc \
+               ../irqnetworkcontroller/inc \
+               ../irqsonghistory/inc \
+               ../irqsettings/inc    \                
+               ../irqlogger/inc \                      
+               ../irqsystemeventhandler/inc
 
 CONFIG += hb service
 QT += sql
 
 SERVICE.FILE = service_conf.xml
-
-exists($${OS_LAYER_PLATFORM_EXPORT_PATH(qt/translations/internet_radio_10_1*.ts)}) {           
-       TRANSLATIONS = internet_radio_10_1.ts
-       message( "LOALIZATION IS TURNED ON" )   
-       DEFINES += LOCALIZATION     
-}
-
 
 LIBS += -lirqnetworkcontroller \         
         -lirqisdsclient \
@@ -101,45 +94,47 @@ symbian{
   SKINICON = qtg_large_internet_radio
   datatype_list = "datatype_list={DATATYPE{priority=EDataTypePriorityHigh;type=\"audio/x-scpls\";}};"
   RSS_RULES += datatype_list 
+  MMP_RULES += SMPSAFE
 }
 
 #input
 #header files list
-HEADERS += inc\irapplication.h \
-           inc\irviewmanager.h \
-           inc\irbaseview.h \
-           inc\irmainview.h \
-           inc\irmainmodel.h \
-           inc\ircategoryview.h \      
-           inc\irstationsview.h \  
-           inc\irnowplayingview.h \
-           inc\irplaycontroller.h \
-           inc\ircategorymodel.h \
-           inc\irchannelmodel.h \
-           inc\irabstractlistviewbase.h \
-           inc\irfavoritesview.h \
-           inc\irfavoritesmodel.h \
-           inc\irhistoryview.h \
-           inc\irsonghistoryview.h \
-           inc\irsettingsview.h \
-           inc\irlastplayedstationinfo.h \
-           inc\iropenwebaddressview.h \
-           inc\irhistorymodel.h \
-           inc\irsonghistorymodel.h \            
-           inc\irsearchchannelsview.h \
-           inc\irdocumentloader.h \           
-           inc\irmediakeyobserver.h \
-           inc\irplsmodel.h \
-           inc\irplsview.h \
-           inc\irmemorycollector.h \
-           inc\irstationshare.h \
-           inc\irstationdetailsview.h \
-           inc\irtermsconsview.h \
-           inc\ircontrolservice.h \
-           inc\irmonitorservice.h \           
-           inc\irplaylist.h \
-           inc\irsearchresultdb.h \
-           inc\irfileviewservice.h
+HEADERS += inc/irapplication.h \
+           inc/irviewmanager.h \
+           inc/irbaseview.h \
+           inc/irmainview.h \
+           inc/irmainmodel.h \
+           inc/ircategoryview.h \      
+           inc/irstationsview.h \  
+           inc/irnowplayingview.h \
+           inc/irplaycontroller.h \
+           inc/ircategorymodel.h \
+           inc/irchannelmodel.h \
+           inc/irabstractlistviewbase.h \
+           inc/irfavoritesview.h \
+           inc/irfavoritesmodel.h \
+           inc/irhistoryview.h \
+           inc/irsonghistoryview.h \
+           inc/irsettingsview.h \
+           inc/irlastplayedstationinfo.h \
+           inc/iropenwebaddressview.h \
+           inc/irhistorymodel.h \
+           inc/irsonghistorymodel.h \            
+           inc/irsearchchannelsview.h \
+           inc/irdocumentloader.h \           
+           inc/irmediakeyobserver.h \
+           inc/irplsmodel.h \
+           inc/irplsview.h \
+           inc/irmemorycollector.h \
+           inc/irstationshare.h \
+           inc/irstationdetailsview.h \
+           inc/irtermsconsview.h \
+           inc/ircontrolservice.h \
+           inc/irmonitorservice.h \           
+           inc/irplaylist.h \
+           inc/irsearchresultdb.h \
+           inc/irfileviewservice.h \
+           inc/irplayingbanner.h
            
 #source files list
 SOURCES += main.cpp  \
@@ -177,7 +172,8 @@ SOURCES += main.cpp  \
            irmonitorservice.cpp \
            irplaylist.cpp \
            irsearchresultdb.cpp \
-           irfileviewservice.cpp
+           irfileviewservice.cpp \
+           irplayingbanner.cpp
           	   
 #resource
 RESOURCES += resources/irui.qrc

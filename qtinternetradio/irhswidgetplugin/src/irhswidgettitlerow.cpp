@@ -21,6 +21,8 @@
 #include <HbLabel>
 #include <HbColorScheme>
 #include <HbStyleLoader>
+#include <HbTapGesture>
+#include <HbEvent>
 
 // User includes
 #include "irhswidgettitlerow.h"
@@ -33,7 +35,7 @@ static const QString KIrHsWidgetTitleRowContainer   = "titlerow_layout";
 static const QString KIrHsWidgetStationLogo         = "station_logo";
 static const QString KNmHsWidgetStationName         = "station_name";
 
-static const QString KStationNameColor      = "qtc_hs_list_item_title";
+static const QString KStationNameColor      = "qtc_hs_list_item_title_normal";
 static const QString KDefaultStationLogo    = "qtg_large_internet_radio";
 
 static const int KIrHsWidgetContentsMargin  = 0;
@@ -45,6 +47,7 @@ IrHsWidgetTitleRow::IrHsWidgetTitleRow(QGraphicsItem *aParent, Qt::WindowFlags a
     mStationName(NULL)
 {
     loadUi();
+    grabGesture(Qt::TapGesture);
 }
 
 IrHsWidgetTitleRow::~IrHsWidgetTitleRow()
@@ -75,9 +78,9 @@ void IrHsWidgetTitleRow::loadUi()
 void IrHsWidgetTitleRow::setDefaultTitle()
 {
 #ifdef SUBTITLE_STR_BY_LOCID 
-    mStationName->setPlainText(hbTrId("txt_irad_title_internet_radio"));
+    mStationName->setPlainText(hbTrId("txt_ir_list_internet_radio"));
 #else
-    mStationName->setPlainText(hbTrId("Internet radio"));    
+    mStationName->setPlainText(hbTrId("Internet Radio"));    
 #endif
 }
 
@@ -108,9 +111,32 @@ void IrHsWidgetTitleRow::setDefaultLogo()
     mStationLogo->setIcon(KDefaultStationLogo);
 }
 
-
-void IrHsWidgetTitleRow::mousePressEvent(QGraphicsSceneMouseEvent *aEvent)
+void IrHsWidgetTitleRow::gestureEvent(QGestureEvent *aEvent)
 {
-    Q_UNUSED(aEvent); 
-	emit titleRowClicked();
+    HbTapGesture *tapGesture = qobject_cast<HbTapGesture *>(aEvent->gesture(Qt::TapGesture));
+    if (!tapGesture)
+    {
+        return;
+    }
+    
+    if (Qt::GestureFinished == tapGesture->state()
+        && HbTapGesture::Tap == tapGesture->tapStyleHint())
+    {
+        emit titleRowClicked();
+    }
+}
+
+//Implemented to receive theme change event
+//@param QEvent, The change events to be received  
+//
+void IrHsWidgetTitleRow::changeEvent(QEvent *event)
+{
+    if (HbEvent::ThemeChanged == event->type())
+    {
+        // get the text color from theme and 
+        // set it to station name label
+        mStationName->setTextColor(HbColorScheme::color(KStationNameColor));
+    }
+    
+    HbWidget::changeEvent(event);
 }

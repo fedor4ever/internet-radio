@@ -131,8 +131,23 @@ TIRHandleResult IRSongHistoryView::handleCommand(TIRViewCommand aCommand,
  */
 void IRSongHistoryView::handleItemSelected()
 {     
+#ifdef STATISTIC_REPORT_TEST_ENABLED
+    // TODO : have to save preset id related to the song
+    iStatisticsReporter->logNmsEvent(IRQStatisticsReporter::EIRNmsFind,0);  
+    popupNote("Find in Music Store ...", HbMessageBox::MessageTypeInformation);
+#else
     int index = iListView->currentIndex().row();
     IRQSongInfo *hisInfo = iModel->getSongHistoryInfo(index); 
+
+    if( hisInfo && ( 0 != hisInfo->getMusicshopStatus().compare("yes",Qt::CaseInsensitive) ) )
+    {
+#ifdef SUBTITLE_STR_BY_LOCID
+        popupNote(hbTrId("txt_irad_info_not_allowed_by_this_station"), HbMessageBox::MessageTypeInformation);
+#else
+        popupNote(hbTrId("Not allowed by station"), HbMessageBox::MessageTypeInformation);        
+#endif
+        return;
+    }
     
     if( (NULL == hisInfo) ||    
         ( hisInfo->getSongName().isEmpty() &&  
@@ -140,7 +155,11 @@ void IRSongHistoryView::handleItemSelected()
         )
       )
     {
+#ifdef SUBTITLE_STR_BY_LOCID
         popupNote(hbTrId("txt_irad_info_no_song_info"), HbMessageBox::MessageTypeInformation);
+#else
+        popupNote(hbTrId("No song info"), HbMessageBox::MessageTypeInformation);        
+#endif  
         return;
     }
 
@@ -149,8 +168,9 @@ void IRSongHistoryView::handleItemSelected()
 #ifdef SUBTITLE_STR_BY_LOCID
     popupNote(hbTrId("txt_irad_info_music_store_not_available"), HbMessageBox::MessageTypeInformation);
 #else
-    popupNote(hbTrId("Music store not available"), HbMessageBox::MessageTypeInformation);    
-#endif
+    popupNote(hbTrId("Music store not ready"), HbMessageBox::MessageTypeInformation);    
+#endif // SUBTITLE_STR_BY_LOCID
+#endif // STATISTIC_REPORT_TEST_ENABLED
 }
    
 
@@ -204,9 +224,9 @@ void IRSongHistoryView::newMetadataAdded(IRQMetaData *aMetadata)
 void IRSongHistoryView::popupClearHistoryConfirmMessageBox()
 {
 #ifdef SUBTITLE_STR_BY_LOCID
-    HbMessageBox::question(hbTrId("txt_irad_info_clear_song_list"), this, SLOT(clearList(HbAction*)), hbTrId("txt_common_button_ok"), hbTrId("txt_common_button_cancel"));
+    HbMessageBox::question(hbTrId("txt_irad_info_clear_song_list"), this, SLOT(clearList(HbAction*)), HbMessageBox::Ok | HbMessageBox::Cancel);
 #else
-    HbMessageBox::question(hbTrId("Clear song list?"), this, SLOT(clearList(HbAction*)), hbTrId("Ok"), hbTrId("Cancel"));    
+    HbMessageBox::question(hbTrId("Clear song list?"), this, SLOT(clearList(HbAction*)), HbMessageBox::Ok | HbMessageBox::Cancel);    
 #endif
 }
 void IRSongHistoryView::clearList(HbAction *aAction)
@@ -265,12 +285,7 @@ void IRSongHistoryView::listViewLongPressed(HbAbstractViewItem *aItem, const QPo
 
 void IRSongHistoryView::searchInMusicStoreContextAction()
 {
-    // Need to log the find song in NMS event, iStatisticsReporter->logNmsEvent(IRQStatisticsReporter::EIRFind,channelId);  
-#ifdef SUBTITLE_STR_BY_LOCID
-    popupNote(hbTrId("txt_irad_info_music_store_not_available"), HbMessageBox::MessageTypeInformation);
-#else
-    popupNote(hbTrId("Music store not available"), HbMessageBox::MessageTypeInformation);    
-#endif
+    handleItemSelected();
 }
 void IRSongHistoryView::deleteContextAction()
 {

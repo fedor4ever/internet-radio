@@ -4,7 +4,7 @@ EXPORTS
 	_ZN11IRQSongInfo13setArtistNameERK7QString @ 3 NONAME
 	_ZN11IRQSongInfo14setStationNameERK7QString @ 4 NONAME
 	_ZN11IRQSongInfo18setMusicshopStatusERK7QString @ 5 NONAME
-	_ZN18CIRSongHistoryInfo14SetHistoryInfoER6RBuf16S1_S1_S1_iiiS1_S1_S1_S1_S1_S1_ @ 6 NONAME
+	_ZN18CIRSongHistoryInfo15SetHistoryInfoLER6RBuf16S1_S1_S1_iiiS1_S1_S1_S1_S1_S1_ @ 6 NONAME
 	_ZN18CIRSongHistoryInfo4NewLEv @ 7 NONAME
 	_ZN18CIRSongHistoryInfo5NewLCEv @ 8 NONAME
 	_ZN18CIRSongHistoryInfoD0Ev @ 9 NONAME

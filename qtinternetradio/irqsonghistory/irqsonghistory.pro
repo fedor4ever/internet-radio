@@ -18,26 +18,27 @@ TARGET.CAPABILITY = CAP_GENERAL_DLL
 
 defFilePath = ..
 
-DEPENDPATH += src ..\..\internetradio2.0\songhistorysrc
+DEPENDPATH += src ../../internetradio2.0/irsonghistory/src
 LIBS += -lbafl -ledbms -lefsrv -lirsettings -lflogger
 
 INCLUDEPATH += inc \
-               ..\irqmediaplayer\inc \
-               ..\irqcommon\inc \
-               ..\..\internetradio2.0\songhistoryinc \
-               ..\..\internetradio2.0\settingsinc \
-               ..\..\internetradio2.0\include
+               ../irqmediaplayer/inc \
+               ../irqcommon/inc \
+               ../../internetradio2.0/irsettings/inc \
+               ../../internetradio2.0/inc \
+               ../../internetradio2.0/irsonghistory/inc \
 
 MOC_DIR = moc
 
 symbian{
   TARGET.UID3 = 0xe009dfe1
   TARGET.EPOCALLOWDLLDATA = 1
+  MMP_RULES += SMPSAFE
 }
 
 # Input
-HEADERS += inc\irqsonghistoryengine.h \
-           inc\irqsonghistoryinfo.h
+HEADERS += inc/irqsonghistoryengine.h \
+           inc/irqsonghistoryinfo.h
 
 SOURCES += irqsonghistoryengine.cpp \
            irqsonghistoryinfo.cpp \

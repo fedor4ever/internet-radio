@@ -27,25 +27,25 @@ EXPORTS
 	?GetBitrate@CIRSongHistoryInfo@@QBEHXZ @ 26  NONAME ; int CIRSongHistoryInfo::GetBitrate(void) const
 	?getArtistName@IRQSongHistoryInfo@@QBEABVQString@@XZ @ 27  NONAME ; class QString const & IRQSongHistoryInfo::getArtistName(void) const
 	?GetGenreName@CIRSongHistoryInfo@@QBEABVRBuf16@@XZ @ 28  NONAME ; class RBuf16 const & CIRSongHistoryInfo::GetGenreName(void) const
-	?SetHistoryInfo@CIRSongHistoryInfo@@QAEXAAVRBuf16@@000HHH000000@Z @ 29  NONAME ; void CIRSongHistoryInfo::SetHistoryInfo(class RBuf16 &, class RBuf16 &, class RBuf16 &, class RBuf16 &, int, int, int, class RBuf16 &, class RBuf16 &, class RBuf16 &, class RBuf16 &, class RBuf16 &, class RBuf16 &)
-	?getMusicStoreStatus@IRQSongHistoryInfo@@QBEABVQString@@XZ @ 30  NONAME ; class QString const & IRQSongHistoryInfo::getMusicStoreStatus(void) const
-	?getGenreName@IRQSongHistoryInfo@@QBEABVQString@@XZ @ 31  NONAME ; class QString const & IRQSongHistoryInfo::getGenreName(void) const
-	?getBitrate@IRQSongHistoryInfo@@QBEHXZ @ 32  NONAME ; int IRQSongHistoryInfo::getBitrate(void) const
-	?getMusicshopStatus@IRQSongInfo@@QBEABVQString@@XZ @ 33  NONAME ; class QString const & IRQSongInfo::getMusicshopStatus(void) const
-	?GetChannelName@CIRSongHistoryInfo@@QBEABVRBuf16@@XZ @ 34  NONAME ; class RBuf16 const & CIRSongHistoryInfo::GetChannelName(void) const
-	?NewL@CIRSongHistoryInfo@@SAPAV1@XZ @ 35  NONAME ; class CIRSongHistoryInfo * CIRSongHistoryInfo::NewL(void)
-	?updateSongHistoryDb@IRQSongHistoryEngine@@QAEXHABVQString@@000000@Z @ 36  NONAME ; void IRQSongHistoryEngine::updateSongHistoryDb(int, class QString const &, class QString const &, class QString const &, class QString const &, class QString const &, class QString const &, class QString const &)
-	?getLanguageName@IRQSongHistoryInfo@@QBEABVQString@@XZ @ 37  NONAME ; class QString const & IRQSongHistoryInfo::getLanguageName(void) const
-	?setSongName@IRQSongInfo@@QAEXABVQString@@@Z @ 38  NONAME ; void IRQSongInfo::setSongName(class QString const &)
-	?getArtistName@IRQSongInfo@@QBEABVQString@@XZ @ 39  NONAME ; class QString const & IRQSongInfo::getArtistName(void) const
-	?setAllInfo@IRQSongInfo@@QAEXABVQString@@000@Z @ 40  NONAME ; void IRQSongInfo::setAllInfo(class QString const &, class QString const &, class QString const &, class QString const &)
-	?deleteOneSongHistoryItem@IRQSongHistoryEngine@@QAE_NH@Z @ 41  NONAME ; bool IRQSongHistoryEngine::deleteOneSongHistoryItem(int)
-	?setArtistName@IRQSongInfo@@QAEXABVQString@@@Z @ 42  NONAME ; void IRQSongInfo::setArtistName(class QString const &)
-	?openInstance@IRQSongHistoryEngine@@SAPAV1@XZ @ 43  NONAME ; class IRQSongHistoryEngine * IRQSongHistoryEngine::openInstance(void)
-	?clearAllHistory@IRQSongHistoryEngine@@QAEHXZ @ 44  NONAME ; int IRQSongHistoryEngine::clearAllHistory(void)
-	?deleteOneItem@IRQSongHistoryEngine@@QAE_NH@Z @ 45  NONAME ; bool IRQSongHistoryEngine::deleteOneItem(int)
-	?clearAllSongHistory@IRQSongHistoryEngine@@QAEHXZ @ 46  NONAME ; int IRQSongHistoryEngine::clearAllSongHistory(void)
-	?getSongName@IRQSongHistoryInfo@@QBEABVQString@@XZ @ 47  NONAME ; class QString const & IRQSongHistoryInfo::getSongName(void) const
+	?getMusicStoreStatus@IRQSongHistoryInfo@@QBEABVQString@@XZ @ 29  NONAME ; class QString const & IRQSongHistoryInfo::getMusicStoreStatus(void) const
+	?getGenreName@IRQSongHistoryInfo@@QBEABVQString@@XZ @ 30  NONAME ; class QString const & IRQSongHistoryInfo::getGenreName(void) const
+	?getBitrate@IRQSongHistoryInfo@@QBEHXZ @ 31  NONAME ; int IRQSongHistoryInfo::getBitrate(void) const
+	?getMusicshopStatus@IRQSongInfo@@QBEABVQString@@XZ @ 32  NONAME ; class QString const & IRQSongInfo::getMusicshopStatus(void) const
+	?GetChannelName@CIRSongHistoryInfo@@QBEABVRBuf16@@XZ @ 33  NONAME ; class RBuf16 const & CIRSongHistoryInfo::GetChannelName(void) const
+	?NewL@CIRSongHistoryInfo@@SAPAV1@XZ @ 34  NONAME ; class CIRSongHistoryInfo * CIRSongHistoryInfo::NewL(void)
+	?updateSongHistoryDb@IRQSongHistoryEngine@@QAEXHABVQString@@000000@Z @ 35  NONAME ; void IRQSongHistoryEngine::updateSongHistoryDb(int, class QString const &, class QString const &, class QString const &, class QString const &, class QString const &, class QString const &, class QString const &)
+	?getLanguageName@IRQSongHistoryInfo@@QBEABVQString@@XZ @ 36  NONAME ; class QString const & IRQSongHistoryInfo::getLanguageName(void) const
+	?setSongName@IRQSongInfo@@QAEXABVQString@@@Z @ 37  NONAME ; void IRQSongInfo::setSongName(class QString const &)
+	?getArtistName@IRQSongInfo@@QBEABVQString@@XZ @ 38  NONAME ; class QString const & IRQSongInfo::getArtistName(void) const
+	?setAllInfo@IRQSongInfo@@QAEXABVQString@@000@Z @ 39  NONAME ; void IRQSongInfo::setAllInfo(class QString const &, class QString const &, class QString const &, class QString const &)
+	?deleteOneSongHistoryItem@IRQSongHistoryEngine@@QAE_NH@Z @ 40  NONAME ; bool IRQSongHistoryEngine::deleteOneSongHistoryItem(int)
+	?setArtistName@IRQSongInfo@@QAEXABVQString@@@Z @ 41  NONAME ; void IRQSongInfo::setArtistName(class QString const &)
+	?openInstance@IRQSongHistoryEngine@@SAPAV1@XZ @ 42  NONAME ; class IRQSongHistoryEngine * IRQSongHistoryEngine::openInstance(void)
+	?clearAllHistory@IRQSongHistoryEngine@@QAEHXZ @ 43  NONAME ; int IRQSongHistoryEngine::clearAllHistory(void)
+	?deleteOneItem@IRQSongHistoryEngine@@QAE_NH@Z @ 44  NONAME ; bool IRQSongHistoryEngine::deleteOneItem(int)
+	?clearAllSongHistory@IRQSongHistoryEngine@@QAEHXZ @ 45  NONAME ; int IRQSongHistoryEngine::clearAllSongHistory(void)
+	?getSongName@IRQSongHistoryInfo@@QBEABVQString@@XZ @ 46  NONAME ; class QString const & IRQSongHistoryInfo::getSongName(void) const
+	?SetHistoryInfoL@CIRSongHistoryInfo@@QAEXAAVRBuf16@@000HHH000000@Z @ 47  NONAME ; void CIRSongHistoryInfo::SetHistoryInfoL(class RBuf16 &, class RBuf16 &, class RBuf16 &, class RBuf16 &, int, int, int, class RBuf16 &, class RBuf16 &, class RBuf16 &, class RBuf16 &, class RBuf16 &, class RBuf16 &)
 	?getChannelName@IRQSongHistoryInfo@@QBEABVQString@@XZ @ 48  NONAME ; class QString const & IRQSongHistoryInfo::getChannelName(void) const
 	?handleSongMetaDataReceivedL@IRQSongHistoryEngine@@AAEXABVIRQMetaData@@ABVIRQPreset@@@Z @ 49  NONAME ; void IRQSongHistoryEngine::handleSongMetaDataReceivedL(class IRQMetaData const &, class IRQPreset const &)
 	??1CIRSongHistoryInfo@@UAE@XZ @ 50  NONAME ; CIRSongHistoryInfo::~CIRSongHistoryInfo(void)

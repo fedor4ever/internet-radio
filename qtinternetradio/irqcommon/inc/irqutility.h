@@ -18,36 +18,37 @@
 #define _IRQUTILITY_H
 
 #include "irqenums.h"
+#include "irqcommonexport.h"
 
 class IRQPreset;
 class CIRPreset;
 class CIRIsdsPreset; 
 class QString;
 
-class IRQUtility 
+class IRQCOMMMON_DLL_EXPORT IRQUtility 
 {
 public:
   
   /* convert the CIRIsdsPreset to the IRQPreset. 
    */
-  IMPORT_C static void convertCIRIsdsPreset2IRQPrest(const CIRIsdsPreset& aCIRIsdsPreset, IRQPreset& aQIRPreset);
+  static void convertCIRIsdsPreset2IRQPrest(const CIRIsdsPreset& aCIRIsdsPreset, IRQPreset& aQIRPreset);
   /* convert the IRQPreset to the CIRIsdsPreset 
    */
-  IMPORT_C static void convertIRQPreset2CIRIsdsPreset(const IRQPreset& aQIRPreset, CIRIsdsPreset& aCIRIsdsPreset);
+  static void convertIRQPreset2CIRIsdsPreset(const IRQPreset& aQIRPreset, CIRIsdsPreset& aCIRIsdsPreset);
   /* convert CIRPreset to the IRQPreset 
    */
-  IMPORT_C static void convertCIRPreset2IRQPreset(const CIRPreset& aCIRPreset, IRQPreset& aIRQPreset);
+  static void convertCIRPreset2IRQPreset(const CIRPreset& aCIRPreset, IRQPreset& aIRQPreset);
   /* switch from the symbian error code to the IRQ error code 
    */
-  IMPORT_C static void convertSError2QError(const int aSError, int& aQError);
+  static void convertSError2QError(const int aSError, int& aQError);
 
-  IMPORT_C static bool isValidUrl(const QString& aUrl);
+  static bool isValidUrl(const QString& aUrl);
 
-  IMPORT_C static bool openAdvLink(const QString& aUrl);
+  static bool openAdvLink(const QString& aUrl);
   
-  IMPORT_C static bool openSongRecognition();
+  static bool findAppByUid(const int aUid);
   
-  IMPORT_C static bool identifySongAvailable();
+  static bool launchAppByUid(const int aUid);
   
 private:
   

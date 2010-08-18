@@ -17,7 +17,7 @@ TARGET = irqmediaplayer
 TARGET.CAPABILITY = CAP_GENERAL_DLL
 
 defFilePath = ..
-DEFINES += MMFADAPTER
+DEFINES += MMFADAPTER BUILD_IRQMEDIAPLAYER_DLL
 
 DEPENDPATH += src
 LIBS += -lmediaclientvideo \
@@ -29,8 +29,8 @@ LIBS += -lmediaclientvideo \
 INCLUDEPATH += $$APP_LAYER_SYSTEMINCLUDE 
 
 INCLUDEPATH += inc  \
-               ..\irqcommon\inc \
-               ..\irqlogger\inc            
+               ../irqcommon/inc \
+               ../irqlogger/inc            
                 
                         
                   
@@ -40,13 +40,14 @@ symbian{
   TARGET.UID3 = 0xea3ed061
   TARGET.EPOCALLOWDLLDATA = 1
   TARGET.VID = VID_DEFAULT
+  MMP_RULES += SMPSAFE
 }
 
 # Input
-HEADERS += inc\irqplayeradapterinterface.h \
-           inc\irqmediaplayer.h  \
-           inc\irqmmfadapter.h  \
-           inc\irqphononadapter.h
+HEADERS += inc/irqplayeradapterinterface.h \
+           inc/irqmediaplayer.h  \
+           inc/irqmmfadapter.h  \
+           inc/irqphononadapter.h
 
 SOURCES += irqmediaplayer.cpp \
            irqmmfadapter.cpp \

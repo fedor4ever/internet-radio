@@ -3,4 +3,8 @@
         <file>resource/irhswidgetmetadatarow.docml</file>
         <file>resource/irhswidgettitlerow.docml</file>
     </qresource>
+    
+    <qresource>
+        <file>resource/irhswidget_color.css</file>
+    </qresource> 
 </RCC>

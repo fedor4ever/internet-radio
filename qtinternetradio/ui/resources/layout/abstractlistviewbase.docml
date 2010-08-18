@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <hbdocument context="IrAbstractListViewBase" version="0.9">
     <object name="go2station_act" type="HbAction">
-        <string locid="txt_irad_opt_go_to_station" name="text"/>
+        <string locid="Go to station" name="text"/>
     </object>
     <object name="setting_act" type="HbAction">
         <string locid="txt_common_opt_settings" name="text"/>
@@ -37,7 +37,7 @@
                 <fontspec name="fontSpec" role="Secondary" textheight="var(hb-param-text-height-secondary)"/>
             </widget>
             <widget name="listView" type="HbListView"/>
-            <widget name="playingBanner" type="HbWidget">
+            <widget name="playingBanner" type="IRPlayingBanner">
                 <widget name="stationName" type="HbLabel">
                     <sizepolicy horizontalPolicy="Expanding" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
                     <string name="alignment" value="AlignVCenter|AlignLeft"/>
@@ -68,7 +68,7 @@
         <string locid="txt_irad_title_internet_radio" name="title"/>
     </widget>
     <section name="section_with_playingbanner">
-        <widget name="playingBanner" type="HbWidget">
+        <widget name="playingBanner" type="IRPlayingBanner">
             <bool name="visible" value="TRUE"/>
         </widget>
         <widget name="view_container" role="HbView:widget" type="HbWidget">
@@ -81,7 +81,7 @@
         </widget>
     </section>
     <section name="section_no_playingbanner">
-        <widget name="playingBanner" type="HbWidget">
+        <widget name="playingBanner" type="IRPlayingBanner">
             <bool name="visible" value="FALSE"/>
         </widget>
         <widget name="view_container" role="HbView:widget" type="HbWidget">
@@ -101,12 +101,21 @@
         </widget>
     </section>
     <section name="section_with_toolbar_no_heading">
+        <widget name="ext-IrAbstractListViewBase" type="HbView">
+            <widget name="toolbar" role="HbView:toolBar" type="HbToolBar">
+                <enums name="orientation" value="Horizontal"/>
+                <ref object="genres" role="HbToolBar:addAction"/>
+                <ref object="collections" role="HbToolBar:addAction"/>
+                <ref object="favorites" role="HbToolBar:addAction"/>
+                <ref object="search" role="HbToolBar:addAction"/>
+            </widget>
+        </widget>
         <widget name="headingText" type="HbGroupBox">
             <sizehint height="0un" type="PREFERRED"/>
             <sizehint height="0un" type="MAXIMUM"/>
             <bool name="visible" value="FALSE"/>
         </widget>
-    </section> 
+    </section>
     <metadata activeUIState="Common ui state" display="NHD portrait" unit="un">
         <uistate name="Common ui state" sections="#common"/>
         <uistate name="with_playingbanner" sections="#common section_with_playingbanner"/>

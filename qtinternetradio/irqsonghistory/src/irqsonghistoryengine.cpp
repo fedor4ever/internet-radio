@@ -165,7 +165,7 @@ void IRQSongHistoryEngine::handleMetaDataReceivedL(const IRQMetaData& aMetaData,
     TPtrC channelName(reinterpret_cast<const TUint16*>(aPreset.name.utf16()), aPreset.name.length());
     TPtrC channelDesc(reinterpret_cast<const TUint16*>(aPreset.description.utf16()), aPreset.description.length());
     TPtrC imageUrl(reinterpret_cast<const TUint16*>(aPreset.imgUrl.utf16()), aPreset.imgUrl.length());
-    TPtrC genreName(reinterpret_cast<const TUint16*>(aPreset.genreName.utf16()), aPreset.genreName.length());
+    TPtrC genreName(reinterpret_cast<const TUint16*>(aPreset.genreName.utf16()), aPreset.genreName.length()>KMaxColumnLength ? KMaxColumnLength : aPreset.genreName.length());
     TPtrC countryName(reinterpret_cast<const TUint16*>(aPreset.countryName.utf16()), aPreset.countryName.length());
     TPtrC languageName(reinterpret_cast<const TUint16*>(aPreset.languageName.utf16()), aPreset.languageName.length());
     TPtrC musicFlag(reinterpret_cast<const TUint16*>(aPreset.musicStoreStatus.utf16()), aPreset.musicStoreStatus.length());

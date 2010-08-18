@@ -35,8 +35,7 @@ class IRMediaKeyObserver;
 class IRLastPlayedStationInfo;
 class IRQFavoritesDB;
 class IRQNetworkController;
-class IRQDiskSpaceWatcher;
-class QLocalServer;
+class IRQDiskSpaceWatcher; 
 class IRQAdvClient;
 class HbProgressDialog;
 class IRQSystemEventHandler;
@@ -45,12 +44,11 @@ class IRPlayList;
 class IrMonitorService;
 class IrControlService;
 #endif 
+
 class IRFileViewService;
 class HbMessageBox;
 
-#ifdef LOCALIZATION
-class QTranslator;
-#endif
+ 
 
 class IRApplication : public QObject
 {
@@ -89,13 +87,7 @@ public:
     void launchStartingView(TIRViewId aViewId);
     
     bool isAppFullyStarted() const;
-    
-#ifdef LOCALIZATION
-    /*
-     * this function will take ownership of the translator
-     */
-    void setTranslator(QTranslator* aTranslator);
-#endif
+    bool isEmbeddedInstance() const;
 	
     //from QObject
     bool event(QEvent* e);
@@ -112,8 +104,7 @@ private slots:
     //connect to signal 'networkEventNotified' from IRQNetworkController
     void networkEventNotified(IRQNetworkEvent aEvent);
     void cancelConnect();
-    void loadGenre();
-    void newLocalSocketConnection();
+    void loadGenre();     
     void handleDiskSpaceLow(qint64 aCriticalLevel);
     void handleTermsConsAccepted();
     void handleCallActivated();
@@ -130,8 +121,6 @@ private:
     void setExitingView(); 
     TIRHandleResult handleConnectionEstablished();
     
-    void startLocalServer();
-    bool eventFilter(QObject *object, QEvent *event);
     
 #ifdef _DEBUG
     void readConfiguration();
@@ -166,16 +155,9 @@ private:
 
     QEvent::Type iInitEvent;
 
-    QString iConnectingText;
+    QString iConnectingText;     
     
-    QLocalServer *iLocalServer;
-    
-    HbProgressDialog *iLoadingNote;
-    
-#ifdef LOCALIZATION
-    QTranslator  *iTranslator;
-#endif
-    
+    HbProgressDialog *iLoadingNote;    
     IRQSystemEventHandler *iSystemEventHandler;    	
     TIRUseNetworkReason iUseNetworkReason;	
     
@@ -188,6 +170,7 @@ private:
       
     IRFileViewService   *iFileViewService;
     HbMessageBox *iMessageBox;
+	bool          iIsEmbedded;
 };
 
 #endif

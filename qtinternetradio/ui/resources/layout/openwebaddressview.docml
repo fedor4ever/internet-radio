@@ -12,10 +12,12 @@
                 <sizepolicy horizontalPolicy="Expanding" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
                 <sizehint height="expr(var(hb-param-text-height-secondary)+2*var(hb-param-margin-gene-middle-vertical))" type="FIXED"/>
                 <fontspec name="fontSpec" role="Secondary" textheight="var(hb-param-text-height-secondary)"/>
-                <string locid="txt_irad_opt_go_to_station" name="heading"/>
+                <string locid="Go to station" name="heading"/>
             </widget>
             <widget name="internalContainer" type="HbWidget">
-                <widget name="dataForm" type="HbDataForm"/>
+                <widget name="dataForm" type="HbDataForm">
+                    <enums name="clampingStyle" value="StrictClamping"/>
+                </widget>
                 <widget name="playButton" type="HbPushButton">
                     <bool name="checkable" value="FALSE"/>
                     <bool name="stretched" value="TRUE"/>

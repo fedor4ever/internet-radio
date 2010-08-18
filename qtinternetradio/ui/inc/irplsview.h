@@ -43,8 +43,7 @@ private:
     void itemAboutToBeSelected(bool &aNeedNetwork);    
 #endif
     void handleItemSelected();
-    void listViewLongPressed(HbAbstractViewItem *aItem, const QPointF &aCoords);
-    void launchAction();
+    void listViewLongPressed(HbAbstractViewItem *aItem, const QPointF &aCoords);    
     
 private:
     IRPlsModel *iPlsModel;

@@ -28,7 +28,7 @@ DEPENDPATH = src
 INCLUDEPATH += $$APP_LAYER_SYSTEMINCLUDE
 
 INCLUDEPATH += inc \
-               ../../internetradio2.0/include
+               ../../internetradio2.0/inc
 
 LIBS += -lflogger
         
@@ -36,6 +36,7 @@ symbian{
   TARGET.UID3 = 0xEc6eac02
   TARGET.EPOCALLOWDLLDATA = 1
   TARGET.CAPABILITY += CAP_GENERAL_DLL
+  MMP_RULES += SMPSAFE
 }
        
 #header files list

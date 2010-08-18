@@ -20,12 +20,10 @@
 #define __INTERNETRADIO_IBY__
 
 ECOM_PLUGIN(irfilerecognizer.dll, 2000B4A9.rsc)
-ECOM_PLUGIN(presetplugin.dll, 2000B4AA.rsc)
+ECOM_PLUGIN(irpresetplugin.dll, 2000B4AA.rsc)
 ECOM_PLUGIN(irrfsplugin.dll, 2000b4ac.rsc)
 
 data=ZPRIVATE\2000B499\backup_registration.xml                  private\2000B499\backup_registration.xml
-
-data=DATAZ_\RESOURCE_FILES_DIR\irsettings.rsc	                RESOURCE_FILES_DIR\irsettings.rsc
 
 file=ABI_DIR\BUILD_DIR\irdatastructures.dll                      SHARED_LIB_DIR\irdatastructures.dll
 file=ABI_DIR\BUILD_DIR\irdataprovider.dll			 SHARED_LIB_DIR\irdataprovider.dll
@@ -37,7 +35,7 @@ file=ABI_DIR\BUILD_DIR\irnetworkcontroller.dll                   SHARED_LIB_DIR\
 file=ABI_DIR\BUILD_DIR\irsettings.dll                          SHARED_LIB_DIR\irsettings.dll
 file=ABI_DIR\BUILD_DIR\irsessionlog.dll                          SHARED_LIB_DIR\irsessionlog.dll
 
-data=DATAZ_\RESOURCE_FILES_DIR\plugins\presetplugin.rsc         	RESOURCE_FILES_DIR\plugins\presetplugin.rsc
+data=DATAZ_\RESOURCE_FILES_DIR\plugins\irpresetplugin.rsc         	RESOURCE_FILES_DIR\plugins\irpresetplugin.rsc
 data=DATAZ_\RESOURCE_FILES_DIR\plugins\irrfsplugin.rsc  			RESOURCE_FILES_DIR\plugins\irrfsplugin.rsc
 data=DATAZ_\RESOURCE_FILES_DIR\plugins\irfilerecognizer.rsc			RESOURCE_FILES_DIR\plugins\irfilerecognizer.RSC
 

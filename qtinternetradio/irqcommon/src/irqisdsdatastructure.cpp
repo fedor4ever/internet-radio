@@ -31,19 +31,19 @@ void IRQChannelServerURL::externalize(QDataStream &aStream) const
 
 //we need to initialize all the member for sometimes, it will 
 //crash by overflow if we don't do this. 
-EXPORT_C IRQPreset::IRQPreset():uniqID(0),type(0),presetId(0),
+IRQPreset::IRQPreset():uniqID(0),type(0),presetId(0),
                                 iIsSorted(false),iChannelUrlCount(0)
 {
  
 }
 
-EXPORT_C IRQPreset::~IRQPreset()
+IRQPreset::~IRQPreset()
 {
     urlArray.clear();
     logoData.Close();
 }
 
-EXPORT_C IRQPreset& IRQPreset::operator =(const IRQPreset& aOther)
+IRQPreset& IRQPreset::operator =(const IRQPreset& aOther)
 {
     if (this == &aOther)
         return *this;
@@ -83,7 +83,7 @@ EXPORT_C IRQPreset& IRQPreset::operator =(const IRQPreset& aOther)
     return *this;
 }
 
-EXPORT_C void IRQPreset::internalize(QDataStream &aStream)
+void IRQPreset::internalize(QDataStream &aStream)
 {
     aStream>>uniqID>>presetId>>type>>iChannelUrlCount;
     
@@ -104,7 +104,7 @@ EXPORT_C void IRQPreset::internalize(QDataStream &aStream)
     }
 }
 
-EXPORT_C void IRQPreset::externalize(QDataStream &aStream) const
+void IRQPreset::externalize(QDataStream &aStream) const
 {
     aStream<<uniqID<<presetId<<type<<iChannelUrlCount;
     
@@ -123,7 +123,7 @@ EXPORT_C void IRQPreset::externalize(QDataStream &aStream) const
 }
    
 //get the bitrates of the preset. Duplicated bitrate will just save once.
-EXPORT_C void IRQPreset::getAvailableBitrates(QList<int>& aBitrates) const
+void IRQPreset::getAvailableBitrates(QList<int>& aBitrates) const
 {
     aBitrates.clear();
     int bitrate = 0;
@@ -141,7 +141,7 @@ EXPORT_C void IRQPreset::getAvailableBitrates(QList<int>& aBitrates) const
 //get the url for the specify bitrate
 //the caller should delete the QList 
 //
-EXPORT_C QList<QString> * IRQPreset::getURLsForBitrate(int aBitrate) const
+QList<QString> * IRQPreset::getURLsForBitrate(int aBitrate) const
 {
     int upLimit = urlArray.count();
     
@@ -173,7 +173,7 @@ EXPORT_C QList<QString> * IRQPreset::getURLsForBitrate(int aBitrate) const
 
 //the following functions may be changed in future 
 //
-EXPORT_C int IRQPreset::getChannelUrlAt(int aIndex, QString& aURL) const
+int IRQPreset::getChannelUrlAt(int aIndex, QString& aURL) const
 {
     int upLimit = urlArray.count();
 
@@ -184,7 +184,7 @@ EXPORT_C int IRQPreset::getChannelUrlAt(int aIndex, QString& aURL) const
     return EIRQErrorNone;
 }
 
-EXPORT_C int IRQPreset::getChannelBitrate(unsigned int aIndex, unsigned int &aBitrate) const
+int IRQPreset::getChannelBitrate(unsigned int aIndex, unsigned int &aBitrate) const
 {
     if ( aIndex < urlArray.count())
     {
@@ -197,14 +197,14 @@ EXPORT_C int IRQPreset::getChannelBitrate(unsigned int aIndex, unsigned int &aBi
 
 //append a channel server into a internal list 
 //
-EXPORT_C void IRQPreset::insertChannelServer(const IRQChannelServerURL& aURL)
+void IRQPreset::insertChannelServer(const IRQChannelServerURL& aURL)
 {
     urlArray.append(aURL);
     iChannelUrlCount++;
     iIsSorted = false;
 }
 
-EXPORT_C void IRQPreset::clearChannelServerList()
+void IRQPreset::clearChannelServerList()
 {
     urlArray.clear();
     iChannelUrlCount = 0;
@@ -214,7 +214,7 @@ EXPORT_C void IRQPreset::clearChannelServerList()
 //sort the urlArray with bitrates by ascending. for 
 //there are not many items, here we use bubble sorting.
 //
-EXPORT_C void IRQPreset::sortURLArray()
+void IRQPreset::sortURLArray()
 {
     if (iIsSorted)
         return;
@@ -224,7 +224,7 @@ EXPORT_C void IRQPreset::sortURLArray()
     iIsSorted = true;
 }
 
-EXPORT_C bool IRQPreset::setUrlBitrate(const unsigned int aUrlIndex, const unsigned int aBitrate)
+bool IRQPreset::setUrlBitrate(const unsigned int aUrlIndex, const unsigned int aBitrate)
 {
     if( aUrlIndex > (urlArray.count()-1) )
     {
@@ -237,12 +237,12 @@ EXPORT_C bool IRQPreset::setUrlBitrate(const unsigned int aUrlIndex, const unsig
 
 //check wether the internal list is sorted 
 //
-EXPORT_C bool IRQPreset::isSorted() const
+bool IRQPreset::isSorted() const
 {
     return iIsSorted;
 }
 
-EXPORT_C int IRQPreset::getChannelURLCount() const
+int IRQPreset::getChannelURLCount() const
 {
     return iChannelUrlCount;
 }

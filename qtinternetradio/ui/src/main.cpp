@@ -18,8 +18,10 @@
 #include <hbapplication.h>
 #include <hbdevicemessagebox.h>
 #include <QLocalSocket>
-#include <hbsplashscreen.h>
-#include <QSettings>
+#include <hbsplashscreen.h> 
+#include <hbtranslator.h> 
+
+#include <xqserviceutil.h>
 
 #include "irviewmanager.h"
 #include "irapplication.h"
@@ -28,52 +30,35 @@
 #include "irqsystemeventhandler.h"
 #include "irqsettings.h"
 #include "irservicedef.h"
+#include "irviewdefinitions.h"
+#include "irqsettings.h" 
 
-#ifdef LOCALIZATION 
-#include <QTranslator> 
-void initLanguage(QTranslator*& aTranslator);
-#endif
-
-bool isDiskSpaceLow(IRQSystemEventHandler* aEventHandler);
-bool isSecondInstance();
-void setSplashScreen();
-bool isSplashNowplaying();
+bool isDiskSpaceLow(IRQSystemEventHandler* aEventHandler); 
+void startSplashScreen();
+TIRViewId getSplashViewID(); 
 
 int main(int argc, char* argv[])
-{
-    installLogDir();
+{   
+    int  result = 0;
+	  
     
-    INSTALL_MESSAGE_HANDLER;
-    //the following is for splash screen, this must be placed 
-    //before the creating of HbApplication
-    setSplashScreen(); 
-    
-    HbApplication app(argc, argv);
-    
-#ifdef LOCALIZATION    
-    QTranslator* translator = NULL;
-    initLanguage(translator);
+    installLogDir();    
+    INSTALL_MESSAGE_HANDLER;   
+  
+    HbApplication app(argc, argv, Hb::NoSplash);
+    HbTranslator* translator = new HbTranslator();
     Q_ASSERT( NULL != translator );
-#endif
-    
-#ifdef SUBTITLE_STR_BY_LOCID
-    QCoreApplication::setApplicationName(hbTrId("txt_irad_title_internet_radio"));
-#else
-    QCoreApplication::setApplicationName(hbTrId("Internet radio"));    
-#endif
-    if (isSecondInstance())
-    {
-        return 0;
-    }
+    translator->loadCommon(); 
+     
+	  //we start the splash screen here for the translator will be 
+	  //installed ok only after the HbApplication is constructed ready
+    startSplashScreen();  
     
     //for the note should be translated too     
     IRQSystemEventHandler *systemEventHandler = new IRQSystemEventHandler();
     if( isDiskSpaceLow(systemEventHandler) )
-    {       
-#ifdef LOCALIZATION   
-        qApp->removeTranslator(translator);
+    {         
         delete translator;
-#endif
         delete systemEventHandler;
         return 0;
     }
@@ -82,20 +67,16 @@ int main(int argc, char* argv[])
     mainWindow->show();
     
     //here, we transfer the ownership of the event handler to the irapp
-    IRApplication *irapp = new IRApplication(mainWindow, systemEventHandler);
-    
-#ifdef LOCALIZATION
-    //this function will transfer the ownership of translator to irapp
-    irapp->setTranslator(translator);
-#endif
-    
+    IRApplication *irapp = new IRApplication(mainWindow, systemEventHandler);    
     IRMemoryCollector mc(irapp);
     
     if(!mainWindow->isExiting())
     {
-        return app.exec();
-    }
-	return 0;
+        result =  app.exec();                  
+    }    
+            
+    delete translator; 
+	  return result;
 }
 
 bool isDiskSpaceLow(IRQSystemEventHandler* aEventHandler)
@@ -114,50 +95,35 @@ bool isDiskSpaceLow(IRQSystemEventHandler* aEventHandler)
         messageBox.exec();
     }
     return ret;
-}
+} 
 
-#ifdef LOCALIZATION 
-void initLanguage(QTranslator*& aTranslator)
-{
-    aTranslator = new QTranslator();    
-    QString lang = QLocale::system().name();
-    LOG_FORMAT( "Current language is %s", STRING2CHAR(lang) );
-    QString path = "z:/resource/qt/translations/";  //this will be changed to a micro in future
-    bool ret = aTranslator->load(path + "internet_radio_10_1_" + lang);        
-    qApp->installTranslator(aTranslator); 
-}
-#endif
-
-bool isSecondInstance()
-{
-    QLocalSocket socket;
-    QString serverName = QCoreApplication::applicationName();
-    socket.connectToServer(serverName);
-    if (socket.waitForConnected(500))
+void startSplashScreen()
+{   
+    TIRViewId viewId = getSplashViewID();    
+    switch( viewId )
     {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
-void setSplashScreen()
-{     
-    if( isSplashNowplaying() )
-    {
-        HbSplashScreen::setScreenId("nowplaying_screen");
-    }
-    else
-    {
+    case EIRView_PlayingView:
+         HbSplashScreen::setScreenId("nowplaying_screen");
+         break;
+    case EIRView_CategoryView:      
+    case EIRView_FavoritesView:       
+    case EIRView_MainView: 
+    default: 
         HbSplashScreen::setScreenId("normal_screen");
-    }    
+        break;    
+    } 
+    
+    HbSplashScreen::start();
 }
 
-bool isSplashNowplaying()
-{
-    QSettings settings(KIrSettingOrganization, KIrSettingApplication);
-    return settings.value(KIrSettingSplashNowplaying,false).toBool();
+TIRViewId getSplashViewID()
+{ 
+    TIRViewId startingViewID;
+    IRQSettings *settings = IRQSettings::openInstance();
+    settings->getStartingViewId(startingViewID);
+    settings->closeInstance();
+    return startingViewID;    
 }
+
+ 
  

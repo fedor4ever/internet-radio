@@ -17,6 +17,7 @@ TEMPLATE = lib
 TARGET = irqisdsclient
 TARGET.CAPABILITY += CAP_GENERAL_DLL
 
+DEFINES += BUILD_IRQISDSCLIENT_DLL
 defFilePath = ..
 MOC_DIR = moc
 DEPENDPATH = src
@@ -28,21 +29,20 @@ INCLUDEPATH += $${MW_LAYER_PUBLIC_EXPORT_PATH(http)}
 INCLUDEPATH += $${OS_LAYER_PUBLIC_EXPORT_PATH(mmf/common)}
 INCLUDEPATH += $${OS_LAYER_PUBLIC_EXPORT_PATH(xml)}
 
-INCLUDEPATH += ../../internetradio2.0/settingsinc \
-               ../../internetradio2.0/datastructuresinc \
-               ../../internetradio2.0/favoritesdbinc \
-               ../../internetradio2.0/networkcontrollerinc \
-               ../../internetradio2.0/isdsclientinc  \
+INCLUDEPATH += ../../internetradio2.0/ircommon/inc \
+               ../../internetradio2.0/irfavoritesdb/inc \
+               ../../internetradio2.0/irnetworkcontroller/inc \
+               ../../internetradio2.0/irisdsclient/inc  \
                ../../internetradio2.0/resources \
-               ../../internetradio2.0/include  \
-               ../../internetradio2.0/dataproviderinc \
-               ../../internetradio2.0/cachemgmtinc \
-               ../../internetradio2.0/xmlparserinc \
-               ../../internetradio2.0/sessionloginc \
-               ../../internetradio2.0/settingsinc \
+               ../../internetradio2.0/inc  \
+               ../../internetradio2.0/irdataprovider/inc \
+               ../../internetradio2.0/ircachemgmt/inc \
+               ../../internetradio2.0/irxmlparser/inc \
+               ../../internetradio2.0/irsessionlog/inc \
                ../irqcommon/inc \
                ../irqfavoritesdb/inc \
                ../irqlogger/inc \
+               ../irqsettings/inc \
                ../../presetserver/include \
                ../../presetserver/clientinc \
                ../../presetserver/serverinc
@@ -51,7 +51,7 @@ LIBS += -lirdatastructures \
         -lirfavoritesdb \
         -lirqfavorites \
         -lirnetworkcontroller \
-        -lirsettings \
+        -lirqsettings \
         -lisdsclientinterface \
         -lirdataprovider \
         -lflogger \
@@ -62,17 +62,23 @@ LIBS += -lirdatastructures \
 symbian{
   TARGET.UID3 = 0xec6ecb67
   TARGET.EPOCALLOWDLLDATA = 1
+  MMP_RULES += SMPSAFE
 }
 
 #input
 
 #header files list
-HEADERS += inc\irqisdsclient.h \
-           inc\irqisdsclientimpl.h
+HEADERS += inc/irqisdsclient.h \
+           inc/irqisdsclientexporter.h \
+           inc/irqabstractisdsclientimpl.h
 
 #source files list
-SOURCES += irqisdsclient.cpp \
-           irqisdsclientimpl.cpp
+SOURCES += irqisdsclient.cpp
+
+symbian{
+HEADERS += inc/irqisdsclientimpl_symbian.h
+SOURCES += irqisdsclientimpl_symbian.cpp
+}
 
 SYMBIAN_PLATFORMS = WINSCW ARMV5
 

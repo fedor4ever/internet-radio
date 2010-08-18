@@ -15,9 +15,9 @@
 *
 */
 
-#include <hbtoolbar.h>
 #include <hbaction.h>
 #include <hblistview.h>
+#include <hbscrollbar.h>
 
 #include "irapplication.h"
 #include "irviewmanager.h"
@@ -79,7 +79,6 @@ TIRHandleResult IRCategoryView::handleCommand(TIRViewCommand aCommand, TIRViewCo
                 {
                     iLoader.load(ABSTRACT_LIST_VIEW_BASE_LAYOUT_FILENAME, ABSTRACT_LIST_VIEW_BASE_WITH_TOOLBAR_SECTION);
                     iLoadedSection = ABSTRACT_LIST_VIEW_BASE_WITH_TOOLBAR_SECTION;
-                    initToolBar();
                 }
             }
             else
@@ -359,6 +358,13 @@ void IRCategoryView::dataChanged()
     iListView->reset();
     iListView->setCurrentIndex(iModel->index(iLastSelectItem));
     iListView->scrollTo(iModel->index(iLastSelectItem));
+    qreal value = 0.0;
+    if (iListView->model()->rowCount() > 0)
+    {
+        value = iLastSelectItem / iListView->model()->rowCount();
+    }
+    iListView->verticalScrollBar()->setValue(value);
+    
     getViewManager()->activateView(this);
 }
 
@@ -453,6 +459,8 @@ void IRCategoryView::lazyInit()
         //initialization from handleCommand()
         handleCommand(EIR_ViewCommand_TOBEACTIVATED, EIR_ViewCommandReason_Show);
         handleCommand(EIR_ViewCommand_ACTIVATED, EIR_ViewCommandReason_Show);
+        
+        emit applicationReady();
     }
 }
 
@@ -471,16 +479,4 @@ void IRCategoryView::normalInit()
     
         setInitCompleted(true);
     }
-}
-
-void IRCategoryView::initToolBar()
-{
-    //add HbActions to the toolbar, the HbActions have been created in IrAbstractListViewBase
-    HbToolBar *viewToolBar = toolBar();
-    viewToolBar->clearActions();
-    viewToolBar->addAction(iGenresAction);
-    viewToolBar->addAction(iCollectionsAction);
-    viewToolBar->addAction(iFavoritesAction);
-    viewToolBar->addAction(iSearchAction);
-    viewToolBar->setVisible(true);
 }

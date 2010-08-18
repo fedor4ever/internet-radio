@@ -19,6 +19,7 @@ TARGET.CAPABILITY = CAP_GENERAL_DLL
 
 MOC_DIR = moc
 DEPENDPATH += src
+DEFINES += BUILD_IRQNETWORKCONTROLLER_DLL
 defFilePath = ..
 
 INCLUDEPATH += $$APP_LAYER_SYSTEMINCLUDE 
@@ -26,19 +27,20 @@ INCLUDEPATH += $${OS_LAYER_PUBLIC_EXPORT_PATH(http)}
 INCLUDEPATH += $${MW_LAYER_PUBLIC_EXPORT_PATH(http)}
 
 INCLUDEPATH += inc \
-               ..\irqcommon\inc \
-               ..\..\internetradio2.0\networkcontrollerinc    
+               ../irqcommon/inc \
+               ../../internetradio2.0/irnetworkcontroller/inc    
 
 LIBS += -lirnetworkcontroller -lnetmeta
 
 symbian{
   TARGET.UID3 = 0xe71db754
   TARGET.EPOCALLOWDLLDATA = 1
+  MMP_RULES += SMPSAFE
 }
 
 # Input
-HEADERS += inc\irqnetworkcontroller.h inc\irqnetworkcontrollerbody.h
-SOURCES += irqnetworkcontroller.cpp irqnetworkcontrollerbody.cpp
+HEADERS += inc/irqnetworkcontroller.h inc/irqnetworkcontroller_p.h
+SOURCES += irqnetworkcontroller.cpp irqnetworkcontroller_p.cpp
 
 SYMBIAN_PLATFORMS = WINSCW ARMV5
 

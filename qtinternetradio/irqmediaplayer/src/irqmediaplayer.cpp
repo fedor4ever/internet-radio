@@ -14,7 +14,7 @@
 * Description:
 *
 */
-#include <StereoWideningBase.h>
+
 #include "irqmediaplayer.h"
 #if defined(MMFADAPTER)
 #include "irqmmfadapter.h"
@@ -24,8 +24,6 @@
 
 #include "irqlogger.h"
 
-//Constants
-const int KDefaultStereoLevel = 100;            // Default stereo level
 
 // ---------------------------------------------------------------------------
 // IRQMediaPlayer::IRQMediaPlayer
@@ -33,9 +31,9 @@ const int KDefaultStereoLevel = 100;            // Default stereo level
 // Creates player adpater and connect the signals
 // ---------------------------------------------------------------------------
 //
-EXPORT_C IRQMediaPlayer::IRQMediaPlayer() :
-    iStereoEffect(NULL)
+IRQMediaPlayer::IRQMediaPlayer()
 {
+    LOG_METHOD;
 #if defined(MMFADAPTER)
     iPlayer = new IRQMMFAdapter();
 #elif defined(PHONONAdapter)
@@ -62,11 +60,9 @@ EXPORT_C IRQMediaPlayer::IRQMediaPlayer() :
 //
 IRQMediaPlayer::~IRQMediaPlayer()
 {
+    LOG_METHOD;
     delete iPlayer;
     iPlayer = NULL;
-
-    delete iStereoEffect;
-    iStereoEffect = NULL;
 }
 
 // ---------------------------------------------------------------------------
@@ -74,8 +70,10 @@ IRQMediaPlayer::~IRQMediaPlayer()
 // Plays a specific radio station via certain access point id
 // ---------------------------------------------------------------------------
 //
-EXPORT_C void IRQMediaPlayer::playStation(const QString &aUrl, int aApId)
+void IRQMediaPlayer::playStation(const QString &aUrl, int aApId)
 {
+    LOG_METHOD;
+    LOG_FORMAT("aUrl=%s, aApId=%d", STRING2CHAR(aUrl), aApId);
     if (iPlayer)
     {
         iPlayer->playStation(aUrl, aApId);
@@ -87,8 +85,9 @@ EXPORT_C void IRQMediaPlayer::playStation(const QString &aUrl, int aApId)
 // Stops the playback
 // ---------------------------------------------------------------------------
 //
-EXPORT_C void IRQMediaPlayer::stop()
+void IRQMediaPlayer::stop()
 {
+    LOG_METHOD;
     if (iPlayer)
     {
         iPlayer->stop();
@@ -100,8 +99,10 @@ EXPORT_C void IRQMediaPlayer::stop()
 // Sets the volume
 // ---------------------------------------------------------------------------
 //
-EXPORT_C void IRQMediaPlayer::setVolume(int aVolume)
+void IRQMediaPlayer::setVolume(int aVolume)
 {
+    LOG_METHOD;
+    LOG_FORMAT("aVolume=%d", aVolume);
     if (iPlayer)
     {
         iPlayer->setVolume(aVolume);
@@ -113,8 +114,9 @@ EXPORT_C void IRQMediaPlayer::setVolume(int aVolume)
 // Gets the current volume of playback
 // ---------------------------------------------------------------------------
 //
-EXPORT_C int IRQMediaPlayer::getVolume()
+int IRQMediaPlayer::getVolume()
 {
+    LOG_METHOD;
     int val = 0;
 
     if (iPlayer)
@@ -130,14 +132,10 @@ EXPORT_C int IRQMediaPlayer::getVolume()
 // Turns on stereo effect
 // ---------------------------------------------------------------------------
 //
-EXPORT_C void IRQMediaPlayer::enableStereoEffect()
+void IRQMediaPlayer::enableStereoEffect()
 {
-    if (!iPlayer || IRQPlayerAdapterInterface::EPlaying != iPlayer->iPlayState)
-    {
-        return;
-    }
-
-    TRAP_IGNORE(enableStereoEffectL());
+    LOG_METHOD;
+    iPlayer->enableStereoEffect();
 }
 
 // ---------------------------------------------------------------------------
@@ -145,48 +143,9 @@ EXPORT_C void IRQMediaPlayer::enableStereoEffect()
 // Turns off stereo effect
 // ---------------------------------------------------------------------------
 //
-EXPORT_C void IRQMediaPlayer::disableStereoEffect()
+void IRQMediaPlayer::disableStereoEffect()
 {
     LOG_METHOD;
-    if (iStereoEffect)
-    {
-        if (iStereoEffect->IsEnabled())
-        {
-            TRAPD(error, iStereoEffect->DisableL());
-            if (KErrNone != error)
-            {
-                emit errorOccured(EIRQPlayerErrorSetStereoFailed);
-            }
-            delete iStereoEffect;
-            iStereoEffect = NULL;
-        }
-    }
+    iPlayer->disableStereoEffect();
 }
 
-// ---------------------------------------------------------------------------
-// IRQMediaPlayer::enableStereoEffectL
-// Turns on stereo effect
-// ---------------------------------------------------------------------------
-//
-void IRQMediaPlayer::enableStereoEffectL()
-{
-
-    TUint stereoLevel = KDefaultStereoLevel;
-
-    if (!iStereoEffect)
-    {
-#if defined(MMFADAPTER)
-        CVideoPlayerUtility* playerInstance = (CVideoPlayerUtility*)iPlayer->getPlayerInstance();
-#elif defined(PHONONAdapter)
-        void* playerInstance = iPlayer->getPlayerInstance();
-#endif
-        iStereoEffect = CStereoWidening::NewL(*playerInstance, EFalse, stereoLevel);
-    }
-
-    if (!iStereoEffect->IsEnabled())
-    {
-        iStereoEffect->EnableL();
-        iStereoEffect->SetStereoWideningLevelL(stereoLevel);
-        iStereoEffect->ApplyL();
-    }
-}

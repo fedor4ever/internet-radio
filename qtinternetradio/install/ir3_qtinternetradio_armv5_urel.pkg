@@ -49,7 +49,7 @@
 ;qtinternetradio
 "\epoc32\release\armv5\urel\internet_radio_10_1.exe"    - "!:\sys\bin\internet_radio_10_1.exe"
 "\epoc32\data\z\resource\apps\internet_radio_10_1.rsc"    - "!:\resource\apps\internet_radio_10_1.rsc"
-"\epoc32\data\z\resource\apps\internet_radio_10_1.mif"    - "!:\resource\apps\internet_radio_10_1.mif"
+;"\epoc32\data\z\resource\apps\internet_radio_10_1.mif"    - "!:\resource\apps\internet_radio_10_1.mif"
 "\epoc32\data\z\private\10003a3f\import\apps\internet_radio_10_1_reg.rsc"    - "!:\private\10003a3f\import\apps\internet_radio_10_1_reg.rsc"
 "\epoc32\data\z\resource\qt\translations\internet_radio_10_1_en.qm"  - "!:\resource\qt\translations\internet_radio_10_1_en.qm"
 "\epoc32\release\armv5\urel\irqnetworkcontroller.dll"    - "!:\sys\bin\irqnetworkcontroller.dll"

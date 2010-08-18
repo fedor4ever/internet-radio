@@ -23,6 +23,7 @@
 
 //FORWARD DECLARATIONS:
 class HbLabel;
+class QEvent;
 
 class IrHsWidgetTitleRow : public HbWidget
 {
@@ -42,8 +43,11 @@ signals:
     void titleRowClicked();
     
 protected:
-    // from QGraphicsItem
-    void mousePressEvent(QGraphicsSceneMouseEvent *aEvent);
+    // from HbWidgetBase
+    void gestureEvent(QGestureEvent *aEvent);
+	
+    // from HbWidget
+    void changeEvent(QEvent *event);
 
 private:
     void loadUi();

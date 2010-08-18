@@ -26,6 +26,8 @@ class IRQStatisticsReporter;
 class IRQMetaData;
 class IRStationShare;
 class HbLabel;
+class HbMarqueeItem;
+class QEvent;
 
 /**
  * This class shows the station information when it's played.
@@ -39,6 +41,9 @@ class IRNowPlayingView : public IRBaseView
 public:
     ~IRNowPlayingView();
 
+signals:
+    void applicationReady();
+        
 protected:
     IRNowPlayingView(IRApplication* aApplication, TIRViewId aViewId);
 
@@ -46,6 +51,8 @@ protected:
     void launchAction();   
     TIRHandleResult handleCommand(TIRViewCommand aCommand, TIRViewCommandReason aReason);
 
+    // from HbWidget
+    void changeEvent(QEvent *event);
 
 private slots:
     // slots for logo download
@@ -84,6 +91,12 @@ private slots:
     void updateAdvImage();
 #endif
     
+#ifdef STATISTIC_REPORT_TEST_ENABLED
+    void handleDummySongIdentify();
+    void handleDummyGoToNms();
+    void handleDummyFindInNms();
+#endif
+    
 private:
     void initialize();
     void initMenu();
@@ -93,6 +106,7 @@ private:
     void updateWidgets();
     void updateMusicStoreStatus();
     void updateForLauchAction();
+    void updateSongName(const QString &aSongName);
     
     void updateStationLogo();	
     void loadStationLogo();
@@ -124,7 +138,8 @@ private:
     };
     LogoDownloadState iLogoDownloadState;
     
-    HbLabel *iSongName;
+    HbLabel *iSongNameLabel;
+    HbMarqueeItem *iSongNameMarquee;
     HbLabel *iArtistName;
     HbLabel *iStationName;
     HbLabel *iStationLogo;

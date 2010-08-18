@@ -91,3 +91,13 @@ void* IRQPHONONAdapter::getPlayerInstance()
 {
     return NULL;
 }
+
+void IRQPHONONAdapter::enableStereoEffect()
+{
+    
+}
+
+void IRQPHONONAdapter::disableStereoEffect()
+{
+    
+}

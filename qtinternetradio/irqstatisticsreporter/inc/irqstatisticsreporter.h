@@ -192,7 +192,7 @@ private:
     
     static QMutex mMutex;
     static int mRef;
-    static IRQStatisticsReporter *mInstatnce;
+    static IRQStatisticsReporter *mInstance;
     
     Q_DISABLE_COPY(IRQStatisticsReporter)     
 };

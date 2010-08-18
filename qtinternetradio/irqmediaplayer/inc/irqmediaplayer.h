@@ -19,16 +19,16 @@
 
 #include <QObject>
 #include "irqenums.h"
+#include "irqmediaplayerexporter.h"
 
 class IRQPlayerAdapterInterface;
 class IRQMetaData;
-class CStereoWidening;
 
 /**
  * This class provides the interface to IR Media Player component
  */
 
-class IRQMediaPlayer : public QObject
+class IRQMEDIAPLAYER_DLL_EXPORT IRQMediaPlayer : public QObject
 {
     Q_OBJECT
 
@@ -37,7 +37,7 @@ public:
     /**
      *  Constructor
      */
-    IMPORT_C IRQMediaPlayer();
+    IRQMediaPlayer();
 
     /**
      *  Destructor
@@ -48,34 +48,34 @@ public:
      *  Returns the current volume of playback, it's a percentage
      *  @return int
      */
-    IMPORT_C int  getVolume();
+    int  getVolume();
 
 public slots:
 
     /**
      *  Plays a radio station
      */
-    IMPORT_C void playStation(const QString &aUrl, int aApId);
+    void playStation(const QString &aUrl, int aApId);
 
     /**
      *  Stops playback
      */
-    IMPORT_C void stop();
+    void stop();
 
     /**
      *  Sets the volume to player, it's a percentage
      */
-    IMPORT_C void setVolume(int aVolume);
+    void setVolume(int aVolume);
 
     /**
      *  Turns on the stereo effect
      */
-    IMPORT_C void enableStereoEffect();
+    void enableStereoEffect();
 
     /**
      *  Turns off the stereo effect
      */
-    IMPORT_C void disableStereoEffect();
+    void disableStereoEffect();
 
 signals:
 
@@ -105,22 +105,11 @@ signals:
     void volumeExpected(int& aVolume);
 
 private:
-    /**
-     *  Turns on the stereo effect
-     */
-    void enableStereoEffectL();
-
-private:
 
     /**
      *  Player adpater interface
      */
     IRQPlayerAdapterInterface* iPlayer;
-
-    /**
-     *  Used for handling Stereo Mode
-     */
-    CStereoWidening* iStereoEffect;
 };
 
 #endif /* IRQMEDIAPLAYER_H_ */

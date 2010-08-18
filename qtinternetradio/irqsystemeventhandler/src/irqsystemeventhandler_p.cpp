@@ -20,20 +20,16 @@
 #include "irdiskspaceobserver.h"
 #include "iralarmobserver.h"
 #include "irpropertyobserver.h"
+#include "irqsettings.h"
 #include "irqlogger.h"
 
-#ifdef USER_DEFINED_DISKSPACE 
-#include <QFile>
-#include <QTextStream>
-#include <QStringList> 
-#endif
-
-#define DEFAULT_DISKSPACE_LOW_LEVEL   (3*1024*1024)
-
 IRQSystemEventHandlerPrivate::IRQSystemEventHandlerPrivate(IRQSystemEventHandler *aSystemEventHandler) : q_ptr(aSystemEventHandler),
-                              mAlarmOn(false),mDefaultLevel(DEFAULT_DISKSPACE_LOW_LEVEL),mAlarmObserver(NULL), mDiskSpaceObserver(NULL),
+                              mAlarmOn(false),mAlarmObserver(NULL), mDiskSpaceObserver(NULL),
                               mPropertyObserver(NULL),mErrorCode(0)
-{ 
+{
+    IRQSettings *irSettings = IRQSettings::openInstance();
+    mDefaultLevel = irSettings->getMinDiskSpaceRequired();
+    irSettings->closeInstance();
 }
 
 IRQSystemEventHandlerPrivate::~IRQSystemEventHandlerPrivate()
@@ -45,11 +41,7 @@ IRQSystemEventHandlerPrivate::~IRQSystemEventHandlerPrivate()
 }
 
 bool IRQSystemEventHandlerPrivate::init()
-{ 
-#ifdef USER_DEFINED_DISKSPACE
-    getDiskSpaceCriticalLevel(mDefaultLevel);
-#endif  
-    
+{     
     TRAPD(err, initializeL());      
     if( KErrNone == err )
     {
@@ -134,35 +126,6 @@ int IRQSystemEventHandlerPrivate::getErrorCode() const
 {
     return mErrorCode;
 }
-
-#ifdef USER_DEFINED_DISKSPACE
-void IRQSystemEventHandlerPrivate::getDiskSpaceCriticalLevel(qint64 & aLevel)
-{
-    QFile file("C:\\data\\QTIRConfigure.txt");
-    if(file.open(QIODevice::ReadOnly)) 
-    {
-        QTextStream stream( &file );
-        QString line;
-        QStringList parameter;
-        while (!stream.atEnd())
-        {
-            line = stream.readLine();
-            parameter = line.split("=");
-            if (parameter.count() == 2)
-            {
-                if (parameter.first() == "diskSpaceCriticalLevel")
-                {
-                    QString level = parameter.last();
-                    aLevel = level.toLongLong();
-                    break;
-                }
-            }
-        }
-    }
-    
-    file.close();
-}
-#endif
 
 void IRQSystemEventHandlerPrivate::alarmStarted()
 {

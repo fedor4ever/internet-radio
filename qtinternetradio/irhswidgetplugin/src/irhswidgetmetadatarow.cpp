@@ -22,6 +22,8 @@
 #include <HbIconAnimationDefinition>
 #include <HbColorScheme>
 #include <HbStyleLoader>
+#include <HbTapGesture>
+#include <HbEvent>
 
 // User includes
 #include "irhswidgetmetadatarow.h"
@@ -30,12 +32,16 @@
 // Constants
 static const QString KIrHsWidgetMetaDataRowDocML       = ":/resource/irhswidgetmetadatarow.docml";
 static const QString KIrHsWidgetMetaDataRowContainer   = "metadatarow_layout";
+static const QString KIrHsWidgetMetaDataLayout         = "metadata_layout";
 static const QString KIrHsWidgetMetaDataLabel          = "metadata_label";
+static const QString KNmHsWidgetControlLayout          = "control_layout";
 static const QString KNmHsWidgetControlLabel           = "control_label";
 
-static const QString KPlayButtonIcon     = "qtg_mono_play";
-static const QString KStopButtonIcon     = "qtg_mono_stop";
-static const QString KMetaDataColor      = "qtc_hs_list_item_title";
+static const QString KPlayButtonIcon          = "qtg_mono_play";
+static const QString KStopButtonIcon          = "qtg_mono_stop";
+static const QString KMetaDataColor           = "qtc_hs_list_item_title_normal";
+static const QString KControlLabelDataColor   = "qtc_hs_list_item_title_normal";
+static const QString KIrHsWidgetCss           = ":/resource/irhswidget_color.css";
 
 static const QString KLoadingAnimationPrefix  = "qtg_anim_loading_";
 static const QString KLoadingIconName         = "LoadingAnimation";
@@ -48,15 +54,20 @@ static const int KLoadingAnimationDuration  = 100; // duration for frames to con
 IrHsWidgetMetaDataRow::IrHsWidgetMetaDataRow(QGraphicsItem *aParent, Qt::WindowFlags aFlags) :
     HbWidget(aParent, aFlags), 
     mMetaData(NULL), 
+    mControlLayout(NULL),
     mControlLabel(NULL)
 {
+    HbStyleLoader::registerFilePath(KIrHsWidgetCss);
+    
     loadUi();
     createLoadingIcon();
+    grabGesture(Qt::TapGesture);
 }
 
 
 IrHsWidgetMetaDataRow::~IrHsWidgetMetaDataRow()
 {
+    HbStyleLoader::unregisterFilePath(KIrHsWidgetCss);
 }
 
 void IrHsWidgetMetaDataRow::loadUi()
@@ -74,12 +85,11 @@ void IrHsWidgetMetaDataRow::loadUi()
     layout->addItem(container);   
                       
     mMetaData = static_cast<HbMarqueeItem*> (loader.findWidget(KIrHsWidgetMetaDataLabel));
-    mControlLabel  = static_cast<HbLabel*> (loader.findWidget(KNmHsWidgetControlLabel));
     mMetaData->setTextColor(HbColorScheme::color(KMetaDataColor));  
     mMetaData->setLoopCount(-1);
-                    
-    mMetaData->installEventFilter(this);
-    mControlLabel->installEventFilter(this);        
+    
+    mControlLayout = static_cast<HbLabel*> (loader.findWidget(KNmHsWidgetControlLayout));
+    mControlLabel  = static_cast<HbLabel*> (loader.findWidget(KNmHsWidgetControlLabel));
 }
 
 void IrHsWidgetMetaDataRow::setMetaData(const QString &aMetaData)
@@ -126,26 +136,6 @@ void IrHsWidgetMetaDataRow::setLoadingIcon()
     mControlLabel->setIcon(mLoadingIcon);
 }    
     
-bool IrHsWidgetMetaDataRow::eventFilter(QObject *aObject, QEvent *aEvent)
-{
-    QString objectName     = aObject->objectName();
-    
-    if (QEvent::GraphicsSceneMousePress == aEvent->type())
-    {
-        
-        if (KIrHsWidgetMetaDataLabel == objectName)
-        {
-            emit metaDataAreaClicked();
-        }
-        else if (KNmHsWidgetControlLabel == objectName)
-        {
-            emit controlAreaClicked();
-        }
-    }
-        
-    return false;
-}
-
 void IrHsWidgetMetaDataRow::createLoadingIcon()
 {
     HbIconAnimationManager *animationManager = HbIconAnimationManager::global();
@@ -169,3 +159,42 @@ void IrHsWidgetMetaDataRow::createLoadingIcon()
 
     mLoadingIcon.setIconName(KLoadingIconName);        
 }        
+
+void IrHsWidgetMetaDataRow::gestureEvent(QGestureEvent *aEvent)
+{
+    HbTapGesture *tapGesture = qobject_cast<HbTapGesture *>(aEvent->gesture(Qt::TapGesture));
+    if (!tapGesture)
+    {
+        return;
+    }
+    
+    if (Qt::GestureFinished == tapGesture->state()
+        && HbTapGesture::Tap == tapGesture->tapStyleHint())
+    {
+        QPointF tapScenePoint = tapGesture->scenePosition();
+        QPointF tapLocalPoint = mControlLayout->sceneTransform().inverted().map(tapScenePoint);
+        if (mControlLayout->contains(tapLocalPoint))
+        {
+            emit controlAreaClicked();
+        }
+        else
+        {
+            emit metaDataAreaClicked();
+        }
+    }
+}
+
+//Implemented to receive theme change event
+//@param QEvent, The change events to be received  
+//
+void IrHsWidgetMetaDataRow::changeEvent(QEvent *event)
+{
+    if (HbEvent::ThemeChanged == event->type())
+    {
+        // get the text color from theme and 
+        // set it to meta data and control label
+        mMetaData->setTextColor(HbColorScheme::color(KMetaDataColor));
+    }
+    
+    HbWidget::changeEvent(event);
+}

@@ -27,7 +27,7 @@ static const QString KIrSettingStationName  = "lastplayedinfo/station_name";
 static const QString KIrDefaultStationName  = "no_station_played_yet";
 static const QString KIrSettingStationLogo  = "lastplayedinfo/station_logo";
 static const QString KIrSettingStationLogoAvailable  = "lastplayedinfo/station_logo_available";
-static const QString KIrSettingSplashNowplaying = "splash/is_nowplaying_view";
+ 
 
 // For P&S XQSettingsManager
 const long int KInternetRadioPSUid = 0xE28364bb;   // Internet Radio's UID3

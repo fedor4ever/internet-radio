@@ -82,7 +82,8 @@ static const char* NOW_PLAYING_VIEW_OBJECT_PLAYSTOP                   = "play_st
 static const char* NOW_PLAYING_VIEW_OBJECT_ADDTOFAV                   = "add_2_fav_act";
 static const char* NOW_PLAYING_VIEW_OBJECT_FLIP                       = "detail_act";
 static const char* NOW_PLAYING_VIEW_OBJECT_STATION_LOGO               = "station_logo";
-static const char* NOW_PLAYING_VIEW_OBJECT_SONG_NAME                  = "song_name";
+static const char* NOW_PLAYING_VIEW_OBJECT_SONG_NAME_LABEL            = "song_name_label";
+static const char* NOW_PLAYING_VIEW_OBJECT_SONG_NAME_MARQUEE          = "song_name_marquee";
 static const char* NOW_PLAYING_VIEW_OBJECT_ARTIST_NAME                = "artist_name";
 static const char* NOW_PLAYING_VIEW_OBJECT_STATION_NAME               = "station_name";
 #ifdef ADV_ENABLED
@@ -111,6 +112,10 @@ static const char* TERMS_CONS_VIEW_BASE_OBJECT_VIEW  = "ext-IRTermsConsView";
 static const char* TERMS_CONS_VIEW_ACCEPT_BTN   = "accept_btn";
 static const char* TERMS_CONS_VIEW_DECLINE_BTN  = "decline_btn";
 static const char* TERMS_CONS_VIEW_TEXT_EDIT  = "text_edit";
+
+// NowPlayingBanner
+static const QString KNowPlayingBannerColorPressed = "qtc_multimedia_trans_pressed";
+static const QString KNowPlayingBannerColorNormal = "qtc_multimedia_trans_normal";
 
 #define LOADING_ANIMATION_ICON_SIZE 50
 

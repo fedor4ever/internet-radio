@@ -18,6 +18,7 @@
 #include <hblistview.h>
 #include <hbaction.h>
 #include <QTimer>
+#include <hbscrollbar.h>
 
 #include "irviewmanager.h"
 #include "irstationsview.h"
@@ -217,7 +218,13 @@ void IRStationsView::dataChanged()
     iListView->reset();
     iListView->setCurrentIndex(iChannelModel->index(iLastSelectitem));
     iListView->scrollTo(iChannelModel->index(iLastSelectitem));
-
+    qreal value = 0.0;
+    if (iListView->model()->rowCount() > 0)
+    {
+        value = iLastSelectitem / iListView->model()->rowCount();
+    }
+    iListView->verticalScrollBar()->setValue(value);
+    
     //initialize the iconindices
     for (int i = 0; i < iChannelModel->rowCount(); ++i)
     {

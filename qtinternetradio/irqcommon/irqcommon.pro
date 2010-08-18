@@ -18,11 +18,12 @@ TARGET.CAPABILITY += CAP_GENERAL_DLL
 
 MOC_DIR = moc
 DEPENDPATH = src
+DEFINES += BUILD_IRQCOMMMON_DLL
 defFilePath = ..
 INCLUDEPATH += $$APP_LAYER_SYSTEMINCLUDE
 
-INCLUDEPATH += ../../internetradio2.0/datastructuresinc \
-               ../../internetradio2.0/presetplugininc \
+INCLUDEPATH += ../../internetradio2.0/ircommon/inc \
+               ../../internetradio2.0/irpresetplugin/inc \
                ../../presetserver/include \
                ../../presetserver/clientinc \
                ../../presetserver/serverinc
@@ -40,15 +41,16 @@ LIBS += -lirdatastructures \
 symbian{
   TARGET.UID3 = 0xef3c4675
   TARGET.EPOCALLOWDLLDATA = 1
+  MMP_RULES += SMPSAFE
 }
        
 #input
 
 #header files list
-HEADERS += inc\irqisdsdatastructure.h \
-           inc\irqutility.h \
-           inc\irservicedata.h \
-           inc\irservicedef.h
+HEADERS += inc/irqisdsdatastructure.h \
+           inc/irqutility.h \
+           inc/irservicedata.h \
+           inc/irservicedef.h
                        
 
 #source files list

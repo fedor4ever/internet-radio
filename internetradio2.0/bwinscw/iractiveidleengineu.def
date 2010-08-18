@@ -1,5 +1,0 @@
-EXPORTS
-	??1CIRActiveIdleEng@@UAE@XZ @ 1 NONAME ; CIRActiveIdleEng::~CIRActiveIdleEng(void)
-	?NewL@CIRActiveIdleEng@@SAPAV1@AAVMIRActiveIdleEngNotifyHandler@@@Z @ 2 NONAME ; class CIRActiveIdleEng * CIRActiveIdleEng::NewL(class MIRActiveIdleEngNotifyHandler &)
-	?SecondConstructL@CIRActiveIdleEng@@QAEXXZ @ 3 NONAME ; void CIRActiveIdleEng::SecondConstructL(void)
-

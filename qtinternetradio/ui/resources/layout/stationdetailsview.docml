@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<hbdocument version="1.0">
+<hbdocument version="1.1">
     <object name="exit_act" type="HbAction">
         <string locid="txt_common_opt_exit" name="text"/>
     </object>
@@ -12,37 +12,45 @@
                         <enums name="elideMode" value="ElideNone"/>
                         <fontspec name="fontSpec" role="Primary" textheight="var(hb-param-text-height-primary)"/>
                     </widget>
-                    <widget name="description" type="HbLabel">
-                        <enums name="textWrapping" value="TextWordWrap"/>
-                        <enums name="elideMode" value="ElideNone"/>
-                        <fontspec name="fontSpec" role="Secondary" textheight="var(hb-param-text-height-secondary)"/>
-                    </widget>
-                    <widget name="bitRate" type="HbLabel">
-                        <enums name="textWrapping" value="TextWordWrap"/>
-                        <enums name="elideMode" value="ElideNone"/>
-                        <fontspec name="fontSpec" role="Secondary" textheight="var(hb-param-text-height-secondary)"/>
-                    </widget>
                     <widget name="genre" type="HbLabel">
+                        <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Preferred" verticalStretch="0"/>
+                        <sizehint height="expr(var(hb-param-text-height-secondary))" type="MINIMUM"/>                 
                         <enums name="textWrapping" value="TextWordWrap"/>
                         <enums name="elideMode" value="ElideNone"/>
                         <fontspec name="fontSpec" role="Secondary" textheight="var(hb-param-text-height-secondary)"/>
                     </widget>
                     <widget name="language" type="HbLabel">
+                        <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Preferred" verticalStretch="0"/>
+                        <sizehint height="expr(var(hb-param-text-height-secondary))" type="MINIMUM"/>   
                         <enums name="textWrapping" value="TextWordWrap"/>
                         <enums name="elideMode" value="ElideNone"/>
                         <fontspec name="fontSpec" role="Secondary" textheight="var(hb-param-text-height-secondary)"/>
                     </widget>
                     <widget name="country" type="HbLabel">
+                        <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Preferred" verticalStretch="0"/>
+                        <sizehint height="expr(var(hb-param-text-height-secondary))" type="MINIMUM"/>   
+                        <enums name="textWrapping" value="TextWordWrap"/>
+                        <enums name="elideMode" value="ElideNone"/>
+                        <fontspec name="fontSpec" role="Secondary" textheight="var(hb-param-text-height-secondary)"/>
+                    </widget>
+                    <widget name="bitRate" type="HbLabel">
+                        <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Preferred" verticalStretch="0"/>
+                        <sizehint height="expr(var(hb-param-text-height-secondary))" type="MINIMUM"/>   
+                        <enums name="textWrapping" value="TextWordWrap"/>
+                        <enums name="elideMode" value="ElideNone"/>
+                        <fontspec name="fontSpec" role="Secondary" textheight="var(hb-param-text-height-secondary)"/>
+                    </widget>
+                    <widget name="description" type="HbLabel">
                         <enums name="textWrapping" value="TextWordWrap"/>
                         <enums name="elideMode" value="ElideNone"/>
                         <fontspec name="fontSpec" role="Secondary" textheight="var(hb-param-text-height-secondary)"/>
                     </widget>
                     <widget name="stationUrl" type="HbLabel">
-                        <enums name="textWrapping" value="TextWrapAnywhere"/>
+                        <enums name="textWrapping" value="TextWordWrap"/>
                         <enums name="elideMode" value="ElideNone"/>
                         <fontspec name="fontSpec" role="Secondary" textheight="var(hb-param-text-height-secondary)"/>
                     </widget>
-                    <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Preferred" verticalStretch="0"/>
+                    <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalStretch="0"/>
                     <contentsmargins bottom="0un" left="0un" right="0un" top="0un"/>
                     <layout type="anchor">
                         <anchoritem dst="stationName" dstEdge="LEFT" spacing="0un" src="" srcEdge="LEFT"/>
@@ -87,9 +95,33 @@
         <widget name="scrollAreaContents" role="HbScrollArea:contents" type="HbWidget">
             <sizehint type="PREFERRED" width="expr(var(hb-param-screen-short-edge) - 2*var(hb-param-margin-gene-screen))"/>
         </widget>
+        <widget name="genre" type="HbLabel">
+            <sizehint type="PREFERRED" width="expr(var(hb-param-screen-short-edge) - 2*var(hb-param-margin-gene-screen))"/>
+        </widget>
+        <widget name="language" type="HbLabel">
+            <sizehint type="PREFERRED" width="expr(var(hb-param-screen-short-edge) - 2*var(hb-param-margin-gene-screen))"/>
+        </widget>
+        <widget name="country" type="HbLabel">
+            <sizehint type="PREFERRED" width="expr(var(hb-param-screen-short-edge) - 2*var(hb-param-margin-gene-screen))"/>
+        </widget>
+        <widget name="bitRate" type="HbLabel">
+            <sizehint type="PREFERRED" width="expr(var(hb-param-screen-short-edge) - 2*var(hb-param-margin-gene-screen))"/>
+        </widget>
     </section>
     <section name="landscape">
         <widget name="scrollAreaContents" role="HbScrollArea:contents" type="HbWidget">
+            <sizehint type="PREFERRED" width="expr(var(hb-param-screen-long-edge) - 2*var(hb-param-margin-gene-screen))"/>
+        </widget>
+        <widget name="genre" type="HbLabel">
+            <sizehint type="PREFERRED" width="expr(var(hb-param-screen-long-edge) - 2*var(hb-param-margin-gene-screen))"/>
+        </widget>
+        <widget name="language" type="HbLabel">
+            <sizehint type="PREFERRED" width="expr(var(hb-param-screen-long-edge) - 2*var(hb-param-margin-gene-screen))"/>
+        </widget>
+        <widget name="country" type="HbLabel">
+            <sizehint type="PREFERRED" width="expr(var(hb-param-screen-long-edge) - 2*var(hb-param-margin-gene-screen))"/>
+        </widget>
+        <widget name="bitRate" type="HbLabel">
             <sizehint type="PREFERRED" width="expr(var(hb-param-screen-long-edge) - 2*var(hb-param-margin-gene-screen))"/>
         </widget>
     </section>

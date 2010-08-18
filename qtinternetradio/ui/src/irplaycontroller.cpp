@@ -104,7 +104,7 @@ IRPlayController::IRPlayController(IRApplication* aApplication) :
     iStationLogoAvailable(false),
     iStationLogoAvailableBackup(false),
     iMetaData(NULL),
-    iSongHistoryEngine(IRQSongHistoryEngine::openInstance()),
+    iSongHistoryEngine(NULL),
     iPlayState(EIdle),
     iResuming(false),
     iTryingBitrate(0),
@@ -116,7 +116,12 @@ IRPlayController::IRPlayController(IRApplication* aApplication) :
 {
     // use the last played station to initiliaze the backup value.
     // can regard the player is bootup, and initilize its LCD screen with last played station info if available.
-    IRQPreset *lastPlayedPreset = iApplication->getLastPlayedStationInfo()->getLastPlayedStation();
+    IRQPreset *lastPlayedPreset = NULL;
+    if( !iApplication->isEmbeddedInstance() )
+    {
+        lastPlayedPreset = iApplication->getLastPlayedStationInfo()->getLastPlayedStation();        
+    }
+    
     if (lastPlayedPreset)
     {
         *iNowPlayingPreset      =   *lastPlayedPreset;
@@ -136,6 +141,11 @@ IRPlayController::IRPlayController(IRApplication* aApplication) :
     
     connectSignalSlot(); 
     iStatisticsReporter = IRQStatisticsReporter::openInstance();
+	
+	if( !iApplication->isEmbeddedInstance() )
+    {
+        iSongHistoryEngine = IRQSongHistoryEngine::openInstance();
+    }
 }
 
 /*
@@ -240,7 +250,7 @@ QString IRPlayController::getFirstTryUrl(IRQPreset *aPreset)
     {
         firstTryUrl = iUrlArray->at(0);
 #ifdef Q_CC_NOKIAX86
-        firstTryUrl = "http://172.28.182.59:8000";
+        firstTryUrl = "http://172.28.205.171:8000";
         getRadioServerAddress(firstTryUrl);
 #endif
     }
@@ -294,6 +304,12 @@ void IRPlayController::stop(IRQTerminatedType aStopReason)
 
 #ifdef HS_WIDGET_ENABLED			
         case EConnecting:     
+            iStopReason = aStopReason;
+            if (iMediaPlayer)
+            {
+                iMediaPlayer->disableStereoEffect();
+                iMediaPlayer->stop(); 
+            }            
             // No need to restore because when connecting occurs, because the connectToChannel() has NOT been invoked yet. 
             // Only need to reset the player state                  
             if (iNowPlayingPreset->getChannelURLCount())
@@ -304,8 +320,6 @@ void IRPlayController::stop(IRQTerminatedType aStopReason)
             {
                 iPlayState = EIdle;
             }
-            
-            iStopReason = aStopReason;  
             
             // Only need to restore the station logo flag since we may force it to be false when connecting started.   
             // force logo to be default when current view is NOT nowplaying view && is not resuming (start playing a different station.) 
@@ -620,7 +634,11 @@ void IRPlayController::handleError()
 
         if (iResuming)
         {
-            HbMessageBox::information(tr("Connecting failed, try next URL"), (QObject*)NULL, NULL);
+#ifdef SUBTITLE_STR_BY_LOCID
+            HbMessageBox::information(hbTrId("txt_irad_connecting_failed_try_next_address"), (QObject*)NULL, NULL, HbMessageBox::Ok);
+#else
+            HbMessageBox::information("Connecting failed, try next URL", (QObject*)NULL, NULL, HbMessageBox::Ok);
+#endif
             connectToChannel(iNowPlayingPreset,iConnectedFrom);
             iResuming = false;
             return;
@@ -681,11 +699,13 @@ void IRPlayController::updateProgress(int aProgress)
         iApplication->stopLoadingAnimation();
 
         iApplication->getViewManager()->activateView(EIRView_PlayingView);
-
-        //update last played station
-        IRLastPlayedStationInfo *lastPlayedStationInfo = iApplication->getLastPlayedStationInfo();
-        lastPlayedStationInfo->updateLastPlayedStation(iNowPlayingPreset,iConnectedFrom);
-        lastPlayedStationInfo->commitLastPlayedStation();
+        if( !iApplication->isEmbeddedInstance() )
+        {
+            //update last played station
+            IRLastPlayedStationInfo *lastPlayedStationInfo = iApplication->getLastPlayedStationInfo();
+            lastPlayedStationInfo->updateLastPlayedStation(iNowPlayingPreset,iConnectedFrom);
+            lastPlayedStationInfo->commitLastPlayedStation();
+        }        
 
         //increase the played times of current preset
         iApplication->getFavoritesDB()->increasePlayedTimes(*iNowPlayingPreset);
@@ -694,12 +714,16 @@ void IRPlayController::updateProgress(int aProgress)
 
         // if the metadata is available, show it.
         emit metaDataAvailable(iMetaData);
+        
+        if( !iApplication->isEmbeddedInstance() )
+        {
+            // Save the station information to database
+            IRQMetaData tmpMetaData;
+            tmpMetaData.setBitrate(iRealBitrate);
+            tmpMetaData.setStreamUrl(iLastPlayedUrl);
+            iSongHistoryEngine->handleMetaDataReceived(tmpMetaData, *iNowPlayingPreset);            
+        }
 
-        // Save the station information to database
-        IRQMetaData tmpMetaData;
-        tmpMetaData.setBitrate(iRealBitrate);
-        tmpMetaData.setStreamUrl(iLastPlayedUrl);
-        iSongHistoryEngine->handleMetaDataReceived(tmpMetaData, *iNowPlayingPreset);
         // open stereo defaultly
         iMediaPlayer->enableStereoEffect();
     }
@@ -781,8 +805,12 @@ void IRPlayController::connectSignalSlot()
     connect(iMediaPlayer, SIGNAL(errorOccured(IRQError)), this, SLOT(errorOccured(IRQError)));
     connect(iMediaPlayer, SIGNAL(percentageBuffered(int)), this, SLOT(updateProgress(int)));
     connect(iMediaPlayer, SIGNAL(volumeExpected(int&)), this, SLOT(fetchVolume(int&)));
-    connect(iMediaPlayer, SIGNAL(metaDataReceived(IRQMetaData&)),
-            this, SLOT(handleMetaDataReceived(IRQMetaData&)));
+    
+    if( !iApplication->isEmbeddedInstance() )
+    {
+        connect(iMediaPlayer, SIGNAL(metaDataReceived(IRQMetaData&)),
+                this, SLOT(handleMetaDataReceived(IRQMetaData&)));        
+    } 
 }
 
 /*
@@ -829,10 +857,17 @@ bool IRPlayController::playNextUrl()
             
             if(tryingContinue)
             {
-                HbMessageBox::information(tr("Connecting failed, try next URL"), (QObject*)NULL, NULL); 
+#ifdef SUBTITLE_STR_BY_LOCID
+                HbMessageBox::information(hbTrId("txt_irad_connecting_failed_try_next_address"), (QObject*)NULL, NULL, HbMessageBox::Ok);
+#else
+                HbMessageBox::information("Connecting failed, try next URL", (QObject*)NULL, NULL, HbMessageBox::Ok);
+#endif                 
                 delete iUrlArray;
                 iUrlArray = iNowPlayingPreset->getURLsForBitrate(iTryingBitrate);
                 iLastPlayedUrl = iUrlArray->at(0);
+                // Set the status to EStopped because it didn't start to play at all and need not to 
+                // do stop action.
+                iPlayState = EStopped;
                 doPlay(iLastPlayedUrl);
                 return true;
             }
@@ -841,10 +876,17 @@ bool IRPlayController::playNextUrl()
     }
     else // try next url in iUrlArray
     {
+#ifdef SUBTITLE_STR_BY_LOCID
+        HbMessageBox::information(hbTrId("txt_irad_connecting_failed_try_next_address"), (QObject*)NULL, NULL, HbMessageBox::Ok);
+#else
+        HbMessageBox::information("Connecting failed, try next URL", (QObject*)NULL, NULL, HbMessageBox::Ok);
+#endif   
         iLastPlayedUrl = iUrlArray->at(0);
+        // Set the status to EStopped because it didn't start to play at all and need not to 
+        // do stop action. 
+        iPlayState = EStopped;
         doPlay(iLastPlayedUrl);
 
-        HbMessageBox::information(tr("Connecting failed, try next URL"), (QObject*)NULL, NULL);
         return true;
     }
     
@@ -854,7 +896,7 @@ bool IRPlayController::playNextUrl()
 /*
  * Description : complete the play action
  */
-void IRPlayController::doPlay(const QString& aUrl)
+void IRPlayController::doPlay(const QString aUrl)
 {
     // stop player, disable stereo effect, emit playstopped signal 
     stop(EIRQUserTerminated);

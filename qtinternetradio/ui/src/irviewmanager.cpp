@@ -71,13 +71,18 @@ IRViewManager::IRViewManager() : iApplication(NULL),
                                  iCrossLineShowing(false),
                                  iCrossLineTimer(NULL),
                                  iExitTimer(NULL),
-                                 iExiting(false)
+                                 iExiting(false),
+                                 iIsEmbedded(XQServiceUtil::isEmbedded())
 {
     iBackAction = new HbAction(Hb::BackNaviAction, this);
     connect(iBackAction, SIGNAL(triggered()), this, SLOT(backToPreviousView()));
     
-    iExitAction = new HbAction(Hb::QuitNaviAction, this);
-    connect(iExitAction, SIGNAL(triggered()), this, SLOT(lower()));
+    iExitAction = new HbAction(Hb::QuitNaviAction, this);    
+ 
+    if( !iIsEmbedded )
+    {
+        connect(iExitAction, SIGNAL(triggered()), this, SLOT(lower()));
+    }
     
     connect(this, SIGNAL(viewReady()), this, SLOT(handleViewReady()));
     connect(this, SIGNAL(currentViewChanged(HbView*)), this, SLOT(handleCurrentViewChanged(HbView*)));
@@ -100,6 +105,11 @@ IRViewManager::~IRViewManager()
 void IRViewManager::setApplication(IRApplication *aApplication)
 {
     iApplication = aApplication;
+    
+    if( iIsEmbedded )
+    {
+        connect(iExitAction,  SIGNAL(triggered()), iApplication, SIGNAL(quit()));   
+    }    
 }
 
 /*
@@ -369,7 +379,7 @@ void IRViewManager::saveActivity()
     HbActivityManager *activityManager = qobject_cast<HbApplication*>(qApp)->activityManager();
     
     //for embedded applications, don't publish activity. If backup activity is available, need to restore
-    if (XQServiceUtil::isEmbedded())
+    if ( iIsEmbedded )
     {
         if (!iActivityBackup.activityId.isEmpty())
         {
@@ -415,8 +425,8 @@ void IRViewManager::saveActivity()
 }
 
 void IRViewManager::removeActivity()
-{
-    if (XQServiceUtil::isEmbedded())
+{    
+    if ( iIsEmbedded )
     {
         backupActivity();
     }
@@ -424,7 +434,7 @@ void IRViewManager::removeActivity()
     HbActivityManager *activityManager = qobject_cast<HbApplication*>(qApp)->activityManager();
     activityManager->removeActivity(KActivityMainView);
     activityManager->removeActivity(KActivityPlayingView);
-}
+} 
 
 void IRViewManager::backupActivity()
 {
@@ -589,7 +599,7 @@ void IRViewManager::updateSoftkey()
 
 void IRViewManager::handleSaveScreenShot()
 {
-    if (!XQServiceUtil::isEmbedded())
+    if ( !iIsEmbedded )
     {
         TIRViewId id = currentViewId();
         iScreenShots[id] = QPixmap::grabWidget(this, rect());
@@ -697,9 +707,9 @@ void IRViewManager::exitTimeout()
     crossLineReset();
     viewport()->repaint();
 #ifdef SUBTITLE_STR_BY_LOCID
-    HbMessageBox::information(hbTrId("txt_common_info_exiting"), (QObject*)NULL, NULL);
+    HbMessageBox::information(hbTrId("txt_common_info_exiting"), (QObject*)NULL, NULL, HbMessageBox::Ok);
 #else
-    HbMessageBox::information(hbTrId("Exiting..."), (QObject*)NULL, NULL);    
+    HbMessageBox::information(hbTrId("Exiting..."), (QObject*)NULL, NULL, HbMessageBox::Ok);    
 #endif
     qApp->quit();
     iExiting = true;

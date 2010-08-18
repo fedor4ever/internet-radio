@@ -161,7 +161,7 @@ private:
     // Play next URL if the previous failed to connect.
     bool playNextUrl();
 
-    void doPlay(const QString& aUrl);
+    void doPlay(const QString aUrl);
 	
 	void startSession();
 	void endSession(IRQTerminatedType aStopReason);

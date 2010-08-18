@@ -31,6 +31,9 @@ public:
 	 
     void loadCategory(IRQIsdsClient::IRQIsdsClientInterfaceIDs aCategory);
     
+signals:
+    void applicationReady();
+        
 protected:
     IRCategoryView(IRApplication* aApplication, TIRViewId aViewId);
        
@@ -67,9 +70,6 @@ private:
     void lazyInit();
     
     void normalInit();
-    
-    void initToolBar();
- 
     
 private:
     int iLastSelectItem;

@@ -19,6 +19,7 @@
 #include <HbFrameDrawer>
 #include <HbFrameItem>
 #include <QGraphicsLinearLayout>
+#include <QTimer>
 
 // User includes
 #include "irhswidget.h"
@@ -30,6 +31,8 @@
 // Constants
 static const int KIrHsWidgetContentsMargin = 0;
 static const QString KIrHsWidgetBackgroundImage = "qtg_fr_hswidget_normal";
+
+static const int KLaunchLatency = 100; // ms, used for launch nowplyaing view later
 
 // ======== MEMBER FUNCTIONS ========
 // Constructor
@@ -172,6 +175,11 @@ void IrHsWidget::setupConnection()
     enableUserAction();          
 }
 
+void IrHsWidget::launchNowplayingView()
+{
+    mServiceClient->launchIrNowPlaying();  
+}
+
 // ================ handle user press event ===============
 void IrHsWidget::handleCommonAreaAction()
 {
@@ -206,7 +214,8 @@ void IrHsWidget::handleControlAreaAction()
     switch (mIrState)
     {
         case IrAppState::NoRunStopped:
-            mServiceClient->launchIrNowPlaying();           
+            loadLoadingLayout();
+            QTimer::singleShot(KLaunchLatency, this, SLOT(launchNowplayingView()));
             break;
                     
         case IrAppState::RunningStopped:

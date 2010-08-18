@@ -23,6 +23,8 @@
 #include <QPixmap>
 #include <QTimer>
 #include <HbInputDialog>
+#include <hbscrollbar.h>
+#include <HbLineEdit>
 
 #include "irviewmanager.h"
 #include "irfavoritesview.h"
@@ -150,6 +152,7 @@ void IRFavoritesView::lazyInit()
         //initialization from handleCommand()
         handleCommand(EIR_ViewCommand_TOBEACTIVATED, EIR_ViewCommandReason_Show);
         handleCommand(EIR_ViewCommand_ACTIVATED, EIR_ViewCommandReason_Show);
+        emit applicationReady();
     }
 }
 
@@ -220,25 +223,22 @@ void IRFavoritesView::deleteFavorites()
         header->setHeading(hbTrId("Select items to delete"));        
 #endif
         iMultiDeleteDialog->setHeadingWidget(header);
-        
-        
-        QList<QAction *> oriActions = iMultiDeleteDialog->actions();
-        for(int i = 0; i< oriActions.count(); i++)
-        {
-            iMultiDeleteDialog->removeAction(oriActions.at(i));
-            delete oriActions.at(i);
-        }
-
-#ifdef SUBTITLE_STR_BY_LOCID
-        iMultiDeleteDialog->addAction(new HbAction(hbTrId("txt_common_button_delete")));
-        iMultiDeleteDialog->addAction(new HbAction(hbTrId("txt_common_button_cancel")));
-#else
-        iMultiDeleteDialog->addAction(new HbAction(hbTrId("Delete")));
-        iMultiDeleteDialog->addAction(new HbAction(hbTrId("Cancel")));        
-#endif
     }
 
+    iMultiDeleteDialog->setModel(NULL);
     iMultiDeleteDialog->setModel(iModel);
+    QList<QAction *> oriActions = iMultiDeleteDialog->actions();
+    if (oriActions.count() >= 2)
+    {
+#ifdef SUBTITLE_STR_BY_LOCID
+        oriActions.at(0)->setText(hbTrId("txt_common_button_delete"));
+        oriActions.at(1)->setText(hbTrId("txt_common_button_cancel"));
+#else
+        oriActions.at(0)->setText("Delete");
+        oriActions.at(1)->setText("Cancel");       
+#endif
+    }
+    
     iMultiDeleteDialog->open(this,SLOT(deleteDialogClosed(HbAction*)));
 }
 
@@ -372,6 +372,7 @@ void IRFavoritesView::modelChanged()
     
     iListView->reset();
     iListView->setCurrentIndex(iModel->index(0));
+    iListView->verticalScrollBar()->setValue(0.0);
 }
 
 void IRFavoritesView::deleteDialogClosed(HbAction *aAction)
@@ -409,8 +410,7 @@ void IRFavoritesView::deleteDialogClosed(HbAction *aAction)
                 iConvertTimer->start();
             }
         }
-    }
-    iMultiDeleteDialog->setModel(NULL);    
+    }   
 }
 
 void IRFavoritesView::actionClicked(HbAction *aAction)
@@ -424,7 +424,7 @@ void IRFavoritesView::actionClicked(HbAction *aAction)
         }
         else if ( objectName == KActionDeleteName)
         {
-            deleteContextAction();                            
+            popupDeleteContextConfirmMessageBox();                            
         }
         else if (objectName == KActionRenameName)
         {
@@ -448,8 +448,7 @@ void IRFavoritesView::setCheckedAction()
 
 void IRFavoritesView::listViewLongPressed(HbAbstractViewItem *aItem, const QPointF& aCoords)
 {
-    Q_UNUSED(aItem);         
-    Q_UNUSED(aCoords);
+    Q_UNUSED(aItem);            
     
     HbAction *action = NULL;
     
@@ -482,6 +481,7 @@ void IRFavoritesView::listViewLongPressed(HbAbstractViewItem *aItem, const QPoin
 #endif
     action->setObjectName(KActionDetailsName);
     
+    contextMenu->setPos(aCoords);
     contextMenu->open();         
 } 
 
@@ -514,11 +514,19 @@ void IRFavoritesView::renameContextAction()
 {
     int current = iListView->currentIndex().row();
     IRQPreset *preset = iModel->getPreset(current);
-#ifdef SUBTITLE_STR_BY_LOCID
-    HbInputDialog::getText(hbTrId("txt_common_menu_rename_item"), this, SLOT(renameConfirmed(HbAction*)), preset->name);
+
+    HbInputDialog *dlg = new HbInputDialog;
+#ifdef SUBTITLE_STR_BY_LOCID    
+    dlg->setPromptText(hbTrId("txt_common_menu_rename_item"));
 #else
-    HbInputDialog::getText(hbTrId("Rename"), this, SLOT(renameConfirmed(HbAction*)), preset->name);    
+    dlg->setPromptText(hbTrId("Rename"));
 #endif
+    HbLineEdit* lineEdit = dlg->lineEdit();
+    lineEdit->setMaxLength(256);
+    dlg->setInputMode(HbInputDialog::TextInput);
+    dlg->setValue(preset->name);   
+    dlg->setAttribute(Qt::WA_DeleteOnClose);
+    dlg->open(this, SLOT(renameConfirmed(HbAction*)));
 }
 
 void IRFavoritesView::detailsContextAction()
@@ -621,4 +629,25 @@ void IRFavoritesView::initToolBar()
     viewToolBar->addAction(iCollectionsAction);
     viewToolBar->addAction(iFavoritesAction);
     viewToolBar->addAction(iSearchAction);
+}
+
+void IRFavoritesView::popupDeleteContextConfirmMessageBox()
+{
+#ifdef SUBTITLE_STR_BY_LOCID
+    HbMessageBox::question(hbTrId("txt_irad_info_delete_station"), this, SLOT(deleteContext(HbAction*)), HbMessageBox::Ok | HbMessageBox::Cancel);
+#else
+    HbMessageBox::question("Delete station?", this, SLOT(deleteContext(HbAction*)), HbMessageBox::Ok | HbMessageBox::Cancel);    
+#endif
+}
+
+void IRFavoritesView::deleteContext(HbAction *aAction)
+{
+    HbMessageBox *dialog = static_cast<HbMessageBox*>(sender());
+    if (dialog)
+    {
+        if (aAction == dialog->actions().at(0))
+        {
+            deleteContextAction();
+        }
+    }        
 }

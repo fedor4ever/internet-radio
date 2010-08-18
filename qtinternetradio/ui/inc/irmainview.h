@@ -27,7 +27,10 @@ class IRMainView : public IrAbstractListViewBase
 	Q_OBJECT
 public:
 	~IRMainView();
-        
+
+signals:
+    void applicationReady();
+	    
 protected:
     //only friend class IRViewManager can create this view
     IRMainView(IRApplication *aApplication, TIRViewId aViewId);
@@ -56,8 +59,6 @@ private:
     void lazyInit();
     
     void normalInit();
-    
-    void initToolBar();
     
 private:
     IRMainModel *iMainModel;

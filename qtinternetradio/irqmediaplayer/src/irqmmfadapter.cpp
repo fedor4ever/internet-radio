@@ -19,6 +19,8 @@
 #include <coedef.h>
 #include <QStringList>
 #include <hxmetadatakeys.h>
+#include <StereoWideningBase.h>
+
 #include "irqmetadata.h"
 #include "irqenums.h"
 #include "irqmmfadapter.h"
@@ -30,6 +32,7 @@ const TInt KConnectingTime       = 30*1000000;     // 30 seconds
 const TInt KVolumeMinPercentage  = 0;              // Minimum volume percentage
 const TInt KVolumeMaxPercentage  = 100;            // Maximum volume percentage
 const TInt KLoadingCompletePercentage = 100;       // Loading Complete percentage
+const int KDefaultStereoLevel = 100;            // Default stereo level
 
 // ---------------------------------------------------------------------------
 //  IRQMMFAdapter::IRQMMFAdapter
@@ -40,7 +43,7 @@ const TInt KLoadingCompletePercentage = 100;       // Loading Complete percentag
 IRQMMFAdapter::IRQMMFAdapter() :
     iVideoPlayer(NULL)
     ,iQMetaData(NULL)
-    ,iPrepareTimer(NULL)
+    ,iPrepareTimer(NULL), iStereoEffect(NULL)
 {
     iPlayState = EStopped;
 }
@@ -67,6 +70,9 @@ IRQMMFAdapter::~IRQMMFAdapter()
         delete iPrepareTimer;
         iPrepareTimer = NULL;
     }
+    
+    delete iStereoEffect;
+    iStereoEffect = NULL;
 }
 
 // ---------------------------------------------------------------------------
@@ -207,6 +213,33 @@ int IRQMMFAdapter::getVolume()
 void* IRQMMFAdapter::getPlayerInstance()
 {
     return (void*)iVideoPlayer;
+}
+
+void IRQMMFAdapter::enableStereoEffect()
+{
+    if (IRQPlayerAdapterInterface::EPlaying != iPlayState)
+    {
+        return;
+    }
+
+    TRAP_IGNORE(enableStereoEffectL());
+}
+
+void IRQMMFAdapter::disableStereoEffect()
+{
+    if (iStereoEffect)
+    {
+        if (iStereoEffect->IsEnabled())
+        {
+            TRAPD(error, iStereoEffect->DisableL());
+            if (KErrNone != error)
+            {
+                emit errorOccured(EIRQPlayerErrorSetStereoFailed);
+            }
+            delete iStereoEffect;
+            iStereoEffect = NULL;
+        }
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -528,5 +561,24 @@ void IRQMMFAdapter::checkPrepare()
     {
         emit errorOccured(EIRQPlayerErrorConnectingFailed);
         stop();
+    }
+}
+
+void IRQMMFAdapter::enableStereoEffectL()
+{
+    LOG_METHOD;
+    TUint stereoLevel = KDefaultStereoLevel;
+
+    if (!iStereoEffect)
+    {
+        CVideoPlayerUtility* playerInstance = (CVideoPlayerUtility*)getPlayerInstance();
+        iStereoEffect = CStereoWidening::NewL(*playerInstance, EFalse, stereoLevel);
+    }
+
+    if (!iStereoEffect->IsEnabled())
+    {
+        iStereoEffect->EnableL();
+        iStereoEffect->SetStereoWideningLevelL(stereoLevel);
+        iStereoEffect->ApplyL();
     }
 }

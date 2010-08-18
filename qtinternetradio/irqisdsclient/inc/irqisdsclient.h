@@ -22,8 +22,12 @@
 #include <e32base.h>
 #include <badesca.h>
 #include <QList> 
+#include <QMutex>
 #include "irqenums.h" 
- 
+#include "irqisdsclientexporter.h"
+
+class IRQAbstractIsdsClientImpl;
+
 class IRQIsdsClientImpl;
 class IRQFavoritesDB;
 class IRQPreset;
@@ -41,7 +45,7 @@ enum IRQSycPresetStatus
  *This class is being used by the UI to send request and get data from low layer
  *All interfaces are QT-supported
  */
-class IRQIsdsClient : public QObject
+class IRQISDSCLIENT_DLL_EXPORT IRQIsdsClient : public QObject
 {
 Q_OBJECT
 
@@ -61,28 +65,28 @@ public:
      *to get an instance of the IRQIsdsClient. 
      *@return IRQIsdsClient *
      */
-    IMPORT_C static IRQIsdsClient *openInstance();
+    static IRQIsdsClient *openInstance();
 
     /**
      *IRQIsdsClient::CloseInstance() 
      *close the instance.
      *@return IRQIsdsClient *
      */
-    IMPORT_C void closeInstance();
+    void closeInstance();
 
     /**
      *IRQIsdsClient::IsdsSearchRequestL()
      *Issue a search request to the isds server
      *@param QString, the requested search string
      **/
-    IMPORT_C void isdsSearchRequest(const QString& aIsdsSearchString);
+    void isdsSearchRequest(const QString& aIsdsSearchString);
 
     /**
      *IRQIsdsClient::IsdsCategoryRequest()
      *Send the category request by the category type
      *@param IRQIsdsClientInterfaceIDs, the requested category type
      **/
-    IMPORT_C void isdsCategoryRequest(
+    void isdsCategoryRequest(
             IRQIsdsClient::IRQIsdsClientInterfaceIDs aIDType, bool& aCache);
     
     /**
@@ -91,7 +95,7 @@ public:
      *function, this function will not send the http request if the data is 
      *not cached in DB. Normally, we call this function to check the cache.
      **/
-    IMPORT_C bool isdsIsCategoryCached(IRQIsdsClient::IRQIsdsClientInterfaceIDs aIDType);
+    bool isdsIsCategoryCached(IRQIsdsClient::IRQIsdsClientInterfaceIDs aIDType);
     
     /**
      *IRQIsdsClient::isdsIsChannelCached()
@@ -99,14 +103,14 @@ public:
      *function, this function will not send the http request if the data is 
      *not cached in DB. Normally, we call this function to check the cache.
      **/
-    IMPORT_C bool isdsIsChannelCached(int aIndex);
+    bool isdsIsChannelCached(int aIndex);
 
     /**
      *IRQIsdsClient::IsdsChannelRequestL()
      *Send the channels request by the channel index in the specify category
      *@param int, the requested index from UI view   
      **/
-    IMPORT_C void isdsChannelRequest(int aIndex, bool& aCache);
+    void isdsChannelRequest(int aIndex, bool& aCache);
 
     /**
      *IRQIsdsClient::IsdsListenRequestL()
@@ -117,7 +121,7 @@ public:
      *if we set the aHistoryBool to true,  the aCurrentIndex means the channel ID you expect 
      *to listen, for sometimes, the channel ID is saved in the DB so we could get it directly
      **/
-    IMPORT_C void isdsListenRequest(int aCurrentIndex, bool aHistoryBool =
+    void isdsListenRequest(int aCurrentIndex, bool aHistoryBool =
             false);
 
     /**
@@ -125,61 +129,62 @@ public:
      *to syncronize presets
      *@param int,QString, the preset id and the last modified tag for the preset   
      **/
-    IMPORT_C int isdsSyncPreset(int aPresetId, const QString& aIfModifySince, IRQFavoritesDB *aFavPresets);
+    int isdsSyncPreset(int aPresetId, const QString& aIfModifySince, IRQFavoritesDB *aFavPresets);
 
     /**
      *IRQIsdsClient::IsdsCancelRequest()
      *Cacel the request sent by the UI.
      *@param None
      **/
-    IMPORT_C void isdsCancelRequest();
+    void isdsCancelRequest();
 
     /**
      *IRQIsdsClient::IsdsGetCurrentPlayingIndex()
      *get the playing song's index 
      *@param None
      **/
-    IMPORT_C int isdsGetCurrentPlayingIndex();
+    int isdsGetCurrentPlayingIndex();
 
     /**
      *IRQIsdsClient::IsdsIsCategoryBanner()
      *to see wether category view has a banner.
      *@param None
      **/
-    IMPORT_C bool isdsIsCategoryBanner();
+    bool isdsIsCategoryBanner();
 
     /**
      *IRQIsdsClient::IsdsIsChannelBanner()
      *to see wether channel view has a banner.
      *@param None
      **/
-    IMPORT_C bool isdsIsChannelBanner();
+    bool isdsIsChannelBanner();
 
     /**
      *IRQIsdsClient::IsdsLogoDownSendRequestL()
      *the api is called from the UI(nowplaying view) to download logo.
      *@param None
      **/
-    IMPORT_C void isdsLogoDownSendRequest(IRQPreset* aPreset, int aNPVReq = 1,
+    void isdsLogoDownSendRequest(IRQPreset* aPreset, int aNPVReq = 1,
             int aXValue = 0, int aYValue = 0);
 
     /**
      *IRQIsdsClient::isdsIsLogoCached()
      *to check wether the preset's logo is cached or not.      
      **/
-    IMPORT_C bool isdsIsLogoCached(IRQPreset* aPreset, int aXValue = 0, int aYValue = 0);
+    bool isdsIsLogoCached(IRQPreset* aPreset, int aXValue = 0, int aYValue = 0);
+
     /**
      *IRQIsdsClient::isdsLogoDownCancelTransaction()
      *the api is called to cancel the current transaction
      *@param None
      **/
-    IMPORT_C void isdsLogoDownCancelTransaction();
+    void isdsLogoDownCancelTransaction();
 
     /**
      * IRQIsdsClient::isdsLogoDownIsRunning()
      *  To know the status of downloading logo
      */
-    IMPORT_C bool isdsLogoDownIsRunning() const;
+    bool isdsLogoDownIsRunning() const;
 
     /**
      * IRQIsdsClient::IsdsLogoDownCheckCacheLogoL()
@@ -190,7 +195,7 @@ public:
      * this API is called form the search results view.
      * @param QString: the url of the img, int: the status for getting
      */
-    IMPORT_C void isdsLogoDownCheckCacheLogo(const QString& aURL, int& aStatus);
+    void isdsLogoDownCheckCacheLogo(const QString& aURL, int& aStatus);
 
     /**
      * IRQIsdsClient::IsdsLogoDownSendCacheLogo()
@@ -198,34 +203,34 @@ public:
      * be changed to be QT value in future 
      * @param None
      */
-    IMPORT_C TDesC8& isdsLogoDownSendCacheLogo();
+    TDesC8& isdsLogoDownSendCacheLogo();
     
     /**
      * IRQIsdsClient::isdsPostLog()
      * send the log file to the isds server
      * @param None
      */
-    IMPORT_C void isdsPostLog(const QString& aFileName);
+    void isdsPostLog(const QString& aFileName);
     
     /*
      * IRQIsdsClient::isdsGetIRID()
 	 * get the irid of the application
      */
-    IMPORT_C void isdsGetIRID();
+    void isdsGetIRID();
 
     /*
      * IRQIsdsClient::isdsGetBrowseBanner()
      * get the browse advertisement url and clickthrough url
      */
-    IMPORT_C void isdsGetBrowseBanner(QString& aBannerUrl, QString& aClickThroughUrl);
+    void isdsGetBrowseBanner(QString& aBannerUrl, QString& aClickThroughUrl);
 
     /*
      * IRQIsdsClient::isdsMultiSearch()
      * the new interface of multi search
      */
-    IMPORT_C void isdsMultSearch(QString aGenreID, QString aCountryID, QString aLanguageID, QString aSearchText);
+    void isdsMultSearch(QString aGenreID, QString aCountryID, QString aLanguageID, QString aSearchText);
 
-    IMPORT_C bool isdsIsConstructSucceed() const;
+    bool isdsIsConstructSucceed() const;
     
     signals:
     /**
@@ -282,19 +287,29 @@ public:
     void iridReceived(QString aIRID);
     
     
-
+    
 private:
 
     /*
-     * the IRQIsdsClientImpl of the IRQIsdsClient
+     * Pointer to IRQIsdsClient instance
      */
-    IRQIsdsClientImpl *iImpl;
+	static IRQIsdsClient *mInstance;
+	
+    /*
+     * Mutex lock for instance singleton
+     */
+    static QMutex mMutex;
+	
+    /*
+     * the pointer of IRQAbstractIsdsClientImpl type point to IRQIsdsClientImpl of the IRQIsdsClient
+     */
+	IRQAbstractIsdsClientImpl *d_ptr;
 
     /**
      *iSingletonInstances
      * the count of reference of the object
      */
-    int iSingletonInstances;
+    static int mRef;
 
     IRQIsdsClient();
     /**
@@ -302,6 +317,8 @@ private:
      *default c++ function
      **/
     ~IRQIsdsClient();
+
+	friend class IRQIsdsClientImpl;
 };
 
 #endif

@@ -39,17 +39,12 @@ _LIT8( KIRHtmlMimeType, "text/html" );
 /** Browser prefix: See browser API specification */
 _LIT( KBrowserPrefix, "4 " );
 
-const long int KCenrepUidInternetRadio = { 0x2000B499 };
-const unsigned long int KSongRecognitionKeyId = { 0x00000035 };
-
 static bool openAdvLinkL(const QString& aUrl);
-static TUid getSongRecognitionAppUid();
-static bool launchAppByUid(const TUid aUid);
   
 //
 //convert the CIRIsdsPreset to the IRQPreset. 
 //
-EXPORT_C void IRQUtility::convertCIRIsdsPreset2IRQPrest(const CIRIsdsPreset& aCIRIsdsPreset, IRQPreset& aQIRPreset)
+void IRQUtility::convertCIRIsdsPreset2IRQPrest(const CIRIsdsPreset& aCIRIsdsPreset, IRQPreset& aQIRPreset)
 {
   aQIRPreset.type = aCIRIsdsPreset.GetChannelType();
   
@@ -75,7 +70,7 @@ EXPORT_C void IRQUtility::convertCIRIsdsPreset2IRQPrest(const CIRIsdsPreset& aCI
   
   aQIRPreset.imgUrl  = QString::fromUtf16(aCIRIsdsPreset.GetImgUrl().Ptr(), aCIRIsdsPreset.GetImgUrl().Length());   
   aQIRPreset.logoData.Close();
-  aQIRPreset.logoData.Create(aCIRIsdsPreset.GetLogoData());
+  TRAP_IGNORE(aQIRPreset.logoData.CreateL(aCIRIsdsPreset.GetLogoData()));
   
   aQIRPreset.musicStoreStatus  = QString::fromUtf16(aCIRIsdsPreset.GetMusicStoreStatus().Ptr(), aCIRIsdsPreset.GetMusicStoreStatus().Length());
   aQIRPreset.clearChannelServerList();
@@ -97,61 +92,61 @@ EXPORT_C void IRQUtility::convertCIRIsdsPreset2IRQPrest(const CIRIsdsPreset& aCI
 
 //convert the IRQPreset to the CIRIsdsPreset 
 //
-EXPORT_C void IRQUtility::convertIRQPreset2CIRIsdsPreset(const IRQPreset& aQIRPreset, CIRIsdsPreset& aCIRIsdsPreset)
+void IRQUtility::convertIRQPreset2CIRIsdsPreset(const IRQPreset& aQIRPreset, CIRIsdsPreset& aCIRIsdsPreset)
 {
   aCIRIsdsPreset.SetId(aQIRPreset.presetId);
   aCIRIsdsPreset.SetUrlCount(aQIRPreset.iChannelUrlCount);
   aCIRIsdsPreset.SetChannelType(aQIRPreset.type);  
   
   TPtrC16 namePtr(reinterpret_cast<const TUint16*>(aQIRPreset.name.utf16()));
-  aCIRIsdsPreset.SetName(namePtr);
+  TRAP_IGNORE(aCIRIsdsPreset.SetNameL(namePtr));
   
   TPtrC16 languageCodePtr(reinterpret_cast<const TUint16*>(aQIRPreset.languageCode.utf16()));
-  aCIRIsdsPreset.SetLangCode(languageCodePtr);
+  TRAP_IGNORE(aCIRIsdsPreset.SetLangCodeL(languageCodePtr));
   
   TPtrC16 languageNamePtr(reinterpret_cast<const TUint16*>(aQIRPreset.languageName.utf16()));
-  aCIRIsdsPreset.SetLang(languageNamePtr);
+  TRAP_IGNORE(aCIRIsdsPreset.SetLangL(languageNamePtr));
   
   TPtrC16 countryCode(reinterpret_cast<const TUint16*>(aQIRPreset.countryCode.utf16()));
-  aCIRIsdsPreset.SetCountryCode(countryCode);
+  TRAP_IGNORE(aCIRIsdsPreset.SetCountryCodeL(countryCode));
   
   TPtrC16 countryName(reinterpret_cast<const TUint16*>(aQIRPreset.countryName.utf16()));
-  aCIRIsdsPreset.SetCountryName(countryName);
+  TRAP_IGNORE(aCIRIsdsPreset.SetCountryNameL(countryName));
   
   TPtrC16 lastModified(reinterpret_cast<const TUint16*>(aQIRPreset.lastModified.utf16()));
-  aCIRIsdsPreset.SetLastModifiedTime(lastModified);
+  TRAP_IGNORE(aCIRIsdsPreset.SetLastModifiedTimeL(lastModified));
   
   TPtrC16 description(reinterpret_cast<const TUint16*>(aQIRPreset.description.utf16()));
-  aCIRIsdsPreset.SetDescription(description);
+  TRAP_IGNORE(aCIRIsdsPreset.SetDescriptionL(description));
   
   TPtrC16 shortDescription(reinterpret_cast<const TUint16*>(aQIRPreset.shortDesc.utf16()));
-  aCIRIsdsPreset.SetShortDesc(shortDescription);
+  TRAP_IGNORE(aCIRIsdsPreset.SetShortDescL(shortDescription));
   
   TPtrC16 genreId(reinterpret_cast<const TUint16*>(aQIRPreset.genreId.utf16()));
-  aCIRIsdsPreset.SetGenreId(genreId);
+  TRAP_IGNORE(aCIRIsdsPreset.SetGenreIdL(genreId));
   
   TPtrC16 genreName(reinterpret_cast<const TUint16*>(aQIRPreset.genreName.utf16()));
-  aCIRIsdsPreset.SetGenreName(genreName);
+  TRAP_IGNORE(aCIRIsdsPreset.SetGenreNameL(genreName));
   
   TPtrC16 advertisementUrl(reinterpret_cast<const TUint16*>(aQIRPreset.advertisementUrl.utf16()));
-  aCIRIsdsPreset.SetAdvertisementUrl(advertisementUrl);
+  TRAP_IGNORE(aCIRIsdsPreset.SetAdvertisementUrlL(advertisementUrl));
   
   TPtrC16 advertisementINUse(reinterpret_cast<const TUint16*>(aQIRPreset.advertisementInUse.utf16()));
-  aCIRIsdsPreset.SetAdvertisementInUse(advertisementINUse);
+  TRAP_IGNORE(aCIRIsdsPreset.SetAdvertisementInUseL(advertisementINUse));
   
   TPtrC16 imgUrl(reinterpret_cast<const TUint16*>(aQIRPreset.imgUrl.utf16()));
-  aCIRIsdsPreset.SetImgUrl(imgUrl);
+  TRAP_IGNORE(aCIRIsdsPreset.SetImgUrlL(imgUrl));
   
   TPtrC16 musicStoreStatus(reinterpret_cast<const TUint16*>(aQIRPreset.musicStoreStatus.utf16()));
-  aCIRIsdsPreset.SetMusicStoreStatus(musicStoreStatus);   
-  aCIRIsdsPreset.SetLogoData(aQIRPreset.logoData);
+  TRAP_IGNORE(aCIRIsdsPreset.SetMusicStoreStatusL(musicStoreStatus));   
+  TRAP_IGNORE(aCIRIsdsPreset.SetLogoDataL(aQIRPreset.logoData));
 
   TRAP_IGNORE(appendURLL(aQIRPreset, aCIRIsdsPreset));    
 }
 
 //convert CIRPreset to the IRQPreset 
 //
-EXPORT_C void IRQUtility::convertCIRPreset2IRQPreset(const CIRPreset& aCIRPreset, IRQPreset& aIRQPreset)
+void IRQUtility::convertCIRPreset2IRQPreset(const CIRPreset& aCIRPreset, IRQPreset& aIRQPreset)
 {
     aIRQPreset.uniqID = aCIRPreset.Id(); 
     aIRQPreset.type = aCIRPreset.GetChannelType();
@@ -197,7 +192,7 @@ EXPORT_C void IRQUtility::convertCIRPreset2IRQPreset(const CIRPreset& aCIRPreset
 
 //switch from the symbian error code to the IRQ error code 
 //
-EXPORT_C void IRQUtility::convertSError2QError(const int aSError, int& aQError)
+void IRQUtility::convertSError2QError(const int aSError, int& aQError)
 {
   if( aSError > 0 )
   {
@@ -231,7 +226,7 @@ EXPORT_C void IRQUtility::convertSError2QError(const int aSError, int& aQError)
  * Description : check the validity of URL
  * return value: true: the URL is valid, vice versa.
  */
-EXPORT_C bool IRQUtility::isValidUrl(const QString& aUrl)
+bool IRQUtility::isValidUrl(const QString& aUrl)
 {
     QString temp = aUrl.trimmed();
     if (temp.size() < 8)
@@ -255,7 +250,7 @@ EXPORT_C bool IRQUtility::isValidUrl(const QString& aUrl)
  * Description : check the validity of URL
  * return value: true: the URL is valid, vice versa.
  */
-EXPORT_C bool IRQUtility::openAdvLink(const QString& aUrl)
+bool IRQUtility::openAdvLink(const QString& aUrl)
 {
     bool retval = false;
     TRAP_IGNORE(retval = openAdvLinkL(aUrl));
@@ -263,8 +258,13 @@ EXPORT_C bool IRQUtility::openAdvLink(const QString& aUrl)
     return retval;
 }
 
-EXPORT_C bool IRQUtility::identifySongAvailable()
+bool IRQUtility::findAppByUid(const int aUid)
 {
+    if (0 == aUid)
+    {
+        return false;
+    }
+
     RApaLsSession lsSession;
     if( lsSession.Connect() != KErrNone )
     {
@@ -272,7 +272,7 @@ EXPORT_C bool IRQUtility::identifySongAvailable()
     }
     
     bool ret = false;
-    TUid songRecognitionAppUid = getSongRecognitionAppUid();
+    TUid appUid = TUid::Uid(aUid);
     TApaAppInfo *appInfo = new TApaAppInfo;
     lsSession.GetAllApps();  
 
@@ -287,7 +287,7 @@ EXPORT_C bool IRQUtility::identifySongAvailable()
         
         if(!appIsHidden)
         {
-            if(songRecognitionAppUid == appInfo->iUid)
+            if(appUid == appInfo->iUid)
             {
                 ret = true;
                 break;
@@ -299,12 +299,6 @@ EXPORT_C bool IRQUtility::identifySongAvailable()
     return ret;         
 }   
     
-    
-EXPORT_C bool IRQUtility::openSongRecognition()
-{       
-    return launchAppByUid(getSongRecognitionAppUid());
-}
-
 void IRQUtility::appendURLL(const IRQPreset& aQIRPreset, CIRIsdsPreset& aCIRIsdsPreset)
 {
     int count = aQIRPreset.urlArray.count();
@@ -319,6 +313,50 @@ void IRQUtility::appendURLL(const IRQPreset& aQIRPreset, CIRIsdsPreset& aCIRIsds
       aCIRIsdsPreset.iUrlArray->AppendL(tempServerUrl);
       CleanupStack::Pop(tempServerUrl);     
     } 
+}
+
+
+bool IRQUtility::launchAppByUid(const int aUid)
+{
+    if (0 == aUid)
+    {
+        return false;
+    }
+    TUid appUid = TUid::Uid(aUid);
+    
+    RWsSession wsSession;
+    if(KErrNone != wsSession.Connect())
+    {
+        return false;
+    }
+    
+    bool retVal = false;
+    TApaTaskList tasList(wsSession);
+    TApaTask task = tasList.FindApp(appUid);
+
+    if(task.Exists())
+    {
+        task.BringToForeground();
+        retVal = true;
+    }
+    else
+    {
+        RApaLsSession session;
+        if(KErrNone == session.Connect())
+        {
+            TThreadId threadId;
+            TInt err = session.CreateDocument(KNullDesC, appUid, threadId);
+            if(KErrNone == err)
+            {
+                retVal = true;
+            }
+            session.Close();
+        }       
+    }
+    
+    wsSession.Flush();    
+    wsSession.Close();
+    return retVal;
 }
 
 bool openAdvLinkL(const QString& aUrl)
@@ -380,56 +418,4 @@ bool openAdvLinkL(const QString& aUrl)
 
     return ret;
 }
-
-bool launchAppByUid(const TUid aUid)
-{
-    RWsSession wsSession;
-    if(KErrNone != wsSession.Connect())
-    {
-        return false;
-    }
-    
-    bool retVal = false;
-    TApaTaskList tasList(wsSession);
-    TApaTask task = tasList.FindApp(aUid);
-
-    if(task.Exists())
-    {
-        task.BringToForeground();
-        retVal = true;
-    }
-    else
-    {
-        RApaLsSession session;
-        if(KErrNone == session.Connect())
-        {
-            TThreadId threadId;
-            TInt err = session.CreateDocument(KNullDesC, aUid, threadId);
-            if(KErrNone == err)
-            {
-                retVal = true;
-            }
-            session.Close();
-        }      	
-    }
-    
-    wsSession.Flush();    
-    wsSession.Close();
-    return retVal;
-}
-
-TUid getSongRecognitionAppUid()
-{
-    // Create an XQSettingsManager object
-    XQSettingsManager settingsManager;
-    // Create an XQSettingsKey object for a particular central repository item.
-    XQSettingsKey appUidKey(XQSettingsKey::TargetCentralRepository, 
-        KCenrepUidInternetRadio, KSongRecognitionKeyId);
-    
-    // Read the integer value
-    int uidValue = settingsManager.readItemValue(appUidKey, XQSettingsManager::TypeInt).toInt();
-
-    return TUid::Uid(uidValue);
-}
-
 

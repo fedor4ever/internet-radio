@@ -26,6 +26,7 @@
 //FORWARD DECLARATIONS:
 class HbLabel;
 class HbMarqueeItem;
+class QEvent;
 
 class IrHsWidgetMetaDataRow : public HbWidget
 {
@@ -45,9 +46,12 @@ public:
     void setLoadingIcon(); 
     
 private:
-    // from QObject
-    bool eventFilter(QObject *aObject, QEvent *aEvent);
-
+    // from HbWidgetBase
+    void gestureEvent(QGestureEvent *aEvent);
+    
+    // from HbWidget
+    void changeEvent(QEvent *event);
+	
 private:
     void loadUi();
     void createLoadingIcon();
@@ -57,9 +61,10 @@ signals:
     void metaDataAreaClicked();
 
 private:
-    HbMarqueeItem *mMetaData;
-    HbLabel *mControlLabel;
-    HbIcon   mLoadingIcon;    
+    HbMarqueeItem   *mMetaData;
+    HbWidget        *mControlLayout;
+    HbLabel         *mControlLabel;
+    HbIcon           mLoadingIcon;    
 };
 
 #endif // IRHSWIDGETMETADATAROW_H_

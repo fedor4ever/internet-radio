@@ -56,6 +56,16 @@ public:
      */
     virtual void* getPlayerInstance() = 0;
 
+    /**
+     *  Turns on the stereo effect
+     */
+    virtual void enableStereoEffect() = 0;
+    
+    /**
+     *  Turns off the stereo effect
+     */
+    virtual void disableStereoEffect() = 0;
+    
 signals:
 
     /**

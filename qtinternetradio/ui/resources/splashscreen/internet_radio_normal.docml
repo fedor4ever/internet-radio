@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <hbdocument version="0.9">
+    <object name="share_station_act" type="HbAction">
+        <string locid="txt_irad_opt_share" name="text"/>
+    </object>
     <object name="genres" type="HbAction">
         <bool name="checkable" value="TRUE"/>
         <icon iconName="qtg_mono_genres" name="icon"/>
@@ -28,6 +31,9 @@
                 <stretchitem stretchfactor="1"/>                 
                 <linearitem itemname="toolBar"/>
             </layout>
+        </widget>
+	      <widget name="viewMenu" role="HbView:menu" type="HbMenu">
+            <ref object="share_station_act" role="HbWidget:addAction"/> 
         </widget>
         <string locid="txt_irad_title_internet_radio" name="title"/>
     </widget>

@@ -15,35 +15,38 @@
 *
 */
 #include "irqnwkinfoobserver.h"
-#include "irqnwkinfoobserverimpl.h"
+#include "irqnwkinfoobserver_p.h"
+
+IRQNwkInfoObserver * IRQNwkInfoObserver::mInstance = NULL;
+QMutex IRQNwkInfoObserver::mMutex;
 
 // ---------------------------------------------------------------------------
 // IRQNwkInfoObserver::openInstance()
 // Static function to get a singleton instance of IRQNwkInfoObserver
 // ---------------------------------------------------------------------------
 //
-EXPORT_C IRQNwkInfoObserver* IRQNwkInfoObserver::openInstance()
+IRQNwkInfoObserver* IRQNwkInfoObserver::openInstance()
 {
-    // Get singleton instance
-    IRQNwkInfoObserver* nwkInfoObserver =
-                           reinterpret_cast<IRQNwkInfoObserver*>(Dll::Tls());
+    mMutex.lock();
 
-    if(NULL == nwkInfoObserver)
+    if (NULL == mInstance) 
     {
-        TRAPD(error, nwkInfoObserver = createInstanceL());
-        if (KErrNone != error)
+        mInstance = new IRQNwkInfoObserver();
+
+        if (!mInstance->mInitPrivateSuccess) 
         {
-            delete nwkInfoObserver;
-            nwkInfoObserver = NULL;
-            Dll::SetTls(NULL);
+            delete mInstance;
+            mInstance = NULL;
         }
     }
     else
     {
-        nwkInfoObserver->iSingletonInstances++;
+        mInstance->mRefCount++;
     }
 
-    return nwkInfoObserver;
+    mMutex.unlock();
+
+    return mInstance;
 }
 
 // ---------------------------------------------------------------------------
@@ -51,15 +54,15 @@ EXPORT_C IRQNwkInfoObserver* IRQNwkInfoObserver::openInstance()
 // Close a singleton instance of IRQNwkInfoObserver
 // ---------------------------------------------------------------------------
 //
-EXPORT_C void IRQNwkInfoObserver::closeInstance()
+void IRQNwkInfoObserver::closeInstance()
 {
-    iSingletonInstances--;
-
-    if (0 == iSingletonInstances)
+    mMutex.lock();
+    if ((--mRefCount) == 0)
     {
-        Dll::SetTls(NULL);
+        mInstance = NULL;
         delete this;
     }
+    mMutex.unlock();
 }
 
 
@@ -67,10 +70,13 @@ EXPORT_C void IRQNwkInfoObserver::closeInstance()
 // Constructor
 // ---------------------------------------------------------------------------
 //
-IRQNwkInfoObserver::IRQNwkInfoObserver():iBody(NULL),
-                                         iSingletonInstances(0)
+IRQNwkInfoObserver::IRQNwkInfoObserver():
+        mRefCount(1), d_ptr(new IRQNwkInfoObserverPrivate(this)), mInitPrivateSuccess(false)
 {
-    
+    if (NULL != d_ptr) 
+    {
+        mInitPrivateSuccess = d_ptr->Construct();
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -81,34 +87,7 @@ IRQNwkInfoObserver::~IRQNwkInfoObserver()
 {
     stopMonitorNwkInfo();
     
-    delete iBody;
-    iBody = NULL;
-}
-
-// ---------------------------------------------------------------------------
-// IRQNwkInfoObserver::createInstanceL()
-// Creates IRQNwkInfoObserver instance
-// @return IRQNwkInfoObserver*
-// ---------------------------------------------------------------------------
-//
-IRQNwkInfoObserver* IRQNwkInfoObserver::createInstanceL()
-{
-    IRQNwkInfoObserver* nwkInfoObserver = new (ELeave) IRQNwkInfoObserver();
-    nwkInfoObserver->constructL();
-    User::LeaveIfError(Dll::SetTls(nwkInfoObserver));
-    nwkInfoObserver->iSingletonInstances = 1;
-
-    return nwkInfoObserver;
-}
-
-// ---------------------------------------------------------------------------
-// IRQNwkInfoObserver::constructL()
-// Two-Phase Constructor.
-// ---------------------------------------------------------------------------
-//
-void IRQNwkInfoObserver::constructL()
-{
-    iBody = IRQNwkInfoObserverImpl::NewL(this);
+    delete d_ptr;
 }
 
 // ---------------------------------------------------------------------------
@@ -116,11 +95,11 @@ void IRQNwkInfoObserver::constructL()
 // start monitoring network info change
 // ---------------------------------------------------------------------------
 //
-EXPORT_C void IRQNwkInfoObserver::startMonitorNwkInfo()
+void IRQNwkInfoObserver::startMonitorNwkInfo()
 {
-    if(iBody)
+    if(d_ptr)
     {
-        iBody->startNwkInfoMonitor();
+        d_ptr->startNwkInfoMonitor();
     }
 }
 
@@ -129,29 +108,10 @@ EXPORT_C void IRQNwkInfoObserver::startMonitorNwkInfo()
 // stop monitoring network info change
 // ---------------------------------------------------------------------------
 //
-EXPORT_C void IRQNwkInfoObserver::stopMonitorNwkInfo()
+void IRQNwkInfoObserver::stopMonitorNwkInfo()
 {
-    if(iBody)
+    if(d_ptr)
     {
-        iBody->Cancel();
+        d_ptr->Cancel();
     }
-}
-
-// ---------------------------------------------------------------------------
-// From MIRQNwkInfoUpdate.
-// ---------------------------------------------------------------------------
-//
-void IRQNwkInfoObserver::updateCurrentNwkInfo(const QString &aCurrentNwkMCC, const QString &aCurrentNwkMNC)
-{
-    emit currentNwkChanged(aCurrentNwkMCC,aCurrentNwkMNC);
-}
-
-
-// ---------------------------------------------------------------------------
-// From MIRQNwkInfoUpdate.
-// ---------------------------------------------------------------------------
-//
-void IRQNwkInfoObserver::updateHomeNwkInfo(const QString &aHomeNetworkMCC, const QString &aHomeNetworkMNC)
-{
-    emit homeNwkChanged(aHomeNetworkMCC,aHomeNetworkMNC);
 }

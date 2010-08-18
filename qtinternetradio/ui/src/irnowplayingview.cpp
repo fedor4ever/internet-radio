@@ -14,19 +14,26 @@
 * Description:
 *
 */
-#include <hbtoolbar.h>
 #include <QPixmap>
 #include <hbaction.h>
 #include <hblabel.h>
+#include <hbmarqueeitem.h>
 #include <hbnotificationdialog.h>
 #include <QSettings>
+#include <QFontMetricsF>
+#include <QCoreApplication>
+#include <HbColorScheme>
+#include <HbEvent>
 
 #ifdef NOWPLAYING_VIEW_OPTION_B
 #include <hbframedrawer.h>
 #include <hbframeitem.h>
 #endif
 
-
+#ifdef STATISTIC_REPORT_TEST_ENABLED
+#include <hbmenu.h>
+#endif
+    
 #include "irviewmanager.h"
 #include "irapplication.h"
 #include "irplaycontroller.h"
@@ -47,6 +54,8 @@
 #include "irplaylist.h"
 #include "irstationdetailsview.h"
 #include "irservicedef.h"
+#include "irqsettings.h"
+#include "irqlogger.h"
 
 #ifdef ADV_ENABLED
 #include <QTimer>
@@ -55,9 +64,14 @@ static const QString KDefaultAdvLink(""); // default advertisement link
 #endif
 
 const int KNowPlayingLogoSize = 300; // Now playing logo size
+
 static const QString KDefaultStationLogo("qtg_large_internet_radio");
 static const QString KPlayButtonIcon("qtg_mono_play");
 static const QString KStopButtonIcon("qtg_mono_stop");
+
+static const QString KArtistColor("qtc_lcd_content_normal");
+static const QString KSongColor("qtc_lcd_content_normal");
+static const QString KStationColor("qtc_lcd_content_normal");
 
 #ifdef NOWPLAYING_VIEW_OPTION_B
 static const QString KLcdGraphics("qtg_fr_lcd");
@@ -76,7 +90,8 @@ IRNowPlayingView::IRNowPlayingView(IRApplication* aApplication, TIRViewId aViewI
     iPlayStopAction(NULL),
     iLaunchActionNeeded(false),
     iLogoDownloadState(EIdle),    
-    iSongName(NULL),
+    iSongNameLabel(NULL),
+    iSongNameMarquee(NULL),
     iArtistName(NULL),
     iStationName(NULL),
     iStationLogo(NULL),
@@ -89,6 +104,7 @@ IRNowPlayingView::IRNowPlayingView(IRApplication* aApplication, TIRViewId aViewI
     ,iAdvUrl(KDefaultAdvLink)    
 #endif
 {
+    LOG_METHOD;
     initialize();
     
     //if this view is not starting view, finish all initialization in constructor
@@ -105,6 +121,7 @@ IRNowPlayingView::IRNowPlayingView(IRApplication* aApplication, TIRViewId aViewI
  */
 IRNowPlayingView::~IRNowPlayingView()
 {
+    LOG_METHOD;
     if (iStatisticsReporter)
     {
         iStatisticsReporter->closeInstance();
@@ -119,6 +136,7 @@ IRNowPlayingView::~IRNowPlayingView()
  */
 void IRNowPlayingView::initialize()
 {
+    LOG_METHOD;
     setObjectName(NOW_PLAYING_VIEW_OBJECT_NAME);
     QObjectList roots;
     roots.append(this);
@@ -130,6 +148,12 @@ void IRNowPlayingView::initialize()
     initMenu();
     initToolBar();
     initWidget();    
+#ifdef SUBTITLE_STR_BY_LOCID
+    setTitle(hbTrId("txt_irad_title_internet_radio"));
+         
+#else
+    setTitle("Internet radio");      
+#endif
 }
 
 /*
@@ -137,21 +161,27 @@ void IRNowPlayingView::initialize()
  */
 void IRNowPlayingView::initMenu()
 {
-#ifdef SONGRECOGNITION_ENABLED  
-    if(IRQUtility::identifySongAvailable())
+    LOG_METHOD;
+    if (iApplication->getSettings()->getIdentifySongEnabled())
     {
-        LOG("Song Recognition is Available");
-        iLoader.load(NOW_PLAYING_VIEW_LAYOUT_FILENAME, NOW_PLAYING_VIEW_SONG_RECOG_YES_SEC);
+        int songRecognitionAppUid = iApplication->getSettings()->getSongRecognitionAppUid();
+        if(IRQUtility::findAppByUid(songRecognitionAppUid))
+        {
+            LOG("Song Recognition is Available");
+            iLoader.load(NOW_PLAYING_VIEW_LAYOUT_FILENAME, NOW_PLAYING_VIEW_SONG_RECOG_YES_SEC);
+        }
+        else
+        {
+            LOG("Song Recognition is NOT Available");
+            iLoader.load(NOW_PLAYING_VIEW_LAYOUT_FILENAME, NOW_PLAYING_VIEW_SONG_RECOG_NO_SEC);
+        }
     }
     else
     {
-        LOG("Song Recognition is NOT Available");
+        LOG("Song Recognition is Disabled");
         iLoader.load(NOW_PLAYING_VIEW_LAYOUT_FILENAME, NOW_PLAYING_VIEW_SONG_RECOG_NO_SEC);
     }
-#else
-    LOG("Song Recognition is Disabled");
-    iLoader.load(NOW_PLAYING_VIEW_LAYOUT_FILENAME, NOW_PLAYING_VIEW_SONG_RECOG_NO_SEC);
-#endif    
+    
     HbAction *openWebAddressAction = qobject_cast<HbAction *> (iLoader.findObject(GO_TO_STATION_ACTION));
     HbAction *shareStationAction = qobject_cast<HbAction *> (iLoader.findObject(NOW_PLAYING_VIEW_OBJECT_SHARE_STATION_ACTION));
     HbAction *settings = qobject_cast<HbAction *> (iLoader.findObject(SETTINGS_ACTION));
@@ -163,6 +193,16 @@ void IRNowPlayingView::initMenu()
     connect(settings, SIGNAL(triggered()), this, SLOT(handleSettingAction()));
     connect(exitAction, SIGNAL(triggered()), iApplication, SIGNAL(quit()));  
     connect(songRecAction, SIGNAL(triggered()), this, SLOT(handleIdentifySongAction()));    
+    
+#ifdef STATISTIC_REPORT_TEST_ENABLED
+    HbAction *dummySongIdentifyAction = menu()->addAction("Dummy Identify Song");
+    HbAction *dummyGoToNmsAction = menu()->addAction("Dummy Go to Music Store");
+    HbAction *dummyFindInNmsAction = menu()->addAction("Dummy Find in Music Store");
+    
+    connect(dummySongIdentifyAction, SIGNAL(triggered()), this, SLOT(handleDummySongIdentify()));   
+    connect(dummyGoToNmsAction, SIGNAL(triggered()), this, SLOT(handleDummyGoToNms()));
+    connect(dummyFindInNmsAction, SIGNAL(triggered()), this, SLOT(handleDummyFindInNms()));    
+#endif
 }
 
 /*
@@ -170,6 +210,7 @@ void IRNowPlayingView::initMenu()
  */
 void IRNowPlayingView::initToolBar()
 {
+    LOG_METHOD;
     HbAction *musicStoreAction = qobject_cast<HbAction *> (iLoader.findObject(NOW_PLAYING_VIEW_OBJECT_MUSICSTORE));
     iPlayStopAction = qobject_cast<HbAction *> (iLoader.findObject(NOW_PLAYING_VIEW_OBJECT_PLAYSTOP));
     HbAction *add2FavAction = qobject_cast<HbAction *> (iLoader.findObject(NOW_PLAYING_VIEW_OBJECT_ADDTOFAV));
@@ -179,25 +220,26 @@ void IRNowPlayingView::initToolBar()
     connect(iPlayStopAction, SIGNAL(triggered()), this, SLOT(handlePlayStopAction()));
     connect(add2FavAction, SIGNAL(triggered()), this, SLOT(handleAddToFavAction()));
     connect(flipAction, SIGNAL(triggered()), this, SLOT(handleDetailInfoAction()));
-    
-    //could be removed after toolbar issue is ok
-    HbToolBar *viewToolBar = toolBar();
-    viewToolBar->addAction(musicStoreAction);
-    viewToolBar->addAction(iPlayStopAction);
-    viewToolBar->addAction(add2FavAction);
-    viewToolBar->addAction(flipAction);
 }
 
 void IRNowPlayingView::initWidget()
 {
+    LOG_METHOD;
     iStationLogo = qobject_cast<HbLabel *> (iLoader.findObject(NOW_PLAYING_VIEW_OBJECT_STATION_LOGO));
-    iSongName = qobject_cast<HbLabel *> (iLoader.findObject(NOW_PLAYING_VIEW_OBJECT_SONG_NAME));
+    iSongNameLabel = qobject_cast<HbLabel *> (iLoader.findObject(NOW_PLAYING_VIEW_OBJECT_SONG_NAME_LABEL));
+    iSongNameMarquee = qobject_cast<HbMarqueeItem *> (iLoader.findObject(NOW_PLAYING_VIEW_OBJECT_SONG_NAME_MARQUEE));
+    iSongNameMarquee->setLoopCount(-1);
     iArtistName = qobject_cast<HbLabel *> (iLoader.findObject(NOW_PLAYING_VIEW_OBJECT_ARTIST_NAME));
     iStationName = qobject_cast<HbLabel *> (iLoader.findObject(NOW_PLAYING_VIEW_OBJECT_STATION_NAME));   
     iStationLogo->setIcon(HbIcon(KDefaultStationLogo));   
     iStationName->setPlainText("");
-    iSongName->setPlainText("");
+    updateSongName(QString(""));
     iArtistName->setPlainText("");    
+    
+    iArtistName->setTextColor(HbColorScheme::color(KArtistColor));
+    iSongNameLabel->setTextColor(HbColorScheme::color(KSongColor));
+    iSongNameMarquee->setTextColor(HbColorScheme::color(KSongColor));
+    iStationName->setTextColor(HbColorScheme::color(KStationColor));
     
 #ifdef NOWPLAYING_VIEW_OPTION_B
 	HbWidget * viewContainer = qobject_cast<HbWidget *> (iLoader.findObject(VIEW_CONTAINER));
@@ -220,6 +262,7 @@ void IRNowPlayingView::initWidget()
  */
 void IRNowPlayingView::updateWidgets()
 {
+    LOG_METHOD;
     if (iLaunchActionNeeded) // if lunch as starting view, leave the update action to launchAction()
     {
         return;
@@ -232,8 +275,36 @@ void IRNowPlayingView::updateWidgets()
     loadStationLogo();
 }
 
+void IRNowPlayingView::updateSongName(const QString &aSongName)
+{
+    LOG_METHOD;
+    iSongNameMarquee->stopAnimation();	
+    iSongNameLabel->hide();
+    iSongNameMarquee->hide();
+    
+    iSongNameLabel->setPlainText(aSongName);
+    iSongNameMarquee->setText(aSongName);
+        
+    QFontMetricsF metrics(iSongNameLabel->font());
+    LOG_FORMAT("song name = %s, song name length = %f, label width = %f",
+                STRING2CHAR(aSongName), 
+                metrics.boundingRect(aSongName).width(),
+                iSongNameLabel->contentsRect().width()
+                );
+    if (metrics.boundingRect(aSongName).width() > iSongNameLabel->contentsRect().width())
+    {
+        iSongNameMarquee->show();
+        iSongNameMarquee->startAnimation();
+    }
+    else
+    {
+        iSongNameLabel->show();
+    }
+}
+
 void IRNowPlayingView::updateMusicStoreStatus()
 {
+    LOG_METHOD;
     IRQPreset *preset = iPlayController->getNowPlayingPreset();
     if(preset && (0 == preset->musicStoreStatus.compare("yes",Qt::CaseInsensitive)))
     {
@@ -251,6 +322,7 @@ void IRNowPlayingView::updateMusicStoreStatus()
  */
 void IRNowPlayingView::updateStationLogo()
 {    
+    LOG_METHOD;
     if( !iLogoNeedUpdate
         || iLogoDownloadState != EIdle )
     {
@@ -287,6 +359,7 @@ void IRNowPlayingView::updateStationLogo()
  */
 void IRNowPlayingView::updateAdvImage()
 {
+    LOG_METHOD;
     if( !iAdvImageNeedUpdate
         || iLogoDownloadState != EIdle )
     {
@@ -321,6 +394,8 @@ void IRNowPlayingView::updateAdvImage()
  */
 TIRHandleResult IRNowPlayingView::handleCommand(TIRViewCommand aCommand, TIRViewCommandReason aReason)
 {
+    LOG_METHOD;
+	LOG_FORMAT("aCommand = %d", (int)aCommand);
     if (!initCompleted())
     {
         return EIR_NoDefault;
@@ -366,18 +441,28 @@ TIRHandleResult IRNowPlayingView::handleCommand(TIRViewCommand aCommand, TIRView
  */
 void IRNowPlayingView::launchAction()
 {      
+    LOG_METHOD;
     setUseNetworkReason(EIR_UseNetwork_StartingView);
     updateForLauchAction();
 #ifdef HS_WIDGET_ENABLED	
     iPlayController->setConnectingStationName(iStationName->plainText());
 #endif	
     iApplication->verifyNetworkConnectivity();
-    getViewManager()->pushViewById(EIRView_MainView);
+    if( iApplication->isEmbeddedInstance())
+    {
+        getViewManager()->pushViewById(EIRView_PlsView);        
+    }
+    else
+    {
+        getViewManager()->pushViewById(EIRView_MainView);         
+    }
+    
     iLaunchActionNeeded = false;
 }
 
 void IRNowPlayingView::lazyInit()
 {
+    LOG_METHOD;
     iLaunchActionNeeded = true;
     
     if (!initCompleted())
@@ -387,11 +472,14 @@ void IRNowPlayingView::lazyInit()
         //initization from handleCommand()
         handleCommand(EIR_ViewCommand_TOBEACTIVATED, EIR_ViewCommandReason_Show);
         handleCommand(EIR_ViewCommand_ACTIVATED, EIR_ViewCommandReason_Show);
+        
+        emit applicationReady();
     }
 }
 
 void IRNowPlayingView::normalInit()
 {
+    LOG_METHOD;
     if (!initCompleted())
     {
         IRBaseView::lazyInit();
@@ -417,6 +505,7 @@ void IRNowPlayingView::normalInit()
 
 void IRNowPlayingView::updateForLauchAction()
 {
+    LOG_METHOD;
     //nowplaying view as starting view can have two cases : one is for last played station, the other is for 
     //the only one item in play list file    
     IRPlayList *playList = iApplication->getPlayList();
@@ -440,16 +529,19 @@ void IRNowPlayingView::updateForLauchAction()
     else
     {
         IRLastPlayedStationInfo *lastPlayedStationInfo = iApplication->getLastPlayedStationInfo();
-        IRQPreset *lastPreset = lastPlayedStationInfo->getLastPlayedStation();
-        if (lastPreset)
+        if( lastPlayedStationInfo )
         {
-            iStationName->setPlainText(lastPreset->name); 
-            iFindinNmsAllowed = (0 == lastPreset->musicStoreStatus.compare("yes",Qt::CaseInsensitive));
-        }
-        else
-        {
-            iStationName->setPlainText(QString("")); 
-            iFindinNmsAllowed = false;
+            IRQPreset *lastPreset = lastPlayedStationInfo->getLastPlayedStation();
+            if (lastPreset)
+            {
+                iStationName->setPlainText(lastPreset->name); 
+                iFindinNmsAllowed = (0 == lastPreset->musicStoreStatus.compare("yes",Qt::CaseInsensitive));
+            }
+            else
+            {
+                iStationName->setPlainText(QString("")); 
+                iFindinNmsAllowed = false;
+            }             
         }
         loadStationLogo();
     }
@@ -461,6 +553,7 @@ void IRNowPlayingView::updateForLauchAction()
  */
 void IRNowPlayingView::handleLogoDownloaded(IRQPreset* aPreset)
 {
+    LOG_METHOD;
     if( EIdle == iLogoDownloadState )
     {        
         return;
@@ -548,6 +641,8 @@ void IRNowPlayingView::handleLogoDownloaded(IRQPreset* aPreset)
  */
 void IRNowPlayingView::handleNetworkEvent(IRQNetworkEvent aEvent)
 {
+    LOG_METHOD;
+	LOG_FORMAT("aEvent = %d", (int)aEvent );
     if( this != getViewManager()->currentView() )
     {
         return;
@@ -568,12 +663,16 @@ void IRNowPlayingView::handleNetworkEvent(IRQNetworkEvent aEvent)
                 }
                 else
                 {
-                    IRLastPlayedStationInfo *lastPlayedStationInfo = iApplication->getLastPlayedStationInfo();
-                    IRQPreset *lastPreset = lastPlayedStationInfo->getLastPlayedStation();
-                    if (lastPreset)
+                    IRLastPlayedStationInfo *lastPlayedStationInfo = iApplication->getLastPlayedStationInfo();                    
+                    if( lastPlayedStationInfo )
                     {
-                        iPlayController->connectToChannel( lastPreset, lastPlayedStationInfo->connectedFrom() );
-                    }
+                        IRQPreset *lastPreset = NULL;
+                        lastPreset = lastPlayedStationInfo->getLastPlayedStation();
+						if (lastPreset)
+                        {
+                            iPlayController->connectToChannel( lastPreset, lastPlayedStationInfo->connectedFrom() );
+                        }
+                    }                    
                 }
             }
             else if( EIR_UseNetwork_PlayStation == getUseNetworkReason() )
@@ -596,14 +695,23 @@ void IRNowPlayingView::handleNetworkEvent(IRQNetworkEvent aEvent)
 
 void IRNowPlayingView::handleOrientationChanged(Qt::Orientation aOrientation)
 {
+    LOG_METHOD;
+    
     if (aOrientation == Qt::Vertical)
-    {
+    {   
+        LOG("load portrait layout");
         iLoader.load(NOW_PLAYING_VIEW_LAYOUT_FILENAME, PORTRAIT_SEC);
     }
     else
     {
+        LOG("load landscape layout");
         iLoader.load(NOW_PLAYING_VIEW_LAYOUT_FILENAME, LANDSCAPE_SEC);      
     }
+    // re-load only update the size of the widget, the rect of the widget will get updated only after re-layout.
+    updateGeometry();
+    QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+    // re-select between label and marquee.
+    updateSongName(iSongNameLabel->plainText());
 }
 
 /********************************************************************************************************
@@ -612,23 +720,26 @@ void IRNowPlayingView::handleOrientationChanged(Qt::Orientation aOrientation)
  */
 void IRNowPlayingView::handlePlayStarted()
 {
+    LOG_METHOD;
     iPlayStopAction->setIcon(HbIcon(KStopButtonIcon));
 }
 
 void IRNowPlayingView::handlePlayStopped()
 {
+    LOG_METHOD;
     iPlayStopAction->setIcon(HbIcon(KPlayButtonIcon));
-    iSongName->setPlainText("");
+    updateSongName(QString(""));
     iArtistName->setPlainText("");
     iSongNameAvailable = false;
 }
 
 void IRNowPlayingView::updateMetaData(IRQMetaData* aMetaData)
 {
+    LOG_METHOD;
     iSongNameAvailable = false;
     if(aMetaData)
     {
-        iSongName->setPlainText(aMetaData->getSongName());
+        updateSongName(aMetaData->getSongName());
         iArtistName->setPlainText(aMetaData->getArtistName());
         if(!aMetaData->getSongName().isEmpty() ||
            !aMetaData->getArtistName().isEmpty())
@@ -638,7 +749,7 @@ void IRNowPlayingView::updateMetaData(IRQMetaData* aMetaData)
     }
     else
     {
-        iSongName->setPlainText("");
+        updateSongName(QString(""));
         iArtistName->setPlainText("");  
     }
 }
@@ -649,11 +760,13 @@ void IRNowPlayingView::updateMetaData(IRQMetaData* aMetaData)
  */
 void IRNowPlayingView::handlePlayPauseMediaKey()
 {
+    LOG_METHOD;
     iPlayController->resume();
 }
 
 void IRNowPlayingView::handleStopMediaKey()
 {
+    LOG_METHOD;
     iPlayController->stop(EIRQUserTerminated);
 }
 
@@ -663,33 +776,39 @@ void IRNowPlayingView::handleStopMediaKey()
  */
 void IRNowPlayingView::handleMusicStoreAction()
 {
+    LOG_METHOD;
     if(!iFindinNmsAllowed)
     {
 #ifdef SUBTITLE_STR_BY_LOCID
         popupNote(hbTrId("txt_irad_info_not_allowed_by_this_station"), HbMessageBox::MessageTypeInformation);
 #else
-        popupNote(hbTrId("Not allowed by this station"), HbMessageBox::MessageTypeInformation);        
+        popupNote(hbTrId("Not allowed by station"), HbMessageBox::MessageTypeInformation);        
 #endif
         return;        
     }
     
     if(!iSongNameAvailable)
     {
+#ifdef SUBTITLE_STR_BY_LOCID
         popupNote(hbTrId("txt_irad_info_no_song_info"), HbMessageBox::MessageTypeInformation);
+#else
+        popupNote(hbTrId("No song info"), HbMessageBox::MessageTypeInformation);        
+#endif        
         return;        
     }
     
-    // Need to log the find song in NMS event, iStatisticsReporter->logNmsEvent(IRQStatisticsReporter::EIRFind,channelId); 
+    // Need to log the find song in NMS event, iStatisticsReporter->logNmsEvent(IRQStatisticsReporter::EIRNmsFind,channelId); 
 #ifdef SUBTITLE_STR_BY_LOCID
     popupNote(hbTrId("txt_irad_info_music_store_not_available"), HbMessageBox::MessageTypeInformation);
 #else
-    popupNote(hbTrId("Music store not available"), HbMessageBox::MessageTypeInformation);    
+    popupNote(hbTrId("Music store not ready"), HbMessageBox::MessageTypeInformation);    
 #endif
 }
 
 void IRNowPlayingView::handleIdentifySongAction()
 {
-    if(IRQUtility::openSongRecognition())
+    LOG_METHOD;
+    if(IRQUtility::launchAppByUid(iSettings->getSongRecognitionAppUid()))
     {
         iStatisticsReporter->logSongRecogEvent();
     }
@@ -698,6 +817,7 @@ void IRNowPlayingView::handleIdentifySongAction()
 
 void IRNowPlayingView::handlePlayStopAction()
 {
+    LOG_METHOD;
     switch (iPlayController->state())
     {
         case IRPlayController::EPlaying:
@@ -726,6 +846,7 @@ void IRNowPlayingView::handlePlayStopAction()
 
 void IRNowPlayingView::handleAddToFavAction()
 {
+    LOG_METHOD;
     IRQPreset *nowPlayingPreset = iPlayController->getNowPlayingPreset();
     int retValue = iFavorites->addPreset(*nowPlayingPreset);
     HbNotificationDialog *add2FavNote = new HbNotificationDialog();
@@ -771,6 +892,7 @@ void IRNowPlayingView::handleAddToFavAction()
 
 void IRNowPlayingView::handleDetailInfoAction()
 {
+    LOG_METHOD;
     getViewManager()->activateView(EIRView_StationDetailsView);
     IRStationDetailsView *channelHistoryView = static_cast<IRStationDetailsView*>(getViewManager()->getView(EIRView_StationDetailsView));
     channelHistoryView->setDetails();
@@ -783,11 +905,13 @@ void IRNowPlayingView::handleDetailInfoAction()
  */
 void IRNowPlayingView::handleGoToStationAction()
 {
+    LOG_METHOD;
     getViewManager()->activateView(EIRView_OpenWebAddressView);
 }
 
 void IRNowPlayingView::handleShareStationAction()
 {
+    LOG_METHOD;
     if (NULL == iStationShare)
     {
         iStationShare = new IRStationShare();
@@ -797,12 +921,14 @@ void IRNowPlayingView::handleShareStationAction()
 
 void IRNowPlayingView::handleSettingAction()
 {
+    LOG_METHOD_ENTER;
     getViewManager()->activateView(EIRView_SettingsView);
 }
 
 #ifdef ADV_ENABLED
 void IRNowPlayingView::mousePressEvent(QGraphicsSceneMouseEvent *aEvent)
 {
+    LOG_METHOD_ENTER;
     QRectF advRect = iAdvImage->geometry();
     QPointF pos = aEvent->pos();
     
@@ -814,12 +940,35 @@ void IRNowPlayingView::mousePressEvent(QGraphicsSceneMouseEvent *aEvent)
 
 void IRNowPlayingView::openAdvLink()
 {
+    LOG_METHOD_ENTER;
     IRQUtility::openAdvLink(iAdvUrl);
 }
 #endif
 
+#ifdef STATISTIC_REPORT_TEST_ENABLED
+void IRNowPlayingView::handleDummySongIdentify()
+{
+    iStatisticsReporter->logSongRecogEvent();   
+    popupNote("Identify Song ...", HbMessageBox::MessageTypeInformation);
+}
+
+void IRNowPlayingView::handleDummyGoToNms()
+{
+    iStatisticsReporter->logNmsEvent(IRQStatisticsReporter::EIRNmsLaunch,iPlayController->getNowPlayingPreset()->presetId);     
+    popupNote("Go to Music Store ...", HbMessageBox::MessageTypeInformation);
+}
+
+void IRNowPlayingView::handleDummyFindInNms()
+{
+    iStatisticsReporter->logNmsEvent(IRQStatisticsReporter::EIRNmsFind,iPlayController->getNowPlayingPreset()->presetId);  
+    popupNote("Find in Music Store ...", HbMessageBox::MessageTypeInformation);
+}
+
+#endif
+    
 void IRNowPlayingView::loadStationLogo()
 {
+    LOG_METHOD;
     if (iPlayController->isStationLogoAvailable())    
     { 
         QSettings settings(KIrSettingOrganization, KIrSettingApplication);
@@ -852,8 +1001,27 @@ void IRNowPlayingView::loadStationLogo()
 
 void saveStationLogo(const QPixmap &aStationLogo)
 {
+    LOG_METHOD_ENTER;
     QSettings settings(KIrSettingOrganization, KIrSettingApplication);
     QVariant logoData(QVariant::Pixmap);
     logoData.setValue(aStationLogo);
     settings.setValue(KIrSettingStationLogo,logoData);    
+}
+//Implemented to receive theme change event
+//@param QEvent, The change events to be received  
+//
+void IRNowPlayingView::changeEvent(QEvent *event)
+{
+    if (HbEvent::ThemeChanged == event->type())
+    {
+        // get the text color from theme and 
+        // set it to corresponding labels
+        iArtistName->setTextColor(HbColorScheme::color(KArtistColor));
+        iSongNameLabel->setTextColor(HbColorScheme::color(KSongColor));
+        iSongNameMarquee->setTextColor(HbColorScheme::color(KSongColor));
+        iStationName->setTextColor(HbColorScheme::color(KStationColor));
+          
+    }
+    
+    HbWidget::changeEvent(event);
 }

@@ -16,12 +16,15 @@ defFilePath = ..
 DEFINES += BUILD_IRQSYSTEMEVENTHANDLEREXPORTS_DLL
 
 INCLUDEPATH += $$APP_LAYER_SYSTEMINCLUDE \
-               ..\irqlogger\inc
+               ../irqlogger/inc \
+               ../irqcommon/inc \
+               ../irqsettings/inc
 
 LIBS += -lalarmclient \
         -lefsrv \
         -lirqlogger \
         -lplatformenv \
+        -lirqsettings \
         -laccclient
                 
 # Input
@@ -47,6 +50,7 @@ SOURCES += src/iralarmobserver.cpp \
 symbian{
   TARGET.UID3 = 0xEa421d0b
   TARGET.EPOCALLOWDLLDATA = 1
+  MMP_RULES += SMPSAFE
 } 
 
 SYMBIAN_PLATFORMS = WINSCW ARMV5

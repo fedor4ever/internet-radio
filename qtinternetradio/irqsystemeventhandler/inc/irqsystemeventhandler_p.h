@@ -59,10 +59,6 @@ private:
     void headsetIsConnected();
     void headsetIsDisconnected();
     
-#ifdef USER_DEFINED_DISKSPACE
-    void getDiskSpaceCriticalLevel(qint64 & aLevel);  
-#endif
-    
 private:
     
     IRQSystemEventHandler * const q_ptr; 

@@ -36,6 +36,7 @@ IRPlsView::IRPlsView(IRApplication* aApplication, TIRViewId aViewId) :
     //this view won't be starting view, don't need lazy init
     IrAbstractListViewBase::lazyInit();
     setInitCompleted(true);
+    setFlag(EViewFlag_ClearStackWhenActivate);
     
     connect(iNetworkController, SIGNAL(networkRequestNotified(IRQNetworkEvent)),
             this, SLOT(networkRequestNotified(IRQNetworkEvent)));
@@ -121,10 +122,6 @@ void IRPlsView::listViewLongPressed(HbAbstractViewItem *aItem, const QPointF &aC
     connect(contextMenu, SIGNAL(triggered(HbAction*)), this, SLOT(actionClicked(HbAction*)));
 }
 
-void IRPlsView::launchAction()
-{
-    getViewManager()->pushViewById(EIRView_MainView);
-}
 
 void IRPlsView::actionClicked(HbAction *aAction)
 {

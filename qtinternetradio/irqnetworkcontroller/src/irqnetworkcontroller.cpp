@@ -17,7 +17,11 @@
 #include <QStringList>
 
 #include "irqnetworkcontroller.h"
-#include "irqnetworkcontrollerbody.h" 
+#include "irqnetworkcontroller_p.h" 
+
+
+IRQNetworkController * IRQNetworkController::mInstance = NULL;
+QMutex IRQNetworkController::mMutex;
 
 // ---------------------------------------------------------------------------
 // IRQNetworkController::openInstance()
@@ -25,28 +29,28 @@
 // @return IRQNetworkController *
 // ---------------------------------------------------------------------------
 //
-EXPORT_C IRQNetworkController* IRQNetworkController::openInstance()
+IRQNetworkController* IRQNetworkController::openInstance()
 {
-    // Get singleton instance
-    IRQNetworkController* irqnetworkcontroller =
-                           reinterpret_cast<IRQNetworkController*>(Dll::Tls());
-
-    if (NULL == irqnetworkcontroller)
+    mMutex.lock();
+    
+    if (NULL == mInstance) 
     {
-        TRAPD(error, irqnetworkcontroller = createInstanceL());
-        if (KErrNone != error)
+        mInstance = new IRQNetworkController();
+
+        if (!mInstance->mInitPrivateSuccess) 
         {
-            delete irqnetworkcontroller;
-            irqnetworkcontroller = NULL;
-            Dll::SetTls(NULL);
+            delete mInstance;
+            mInstance = NULL;
         }
     }
     else
     {
-        irqnetworkcontroller->iSingletonInstances++;
+        mInstance->mRefCount++;
     }
 
-    return irqnetworkcontroller;
+    mMutex.unlock();
+
+    return mInstance;
 }
 
 // ---------------------------------------------------------------------------
@@ -54,15 +58,18 @@ EXPORT_C IRQNetworkController* IRQNetworkController::openInstance()
 // Close a singleton instance of IRQNetworkController
 // ---------------------------------------------------------------------------
 //
-EXPORT_C void IRQNetworkController::closeInstance()
+void IRQNetworkController::closeInstance()
 {
-    iSingletonInstances--;
-
-    if (0 == iSingletonInstances)
+    mMutex.lock();
+    if ((--mRefCount) == 0)
     {
-        Dll::SetTls(NULL);
+        if(this == mInstance)
+        {
+            mInstance = NULL;
+        }
         delete this;
     }
+    mMutex.unlock();
 }
 
 // ---------------------------------------------------------------------------
@@ -71,9 +78,9 @@ EXPORT_C void IRQNetworkController::closeInstance()
 // @return bool
 // ---------------------------------------------------------------------------
 //
-EXPORT_C bool IRQNetworkController::getNetworkStatus() const
+bool IRQNetworkController::getNetworkStatus() const
 {
-    return iBody->getNetworkStatus();
+    return d_ptr->getNetworkStatus();
 }
 
 // ---------------------------------------------------------------------------
@@ -82,9 +89,9 @@ EXPORT_C bool IRQNetworkController::getNetworkStatus() const
 // @return IRQError
 // ---------------------------------------------------------------------------
 //
-EXPORT_C IRQError IRQNetworkController::getIAPId(unsigned long& aIapId) const
+IRQError IRQNetworkController::getIAPId(unsigned long& aIapId) const
 {
-    return iBody->getIAPId(aIapId);
+    return d_ptr->getIAPId(aIapId);
 }
 
 // ---------------------------------------------------------------------------
@@ -93,18 +100,18 @@ EXPORT_C IRQError IRQNetworkController::getIAPId(unsigned long& aIapId) const
 // connectivity
 // ---------------------------------------------------------------------------
 //
-EXPORT_C void IRQNetworkController::chooseAccessPoint()
+void IRQNetworkController::chooseAccessPoint()
 {
-    iBody->chooseAccessPoint();
+    d_ptr->chooseAccessPoint();
 }
 
 /*
  * Cancel configuring access point
  */
-EXPORT_C void IRQNetworkController::cancelConnecting()
+void IRQNetworkController::cancelConnecting()
 {
-    iBody->cancelConnecting();
-    iBody->resetConnectionStatus();
+    d_ptr->cancelConnecting();
+    d_ptr->resetConnectionStatus();
 }
 
 // ---------------------------------------------------------------------------
@@ -113,9 +120,9 @@ EXPORT_C void IRQNetworkController::cancelConnecting()
 // @return True if the phone is in offline mode else False
 // ---------------------------------------------------------------------------
 //
-EXPORT_C bool IRQNetworkController::isOfflineMode()
+bool IRQNetworkController::isOfflineMode()
 {
-    return iBody->isOfflineMode();
+    return d_ptr->isOfflineMode();
 }
 
 // ---------------------------------------------------------------------------
@@ -124,9 +131,9 @@ EXPORT_C bool IRQNetworkController::isOfflineMode()
 // @return True if the phone supports else False
 // ---------------------------------------------------------------------------
 //
-EXPORT_C bool IRQNetworkController::isWlanSupported() const
+bool IRQNetworkController::isWlanSupported() const
 {
-    return iBody->isWlanSupported();
+    return d_ptr->isWlanSupported();
 }
 
 // ---------------------------------------------------------------------------
@@ -134,9 +141,9 @@ EXPORT_C bool IRQNetworkController::isWlanSupported() const
 // Resets the connection status to Disconnected state
 // ---------------------------------------------------------------------------
 //
-EXPORT_C void IRQNetworkController::resetConnectionStatus()
+void IRQNetworkController::resetConnectionStatus()
 {
-    iBody->resetConnectionStatus();
+    d_ptr->resetConnectionStatus();
 }
 
 // ---------------------------------------------------------------------------
@@ -145,9 +152,9 @@ EXPORT_C void IRQNetworkController::resetConnectionStatus()
 // @return enum describing the type of connection ( GPRS/3G/WiFi )
 // ---------------------------------------------------------------------------
 //
-EXPORT_C IRQConnectionType IRQNetworkController::identifyConnectionType() const
+IRQConnectionType IRQNetworkController::identifyConnectionType() const
 {
-    return iBody->identifyConnectionType();
+    return d_ptr->identifyConnectionType();
 }
 
 // ---------------------------------------------------------------------------
@@ -155,9 +162,9 @@ EXPORT_C IRQConnectionType IRQNetworkController::identifyConnectionType() const
 // Notifies all observers whose network request is active to reissue the request
 // ---------------------------------------------------------------------------
 //
-EXPORT_C void IRQNetworkController::notifyActiveNetworkObservers(IRQNetworkEvent aEvent)
+void IRQNetworkController::notifyActiveNetworkObservers(IRQNetworkEvent aEvent)
 {
-    iBody->notifyActiveNetworkObservers(aEvent);
+    d_ptr->notifyActiveNetworkObservers(aEvent);
 }
 
 // ---------------------------------------------------------------------------
@@ -166,9 +173,9 @@ EXPORT_C void IRQNetworkController::notifyActiveNetworkObservers(IRQNetworkEvent
 // @return bool
 // ---------------------------------------------------------------------------
 //
-EXPORT_C bool IRQNetworkController::isHandlingOverConnection()
+bool IRQNetworkController::isHandlingOverConnection()
 {
-    return iBody->isHandlingOverConnection();
+    return d_ptr->isHandlingOverConnection();
 }
 
 // ---------------------------------------------------------------------------
@@ -177,9 +184,9 @@ EXPORT_C bool IRQNetworkController::isHandlingOverConnection()
 // @return bool
 // ---------------------------------------------------------------------------
 //
-EXPORT_C bool IRQNetworkController::isConnectRequestIssued() const
+bool IRQNetworkController::isConnectRequestIssued() const
 {
-    return iBody->isConnectRequestIssued();
+    return d_ptr->isConnectRequestIssued();
 }
 
 // ---------------------------------------------------------------------------
@@ -187,8 +194,14 @@ EXPORT_C bool IRQNetworkController::isConnectRequestIssued() const
 // Default constructor
 // ---------------------------------------------------------------------------
 //
-IRQNetworkController::IRQNetworkController()
+IRQNetworkController::IRQNetworkController() :
+    mRefCount(1), d_ptr(new IRQNetworkControllerPrivate(this)), mInitPrivateSuccess(false)
 {
+    Q_ASSERT(d_ptr);
+    if (d_ptr) 
+    {
+        mInitPrivateSuccess = d_ptr->init();
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -199,41 +212,6 @@ IRQNetworkController::IRQNetworkController()
 //
 IRQNetworkController::~IRQNetworkController()
 {
-    delete iBody;
-    iBody = NULL;
+    delete d_ptr;
 }
 
-// ---------------------------------------------------------------------------
-// IRQNetworkController::constructL()
-// Two-Phase Constructor.
-// ---------------------------------------------------------------------------
-//
-void IRQNetworkController::constructL()
-{
-    iBody = new (ELeave) IRQNetworkControllerBody();
-    Q_ASSERT(iBody);
-    iBody->initL();
-    
-    connect(iBody, SIGNAL(networkRequestNotified(IRQNetworkEvent)),
-            this, SIGNAL(networkRequestNotified(IRQNetworkEvent)));
-    connect(iBody, SIGNAL(pendingRequestsReset(bool)),
-            this, SIGNAL(pendingRequestsReset(bool)));
-    connect(iBody, SIGNAL(networkEventNotified(IRQNetworkEvent)),
-            this, SIGNAL(networkEventNotified(IRQNetworkEvent)));
-    connect(iBody, SIGNAL(errorOccured(IRQError)),
-            this, SIGNAL(errorOccured(IRQError)));
-}
-
-// ---------------------------------------------------------------------------
-// IRQNetworkController::createInstanceL()
-// Creates IRQNetworkController instance
-// ---------------------------------------------------------------------------
-//
-IRQNetworkController* IRQNetworkController::createInstanceL()
-{
-    IRQNetworkController* nwkController = new (ELeave) IRQNetworkController();
-    nwkController->constructL();
-    User::LeaveIfError(Dll::SetTls(nwkController));
-    nwkController->iSingletonInstances = 1;
-    return nwkController;
-}

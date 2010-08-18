@@ -17,6 +17,7 @@
 
 #include <HbLabel>
 #include <hbaction.h>
+#include <hbscrollbar.h>
 #include "irapplication.h"
 #include "irstationdetailsview.h"
 #include "iruidefines.h"
@@ -107,6 +108,10 @@ void IRStationDetailsView::createDetails()
     
     // Find the station information objects
     iScrollArea = qobject_cast<HbScrollArea *>(iLoader.findObject(STATION_DETAILS_VIEW_OBJECT_SCROLL_AREA));
+    HbScrollBar *scrollbar = iScrollArea->verticalScrollBar();
+    scrollbar->setVisible(true);
+    scrollbar->setInteractive(true);
+    iScrollArea->setVerticalScrollBarPolicy(HbScrollArea::ScrollBarAsNeeded);
     iContainer = qobject_cast<HbWidget *> (iLoader.findObject(STATION_DETAILS_VIEW_OBJECT_SCROLLAREA_CONTENTS));
     iStationName = qobject_cast<HbLabel *> (iLoader.findObject(STATION_DETAILS_VIEW_OBJECT_STATION_NAME));
     iGenres = qobject_cast<HbLabel *> (iLoader.findObject(STATION_DETAILS_VIEW_OBJECT_GENRE));

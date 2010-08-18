@@ -22,7 +22,7 @@
 
 QMutex IRQStatisticsReporter::mMutex;
 int IRQStatisticsReporter::mRef = 0;
-IRQStatisticsReporter *IRQStatisticsReporter::mInstatnce = NULL;
+IRQStatisticsReporter *IRQStatisticsReporter::mInstance = NULL;
 
 // ---------------------------------------------------------------------------
 // IRQStatisticsReporter::openInstance()
@@ -32,16 +32,16 @@ IRQStatisticsReporter *IRQStatisticsReporter::mInstatnce = NULL;
 IRQStatisticsReporter* IRQStatisticsReporter::openInstance()
 {
     mMutex.lock();
-    if( NULL == mInstatnce )
+    if( NULL == mInstance )
     {
-        mInstatnce = new IRQStatisticsReporter();
+        mInstance = new IRQStatisticsReporter();
     }       
-    if( mInstatnce != NULL )
+    if( mInstance != NULL )
     {
         mRef++;
     }
     mMutex.unlock();
-    return mInstatnce;
+    return mInstance;
 }
 
 // ---------------------------------------------------------------------------
@@ -51,13 +51,14 @@ IRQStatisticsReporter* IRQStatisticsReporter::openInstance()
 //
 void IRQStatisticsReporter::closeInstance()
 {
-    if( mInstatnce != NULL )
+    if( mInstance != NULL )
     {
         mMutex.lock();
         mRef--;
         if( 0 == mRef )
         {
-            delete mInstatnce;
+            delete mInstance;
+            mInstance = NULL;
         }        
         mMutex.unlock();
     }

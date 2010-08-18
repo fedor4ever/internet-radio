@@ -21,11 +21,7 @@
 #include <bautils.h>
 
 _LIT( KPSDatabaseFileName, "pspresets.db" );    // File name of the preset database.
-#if defined __SERIES60_30__ || defined __SERIES60_31__
-_LIT( KPSDatabasePath, "\\data\\" );    // File name of the preset database.
-#else
 _LIT( KPSDatabasePath, "\\private\\10281cb5\\" );            // File name of the preset database.
-#endif
 
 // ======== LOCAL FUNCTIONS ========
 

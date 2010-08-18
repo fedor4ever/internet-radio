@@ -23,6 +23,8 @@
 #include <hblineedit.h>
 #include <hbstyleloader.h>
 #include <hbaction.h>
+#include <qinputcontext.h>
+#include <qapplication.h>
 
 #include "irviewmanager.h"
 #include "irapplication.h"
@@ -35,6 +37,8 @@
 #include "iruidefines.h"
 #include "irqsettings.h"
 static const int MAX_URL_CHARACTOR_NUMBER = 255;
+static const int MAX_DATA_FORM_NUMBER_ROWS = 4;
+static const int MIN_DATA_FORM_NUMBER_ROWS = 1;
 
 IROpenWebAddressView::IROpenWebAddressView(IRApplication* aApplication, TIRViewId aViewId) :
     IRBaseView(aApplication, aViewId),
@@ -49,9 +53,9 @@ IROpenWebAddressView::IROpenWebAddressView(IRApplication* aApplication, TIRViewI
     IRBaseView::lazyInit();
     setInitCompleted(true);
     
-    // TODO: te be deleted if there's no difference between the landscape and portrait.
-//    connect( getViewManager(), SIGNAL( orientationChanged(Qt::Orientation) ),
-//             this, SLOT( handleOrientationChanged(Qt::Orientation) ) );
+    // Listen to the orientation change event
+    connect( getViewManager(), SIGNAL( orientationChanged(Qt::Orientation) ),
+             this, SLOT( handleOrientationChanged(Qt::Orientation) ) );
     
     // Create widget hierarchy
     setObjectName(OPEN_WEB_ADDRESS_VIEW_OBJECT_VIEW);
@@ -78,7 +82,7 @@ IROpenWebAddressView::IROpenWebAddressView(IRApplication* aApplication, TIRViewI
     // destruct this class.
     iSettings = IRQSettings::openInstance();
 
-    // Install event filter
+    // Install event filter for Name
     QModelIndex index = iModel->indexFromItem(iName);
     HbAbstractViewItem* viewItem = iForm->itemByIndex(index);
     HbDataFormViewItem* dataformviewitem = static_cast<HbDataFormViewItem *>(viewItem);
@@ -86,6 +90,14 @@ IROpenWebAddressView::IROpenWebAddressView(IRApplication* aApplication, TIRViewI
     iNameEditorPtr = static_cast<HbLineEdit *>(widget);
     iNameEditorPtr->installEventFilter(this);
 
+    //Install event filter for URL 
+    QModelIndex indexUrl = iModel->indexFromItem(iUrl);
+    HbAbstractViewItem* viewItemUrl = iForm->itemByIndex(indexUrl);
+    HbDataFormViewItem* dataformviewitemUrl = static_cast<HbDataFormViewItem *>(viewItemUrl);
+    HbWidget *widgetUrl = dataformviewitemUrl->dataItemContentWidget();
+    iUrlEditorPtr = static_cast<HbLineEdit *>(widgetUrl);
+    iUrlEditorPtr->installEventFilter(this);
+    
     // Find the play button objects
     iPlayButton = qobject_cast<HbPushButton *>(iLoader.findObject(OPEN_WEB_ADDRESS_VIEW_OBJECT_PLAY_BUTTON));
     connect(iPlayButton, SIGNAL(released()), this, SLOT(play()));
@@ -212,6 +224,10 @@ void IROpenWebAddressView::initDataForm()
     iUrl = new HbDataFormModelItem(HbDataFormModelItem::TextItem, hbTrId("Station address"));
 #endif     
     iUrl->setContentWidgetData("maxLength",MAX_URL_CHARACTOR_NUMBER);
+    if (Qt::Horizontal == getViewManager()->orientation())
+    {
+        iUrl->setContentWidgetData("maxRows", MIN_DATA_FORM_NUMBER_ROWS);
+    }    
     iModel->appendDataFormItem(iUrl);
 
 #ifdef SUBTITLE_STR_BY_LOCID
@@ -222,6 +238,10 @@ void IROpenWebAddressView::initDataForm()
             HbDataFormModelItem::TextItem, hbTrId("Station name"));    
 #endif
     iName->setContentWidgetData("maxLength", MAX_URL_CHARACTOR_NUMBER);
+    if (Qt::Horizontal == getViewManager()->orientation())
+    {
+        iName->setContentWidgetData("maxRows", MIN_DATA_FORM_NUMBER_ROWS);
+    }       
     iModel->appendDataFormItem(iName);
 
     iForm->addConnection(iUrl, SIGNAL(textChanged(const QString&)),
@@ -233,6 +253,8 @@ void IROpenWebAddressView::initDataForm()
  */
 void IROpenWebAddressView::play()
 {
+    hideVkb();
+    
     // Create a IRQPreset using the inputted information
     IRQPreset preset;
 
@@ -351,10 +373,14 @@ void IROpenWebAddressView::handleOrientationChanged(Qt::Orientation aOrientation
     if (aOrientation == Qt::Vertical)
     {
         iLoader.load(OPEN_WEB_ADDRESS_VIEW_LAYOUT_FILENAME, "portrait");
+        iUrl->setContentWidgetData("maxRows", MAX_DATA_FORM_NUMBER_ROWS);
+        iName->setContentWidgetData("maxRows", MAX_DATA_FORM_NUMBER_ROWS);        
     }
     else
     {
         iLoader.load(OPEN_WEB_ADDRESS_VIEW_LAYOUT_FILENAME, "landscape");
+        iUrl->setContentWidgetData("maxRows", MIN_DATA_FORM_NUMBER_ROWS);        
+        iName->setContentWidgetData("maxRows", MIN_DATA_FORM_NUMBER_ROWS);            
     }
 }
 
@@ -377,5 +403,21 @@ bool IROpenWebAddressView::eventFilter(QObject *object, QEvent *event)
             iName->setContentWidgetData(QString("text"), QString(""));
         }
     }
+    else if( (object == iUrlEditorPtr || object == iNameEditorPtr)
+        && event->type() == QEvent::FocusOut )
+    {
+        hideVkb();
+    }
+    
     return false;
+}
+void IROpenWebAddressView::hideVkb()
+{
+    QInputContext *ic = qApp->inputContext(); 
+    if (ic)
+    {
+        QEvent *event = new QEvent(QEvent::CloseSoftwareInputPanel);
+        ic->filterEvent(event);
+        delete event;
+    }
 }

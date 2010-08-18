@@ -52,6 +52,8 @@ APP_LAYER_SYSTEMINCLUDE
 SYSTEMINCLUDE   OS_LAYER_PUBLIC_EXPORT_PATH(ecom)
 SYSTEMINCLUDE   OS_LAYER_PUBLIC_EXPORT_PATH(connect)
 
+SMPSAFE
+
 LIBRARY                 bafl.lib
 LIBRARY                 ecom.lib
 LIBRARY                 edbms.lib

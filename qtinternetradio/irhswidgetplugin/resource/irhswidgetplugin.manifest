@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <hswidgetmanifest>
     <uri>irhswidgetplugin</uri>
-    <title>Internet Radio HS Widget</title>
-    <description>Internet Radio HS Widget</description>
-    <icon>irhswidgetplugin.png</icon>
+    <title>txt_iradhswidget_list_fm_radio_homescreen_widget</title>
+    <description>txt_iradhswidget_list_quick_access_for_internet_radio</description>
+    <icon>qtg_large_internet_radio</icon>
+    <previewimage>qtg_large_internet_radio</previewimage>
     <hidden>false</hidden>
     <servicexml>irhswidgetplugin.xml</servicexml>
+    <translationfile>iradhswidget</translationfile>
 </hswidgetmanifest>

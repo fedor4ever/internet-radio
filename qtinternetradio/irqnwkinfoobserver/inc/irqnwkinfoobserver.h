@@ -21,13 +21,13 @@
 
 #include <QObject>
 #include <QString>
+#include <QMutex>
 
-#include "irqnwkobserverinterface.h"  // MIRQNwkInfoUpdate
+#include "irqnwkinfoobserverexport.h"
 
-class IRQNwkInfoObserverImpl;
+class IRQNwkInfoObserverPrivate;
 
-class IRQNwkInfoObserver : public QObject, 
-                           public MIRQNwkInfoUpdate
+class IRQNWKINFOOBSERVER_DLL_EXPORT IRQNwkInfoObserver : public QObject
 {
     Q_OBJECT
     
@@ -36,23 +36,23 @@ public:
      *  Get the instance of IRQNwkInfoObserver
      *  @return IRQNwkInfoObserver*
      */
-    IMPORT_C static  IRQNwkInfoObserver* openInstance();
+    static  IRQNwkInfoObserver* openInstance();
 
     /*!
      *  Close the instance of IRQNwkInfoObserver
      */
-    IMPORT_C void closeInstance();
+    void closeInstance();
 
 public:   
     /*!
      *  start monitoring network info change
      */
-    IMPORT_C void startMonitorNwkInfo();
+    void startMonitorNwkInfo();
 
     /*!
      *  stop monitoring network info change
      */    
-    IMPORT_C void stopMonitorNwkInfo();
+    void stopMonitorNwkInfo();
 
 signals:
 
@@ -72,26 +72,37 @@ private:
      */    
     ~IRQNwkInfoObserver();
     
-    /**
-     *  Creates IRQNwkInfoObserver instance
-     */
-    static IRQNwkInfoObserver* createInstanceL();
-    
-    void constructL();    
-    
-public:      
-    /*!
-     * From MIRQNwkInfoUpdate.
-     */  
-    void updateCurrentNwkInfo(const QString &aCurrentNwkMCC, const QString &aCurrentNwkMNC);
-    
-    void updateHomeNwkInfo(const QString &aHomeNetworkMCC, const QString &aHomeNetworkMNC);  
     
 private:
 
-    IRQNwkInfoObserverImpl *iBody;
+    /**
+     * Number of objects currently referring to the singleton object IRQNwkInfoObserver
+     */
+    int mRefCount;
     
-    int iSingletonInstances;    
+    /**
+     * The instance of IRQNwkInfoObserver singleton
+     */
+    static IRQNwkInfoObserver *mInstance;
+    
+    /**
+     * Mutex for the thread-safe of openInstance()
+     */  
+    static QMutex mMutex;
+    
+    /**
+     *  IRQNwkInfoObserver instance
+     */
+    IRQNwkInfoObserverPrivate* d_ptr;
+    
+    /**
+     *  The successful mark for initialization of private data
+     */
+    bool mInitPrivateSuccess;
+
+    Q_DISABLE_COPY(IRQNwkInfoObserver)
+    
+    friend class IRQNwkInfoObserverPrivate; 
 };
 
 #endif // IRQNWKINFOOBSERVER_H_
