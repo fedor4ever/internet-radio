@@ -19,7 +19,7 @@
 &EN 
 
 ; Header
-#{"InternetRadio"},(0x2000B499),1,0,0, TYPE=SA,RU
+#{"InternetRadio"},(0x2002ffac),1,0,0, TYPE=SA,RU
 
 ; Localised Vendor name
 %{"Nokia"}
@@ -71,13 +71,13 @@
 
 
 ; Backup & Restore
-""-"z:\private\2000B499\backup_registration.xml"
+""-"z:\private\2002ffac\backup_registration.xml"
 
 
 ; Animation script files
 ""-"z:\resource\apps\qgn_ir_loading.svg"
 ""-"z:\resource\apps\qgn_ir_buffering_anim.svg"
-;""-"z:\private\2000B499\IRFontDef.txt"
+;""-"z:\private\2002ffac\IRFontDef.txt"
 
 
 ; Help
@@ -85,5 +85,5 @@
 
 
 ; Terms of service
-""-"z:\private\2000b499\terms_*.html"
+""-"z:\private\2002ffac\terms_*.html"
 

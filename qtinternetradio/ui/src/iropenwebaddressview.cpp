@@ -25,6 +25,8 @@
 #include <hbaction.h>
 #include <qinputcontext.h>
 #include <qapplication.h>
+#include <hbtapgesture.h>
+#include <hbinputvkbhostbridge.h>
 
 #include "irviewmanager.h"
 #include "irapplication.h"
@@ -49,10 +51,6 @@ IROpenWebAddressView::IROpenWebAddressView(IRApplication* aApplication, TIRViewI
     iNameEditorPtr(NULL),
     iPlayButton(NULL)
 {
-    //this view won't be starting view, don't need lazy init
-    IRBaseView::lazyInit();
-    setInitCompleted(true);
-    
     // Listen to the orientation change event
     connect( getViewManager(), SIGNAL( orientationChanged(Qt::Orientation) ),
              this, SLOT( handleOrientationChanged(Qt::Orientation) ) );
@@ -75,6 +73,7 @@ IROpenWebAddressView::IROpenWebAddressView(IRApplication* aApplication, TIRViewI
     initDataForm();
     initDetails();
     iForm->setModel(iModel);
+    iForm->installEventFilter(this);
     initMenu();
 
     // get a new instance different from the base class. Because it's used in destructor and 
@@ -96,7 +95,6 @@ IROpenWebAddressView::IROpenWebAddressView(IRApplication* aApplication, TIRViewI
     HbDataFormViewItem* dataformviewitemUrl = static_cast<HbDataFormViewItem *>(viewItemUrl);
     HbWidget *widgetUrl = dataformviewitemUrl->dataItemContentWidget();
     iUrlEditorPtr = static_cast<HbLineEdit *>(widgetUrl);
-    iUrlEditorPtr->installEventFilter(this);
     
     // Find the play button objects
     iPlayButton = qobject_cast<HbPushButton *>(iLoader.findObject(OPEN_WEB_ADDRESS_VIEW_OBJECT_PLAY_BUTTON));
@@ -109,6 +107,8 @@ IROpenWebAddressView::IROpenWebAddressView(IRApplication* aApplication, TIRViewI
 
     // TODO: te be deleted if there's no difference between the landscape and portrait.
 //    handleOrientationChanged(getViewManager()->orientation());
+ 
+    grabGesture(Qt::TapGesture); 
 }
 
 IROpenWebAddressView::~IROpenWebAddressView()
@@ -403,10 +403,11 @@ bool IROpenWebAddressView::eventFilter(QObject *object, QEvent *event)
             iName->setContentWidgetData(QString("text"), QString(""));
         }
     }
-    else if( (object == iUrlEditorPtr || object == iNameEditorPtr)
-        && event->type() == QEvent::FocusOut )
+    else if( object == iForm && 
+             event->type() == QEvent::GestureOverride)
     {
-        hideVkb();
+        QGestureEvent *e = static_cast<QGestureEvent *>(event);
+        gestureEvent(e);
     }
     
     return false;
@@ -419,5 +420,28 @@ void IROpenWebAddressView::hideVkb()
         QEvent *event = new QEvent(QEvent::CloseSoftwareInputPanel);
         ic->filterEvent(event);
         delete event;
+    }
+}
+
+void IROpenWebAddressView::gestureEvent(QGestureEvent *aEvent)
+{
+    HbTapGesture *tapGesture = qobject_cast<HbTapGesture *>(aEvent->gesture(Qt::TapGesture));
+    if (!tapGesture)
+    {
+        return;
+    }
+    
+    if (Qt::GestureStarted == tapGesture->state())
+    {
+        QPointF tapScenePoint = tapGesture->scenePosition();
+        QPointF tapLocalPointUrl = iUrlEditorPtr->sceneTransform().inverted().map(tapScenePoint);
+        QPointF tapLocalPointName = iNameEditorPtr->sceneTransform().inverted().map(tapScenePoint);
+
+        if (!iUrlEditorPtr->contains(tapLocalPointUrl) && 
+            !iNameEditorPtr->contains(tapLocalPointName) &&
+            HbVkbHost::HbVkbStatusOpened == HbVkbHostBridge::instance()->keypadStatus())
+        {
+            hideVkb();
+        }
     }
 }

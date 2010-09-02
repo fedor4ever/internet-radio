@@ -317,8 +317,8 @@ void IRViewManager::switchToNextView(IRBaseView *aView)
     IRBaseView *viewToHide = static_cast<IRBaseView*>(currentView());
     if( viewToHide )
     {
-        if( (EIRView_StationDetailsView == aView->id() && EIRView_PlayingView == viewToHide->id())
-          ||(EIRView_StationDetailsView == viewToHide->id() && EIRView_PlayingView == aView->id())
+        if( (EIRView_StationDetailsView == aView->id()) ||
+            (EIRView_StationDetailsView == viewToHide->id())
           )
         {
             setCurrentView(aView,true,Hb::ViewSwitchUseAltEvent); 
@@ -485,7 +485,7 @@ void IRViewManager::backToPreviousView()
 
 void IRViewManager::handleViewReady()
 {    
-    IRBaseView *topView = static_cast<IRBaseView*>(currentView());
+    IRBaseView *topView = dynamic_cast<IRBaseView*>(currentView());
     if (topView)
     {
         topView->handleCommand(EIR_ViewCommand_ACTIVATED, EIR_ViewCommandReason_Show); 
@@ -583,7 +583,7 @@ void IRViewManager::clearStack()
 
 void IRViewManager::updateSoftkey()
 {
-    IRBaseView *topView = static_cast<IRBaseView*>(currentView());
+    IRBaseView *topView = dynamic_cast<IRBaseView*>(currentView());
     if (topView)
     {
         if (topView->testFlag(IRBaseView::EViewFlag_ClearStackWhenActivate))

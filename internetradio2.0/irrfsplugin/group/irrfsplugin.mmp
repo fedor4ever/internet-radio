@@ -19,7 +19,7 @@
 
 TARGET                  irrfsplugin.dll
 TARGETTYPE              PLUGIN
-UID                     0x10009D8D 0x2000B4AC
+UID                     0x10009D8D 0x2002FFAF
 
 CAPABILITY              CAP_ECOM_PLUGIN
 VENDORID                VID_DEFAULT
@@ -31,11 +31,12 @@ SOURCE                  irrfsplugin.cpp
 SOURCE                  irrfspluginproxy.cpp
 
 SOURCEPATH              ../../resources
-START RESOURCE          2000b4ac.rss
+START RESOURCE          2002ffaf.rss
 TARGET                  irrfsplugin.rsc
 END // RESOURCE
 
-USERINCLUDE             ../inc
+USERINCLUDE     	../inc
+USERINCLUDE 	  	../../inc
 
 // Default system include paths for application layer modules.
 APP_LAYER_SYSTEMINCLUDE

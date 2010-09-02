@@ -19,11 +19,11 @@
 #ifndef __INTERNETRADIO_IBY__
 #define __INTERNETRADIO_IBY__
 
-ECOM_PLUGIN(irfilerecognizer.dll, 2000B4A9.rsc)
-ECOM_PLUGIN(irpresetplugin.dll, 2000B4AA.rsc)
-ECOM_PLUGIN(irrfsplugin.dll, 2000b4ac.rsc)
+ECOM_PLUGIN(irfilerecognizer.dll, 2002ffb8.rsc)
+ECOM_PLUGIN(irpresetplugin.dll, 2002ffc7.rsc)
+ECOM_PLUGIN(irrfsplugin.dll, 2002ffaf.rsc)
 
-data=ZPRIVATE\2000B499\backup_registration.xml                  private\2000B499\backup_registration.xml
+data=ZPRIVATE\2002ffac\backup_registration.xml                  private\2002ffac\backup_registration.xml
 
 file=ABI_DIR\BUILD_DIR\irdatastructures.dll                      SHARED_LIB_DIR\irdatastructures.dll
 file=ABI_DIR\BUILD_DIR\irdataprovider.dll			 SHARED_LIB_DIR\irdataprovider.dll

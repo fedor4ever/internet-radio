@@ -21,7 +21,7 @@
 
 TARGET        irdataprovider.dll
 TARGETTYPE    dll
-UID           0x1000008d 0x2000B49C
+UID           0x1000008d 0x2002FFB5
 
 PAGED
 

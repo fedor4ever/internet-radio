@@ -51,38 +51,11 @@ IRSearchChannelsView::IRSearchChannelsView(IRApplication* aApplication,
 {
     LOG_METHOD;
     iSettings = IRQSettings::openInstance();    
-    //if this view is not starting view, finish all initialization in constructor
-    if (getViewManager()->views().count() > 0)
-    {
-        if (!initCompleted())
-        {            
-            normalInit();             
-        }
-    }
-}
-
-void IRSearchChannelsView::lazyInit()
-{
-    LOG_METHOD;
-    if (!initCompleted())
-    {
-        normalInit();                     
-    }        
-}
-
-void IRSearchChannelsView::normalInit()
-{
-    LOG_METHOD;
-    if (!initCompleted())
-    { 
-        IRBaseView::lazyInit();
-        loadLayout();
-        connectWidget();  
-        switch2InitState();       
-        initMenu();        
-        initTimer();
-        setInitCompleted(true);
-    }
+    loadLayout();
+    connectWidget();  
+    switch2InitState();       
+    initMenu();        
+    initTimer();
 }
 
 void IRSearchChannelsView::initMenu()
@@ -540,7 +513,13 @@ TIRHandleResult IRSearchChannelsView::handleCommand(TIRViewCommand aCommand,
     case EIR_ViewCommand_ACTIVATED:         
         iIconIndexArray.clear();        
         iListView->clearFocus();
+        iSearchPanelWidget->setFocusDelegation(FocusDelegationFirstChild);  
         iSearchPanelWidget->setFocus();        
+        if( (0 == iChannelModel->rowCount()) 
+            && iKeyText.isEmpty() )
+        {
+            showVkb();
+        }
         connectIsdsClient();
         break;
         
@@ -569,6 +548,18 @@ bool IRSearchChannelsView::eventFilter(QObject *object, QEvent *event)
   
     return false;
 }
+
+void IRSearchChannelsView::showVkb()
+{
+    QInputContext *ic = qApp->inputContext(); 
+    if (ic)
+    {
+        QEvent *event = new QEvent(QEvent::RequestSoftwareInputPanel);
+        ic->filterEvent(event);
+        delete event;
+    }
+}
+
 void IRSearchChannelsView::hideVkb()
 {
     QInputContext *ic = qApp->inputContext(); 

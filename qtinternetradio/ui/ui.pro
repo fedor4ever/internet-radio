@@ -85,10 +85,11 @@ LIBS += -lirqnetworkcontroller \
         -lirqsystemeventhandler \
         -lxqsettingsmanager \
         -lxqservice \
-        -lxqserviceutil
+        -lxqserviceutil \
+        -lhgcacheproxymodel
         	
 symbian{
-  TARGET.UID3 = 0xE28364bb
+  TARGET.UID3 = 0x2002FFAC
   TARGET.EPOCHEAPSIZE = 0x020000 0x2000000
   TARGET.VID = VID_DEFAULT
   SKINICON = qtg_large_internet_radio
@@ -110,6 +111,7 @@ HEADERS += inc/irapplication.h \
            inc/irplaycontroller.h \
            inc/ircategorymodel.h \
            inc/irchannelmodel.h \
+           inc/irchanneldataprovider.h \
            inc/irabstractlistviewbase.h \
            inc/irfavoritesview.h \
            inc/irfavoritesmodel.h \
@@ -149,6 +151,7 @@ SOURCES += main.cpp  \
            irplaycontroller.cpp \
            ircategorymodel.cpp \
            irchannelmodel.cpp \
+           irchanneldataprovider.cpp \
            irabstractlistviewbase.cpp \
            irfavoritesview.cpp \
            irfavoritesmodel.cpp \
@@ -174,7 +177,15 @@ SOURCES += main.cpp  \
            irsearchresultdb.cpp \
            irfileviewservice.cpp \
            irplayingbanner.cpp
-          	   
+
+#docml      
+DOCML += resources/layout/abstractlistviewbase.docml \
+         resources/layout/nowplayingview.docml \
+         resources/layout/openwebaddressview.docml \
+         resources/layout/searchchannelsview.docml \
+         resources/layout/stationdetailsview.docml \
+         resources/layout/termsconsview.docml
+               	   
 #resource
 RESOURCES += resources/irui.qrc
 

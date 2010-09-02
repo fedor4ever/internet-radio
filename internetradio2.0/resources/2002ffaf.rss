@@ -17,6 +17,7 @@
 
 
 #include <registryinfo.rh>
+#include "iruid3.hrh"
 
 // ---------------------------------------------------------------------------
 // r_ps_rfs_plugin_registry_info
@@ -25,7 +26,7 @@
 //
 RESOURCE REGISTRY_INFO r_ps_rfs_plugin_registry_info
     {
-    dll_uid = 0x2000B4AC;
+    dll_uid = UID3_IRRFSPLUGIN_DLL;
     interfaces =
         {
         INTERFACE_INFO
@@ -35,7 +36,7 @@ RESOURCE REGISTRY_INFO r_ps_rfs_plugin_registry_info
                 {
                 IMPLEMENTATION_INFO
                     {
-                    implementation_uid = 0x2000B4DD;
+                    implementation_uid = UID3_IRRFSPLUGIN_DLL_IMPLEMENTATION_UID;
                     version_no = 1;
                     display_name = "Internet Radio RFS Plugin";
                     default_data = "N"; // Normal RFS.

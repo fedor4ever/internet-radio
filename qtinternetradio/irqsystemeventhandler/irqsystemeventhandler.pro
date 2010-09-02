@@ -48,7 +48,7 @@ SOURCES += src/iralarmobserver.cpp \
            src/irqsystemeventhandler_p.cpp         
 
 symbian{
-  TARGET.UID3 = 0xEa421d0b
+  TARGET.UID3 = 0x2002FFC5
   TARGET.EPOCALLOWDLLDATA = 1
   MMP_RULES += SMPSAFE
 } 

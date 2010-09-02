@@ -50,6 +50,7 @@ IrMonitorService::IrMonitorService(IRApplication *aIrApp, QObject *aParent) :
     mIrApp(aIrApp),
     mPlayController(NULL)
 {   
+    LOG_METHOD;
     publishAll();
     mPlayController = mIrApp->getPlayController();
     setupConnection();
@@ -58,10 +59,12 @@ IrMonitorService::IrMonitorService(IRApplication *aIrApp, QObject *aParent) :
 // Destructor
 IrMonitorService::~IrMonitorService()
 {
+    LOG_METHOD;
 }
 
 void IrMonitorService::setupConnection()
 {
+    LOG_METHOD;
     // meta data update
     connect(mPlayController, SIGNAL(metaDataAvailable(IRQMetaData*)), 
         this, SLOT(updateMetaData(IRQMetaData*)));
@@ -91,6 +94,7 @@ void IrMonitorService::setupConnection()
 // service interface, called via Qt Highway
 void IrMonitorService::registerNotifications()
 {
+    LOG_METHOD;
     mRequestList.append(setCurrentRequestAsync());
     
     if (ANY_READY())
@@ -102,9 +106,12 @@ void IrMonitorService::registerNotifications()
 // service interface, called via Qt Highway
 void IrMonitorService::refreshAllData()
 {
+    LOG_METHOD;
     IrServiceDataList notificationList;
     
     IRQPreset * currentPreset = mPlayController->getNowPlayingPreset();    
+    
+    LOG_FORMAT("mPlayController->state() = %d", mPlayController->state());
     
     switch (mPlayController->state())
     {
@@ -160,6 +167,7 @@ void IrMonitorService::refreshAllData()
 
 void IrMonitorService::updateMetaData(IRQMetaData* aMetaData)
 {    
+    LOG_METHOD;
     if (aMetaData)
     {
         SET_FLAG(MetaData);
@@ -171,6 +179,7 @@ void IrMonitorService::updateMetaData(IRQMetaData* aMetaData)
  
 void IrMonitorService::handleStationLogoUpdated(bool aLogoAvailable)
 {
+    LOG_METHOD;
     mStationLogoAvailable = aLogoAvailable;
     SET_FLAG(StationLogo);
     
@@ -179,6 +188,7 @@ void IrMonitorService::handleStationLogoUpdated(bool aLogoAvailable)
  
 void IrMonitorService::handleLoadingStarted(const QString &aStationName)
 {
+    LOG_METHOD;
     mMetaData.clear();
     SET_FLAG(MetaData);
     
@@ -193,6 +203,7 @@ void IrMonitorService::handleLoadingStarted(const QString &aStationName)
 
 void IrMonitorService::handleLoadingCancelled(const QString &aStationName)
 {
+    LOG_METHOD;
     mMetaData.clear();
     SET_FLAG(MetaData);
     
@@ -214,6 +225,7 @@ void IrMonitorService::handleLoadingCancelled(const QString &aStationName)
 
 void IrMonitorService::handlePlayStarted()
 {
+    LOG_METHOD;
     mMetaData.clear();
     SET_FLAG(MetaData);
     
@@ -229,6 +241,7 @@ void IrMonitorService::handlePlayStarted()
 
 void IrMonitorService::handlePlayStopped()
 {
+    LOG_METHOD;
     mMetaData.clear();
     SET_FLAG(MetaData);
 
@@ -245,6 +258,7 @@ void IrMonitorService::handlePlayStopped()
  */
 void IrMonitorService::notifyAll()
 {
+    LOG_METHOD;
     IrServiceDataList notificationList;
     
     if(IS_READY(StationName))
@@ -275,6 +289,7 @@ void IrMonitorService::notifyAll()
 
 bool IrMonitorService::notifyList(const IrServiceDataList &aDataList)
 {
+    LOG_METHOD;
     bool retVal = true;
     
     if (mRequestList.count() > 0

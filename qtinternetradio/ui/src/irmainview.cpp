@@ -39,11 +39,15 @@ IRMainView::IRMainView(IRApplication* aApplication, TIRViewId aViewId) :
     setFlag(EViewFlag_ClearStackWhenActivate|EViewFlag_StickyViewEnabled);
 	iLoader.load(ABSTRACT_LIST_VIEW_BASE_LAYOUT_FILENAME, ABSTRACT_LIST_VIEW_BASE_WITH_TOOLBAR_SECTION);
 	
-	//if this view is not starting view, finish all initialization in constructor
-	if (getViewManager()->views().count() > 0)
-	{
-	    normalInit();
-	}
+    setCheckedAction();
+    
+    connect(iNetworkController, SIGNAL(networkRequestNotified(IRQNetworkEvent)),
+            this, SLOT(networkRequestNotified(IRQNetworkEvent)));
+    
+    iMainModel = new IRMainModel(iApplication->getPlayList(), this);
+    iMainModel->checkUpdate();
+    iListView->setModel(iMainModel);
+
 }
 
 /*
@@ -174,11 +178,6 @@ void IRMainView::updateView()
 //from base class IRBaseView
 TIRHandleResult IRMainView::handleCommand(TIRViewCommand aCommand, TIRViewCommandReason aReason)
 {
-    if (!initCompleted())
-    {
-        return EIR_DoDefault;
-    }
-    
     Q_UNUSED(aReason);
     TIRHandleResult ret = IrAbstractListViewBase::handleCommand(aCommand, aReason);
     
@@ -195,33 +194,3 @@ TIRHandleResult IRMainView::handleCommand(TIRViewCommand aCommand, TIRViewComman
     return ret;
 }
 
-void IRMainView::lazyInit()
-{
-    if (!initCompleted())
-    {
-        normalInit();
-        
-        //initialization from handleCommand()
-        handleCommand(EIR_ViewCommand_ACTIVATED, EIR_ViewCommandReason_Show);
-        emit applicationReady();
-    }
-}
-
-void IRMainView::normalInit()
-{
-    if (!initCompleted())
-    {
-        IrAbstractListViewBase::lazyInit();
-        
-        setCheckedAction();
-        
-        connect(iNetworkController, SIGNAL(networkRequestNotified(IRQNetworkEvent)),
-                this, SLOT(networkRequestNotified(IRQNetworkEvent)));
-        
-        iMainModel = new IRMainModel(iApplication->getPlayList(), this);
-        iMainModel->checkUpdate();
-        iListView->setModel(iMainModel);
-        
-        setInitCompleted(true);
-    }
-}

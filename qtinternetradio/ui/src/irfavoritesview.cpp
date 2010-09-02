@@ -62,11 +62,18 @@ IRFavoritesView::IRFavoritesView(IRApplication *aApplication, TIRViewId aViewId)
 {    
     setFlag(EViewFlag_ClearStackWhenActivate|EViewFlag_StickyViewEnabled);
     
-    //if this view is not starting view, finish all initialization in constructor
-    if (getViewManager()->views().count() > 0)
-    {
-        normalInit();
-    }
+	initToolBar();
+    iModel = new IRFavoritesModel(iFavorites, this);
+    iListView->setModel(iModel);
+    
+    iConvertTimer = new QTimer(this);
+    iConvertTimer->setInterval(10);
+    
+    connect(iModel, SIGNAL(modelChanged()), this, SLOT(modelChanged()));
+    connect(iNetworkController, SIGNAL(networkRequestNotified(IRQNetworkEvent)),
+            this, SLOT(networkRequestNotified(IRQNetworkEvent))); 
+    connect(iConvertTimer, SIGNAL(timeout()), this, SLOT(convertAnother()));
+
 }
 
 /*
@@ -87,11 +94,6 @@ IRFavoritesView::~IRFavoritesView()
 TIRHandleResult IRFavoritesView::handleCommand(TIRViewCommand aCommand, TIRViewCommandReason aReason)
 {
     Q_UNUSED(aReason);
-    
-    if (!initCompleted())
-    {
-        return EIR_DoDefault;
-    }
     
     TIRHandleResult ret = IrAbstractListViewBase::handleCommand(aCommand, aReason);
     int leftCount = 0;
@@ -143,40 +145,6 @@ TIRHandleResult IRFavoritesView::handleCommand(TIRViewCommand aCommand, TIRViewC
     return ret;
 }
 
-void IRFavoritesView::lazyInit()
-{
-    if (!initCompleted())
-    {
-        normalInit();
-        
-        //initialization from handleCommand()
-        handleCommand(EIR_ViewCommand_TOBEACTIVATED, EIR_ViewCommandReason_Show);
-        handleCommand(EIR_ViewCommand_ACTIVATED, EIR_ViewCommandReason_Show);
-        emit applicationReady();
-    }
-}
-
-void IRFavoritesView::normalInit()
-{
-    if (!initCompleted())
-    {
-        IrAbstractListViewBase::lazyInit();
-        initToolBar();
-        
-        iModel = new IRFavoritesModel(iFavorites, this);
-        iListView->setModel(iModel);
-        
-        iConvertTimer = new QTimer(this);
-        iConvertTimer->setInterval(10);
-        
-        connect(iModel, SIGNAL(modelChanged()), this, SLOT(modelChanged()));
-        connect(iNetworkController, SIGNAL(networkRequestNotified(IRQNetworkEvent)),
-                this, SLOT(networkRequestNotified(IRQNetworkEvent))); 
-        connect(iConvertTimer, SIGNAL(timeout()), this, SLOT(convertAnother()));
-        
-        setInitCompleted(true);
-    }
-}
 
 #ifdef HS_WIDGET_ENABLED
 void IRFavoritesView::itemAboutToBeSelected(bool &aNeedNetwork)
@@ -481,7 +449,7 @@ void IRFavoritesView::listViewLongPressed(HbAbstractViewItem *aItem, const QPoin
 #endif
     action->setObjectName(KActionDetailsName);
     
-    contextMenu->setPos(aCoords);
+    contextMenu->setPreferredPos(aCoords);
     contextMenu->open();         
 } 
 

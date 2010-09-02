@@ -27,15 +27,11 @@
 #include "irqisdsdatastructure.h"
 #include "irplaycontroller.h"
 #include "irplaylist.h"
-
-const QString KActionDeleteName("delete");
+#include "iruidefines.h"
 
 IRPlsView::IRPlsView(IRApplication* aApplication, TIRViewId aViewId) : 
                      IrAbstractListViewBase(aApplication, aViewId), iPlsModel(NULL)
 {
-    //this view won't be starting view, don't need lazy init
-    IrAbstractListViewBase::lazyInit();
-    setInitCompleted(true);
     setFlag(EViewFlag_ClearStackWhenActivate);
     
     connect(iNetworkController, SIGNAL(networkRequestNotified(IRQNetworkEvent)),
@@ -105,34 +101,13 @@ void IRPlsView::handleItemSelected()
     iPlayController->connectToChannel(&preset, EIRQAdhocExternal);
 }
 
-void IRPlsView::listViewLongPressed(HbAbstractViewItem *aItem, const QPointF &aCoords)
+void IRPlsView::prepareMenu()
 {
-    Q_UNUSED(aItem);
-    Q_UNUSED(aCoords);
+    HbMenu *viewMenu = menu();
     
-    HbMenu *contextMenu = new HbMenu;
-    contextMenu->setAttribute(Qt::WA_DeleteOnClose);
-#ifdef SUBTITLE_STR_BY_LOCID
-    HbAction *action = contextMenu->addAction(hbTrId("txt_common_menu_delete"));
-#else
-    HbAction *action = contextMenu->addAction(hbTrId("Delete"));    
-#endif
-    action->setObjectName(KActionDeleteName);
-    contextMenu->open();
-    connect(contextMenu, SIGNAL(triggered(HbAction*)), this, SLOT(actionClicked(HbAction*)));
+    HbAction *openWebAddressAction = qobject_cast<HbAction *>(iLoader.findObject(GO_TO_STATION_ACTION));
+    HbAction *settings = qobject_cast<HbAction *>(iLoader.findObject(SETTINGS_ACTION));
+    viewMenu->removeAction(openWebAddressAction);
+    viewMenu->removeAction(settings);
 }
 
-
-void IRPlsView::actionClicked(HbAction *aAction)
-{
-    if (aAction)
-    {
-        QString name = aAction->objectName();
-        if (KActionDeleteName == name)
-        {
-            IRPlayList *playList = iApplication->getPlayList();
-            playList->deleteItem(iListView->currentIndex().row());
-            iListView->reset();
-        }
-    }
-}

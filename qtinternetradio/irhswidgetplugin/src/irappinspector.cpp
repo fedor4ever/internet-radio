@@ -23,6 +23,7 @@
 // User includes
 #include "irappinspector.h"
 #include "irservicedef.h"
+#include "irqlogger.h"
 
 // Constructor
 IrAppInspector::IrAppInspector(QObject *aParent) :
@@ -32,6 +33,7 @@ IrAppInspector::IrAppInspector(QObject *aParent) :
                         KInternetRadioPSUid,
                         KInternetRadioStartupKey)   
 {   
+    LOG_METHOD;
     QObject::connect(mSettingsManager, SIGNAL(itemDeleted(XQSettingsKey)),
         this, SLOT(handleIrExit(XQSettingsKey)));
     QObject::connect(mSettingsManager, SIGNAL(valueChanged(XQSettingsKey, QVariant)),
@@ -41,6 +43,7 @@ IrAppInspector::IrAppInspector(QObject *aParent) :
 // Destructor 
 IrAppInspector::~IrAppInspector()
 {
+    LOG_METHOD;
     stopInspectingIrRunningStatus();
 }
 
@@ -51,9 +54,11 @@ IrAppInspector::~IrAppInspector()
  */
 void IrAppInspector::handleIrExit(const XQSettingsKey &aKey)
 {
+    LOG_METHOD;
     if (KInternetRadioPSUid == aKey.uid()
          && KInternetRadioStartupKey == aKey.key())
     {
+        LOG("Internet Radio exits");
         emit irRunningStatusChanged(Exiting);
         
         // since the P&S key has been deleted, should re-start the inspecting
@@ -65,6 +70,7 @@ void IrAppInspector::handleIrExit(const XQSettingsKey &aKey)
 void IrAppInspector::handleIrRunningStatusChanged(const XQSettingsKey &aKey,
                                                  const QVariant &aValue)
 {
+    LOG_METHOD;
     if (KInternetRadioPSUid == aKey.uid()
          && KInternetRadioStartupKey == aKey.key())
     {
@@ -72,6 +78,7 @@ void IrAppInspector::handleIrRunningStatusChanged(const XQSettingsKey &aKey,
         {
             if (aValue.canConvert(QVariant::Int))
             {
+                LOG("Internet Radio StartingUp");
                 emit irRunningStatusChanged(StartingUp);
             }
         }
@@ -80,16 +87,19 @@ void IrAppInspector::handleIrRunningStatusChanged(const XQSettingsKey &aKey,
 
 bool IrAppInspector::startInspectingIrRunningStatus()
 {
+    LOG_METHOD;
     return mSettingsManager->startMonitoring(mIrRunningStatusKey);
 }
 
 void IrAppInspector::stopInspectingIrRunningStatus()
 {
+    LOG_METHOD;
     mSettingsManager->stopMonitoring(mIrRunningStatusKey);
 }
 
 bool IrAppInspector::isIrRunning()
 {
+    LOG_METHOD;
     QVariant value = mSettingsManager->readItemValue(mIrRunningStatusKey);
     if (value.isValid())
     {

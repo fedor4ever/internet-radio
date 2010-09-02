@@ -39,7 +39,7 @@ LIBS += -lirdatastructures \
         -lpsclient100
 
 symbian{
-  TARGET.UID3 = 0xecbde2d8
+  TARGET.UID3 = 0x2002FFBC
   TARGET.EPOCALLOWDLLDATA = 1
   MMP_RULES += SMPSAFE
 }

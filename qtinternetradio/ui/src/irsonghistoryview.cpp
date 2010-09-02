@@ -29,10 +29,15 @@
 #include "irqenums.h"
 #include "irqstatisticsreporter.h"
 #include "irqsettings.h"
+#include "irqutility.h"
 #include "iruidefines.h"
 
 const QString KActionSearchInMusicStoreName("SearchInMusicStore");
 const QString KActionDeleteName("Delete");
+
+#ifdef STATISTIC_REPORT_TEST_ENABLED    
+static const int KDummyMusicStoreUid = 0xE609761B;
+#endif
 
 //                                         public functions
 
@@ -43,9 +48,6 @@ IRSongHistoryView::IRSongHistoryView(IRApplication *aApplication, TIRViewId aVie
     IrAbstractListViewBase(aApplication, aViewId), iClearSongHistoryAction(NULL),
     iShowPrompt(false)
 {         
-    //this view won't be starting view, don't need lazy init
-    IrAbstractListViewBase::lazyInit();
-    setInitCompleted(true);
         
     iModel = new IRSongHistoryModel(this);
     iModel->setOrientation(getViewManager()->orientation());
@@ -131,21 +133,24 @@ TIRHandleResult IRSongHistoryView::handleCommand(TIRViewCommand aCommand,
  */
 void IRSongHistoryView::handleItemSelected()
 {     
-#ifdef STATISTIC_REPORT_TEST_ENABLED
-    // TODO : have to save preset id related to the song
-    iStatisticsReporter->logNmsEvent(IRQStatisticsReporter::EIRNmsFind,0);  
-    popupNote("Find in Music Store ...", HbMessageBox::MessageTypeInformation);
-#else
+    // TODO : NEED preset id related to the song
     int index = iListView->currentIndex().row();
     IRQSongInfo *hisInfo = iModel->getSongHistoryInfo(index); 
 
     if( hisInfo && ( 0 != hisInfo->getMusicshopStatus().compare("yes",Qt::CaseInsensitive) ) )
     {
+#ifdef STATISTIC_REPORT_TEST_ENABLED
+        if(IRQUtility::launchAppByUid(KDummyMusicStoreUid))
+        {
+            iStatisticsReporter->logNmsEvent(IRQStatisticsReporter::EIRNmsLaunch,0);
+        }    
+#else // STATISTIC_REPORT_TEST_ENABLED        
 #ifdef SUBTITLE_STR_BY_LOCID
         popupNote(hbTrId("txt_irad_info_not_allowed_by_this_station"), HbMessageBox::MessageTypeInformation);
-#else
+#else  // SUBTITLE_STR_BY_LOCID
         popupNote(hbTrId("Not allowed by station"), HbMessageBox::MessageTypeInformation);        
-#endif
+#endif // SUBTITLE_STR_BY_LOCID
+#endif // STATISTIC_REPORT_TEST_ENABLED 
         return;
     }
     
@@ -155,19 +160,31 @@ void IRSongHistoryView::handleItemSelected()
         )
       )
     {
+#ifdef STATISTIC_REPORT_TEST_ENABLED
+        // TODO : have to save preset id related to the song
+        if(IRQUtility::launchAppByUid(KDummyMusicStoreUid))
+        {
+            iStatisticsReporter->logNmsEvent(IRQStatisticsReporter::EIRNmsLaunch,0);
+        }    
+#else // STATISTIC_REPORT_TEST_ENABLED         
 #ifdef SUBTITLE_STR_BY_LOCID
         popupNote(hbTrId("txt_irad_info_no_song_info"), HbMessageBox::MessageTypeInformation);
-#else
+#else  // SUBTITLE_STR_BY_LOCID
         popupNote(hbTrId("No song info"), HbMessageBox::MessageTypeInformation);        
-#endif  
+#endif // SUBTITLE_STR_BY_LOCID
+#endif // STATISTIC_REPORT_TEST_ENABLED 
         return;
     }
 
-    // TODO : Add the report in future. Add the channel id in the song info db
-    // iStatisticsReporter->logNmsEvents(EIRQFind,channelId);
+#ifdef STATISTIC_REPORT_TEST_ENABLED    
+    if(IRQUtility::launchAppByUid(KDummyMusicStoreUid))
+    {
+        iStatisticsReporter->logNmsEvent(IRQStatisticsReporter::EIRNmsFind,0);
+    }
+#else // STATISTIC_REPORT_TEST_ENABLED 
 #ifdef SUBTITLE_STR_BY_LOCID
     popupNote(hbTrId("txt_irad_info_music_store_not_available"), HbMessageBox::MessageTypeInformation);
-#else
+#else  // SUBTITLE_STR_BY_LOCID
     popupNote(hbTrId("Music store not ready"), HbMessageBox::MessageTypeInformation);    
 #endif // SUBTITLE_STR_BY_LOCID
 #endif // STATISTIC_REPORT_TEST_ENABLED
@@ -279,7 +296,7 @@ void IRSongHistoryView::listViewLongPressed(HbAbstractViewItem *aItem, const QPo
     action = contextMenu->addAction(hbTrId("Delete"));    
 #endif
     action->setObjectName(KActionDeleteName);
-
+    contextMenu->setPreferredPos(aCoords);
     contextMenu->open();
 }
 

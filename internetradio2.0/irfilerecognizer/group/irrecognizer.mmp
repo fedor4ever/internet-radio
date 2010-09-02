@@ -20,7 +20,7 @@
 
 TARGET          irfilerecognizer.dll
 TARGETTYPE      PLUGIN
-UID             0x10009D8D 0x2000B4A9
+UID             0x10009D8D 0x2002FFB8
 
 PAGED
 
@@ -30,7 +30,7 @@ SOURCE          irrecognizer.cpp
 
 SOURCEPATH	../resources
 
-START RESOURCE  2000b4a9.rss
+START RESOURCE  2002ffb8.rss
 TARGET          irfilerecognizer.rsc
 END
 

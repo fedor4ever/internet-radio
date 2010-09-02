@@ -16,6 +16,7 @@
 */
 
 #include <registryinfo.rh>
+#include "iruid3.hrh"
 
 // ---------------------------------------------------------------------------
 // r_ir_preset_plugin_registry_info
@@ -24,7 +25,7 @@
 //
 RESOURCE REGISTRY_INFO r_ir_preset_plugin_registry_info
     {
-    dll_uid     = 0x2000B4AA;
+    dll_uid     = UID3_IRPRESETPLUGIN_DLL;
     interfaces  =
         {
         INTERFACE_INFO
@@ -35,7 +36,7 @@ RESOURCE REGISTRY_INFO r_ir_preset_plugin_registry_info
                 IMPLEMENTATION_INFO
                     {
                     //implementation_uid  = 0xA0001D79;
-                    implementation_uid  = 0x10009DC1;
+                    implementation_uid  = UID3_IRPRESETPLUGIN_DLL_IMPLEMENTATION_UID;
 
                     version_no          = 1;
                     display_name        = "Internet Radio Preset Plugin";

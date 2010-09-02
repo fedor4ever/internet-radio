@@ -26,9 +26,13 @@
  */
 IRBaseView::IRBaseView(IRApplication* aApplication, TIRViewId aViewId) : iApplication(aApplication),
                                                                          iViewId(aViewId),
-                                                                         iUseNetworkReason(EIR_UseNetwork_NoReason),
-                                                                         iInitCompleted(false)
+                                                                         iUseNetworkReason(EIR_UseNetwork_NoReason)
 {
+    iNetworkController = iApplication->getNetworkController();        
+    iPlayController = iApplication->getPlayController();
+    iIsdsClient = iApplication->getIsdsClient();
+    iFavorites = iApplication->getFavoritesDB();
+    iSettings = iApplication->getSettings();
 }
 
 TIRViewId IRBaseView::id() const
@@ -108,17 +112,6 @@ TIRUseNetworkReason IRBaseView::getUseNetworkReason() const
     return iUseNetworkReason;
 }
  
-void IRBaseView::lazyInit()
-{
-    if (!initCompleted())
-    {
-        iNetworkController = iApplication->getNetworkController();        
-        iPlayController = iApplication->getPlayController();
-        iIsdsClient = iApplication->getIsdsClient();
-        iFavorites = iApplication->getFavoritesDB();
-        iSettings = iApplication->getSettings();
-    }
-}
 
 /*
  * Description : return the pointer to the view manager object owned by application
@@ -147,12 +140,3 @@ void IRBaseView::popupNote(const QString &aNote, const HbMessageBox::MessageBoxT
     }
 }
 
-void IRBaseView::setInitCompleted(bool aFlag)
-{
-    iInitCompleted = aFlag;
-}
-
-bool IRBaseView::initCompleted() const
-{
-    return iInitCompleted;
-}

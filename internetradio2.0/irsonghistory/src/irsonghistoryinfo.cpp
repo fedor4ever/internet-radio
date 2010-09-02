@@ -304,7 +304,7 @@ void CIRSongHistoryInfo::SetLanguageNameL(const RBuf& aLanguageName)
  // ---------------------------------------------------------------------------
  //
  
-const RBuf& CIRSongHistoryInfo::GetGenreName() const 
+ EXPORT_C const RBuf& CIRSongHistoryInfo::GetGenreName() const 
  {
     return iGenreName;
  }
@@ -314,7 +314,7 @@ const RBuf& CIRSongHistoryInfo::GetGenreName() const
 // Get channel country name
 // ---------------------------------------------------------------------------
 //
-const RBuf& CIRSongHistoryInfo::GetCountryName() const 
+ EXPORT_C const RBuf& CIRSongHistoryInfo::GetCountryName() const 
  {
     return iCountryName;
  }
@@ -324,7 +324,7 @@ const RBuf& CIRSongHistoryInfo::GetCountryName() const
 // Get channel language name
 // ---------------------------------------------------------------------------
 //
-const RBuf& CIRSongHistoryInfo::GetLanguageName() const 
+ EXPORT_C const RBuf& CIRSongHistoryInfo::GetLanguageName() const 
  {
     return iLanguageName;
  }

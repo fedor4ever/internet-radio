@@ -111,7 +111,7 @@ IRApplication::IRApplication(IRViewManager* aViewManager, IRQSystemEventHandler*
     iSettings->getGlobalAdvFlag(iEnableGlobalAdv);
     setupConnection();
     
-    if ( !iIsEmbedded )
+    if ( !XQServiceUtil::isService() )
     {
         setLaunchView();
     }
@@ -174,6 +174,7 @@ IRApplication::~IRApplication()
  */
 void IRApplication::setLaunchView()
 {
+    LOG_METHOD;
     //get starting view id according to activate reason
     TIRViewId viewId = EIRView_CategoryView;
     HbApplication *hbApp = qobject_cast<HbApplication*>(qApp);
@@ -217,6 +218,7 @@ void IRApplication::setLaunchView()
  */
 bool IRApplication::verifyNetworkConnectivity(const QString &aConnectingText)
 {
+    LOG_METHOD;
     Q_ASSERT(iNetworkController);
     
     bool ret = true;
@@ -238,7 +240,7 @@ bool IRApplication::verifyNetworkConnectivity(const QString &aConnectingText)
 
 void IRApplication::startLoadingAnimation(const QObject *aReceiver, const char *aFunc)
 {
-    LOG_METHOD_ENTER;
+    LOG_METHOD;;
     
     //for downloading logos in stations view, favorites view and history view, network connection
     //is initiated by low layer, we don't show any dialog
@@ -295,7 +297,7 @@ void IRApplication::startLoadingAnimation(const QObject *aReceiver, const char *
 
 void IRApplication::stopLoadingAnimation()
 {
-    LOG_METHOD_ENTER;
+    LOG_METHOD;;
 
     // this function is the endpoint of cancel loading actions for all views
 	// so we can do cleanup action here, including player stop action.
@@ -328,6 +330,7 @@ IRViewManager* IRApplication::getViewManager() const
  */
 IRQNetworkController* IRApplication::getNetworkController()
 {
+    LOG_METHOD;
     if(NULL == iNetworkController)
     {
         iNetworkController = IRQNetworkController::openInstance(); 
@@ -344,6 +347,7 @@ IRQNetworkController* IRApplication::getNetworkController()
  */
 IRQIsdsClient* IRApplication::getIsdsClient()
 {
+    LOG_METHOD;
     if(NULL == iIsdsClient)
     {
         iIsdsClient = IRQIsdsClient::openInstance(); 
@@ -358,6 +362,7 @@ IRQIsdsClient* IRApplication::getIsdsClient()
  */
 IRPlayController* IRApplication::getPlayController()
 {
+    LOG_METHOD;
     if(NULL == iPlayController)
     {
         iPlayController = new IRPlayController(this);
@@ -367,6 +372,7 @@ IRPlayController* IRApplication::getPlayController()
 
 IRLastPlayedStationInfo* IRApplication::getLastPlayedStationInfo()
 {
+    LOG_METHOD;
     if( iIsEmbedded )
     {
         return NULL;
@@ -381,6 +387,7 @@ IRLastPlayedStationInfo* IRApplication::getLastPlayedStationInfo()
 
 IRQFavoritesDB* IRApplication::getFavoritesDB()
 {
+    LOG_METHOD;
     if(NULL == iFavPresets)
     {
         iFavPresets = new IRQFavoritesDB();
@@ -390,6 +397,7 @@ IRQFavoritesDB* IRApplication::getFavoritesDB()
 
 IRQSettings * IRApplication::getSettings()
 {
+    LOG_METHOD;
     if(NULL == iSettings)
     {
         iSettings = IRQSettings::openInstance();
@@ -399,6 +407,7 @@ IRQSettings * IRApplication::getSettings()
 
 IRMediaKeyObserver* IRApplication::getMediaKeyObserver()
 {
+    LOG_METHOD;
     if(NULL == iMediaKeyObserver)
     {
     iMediaKeyObserver = new IRMediaKeyObserver(this);
@@ -409,6 +418,7 @@ IRMediaKeyObserver* IRApplication::getMediaKeyObserver()
 
 IRQAdvClient* IRApplication::getAdvClient()
 {
+    LOG_METHOD;
     if(iEnableGlobalAdv && (NULL == iAdvertisementClient))
     {
         //iAdvertisementClient = IRQAdvClient::openInstance();
@@ -419,6 +429,7 @@ IRQAdvClient* IRApplication::getAdvClient()
 
 IRPlayList* IRApplication::getPlayList() const
 {
+    LOG_METHOD;
     if (NULL == iFileViewService)
     {
         return NULL;
@@ -435,6 +446,7 @@ IRPlayList* IRApplication::getPlayList() const
  */
 void IRApplication::createComponents()
 {
+    LOG_METHOD;
     getSettings();
 #ifdef HS_WIDGET_ENABLED    
     if( !iIsEmbedded )
@@ -453,6 +465,7 @@ void IRApplication::createComponents()
  */
 void IRApplication::destroyComponents()
 {	
+    LOG_METHOD;
     delete iPlayController;
     iPlayController = NULL;
     
@@ -494,11 +507,13 @@ void IRApplication::destroyComponents()
 
 void IRApplication::setupConnection()
 {
+    LOG_METHOD;
     connect(this, SIGNAL(quit()), qApp, SLOT(quit()));
 }
 
 void IRApplication::cancelConnect()
 {
+    LOG_METHOD;
     if (iConnectingCanceled)
     {
         return;
@@ -522,7 +537,9 @@ void IRApplication::cancelConnect()
 //connect to signal 'networkEventNotified' from IRQNetworkController
 void IRApplication::networkEventNotified(IRQNetworkEvent aEvent)
 {
+    LOG_METHOD;
     LOG_SLOT_CALLER;
+    LOG_FORMAT("IRQNetworkEvent = %d", aEvent);
     switch (aEvent)
     {
         case EIRQNetworkConnectionConnecting :
@@ -583,6 +600,7 @@ void IRApplication::networkEventNotified(IRQNetworkEvent aEvent)
 
 void IRApplication::loadGenre()
 {
+    LOG_METHOD;
     LOG_SLOT_CALLER;
     bool hasCache = iIsdsClient->isdsIsCategoryCached(IRQIsdsClient::EGenre);
 
@@ -602,12 +620,12 @@ void IRApplication::loadGenre()
 
 void IRApplication::initApp()
 {
+    LOG_METHOD;
     getNetworkController();    
     
     IRBaseView *view = static_cast<IRBaseView*> (iViewManager->currentView());
     if (view)
     {
-        view->lazyInit();
         view->launchAction();
     }
     getMediaKeyObserver();	
@@ -629,13 +647,16 @@ void IRApplication::initApp()
             settingsManager.writeItemValue(irStartupKey, (int)QDateTime::currentDateTime().toTime_t());
         } 
     }
-#endif        
+#endif
+
+    emit applicationReady();
 }
 
 bool IRApplication::event(QEvent* e)
 {
     if(e->type() == iInitEvent)
     {
+        LOG_METHOD;
         initApp();
         return true;        
     }
@@ -645,6 +666,7 @@ bool IRApplication::event(QEvent* e)
 
 TIRHandleResult IRApplication::handleConnectionEstablished()
 {
+    LOG_METHOD;
     TIRHandleResult retVal = EIR_DoDefault;
     switch (iUseNetworkReason)
     {
@@ -670,34 +692,37 @@ TIRHandleResult IRApplication::handleConnectionEstablished()
     return retVal;
 }
 
+#ifdef TERMS_CONDITIONS_VIEW_ENABLED 
 void IRApplication::handleTermsConsAccepted()
 {
+    LOG_METHOD;
     iSettings->reSetFlagTermsAndConditions();
     IRBaseView * termsConsView = iViewManager->getView(EIRView_TermsConsView);
     iViewManager->removeView(termsConsView);
     termsConsView->deleteLater();
     
     iViewManager->activateView(iStartingViewId); 
-    QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
     QEvent* initEvent = new QEvent(iInitEvent);
     QCoreApplication::postEvent(this, initEvent, Qt::HighEventPriority); 	 
 }
+#endif
 
 void IRApplication::launchStartingView(TIRViewId aViewId)
 {
+    LOG_METHOD;
     iStartingViewId = aViewId;
-    /* bool isFirstTimeUsage = false;
+#ifdef TERMS_CONDITIONS_VIEW_ENABLED     
+    bool isFirstTimeUsage = false;
     iSettings->isFlagTermsAndConditions(isFirstTimeUsage);
     
     if(isFirstTimeUsage)
     {
         iViewManager->activateView(EIRView_TermsConsView);  
-		QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);    
     }
-    else*/
+    else
+#endif    
     {
         iViewManager->activateView(iStartingViewId);
-        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
         QEvent* initEvent = new QEvent(iInitEvent);
         QCoreApplication::postEvent(this, initEvent, Qt::HighEventPriority);         
     }
@@ -716,6 +741,7 @@ bool IRApplication::isEmbeddedInstance() const
 }
 void IRApplication::setExitingView()
 {  
+    LOG_METHOD;
     TIRViewId viewId = iViewManager->getExitingView();
     if(EIRView_InvalidId != viewId)
     {
@@ -727,6 +753,7 @@ void IRApplication::setExitingView()
 #ifdef HS_WIDGET_ENABLED
 bool IRApplication::startPlaying()
 {
+    LOG_METHOD;
     // if any loading is in progress, disallow to play
     if (iLoadingNote && iLoadingNote->isVisible())
     {
@@ -756,6 +783,7 @@ bool IRApplication::startPlaying()
 
 void IRApplication::cancelPlayerLoading()
 {
+    LOG_METHOD;
     if (IRPlayController::EConnecting == getPlayController()->state() 
         || IRPlayController::EBuffering == getPlayController()->state())
     {       

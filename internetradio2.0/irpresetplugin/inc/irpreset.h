@@ -25,9 +25,6 @@
 class CIRIsdsPreset;
 class CIRChannelServerUrl;
 
-const TUid KIRPreset = { 0x10009DC1 };
-
-
 /**
  * preset abstract class to expose general apis to the app
  * it is the base class for IRPresetImpl,which is a plugin

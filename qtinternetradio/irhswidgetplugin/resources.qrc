@@ -1,7 +1,7 @@
 <RCC>
-    <qresource>
-        <file>resource/irhswidgetmetadatarow.docml</file>
-        <file>resource/irhswidgettitlerow.docml</file>
+    <qresource prefix="/">
+        <file alias="resource/irhswidgetmetadatarow.docml">resource/irhswidgetmetadatarow.docml.bin</file>
+        <file alias="resource/irhswidgettitlerow.docml">resource/irhswidgettitlerow.docml.bin</file>
     </qresource>
     
     <qresource>

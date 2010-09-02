@@ -29,9 +29,6 @@
 IRSettingsView::IRSettingsView(IRApplication *aApplication, TIRViewId aViewId) :
     IRBaseView(aApplication, aViewId), iForm(NULL),iModel(NULL)
 {
-    //this view won't be starting view, don't need lazy init
-    IRBaseView::lazyInit();
-    setInitCompleted(true);
     
     setFlag(EViewFlag_UnStackable);
     

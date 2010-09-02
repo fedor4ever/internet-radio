@@ -75,10 +75,6 @@ private:
     
     void initToolBar();
     
-    void lazyInit();
-    
-    void normalInit();
-    
 private:
     
     IRStationShare    *iStationShare;

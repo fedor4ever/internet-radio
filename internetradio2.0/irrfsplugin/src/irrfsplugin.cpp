@@ -20,20 +20,20 @@
 #include <apgcli.h>
 
 #include "irrfsplugin.h"
+#include "iruid3.hrh"
 
 // Files that are deleted upon RFS.
-_LIT( KIRLastPlayedFile, "c:\\private\\2000b499\\lastPlayed.dat" );
-_LIT( KIRCacheDatabaseFile, "c:\\private\\2000b499\\cacheDb.db" );
-_LIT( KIRSdsResponseFile, "c:\\private\\2000b499\\iSdsResponse.xml" );
-_LIT( KIRSessionFile, "c:\\private\\2000b499\\Session" );
-_LIT( KIRRadioReportFile, "c:\\private\\2000b499\\RadioReport.xml" );
-_LIT( KIRLogUsageFile, "c:\\private\\2000b499\\LogUsage.gz" );
-_LIT( KIRSettingsFile, "c:\\private\\2000b499\\irsettings.ini" );
-_LIT( KIRBackedUpSettingsFile, "c:\\private\\2000b499\\irsettings_backed_up.ini" );
-_LIT( KIRSettingscreFile, "c:\\private\\10202be9\\persists\\2000B499.cre" );
+_LIT( KIRLastPlayedFile, "c:\\private\\2002ffac\\lastPlayed.dat" );
+_LIT( KIRCacheDatabaseFile, "c:\\private\\2002ffac\\cacheDb.db" );
+_LIT( KIRSdsResponseFile, "c:\\private\\2002ffac\\iSdsResponse.xml" );
+_LIT( KIRSessionFile, "c:\\private\\2002ffac\\Session" );
+_LIT( KIRNmsLog, "c:\\private\\2002ffac\\NmsLog" );
+_LIT( KIRRadioReportFile, "c:\\private\\2002ffac\\RadioReport.xml" );
+_LIT( KIRLogUsageFile, "c:\\private\\2002ffac\\LogUsage.gz" );
+_LIT( KIRSettingscreFile, "c:\\private\\10202be9\\persists\\2002ffac.cre" );
 
 //for History Database Deletion
-_LIT(KSongHistoryDbFile,"songhistoryDb.db");
+_LIT(KSongHistoryDbFile,"c:\\private\\2002ffac\\songhistoryDb.db");
 
 // ======== LOCAL FUNCTIONS ========
 
@@ -83,31 +83,33 @@ CIRRfsPlugin::~CIRRfsPlugin()
 // ---------------------------------------------------------------------------
 //
 void CIRRfsPlugin::RestoreFactorySettingsL( const TRfsReason aType )
+{
+    if ( aType == ENormalRfs || aType == EDeepRfs )
     {
-    if ( aType == ENormalRfs )
-        {
         RFs fsSession;
         User::LeaveIfError( fsSession.Connect() );
 
-        fsSession.Delete( KIRLastPlayedFile );
-        fsSession.Delete( KIRCacheDatabaseFile );
-        fsSession.Delete( KIRSdsResponseFile );
-        fsSession.Delete( KIRSessionFile );
-        fsSession.Delete( KIRRadioReportFile );
-        fsSession.Delete( KIRLogUsageFile );
-
-        fsSession.Delete( KIRSettingsFile );
-        fsSession.Delete( KIRBackedUpSettingsFile );
         fsSession.Delete( KIRSettingscreFile );
-    	fsSession.Delete(KSongHistoryDbFile);
-        
-        fsSession.Close();
-        }
+
+		if ( aType == EDeepRfs )
+		{
+		    fsSession.Delete( KIRLastPlayedFile );
+		    fsSession.Delete( KIRCacheDatabaseFile );
+		    fsSession.Delete( KIRSdsResponseFile );
+		    fsSession.Delete( KIRSessionFile );
+		    fsSession.Delete( KIRNmsLog );
+		    fsSession.Delete( KIRRadioReportFile );
+		    fsSession.Delete( KIRLogUsageFile );
+			fsSession.Delete(KSongHistoryDbFile);
+		}
+				
+		fsSession.Close();
+   	}
     else
-        {
-        // RFS type not supported.
-        }
+    {
+    	// RFS type not supported.
     }
+}
 
 // ---------------------------------------------------------------------------
 // From base class CRFSPlugin

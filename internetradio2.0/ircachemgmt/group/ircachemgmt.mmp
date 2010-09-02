@@ -22,7 +22,7 @@
 
 TARGET                  ircachemgmt.dll
 TARGETTYPE              dll
-UID                     0x1000008d 0x2000B4A1
+UID                     0x1000008d 0x2002FFB2
 
 CAPABILITY              CAP_GENERAL_DLL
 VENDORID                VID_DEFAULT
@@ -57,3 +57,4 @@ DEFFILE                 ../bwinscw/
 #else
 DEFFILE                 ../bmarm/ 
 #endif
+

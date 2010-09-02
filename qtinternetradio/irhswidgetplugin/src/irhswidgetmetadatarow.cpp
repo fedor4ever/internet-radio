@@ -28,6 +28,7 @@
 // User includes
 #include "irhswidgetmetadatarow.h"
 #include "irhswidgetuiloader.h"
+#include "irqlogger.h"
 
 // Constants
 static const QString KIrHsWidgetMetaDataRowDocML       = ":/resource/irhswidgetmetadatarow.docml";
@@ -57,6 +58,7 @@ IrHsWidgetMetaDataRow::IrHsWidgetMetaDataRow(QGraphicsItem *aParent, Qt::WindowF
     mControlLayout(NULL),
     mControlLabel(NULL)
 {
+    LOG_METHOD;
     HbStyleLoader::registerFilePath(KIrHsWidgetCss);
     
     loadUi();
@@ -67,11 +69,13 @@ IrHsWidgetMetaDataRow::IrHsWidgetMetaDataRow(QGraphicsItem *aParent, Qt::WindowF
 
 IrHsWidgetMetaDataRow::~IrHsWidgetMetaDataRow()
 {
+    LOG_METHOD;
     HbStyleLoader::unregisterFilePath(KIrHsWidgetCss);
 }
 
 void IrHsWidgetMetaDataRow::loadUi()
 {
+    LOG_METHOD;
     IRHsWidgetUiLoader loader;
     loader.load(KIrHsWidgetMetaDataRowDocML);
 
@@ -93,7 +97,9 @@ void IrHsWidgetMetaDataRow::loadUi()
 }
 
 void IrHsWidgetMetaDataRow::setMetaData(const QString &aMetaData)
-{      
+{
+    LOG_METHOD;
+    LOG_FORMAT("aMetaData = %s", STRING2CHAR(aMetaData));
     if (mMetaData->text() != aMetaData)
     {
         mMetaData->setText(aMetaData);
@@ -110,6 +116,7 @@ void IrHsWidgetMetaDataRow::setMetaData(const QString &aMetaData)
 
 void IrHsWidgetMetaDataRow::startMetaDataMarquee()
 {    
+    LOG_METHOD;
     if (!mMetaData->text().isEmpty())
     {
         mMetaData->startAnimation();        
@@ -118,26 +125,31 @@ void IrHsWidgetMetaDataRow::startMetaDataMarquee()
     
 void IrHsWidgetMetaDataRow::stopMetaDataMarquee()
 {
+    LOG_METHOD;
     mMetaData->stopAnimation(); 
 }   
 
 void IrHsWidgetMetaDataRow::setPlayIcon()
 {
+    LOG_METHOD;
     mControlLabel->setIcon(KPlayButtonIcon);
 }
     
 void IrHsWidgetMetaDataRow::setStopIcon()
 {
+    LOG_METHOD;
     mControlLabel->setIcon(KStopButtonIcon);
 }
     
 void IrHsWidgetMetaDataRow::setLoadingIcon()
 {
+    LOG_METHOD;
     mControlLabel->setIcon(mLoadingIcon);
 }    
     
 void IrHsWidgetMetaDataRow::createLoadingIcon()
 {
+    LOG_METHOD;
     HbIconAnimationManager *animationManager = HbIconAnimationManager::global();
     HbIconAnimationDefinition animationDefinition;
     HbIconAnimationDefinition::AnimationFrame animationFrame;
@@ -162,6 +174,7 @@ void IrHsWidgetMetaDataRow::createLoadingIcon()
 
 void IrHsWidgetMetaDataRow::gestureEvent(QGestureEvent *aEvent)
 {
+    LOG_METHOD;
     HbTapGesture *tapGesture = qobject_cast<HbTapGesture *>(aEvent->gesture(Qt::TapGesture));
     if (!tapGesture)
     {
@@ -175,10 +188,12 @@ void IrHsWidgetMetaDataRow::gestureEvent(QGestureEvent *aEvent)
         QPointF tapLocalPoint = mControlLayout->sceneTransform().inverted().map(tapScenePoint);
         if (mControlLayout->contains(tapLocalPoint))
         {
+            LOG("emit controlAreaClicked()");
             emit controlAreaClicked();
         }
         else
         {
+            LOG("emit metaDataAreaClicked()");
             emit metaDataAreaClicked();
         }
     }
@@ -189,6 +204,7 @@ void IrHsWidgetMetaDataRow::gestureEvent(QGestureEvent *aEvent)
 //
 void IrHsWidgetMetaDataRow::changeEvent(QEvent *event)
 {
+    LOG_METHOD;
     if (HbEvent::ThemeChanged == event->type())
     {
         // get the text color from theme and 

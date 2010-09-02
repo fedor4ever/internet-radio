@@ -50,11 +50,7 @@ const QString KActionDetailsName("Details");
 IRHistoryView::IRHistoryView(IRApplication *aApplication, TIRViewId aViewId) :
     IrAbstractListViewBase(aApplication, aViewId), iClearHistoryAction(NULL),
     iLogoPreset(NULL)
-{
-    //this view won't be starting view, don't need lazy init
-    IrAbstractListViewBase::lazyInit();
-    setInitCompleted(true);
-    
+{   
     iModel = new IRHistoryModel(this);
     iListView->setModel(iModel);
     iListView->setCurrentIndex(iModel->index(0));
@@ -484,6 +480,7 @@ void IRHistoryView::listViewLongPressed(HbAbstractViewItem *aItem, const QPointF
 #endif
     action->setObjectName(KActionDetailsName);
     
+    contextMenu->setPreferredPos(aCoords);
     contextMenu->open();
 }
 

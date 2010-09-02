@@ -33,7 +33,10 @@ INCLUDEPATH += ./inc
 INCLUDEPATH += ../irqcommon/inc
 INCLUDEPATH += ../irqlogger/inc 
 
-UID = E257CD03
+DOCML += resource/irhswidgetmetadatarow.docml
+DOCML += resource/irhswidgettitlerow.docml
+
+UID = 2002FFE4
 RESOURCES = resources.qrc
 
 symbian: {

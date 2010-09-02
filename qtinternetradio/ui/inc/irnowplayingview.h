@@ -63,6 +63,7 @@ private slots:
     
     // slots for orientation change
     void handleOrientationChanged(Qt::Orientation);    
+    void handleGeometryChanged();
     
     // slots for play controller
     void handlePlayStarted();
@@ -90,13 +91,7 @@ private slots:
     // so make it as slot connected to a single timer.
     void updateAdvImage();
 #endif
-    
-#ifdef STATISTIC_REPORT_TEST_ENABLED
-    void handleDummySongIdentify();
-    void handleDummyGoToNms();
-    void handleDummyFindInNms();
-#endif
-    
+   
 private:
     void initialize();
     void initMenu();
@@ -110,9 +105,7 @@ private:
     
     void updateStationLogo();	
     void loadStationLogo();
-    
-    void lazyInit();
-    void normalInit();
+
     
 #ifdef ADV_ENABLED
     void mousePressEvent(QGraphicsSceneMouseEvent *aEvent);

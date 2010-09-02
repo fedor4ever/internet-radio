@@ -33,7 +33,7 @@ INCLUDEPATH += inc \
 LIBS += -lirnetworkcontroller -lnetmeta
 
 symbian{
-  TARGET.UID3 = 0xe71db754
+  TARGET.UID3 = 0x2002FFC0
   TARGET.EPOCALLOWDLLDATA = 1
   MMP_RULES += SMPSAFE
 }

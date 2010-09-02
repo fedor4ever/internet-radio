@@ -21,7 +21,7 @@
 &EN
 
 ; SIS header: name, uid, version
-#{"QtInternetRadio"},(0xE28364bb),1,0,0
+#{"QtInternetRadio"},(0x2002FFAC),1,0,0
 
 ; Localised Vendor name
 %{"Nokia, Qt Software"}
@@ -40,7 +40,7 @@
 
 
 ;internetradio 2.0 sis file
-@"IR_package.sis",(0x2000B499)
+@"IR_package.sis",(0x2002ffac)
 
 ;preset server
 @"package_Inc6.sis",(0x10281CB5)

@@ -32,18 +32,21 @@ IrControlService::IrControlService(IRApplication *aIrApp, QObject *aParent) :
     XQServiceProvider(IR_CONTROL_SERVICE_NAME, aParent),
     mIrApp(aIrApp)
 {
+    LOG_METHOD;
     publishAll();
 }
 
 // Destructor
 IrControlService::~IrControlService()
 {
+    LOG_METHOD;
 }
 
 // service interface, called via Qt Highway
 int IrControlService::handleCmd(int aCmdId)
 {
-    LOG_FORMAT( "IrControlService::handleCmd, the command is %d",  aCmdId);
+    LOG_METHOD;
+    LOG_FORMAT( "command = %d",  aCmdId);
     IrServiceResult::Type result = IrServiceResult::Fail;
         
     switch (aCmdId)
@@ -88,6 +91,7 @@ int IrControlService::handleCmd(int aCmdId)
 
 IrServiceResult::Type IrControlService::handleLaunchNowPlayingViewCmd()
 {
+    LOG_METHOD;
     if (!mIrApp->isAppFullyStarted())
     {
         mIrApp->launchStartingView(EIRView_PlayingView);
@@ -97,6 +101,7 @@ IrServiceResult::Type IrControlService::handleLaunchNowPlayingViewCmd()
 
 IrServiceResult::Type IrControlService::handleLaunchNormallyCmd()
 {
+    LOG_METHOD;
     if (!mIrApp->isAppFullyStarted())
     {
         mIrApp->setLaunchView();
@@ -105,7 +110,8 @@ IrServiceResult::Type IrControlService::handleLaunchNormallyCmd()
 }
 
 IrServiceResult::Type IrControlService::handlePlayCmd()
-{           
+{      
+    LOG_METHOD;     
 #ifdef HS_WIDGET_ENABLED    
     LOG( "IrControlService::handlePlayCmd");
     bool ret = mIrApp->startPlaying();
@@ -119,6 +125,7 @@ IrServiceResult::Type IrControlService::handlePlayCmd()
 
 IrServiceResult::Type IrControlService::handleStopCmd()
 {
+    LOG_METHOD;
     if (mIrApp->getPlayController()->isPlaying())
     {
         mIrApp->getPlayController()->stop(EIRQUserTerminated);
@@ -128,6 +135,7 @@ IrServiceResult::Type IrControlService::handleStopCmd()
 
 IrServiceResult::Type IrControlService::handleCancelCmd()
 {
+    LOG_METHOD;
 #ifdef HS_WIDGET_ENABLED       
     mIrApp->cancelPlayerLoading();
 #endif     

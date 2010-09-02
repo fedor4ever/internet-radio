@@ -58,19 +58,13 @@ public:
     void setUseNetworkReason(TIRUseNetworkReason aReason);
         
     TIRUseNetworkReason getUseNetworkReason() const;
-        
-    virtual void lazyInit();
-    
+            
 protected:
     IRBaseView(IRApplication *aApplication, TIRViewId aViewId);
 
     IRViewManager* getViewManager() const;
 
     void popupNote(const QString &aNote, const HbMessageBox::MessageBoxType &aNoteType) const;
-    
-    void setInitCompleted(bool aFlag);
-    
-    bool initCompleted() const;
     
 protected:
     IRApplication* iApplication;
@@ -87,7 +81,6 @@ private:
     TViewFlags     iFlags;
     TIRViewId      iViewId;
     TIRUseNetworkReason iUseNetworkReason;
-    bool iInitCompleted;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(IRBaseView::TViewFlags)

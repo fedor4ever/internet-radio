@@ -35,15 +35,14 @@ protected:
     
 private slots:
     void networkRequestNotified(IRQNetworkEvent aEvent);
-    void actionClicked(HbAction *aAction);
     
 private:
     //from base class IrAbstractListViewBase
 #ifdef HS_WIDGET_ENABLED	
     void itemAboutToBeSelected(bool &aNeedNetwork);    
 #endif
-    void handleItemSelected();
-    void listViewLongPressed(HbAbstractViewItem *aItem, const QPointF &aCoords);    
+    void handleItemSelected();   
+    void prepareMenu();
     
 private:
     IRPlsModel *iPlsModel;

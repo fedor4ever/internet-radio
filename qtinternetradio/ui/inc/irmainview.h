@@ -55,11 +55,7 @@ private:
  
     //from base class IRBaseView
     void updateView();
-    
-    void lazyInit();
-    
-    void normalInit();
-    
+
 private:
     IRMainModel *iMainModel;
 

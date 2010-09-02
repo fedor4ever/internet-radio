@@ -60,9 +60,7 @@ protected:
 
     //from base
     TIRHandleResult handleCommand(TIRViewCommand aCommand, TIRViewCommandReason aReason);
-
-    void lazyInit();
-    
+   
 protected slots:
     virtual void handleOrientationChanged(Qt::Orientation aOrientation);
     

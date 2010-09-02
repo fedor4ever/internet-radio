@@ -46,6 +46,7 @@ IrHsWidget::IrHsWidget(QGraphicsItem* aParent, Qt::WindowFlags aFlags)
       mIrState(IrAppState::Unknown),
       mIrHsWidgetState(EUnknown)
 {
+    LOG_METHOD;
     setupUi();
     initHomeSreenWidget();
     
@@ -56,6 +57,7 @@ IrHsWidget::IrHsWidget(QGraphicsItem* aParent, Qt::WindowFlags aFlags)
 // Destructor
 IrHsWidget::~IrHsWidget()
 {
+    LOG_METHOD;
     if (mServiceClient)
     {
         mServiceClient->closeInstance();
@@ -72,6 +74,7 @@ IrHsWidget::~IrHsWidget()
 // called by kqti fw when widget is added to home screen
 void IrHsWidget::onInitialize()
 {    
+    LOG_METHOD;
     mServiceClient->startMonitoringIrState();    
 }
 
@@ -79,11 +82,13 @@ void IrHsWidget::onInitialize()
 // called by kqti fw when widget is removed from home screen
 void IrHsWidget::onUninitialize()
 {
+    LOG_METHOD;
 }
 
 // Called when widget is shown in the home screen
 void IrHsWidget::onShow()
 { 
+    LOG_METHOD;
     if (mRowLayout->count() == 2)
     {
         mMetaDataRow->startMetaDataMarquee();
@@ -93,6 +98,7 @@ void IrHsWidget::onShow()
 // Called when widget is hidden from the home screen
 void IrHsWidget::onHide()
 {
+    LOG_METHOD;
     if (mRowLayout->count() == 2)
     {
         mMetaDataRow->stopMetaDataMarquee();
@@ -102,6 +108,7 @@ void IrHsWidget::onHide()
 
 void IrHsWidget::setupUi()
 {
+    LOG_METHOD;
     setContentsMargins( KIrHsWidgetContentsMargin, KIrHsWidgetContentsMargin,
             KIrHsWidgetContentsMargin, KIrHsWidgetContentsMargin);
     
@@ -121,6 +128,7 @@ void IrHsWidget::setupUi()
 
 void IrHsWidget::initHomeSreenWidget()
 {
+    LOG_METHOD;
     mTitleRow = new IrHsWidgetTitleRow(); 
     mMetaDataRow = new IrHsWidgetMetaDataRow();
     
@@ -149,6 +157,7 @@ void IrHsWidget::initHomeSreenWidget()
 
 void IrHsWidget::resizeHomeScreenWidget()
 {
+    LOG_METHOD;
     //resize here so homescreen will place widget correctly on screen
     setPreferredSize( mRowLayout->preferredSize() );
     if (parentWidget())
@@ -160,6 +169,7 @@ void IrHsWidget::resizeHomeScreenWidget()
     
 void IrHsWidget::setupConnection()
 {
+    LOG_METHOD;
     // signal - slot for service event
     QObject::connect(mServiceClient, SIGNAL(stationNameUpdated(QString)),
         this, SLOT(handleStationNameUpdated(QString)));
@@ -177,12 +187,15 @@ void IrHsWidget::setupConnection()
 
 void IrHsWidget::launchNowplayingView()
 {
+    LOG_METHOD;
     mServiceClient->launchIrNowPlaying();  
 }
 
 // ================ handle user press event ===============
 void IrHsWidget::handleCommonAreaAction()
 {
+    LOG_METHOD;
+    LOG_FORMAT("mIrState = %d", mIrState);
     switch (mIrState)
     {
         case IrAppState::NoRunInit:
@@ -205,7 +218,8 @@ void IrHsWidget::handleCommonAreaAction()
 
 void IrHsWidget::handleControlAreaAction()
 {
-    LOG("IrHsWidget::handleControlAreaAction()");
+    LOG_METHOD;
+    LOG_FORMAT("mIrState = %d", mIrState);
     //here, for we will control the application by homescreen, 
     //to avoid repeat actions, we disable all control event here
     //and enable them when state changed or failed.      
@@ -238,7 +252,8 @@ void IrHsWidget::handleControlAreaAction()
 
 void IrHsWidget::handleControlFailed()
 { 
-    LOG("handleControlFailed()");
+    LOG_METHOD;
+    LOG_FORMAT("mIrHsWidgetState = %d", mIrHsWidgetState);
     enableUserAction();
     switch (mIrHsWidgetState)
     {
@@ -267,30 +282,39 @@ void IrHsWidget::handleControlFailed()
 // ======== for service notification ========
 void IrHsWidget::handleStationNameUpdated(const QString &aStationName)
 {
+    LOG_METHOD;
+    LOG_FORMAT("aStationName = %s", STRING2CHAR(aStationName));
     mTitleRow->setStationName(aStationName);
 }
 
 void IrHsWidget::handleStationLogoUpdated(bool aLogoAvailable)
 {    
+    LOG_METHOD;
     if (aLogoAvailable)
     {
+        LOG( "aLogoAvailable = true" );
         mTitleRow->loadStationLogo();
     }
     else
     {
+        LOG( "aLogoAvailable = false" );
         mTitleRow->setDefaultLogo();
     }
 }
 
 void IrHsWidget::handleMetaDataUpdated(const QString &aMetaData)
 {
+    LOG_METHOD;
+    LOG_FORMAT("aMetaData = %s", STRING2CHAR(aMetaData));
     mMetaDataRow->setMetaData(aMetaData); 
 }
 
 
 void IrHsWidget::handleIrStateUpdated(IrAppState::Type aNewState)
 {
-    LOG("IrHsWidget::handleIrStateUpdated()");
+    LOG_METHOD;
+    LOG_FORMAT("mIrState = %d", mIrState);
+    LOG_FORMAT("aNewState = %d", aNewState);
     enableUserAction();
     if (aNewState == mIrState)
     {
@@ -325,6 +349,9 @@ void IrHsWidget::handleIrStateUpdated(IrAppState::Type aNewState)
 
 void IrHsWidget::handleHsWidgetStateChange(IrHsWidgetState aNewState)
 {
+    LOG_METHOD;
+    LOG_FORMAT("mIrHsWidgetState = %d", mIrHsWidgetState);
+    LOG_FORMAT("aNewIrHsWidgetState = %d", aNewState);    
     if (aNewState == mIrHsWidgetState)
     {
         return;
@@ -356,6 +383,7 @@ void IrHsWidget::handleHsWidgetStateChange(IrHsWidgetState aNewState)
 // LAF == [logo][go to interneat radio]
 void IrHsWidget::loadInitLayout()
 {
+    LOG_METHOD;
     if (mRowLayout->count() == 2)
     {
         mRowLayout->removeItem(mMetaDataRow);
@@ -368,6 +396,7 @@ void IrHsWidget::loadInitLayout()
 // LAF == [logo][StationInfo][Play]
 void IrHsWidget::loadStoppedLayout()
 {
+    LOG_METHOD;
     if (mRowLayout->count() == 1)
     {
         mRowLayout->addItem(mMetaDataRow);
@@ -380,6 +409,7 @@ void IrHsWidget::loadStoppedLayout()
 // LAF == [logo][StationInfo][Stop]
 void IrHsWidget::loadPlayingLayout()
 {
+    LOG_METHOD;
     if (mRowLayout->count() == 1)
     {
         mRowLayout->addItem(mMetaDataRow);
@@ -392,6 +422,7 @@ void IrHsWidget::loadPlayingLayout()
 // LAF == [logo][StationInfo][Loading]
 void IrHsWidget::loadLoadingLayout()
 {
+    LOG_METHOD;
     if (mRowLayout->count() == 1)
     {
         mRowLayout->addItem(mMetaDataRow);
@@ -405,6 +436,7 @@ void IrHsWidget::loadLoadingLayout()
 
 void IrHsWidget::enableUserAction()
 {
+    LOG_METHOD;
     if (!mUserActionEnabled)
     {
         mUserActionEnabled = true;
@@ -420,6 +452,7 @@ void IrHsWidget::enableUserAction()
 
 void IrHsWidget::disableUserAction()
 {
+    LOG_METHOD;
     if (mUserActionEnabled)
     {    
         mUserActionEnabled = false;

@@ -39,14 +39,10 @@ IRStationDetailsView::IRStationDetailsView(IRApplication* aApplication, TIRViewI
                                     iCountry(NULL),iBitRate(NULL),
                                     iNowPlayingUrl(NULL)
 {
-    //this view won't be starting view, don't need lazy init
-    IRBaseView::lazyInit();
-    setInitCompleted(true);
     
     createDetails();
     connect( getViewManager(), SIGNAL( orientationChanged(Qt::Orientation) ),
              this, SLOT( handleOrientationChanged(Qt::Orientation) ) );
-    handleOrientationChanged(getViewManager()->orientation());                 
 }
 
 IRStationDetailsView::~IRStationDetailsView()
@@ -75,6 +71,7 @@ void IRStationDetailsView::setDetails(IRQPreset * aPreset)
         iNowPlayingUrl->setPlainText(urlList->at(KChannelURLIndex));
     }
     delete urlList;
+    handleOrientationChanged(getViewManager()->orientation());
 }
 
 /*
@@ -90,6 +87,7 @@ void IRStationDetailsView::setDetails()
     iBitRate->setPlainText(QString::number(iPlayController->getNowPlayingBitRate()) + QString("kbps"));
     iDescription->setPlainText(nowPlayingPreset->description);
     iNowPlayingUrl->setPlainText(iPlayController->getNowPlayingUrl());
+    handleOrientationChanged(getViewManager()->orientation());
 }
 
 /*

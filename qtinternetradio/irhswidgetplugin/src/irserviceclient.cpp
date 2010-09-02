@@ -27,6 +27,7 @@
 // User includes
 #include "irserviceclient.h"
 #include "irservicedata.h"
+#include "irqlogger.h"
 
 // Constants
 // For services via Qt HighWay
@@ -49,6 +50,7 @@ IrServiceClient *IrServiceClient::mInstatnce = NULL;
 // Static function to get a singleton instance of IrServiceClient
 IrServiceClient* IrServiceClient::openInstance()
 {
+    LOG_METHOD;
     mMutex.lock();
     if (NULL == mInstatnce)
     {
@@ -65,6 +67,7 @@ IrServiceClient* IrServiceClient::openInstance()
 // Close a singleton instance of IrServiceClient
 void IrServiceClient::closeInstance()
 {
+    LOG_METHOD;
     if (mInstatnce != NULL)
     {
         mMutex.lock();
@@ -90,6 +93,7 @@ IrServiceClient::IrServiceClient() :
     mRefreshRequest(NULL),
     mControlRequest(NULL)
 {
+    LOG_METHOD;
     mIrAppInspector = new IrAppInspector(this);
     
     QObject::connect(mIrAppInspector, SIGNAL(irRunningStatusChanged(IrAppInspector::IrRunningStatus)),
@@ -99,6 +103,7 @@ IrServiceClient::IrServiceClient() :
 // Destructor
 IrServiceClient::~IrServiceClient()
 {   
+    LOG_METHOD;
     delete mMonitorRequest;
     mMonitorRequest = NULL;
     
@@ -111,6 +116,7 @@ IrServiceClient::~IrServiceClient()
 
 bool IrServiceClient::startMonitoringIrState()
 {
+    LOG_METHOD;
     if (mMonitoringStarted)
     {
         refreshAllActiveHsWidgets();
@@ -142,6 +148,7 @@ bool IrServiceClient::startMonitoringIrState()
 
 void IrServiceClient::initHsWidgetNoRunStopped()
 {    
+    LOG_METHOD;
     QString stationName;
     if (loadStationName(stationName))
     {
@@ -163,6 +170,7 @@ void IrServiceClient::initHsWidgetNoRunStopped()
 
 void IrServiceClient::refreshAllActiveHsWidgets()
 {
+    LOG_METHOD;
     emit stationNameUpdated(mStationName);
     emit stationLogoUpdated(mStationLogoAvailable);
     emit metaDataUpdated(mMetaData);
@@ -174,6 +182,7 @@ void IrServiceClient::refreshAllActiveHsWidgets()
 *******************************************************************/
 bool IrServiceClient::doSendMonitorRequest()
 {
+    LOG_METHOD;
     if(mMonitorReqOngoing)
     {
         return false;
@@ -191,6 +200,7 @@ bool IrServiceClient::doSendMonitorRequest()
 
 bool IrServiceClient::createMonitorServiceRequest()
 {
+    LOG_METHOD;
     bool retVal = false;
 
     if (NULL == mMonitorRequest)
@@ -224,6 +234,7 @@ bool IrServiceClient::createMonitorServiceRequest()
 // ==================== Refresh Service Request ===========================
 bool IrServiceClient::doSendRefreshRequest()
 {
+    LOG_METHOD;
     if(mMonitorReqOngoing)
     {
         return false;
@@ -241,6 +252,7 @@ bool IrServiceClient::doSendRefreshRequest()
 
 bool IrServiceClient::createRefreshServiceRequest()
 {
+    LOG_METHOD;
     bool retVal = false;
 
     if (NULL == mRefreshRequest)
@@ -273,6 +285,7 @@ bool IrServiceClient::createRefreshServiceRequest()
 
 void IrServiceClient::handleMonitorRequestOk(const QVariant &aRetValue)
 {
+    LOG_METHOD;
     mMonitorReqOngoing = false;
     
     doSendMonitorRequest();
@@ -291,6 +304,9 @@ void IrServiceClient::handleMonitorRequestOk(const QVariant &aRetValue)
 
 void IrServiceClient::handleMonitorRequestError(int aErrCode, const QString &aErrMessage)
 {
+    LOG_METHOD;
+    LOG_FORMAT("aErrCode = %d", aErrCode);
+    LOG_FORMAT("aErrMessage = %s", STRING2CHAR(aErrMessage));
     mMonitorReqOngoing = false;
     
     Q_UNUSED(aErrCode);
@@ -302,6 +318,7 @@ void IrServiceClient::handleMonitorRequestError(int aErrCode, const QString &aEr
 *******************************************************************/
 bool IrServiceClient::bringIrForeground()
 {
+    LOG_METHOD;
     QVariant commandArgument(QVariant::Int);
     commandArgument.setValue((int)IrServiceCmd::Foreground);
     return doSendControlRequest(commandArgument, true, ToForeground);
@@ -316,6 +333,7 @@ bool IrServiceClient::launchIrNormally()
 
 bool IrServiceClient::launchIrNowPlaying()
 {
+    LOG_METHOD;
     QVariant commandArgument(QVariant::Int);
     commandArgument.setValue((int)IrServiceCmd::LaunchNowPlayingView);
     return doSendControlRequest(commandArgument, false, ToBackground);
@@ -324,6 +342,7 @@ bool IrServiceClient::launchIrNowPlaying()
 
 bool IrServiceClient::startPlaying()
 {
+    LOG_METHOD;
     QVariant commandArgument(QVariant::Int);
     commandArgument.setValue((int)IrServiceCmd::Play);
     return doSendControlRequest(commandArgument, true, DoNotChange);
@@ -332,6 +351,7 @@ bool IrServiceClient::startPlaying()
 
 bool IrServiceClient::stopPlaying()
 {
+    LOG_METHOD;
     QVariant commandArgument(QVariant::Int);
     commandArgument.setValue((int)IrServiceCmd::Stop);
     return doSendControlRequest(commandArgument, true, DoNotChange);
@@ -339,6 +359,7 @@ bool IrServiceClient::stopPlaying()
 
 bool IrServiceClient::cancelLoading()
 {
+    LOG_METHOD;
     QVariant commandArgument(QVariant::Int);
     commandArgument.setValue((int)IrServiceCmd::Cancel);
     return doSendControlRequest(commandArgument, true, DoNotChange);
@@ -346,6 +367,7 @@ bool IrServiceClient::cancelLoading()
 
 bool IrServiceClient::doSendControlRequest(const QVariant &aArgument, bool aIsSync, IrAppVisibilty aVisibility)
 {
+    LOG_METHOD;
     if(mControlReqOngoing)
     {
         return false;
@@ -368,6 +390,7 @@ bool IrServiceClient::doSendControlRequest(const QVariant &aArgument, bool aIsSy
 
 bool IrServiceClient::createControlServiceRequest()
 {
+    LOG_METHOD;
     bool retVal = false;
 
     if (NULL == mControlRequest)
@@ -399,6 +422,7 @@ bool IrServiceClient::createControlServiceRequest()
 
 void IrServiceClient::handleControlRequestOk(const QVariant &aRetValue)
 {
+    LOG_METHOD;
     mControlReqOngoing = false;    
     
     if (aRetValue.isValid()
@@ -413,6 +437,10 @@ void IrServiceClient::handleControlRequestOk(const QVariant &aRetValue)
 
 void IrServiceClient::handleControlRequestError(int aErrCode, const QString &aErrMessage)
 {
+    LOG_METHOD;
+    LOG_FORMAT("aErrCode = %d", aErrCode);
+    LOG_FORMAT("aErrMessage = %s", STRING2CHAR(aErrMessage));  
+    
     mControlReqOngoing = false;
     
     emit controlFailed();
@@ -427,6 +455,8 @@ void IrServiceClient::handleControlRequestError(int aErrCode, const QString &aEr
 // used to monitor the startup / exit of IR
 void IrServiceClient::handleIrRunningStatusChanged(IrAppInspector::IrRunningStatus aNewStatus)
 {
+    LOG_METHOD;
+    LOG_FORMAT("aNewIrRunningStatusStatus = %d", aNewStatus);
     switch (aNewStatus)
     {
         case IrAppInspector::StartingUp :
@@ -458,6 +488,7 @@ void IrServiceClient::handleIrRunningStatusChanged(IrAppInspector::IrRunningStat
 
 void IrServiceClient::clearMonitorServiceRequest()
 {
+    LOG_METHOD;
     delete mMonitorRequest;
     mMonitorRequest = NULL;
 
@@ -468,6 +499,7 @@ void IrServiceClient::clearMonitorServiceRequest()
 // used to process service data sent from IR app.
 void IrServiceClient::processNotificationData(const IrServiceData &aServiceData)
 {
+    LOG_METHOD;
     QVariant data = aServiceData.mData;
     if (!data.isValid())
     {
@@ -476,6 +508,7 @@ void IrServiceClient::processNotificationData(const IrServiceData &aServiceData)
     switch (aServiceData.mType)
     {
         case IrServiceNotification::StationName:
+            LOG("aServiceData = StationName");
             if (data.canConvert(QVariant::String))
             {
                 notifyStationNameUpdated(data.toString());
@@ -483,6 +516,7 @@ void IrServiceClient::processNotificationData(const IrServiceData &aServiceData)
             break;
 
         case IrServiceNotification::MetaData:
+            LOG("aServiceData = MetaData");
             if (data.canConvert(QVariant::String))
             {
                 notifyMetaDataUpdated(data.toString());
@@ -490,6 +524,7 @@ void IrServiceClient::processNotificationData(const IrServiceData &aServiceData)
             break;
 
         case IrServiceNotification::StationLogo:
+            LOG("aServiceData = StationLogo");
             if (data.canConvert(QVariant::Bool))
             {
                 notifyStationLogoUpdated(data.toBool());
@@ -497,6 +532,7 @@ void IrServiceClient::processNotificationData(const IrServiceData &aServiceData)
             break;
 
         case IrServiceNotification::IrState:
+            LOG("aServiceData = IrState");
             if (data.canConvert(QVariant::Int))
             {
                 notifyIrStateChanged((IrAppState::Type)data.toInt());
@@ -512,6 +548,8 @@ void IrServiceClient::processNotificationData(const IrServiceData &aServiceData)
 // prepare the request send to IR app, including control request, refresh request, monitor request.
 void IrServiceClient::prepareRequestInfo(XQAiwRequest *aRequest, IrAppVisibilty aVisibility)
 {
+    LOG_METHOD;
+    LOG_FORMAT("aVisibility = %d", aVisibility);
     if (NULL == aRequest)
     {
         return;
@@ -537,30 +575,39 @@ void IrServiceClient::prepareRequestInfo(XQAiwRequest *aRequest, IrAppVisibilty 
 
 void IrServiceClient::notifyStationNameUpdated(const QString &aStationName)
 {
+    LOG_METHOD;
+    LOG_FORMAT("aStationName = %s", STRING2CHAR(aStationName));
     mStationName = aStationName;
     emit stationNameUpdated(mStationName);
 }
 
 void IrServiceClient::notifyStationLogoUpdated(bool aIsLogoAvailable)
 {
+    LOG_METHOD;
+    LOG_FORMAT("aIsLogoAvailable = %d", aIsLogoAvailable);
     mStationLogoAvailable = aIsLogoAvailable;
     emit stationLogoUpdated(mStationLogoAvailable);    
 }
 
 void IrServiceClient::notifyMetaDataUpdated(const QString &aMetaData)
 {
+    LOG_METHOD;
+    LOG_FORMAT("aMetaData = %s", STRING2CHAR(aMetaData));
     mMetaData = aMetaData;
     emit metaDataUpdated(mMetaData);    
 }
 
 void IrServiceClient::notifyIrStateChanged(IrAppState::Type aNewState)
 {
+    LOG_METHOD;
+    LOG_FORMAT("mIrHsWidgetState = %d", aNewState);
     mIrState = aNewState;
     emit irStateChanged(mIrState);    
 }       
         
 bool IrServiceClient::isStationPlayed()
 {
+    LOG_METHOD;
     QSettings settings(KIrSettingOrganization, KIrSettingApplication);
     QString stationName = settings.value(KIrSettingStationName,KIrDefaultStationName).toString();
     return stationName != KIrDefaultStationName;
@@ -568,14 +615,17 @@ bool IrServiceClient::isStationPlayed()
 
 bool IrServiceClient::loadStationLogoFlag()
 {
+    LOG_METHOD;
     QSettings settings(KIrSettingOrganization, KIrSettingApplication);
     return settings.value(KIrSettingStationLogoAvailable,false).toBool();
 }
 
 bool IrServiceClient::loadStationName(QString &aStationName)
 {
+    LOG_METHOD;
     QSettings settings(KIrSettingOrganization, KIrSettingApplication);
     aStationName = settings.value(KIrSettingStationName,KIrDefaultStationName).toString();
+    LOG_FORMAT("aStationName = %s", STRING2CHAR(aStationName));
     if(aStationName != KIrDefaultStationName)
     {
         return true;

@@ -19,7 +19,7 @@
 
 TARGET        irsessionlog.dll
 TARGETTYPE    dll
-UID           0x1000008d 0x2000B4A6
+UID           0x1000008d 0x2002FFB6
 
 SOURCEPATH    ../src
 //CAPABILITY NetworkServices ProtServ ReadDeviceData ReadUserData SwEvent UserEnvironment WriteDeviceData WriteUserData TrustedUI

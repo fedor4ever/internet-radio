@@ -99,14 +99,17 @@ public:
     
 signals:
     void quit();
-
+    void applicationReady();
+    
 private slots:
     //connect to signal 'networkEventNotified' from IRQNetworkController
     void networkEventNotified(IRQNetworkEvent aEvent);
     void cancelConnect();
     void loadGenre();     
     void handleDiskSpaceLow(qint64 aCriticalLevel);
+#ifdef TERMS_CONDITIONS_VIEW_ENABLED    
     void handleTermsConsAccepted();
+#endif    
     void handleCallActivated();
     void handleCallDeactivated();
     void handleHeadsetConnected();

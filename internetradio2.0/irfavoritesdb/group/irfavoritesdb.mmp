@@ -18,7 +18,7 @@
 #include 		<platform_paths.hrh>
 TARGET        irfavoritesdb.dll
 TARGETTYPE    dll
-UID           0x1000008d 0x2000B4A0
+UID           0x1000008d 0x2002FFB4
 
 PAGED
 

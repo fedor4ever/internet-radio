@@ -22,7 +22,7 @@
 #include "irqevent.h"
  
 class IRQPreset;
-class IrChannelModel;
+class IRChannelDataProvider;
 class QTimer;
 
 class IRStationsView : public IrAbstractListViewBase
@@ -46,20 +46,13 @@ protected:
     
 private slots:  
     void presetResponse(IRQPreset *aPreset);
-    
-    void presetLogoDownload(IRQPreset* aPreset);
-    
-    void presetLogoDownloadError();
-    
+   
     void networkRequestNotified(IRQNetworkEvent aEvent);
     
     void dataChanged();
     
     //used for connect signal from isds client
     void operationException(IRQError aError);
-    
-    //to start the convertion 
-    void convertAnother();
     
     void connectTimeOut(); 
   
@@ -70,22 +63,15 @@ private:
     void storeCurrentItem();
     void handleItemSelected();
     
-    void startConvert(int aIndex); 
-    
-    void cleanupResource();   
-    
     void connectToIsdsClient();
     
     void disconnectIsdsClient();
     
 private:
-    IRQPreset *iLogoPreset;
     IRQPreset *iPreset; //the object is created by IsdsClient, but application is responsible for free
     int iLastSelectitem;
     
-    //the following are used to support the img
-    QList<int> iIconIndexArray;
-    IrChannelModel *iChannelModel;
+    IRChannelDataProvider *iDataProvider;
     QTimer *iConnectTimer;
     
     friend class IRViewManager;

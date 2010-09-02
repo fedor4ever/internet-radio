@@ -23,9 +23,12 @@
 #include "irisdspreset.h"
 #include "irpreset.h"
 #include "irsettings.h"
+#include "iruid3.hrh"
 
 const TInt KNullId = 0;
 const TInt KNineteen = 19;
+
+const TUid KIRPreset = { UID3_IRPRESETPLUGIN_DLL_IMPLEMENTATION_UID };
 
 namespace PresetHandler
     {

@@ -22,7 +22,7 @@
 
 TARGET                  irpresetplugin.dll
 TARGETTYPE              PLUGIN
-UID                     0x10009D8D 0X2000B4AA
+UID                     0x10009D8D 0X2002FFC7
 
 CAPABILITY              CAP_ECOM_PLUGIN
 VENDORID                VID_DEFAULT

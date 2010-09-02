@@ -67,10 +67,6 @@ private:
     
     void disconnectIsdsClient();
     
-    void lazyInit();
-    
-    void normalInit();
-    
 private:
     int iLastSelectItem;
     IRCategoryModel *iModel;

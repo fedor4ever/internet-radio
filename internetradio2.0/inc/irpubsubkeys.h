@@ -54,15 +54,6 @@ enum TIRBufferingState
     };
 
 /** 
- * Internet Radio application Uid
- */
- 
-//violates PC Lint Warning 569: Loss of information 
-//(initialization) (32 bits to 31 bits)
-
-const TUid KUidActiveInternetRadioApp = {0x2000B499};
-
-/** 
  * IR Publish and Subscribe keys base value
  */
 const TUint32 KIRPubSubBase = { 0x00000020 } ;

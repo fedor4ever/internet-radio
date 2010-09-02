@@ -33,7 +33,7 @@
 #include "../irxmlparser/group/bld.inf"
 
 PRJ_EXPORTS
-backup_registration.xml                         /epoc32/data/z/private/2000B499/backup_registration.xml
+backup_registration.xml                         /epoc32/data/z/private/2002ffac/backup_registration.xml
 
 //ROM Build
 // THESE COMMENTED IBYS SHOULD BE EXPORTED BY PRODUCTS

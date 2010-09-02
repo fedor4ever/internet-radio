@@ -21,7 +21,7 @@
 
 #include "irhswidgetplugin.h"
 #include "irhswidget.h"
-
+#include "irqlogger.h"
 
 /*!
     Initialize plugin for Internet Radio home screen widget. Contains necessary information about
@@ -31,6 +31,7 @@ QObject *IrHsWidgetPlugin::createInstance(const QServiceInterfaceDescriptor &aDe
                                              QServiceContext *aContext,
                                              QAbstractSecuritySession *aSession)
 {
+    LOG_METHOD;
     Q_UNUSED(aContext);
     Q_UNUSED(aSession);
 

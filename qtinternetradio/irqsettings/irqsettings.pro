@@ -29,7 +29,7 @@ INCLUDEPATH += inc \
 LIBS += -lxqsettingsmanager
 
 symbian{
-  TARGET.UID3 = 0xe7437cbb
+  TARGET.UID3 = 0x2002FFC2
   TARGET.EPOCALLOWDLLDATA = 1
   MMP_RULES += SMPSAFE
 }

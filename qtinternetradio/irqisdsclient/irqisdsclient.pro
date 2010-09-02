@@ -60,7 +60,7 @@ LIBS += -lirdatastructures \
   
 
 symbian{
-  TARGET.UID3 = 0xec6ecb67
+  TARGET.UID3 = 0x2002FFBD
   TARGET.EPOCALLOWDLLDATA = 1
   MMP_RULES += SMPSAFE
 }

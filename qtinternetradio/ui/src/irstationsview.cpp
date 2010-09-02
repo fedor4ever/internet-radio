@@ -19,6 +19,7 @@
 #include <hbaction.h>
 #include <QTimer>
 #include <hbscrollbar.h>
+#include <hgwidgets/hgcacheproxymodel.h>
 
 #include "irviewmanager.h"
 #include "irstationsview.h"
@@ -27,11 +28,11 @@
 #include "irqisdsclient.h"
 #include "irqenums.h"
 #include "irqutility.h"
-#include "irchannelmodel.h"
+#include "irchanneldataprovider.h"
 #include "irqisdsdatastructure.h"
 #include "irqnetworkcontroller.h"
 
-const int KBitmapSize = 59; 
+ 
 const uint KConnectTimeOut = 15000; //if the connecting take more than 15 seconds, we will show a pop up
 
 //                                      public functions
@@ -41,29 +42,22 @@ const uint KConnectTimeOut = 15000; //if the connecting take more than 15 second
  */
 IRStationsView::IRStationsView(IRApplication* aApplication, TIRViewId aViewId) 
                                : IrAbstractListViewBase(aApplication, aViewId),
-                               iLogoPreset(NULL),  iPreset(NULL), 
+                               iPreset(NULL), 
                                iLastSelectitem(0)                        
 {       
-    //this view won't be starting view, don't need lazy init
-    IrAbstractListViewBase::lazyInit();
-    setInitCompleted(true);
-        
-    iIconIndexArray.clear();
-    iChannelModel = new IrChannelModel(this);
-    iListView->setModel(iChannelModel);
     
+    iDataProvider = new IRChannelDataProvider(this);
+    HgCacheProxyModel *model = new HgCacheProxyModel(this);
+    model->setDataProvider(iDataProvider, KCacheSize, KCacheThreshold);
+    iListView->setModel(model);
     
     iConnectTimer = new QTimer(this);
     iConnectTimer->setInterval(KConnectTimeOut);     
-    
-    iConvertTimer = new QTimer(this);
-    iConvertTimer->setInterval(10);    
-    
-    connect(iChannelModel, SIGNAL(dataAvailable()), this, SLOT(dataChanged()));    
+     
+    connect(iDataProvider, SIGNAL(dataAvailable()), this, SLOT(dataChanged()));    
     connect(iNetworkController, SIGNAL(networkRequestNotified(IRQNetworkEvent)),
             this, SLOT(networkRequestNotified(IRQNetworkEvent)));    
     connect(iConnectTimer, SIGNAL(timeout()), this, SLOT(connectTimeOut()));
-    connect(iConvertTimer, SIGNAL(timeout()), this, SLOT(convertAnother()));
 }
 
 /*
@@ -73,9 +67,6 @@ IRStationsView::~IRStationsView()
 {
     delete iPreset;
     iPreset = NULL;
-
-    delete iLogoPreset;
-    iLogoPreset = NULL;
 }
 
 void IRStationsView::loadCategoryStations(int aIndex, const QString &aHeadingText)
@@ -112,42 +103,24 @@ void IRStationsView::resetCurrentItem()
 TIRHandleResult IRStationsView::handleCommand(TIRViewCommand aCommand, TIRViewCommandReason aReason)
 {
     TIRHandleResult ret = IrAbstractListViewBase::handleCommand(aCommand, aReason);
-    int leftCount = 0;
     
     switch (aCommand)
     {   
     case EIR_ViewCommand_ACTIVATED:
         connect(iIsdsClient, SIGNAL(presetResponse(IRQPreset *)),
                 this, SLOT(presetResponse(IRQPreset *)));
-        connect(iIsdsClient, SIGNAL(presetLogoDownloaded(IRQPreset* )),
-                this, SLOT(presetLogoDownload(IRQPreset* )));
-        connect(iIsdsClient, SIGNAL(presetLogoDownloadError()),
-                this, SLOT(presetLogoDownloadError()));
         
-        leftCount = iIconIndexArray.count();
-        if( leftCount > 0 )
-        {
-            iConvertTimer->start();
-        }
+        iDataProvider->activate();
+        
         ret = EIR_NoDefault;
         break;
         
     case EIR_ViewCommand_DEACTIVATE:
-        if (aReason == EIR_ViewCommandReason_Back)
-        {
-            cleanupResource();
-        }
-        
-        iConnectTimer->stop();
-        iConvertTimer->stop();
-        iIsdsClient->isdsLogoDownCancelTransaction();         
+        iConnectTimer->stop();       
+        iDataProvider->deactivate();
         
         disconnect(iIsdsClient, SIGNAL(presetResponse(IRQPreset *)),
-                   this, SLOT(presetResponse(IRQPreset *)));
-        disconnect(iIsdsClient, SIGNAL(presetLogoDownloaded(IRQPreset*)),
-                   this, SLOT(presetLogoDownload(IRQPreset* )));
-        disconnect(iIsdsClient, SIGNAL(presetLogoDownloadError()),
-                   this, SLOT(presetLogoDownloadError()));        
+                   this, SLOT(presetResponse(IRQPreset *)));       
         ret = EIR_NoDefault;
         break;
 
@@ -164,7 +137,7 @@ void IRStationsView::itemAboutToBeSelected(bool &aNeedNetwork)
     aNeedNetwork =  true;
     
     int index = iListView->currentIndex().row();
-    iPlayController->setConnectingStationName(iChannelModel->getChannelItemByIndex(index)->channelName);
+    iPlayController->setConnectingStationName(iDataProvider->getChannelItemByIndex(index)->channelName);
 }
 #endif
 
@@ -213,26 +186,16 @@ void IRStationsView::dataChanged()
     iConnectTimer->stop();
     
     disconnectIsdsClient();
-    cleanupResource();
 
     iListView->reset();
-    iListView->setCurrentIndex(iChannelModel->index(iLastSelectitem));
-    iListView->scrollTo(iChannelModel->index(iLastSelectitem));
+    iListView->setCurrentIndex(iDataProvider->index(iLastSelectitem, 0));
+    iListView->scrollTo(iDataProvider->index(iLastSelectitem, 0));
     qreal value = 0.0;
     if (iListView->model()->rowCount() > 0)
     {
         value = iLastSelectitem / iListView->model()->rowCount();
     }
     iListView->verticalScrollBar()->setValue(value);
-    
-    //initialize the iconindices
-    for (int i = 0; i < iChannelModel->rowCount(); ++i)
-    {
-        if (iChannelModel->imageUrl(i) != "")
-        {
-            iIconIndexArray.append(i);
-        }
-    }
 
     getViewManager()->activateView(this);
     iApplication->stopLoadingAnimation();
@@ -305,76 +268,6 @@ void IRStationsView::cancelRequest()
     iApplication->stopLoadingAnimation();
 }
 
-void IRStationsView::startConvert(int aIndex)
-{
-    QString url = iChannelModel->imageUrl(aIndex);
- 
-    IRQPreset tempPreset;
-    tempPreset.imgUrl = url;
-    tempPreset.type = IRQPreset::EIsds;
-    
-    iIsdsClient->isdsLogoDownSendRequest(&tempPreset, 0, KBitmapSize, KBitmapSize); 
-}
-
- 
-//if the logo is downloaded ok
-void IRStationsView::presetLogoDownload(IRQPreset* aPreset)
-{
-    if( NULL == aPreset )
-    {
-        presetLogoDownloadError();
-        return;
-    } 
-    
- 
-    delete iLogoPreset;            
-    iLogoPreset = aPreset;    
-
-    if (iLogoPreset->logoData != KNullDesC8)
-    {         
-        QPixmap tempMap;  
-        const unsigned char * logoData = iLogoPreset->logoData.Ptr();     
-        bool ret = tempMap.loadFromData(logoData, iLogoPreset->logoData.Length());
-        QIcon convertIcon(tempMap);
-       
-        if( ret )
-        {            
-            HbIcon *hbIcon = new HbIcon(convertIcon);
-            int index = iIconIndexArray[0];
-            iChannelModel->setLogo(hbIcon, index);
-            iIconIndexArray.removeAt(0);     
-            int leftCount = iIconIndexArray.count(); 
-            if( leftCount > 0 )
-            {
-                iConvertTimer->start();  
-            }
-            return;
-        }     
-    }    
-    
-    presetLogoDownloadError(); 
-}
-
-//if the logo download fails
-void IRStationsView::presetLogoDownloadError()
-{
-    // if the logo download fails, try to download the next
-    iIconIndexArray.removeAt(0);
-    int leftCount = iIconIndexArray.count();
-    if( leftCount > 0 )
-    {
-        iConvertTimer->start();
-    }    
-}
-
-void IRStationsView::cleanupResource()
-{
-    iIconIndexArray.clear();
-
-    //destroy icons in time to save memory
-    iChannelModel->clearAndDestroyLogos();
-}
-
 void IRStationsView::networkRequestNotified(IRQNetworkEvent aEvent)
 {
     if (getViewManager()->currentView() != this)
@@ -388,11 +281,6 @@ void IRStationsView::networkRequestNotified(IRQNetworkEvent aEvent)
         if (EIR_UseNetwork_SelectItem == getUseNetworkReason())
         {
             handleItemSelected();
-            int leftCount = iIconIndexArray.count();
-            if(0 != leftCount)
-            {
-                iConvertTimer->start();
-            }
         }
         
         break;
@@ -408,7 +296,7 @@ void IRStationsView::networkRequestNotified(IRQNetworkEvent aEvent)
 void IRStationsView::connectToIsdsClient()
 {
     connect(iIsdsClient, SIGNAL(channelItemsChanged(QList<IRQChannelItem *> *)),
-            iChannelModel, SLOT(updateData(QList<IRQChannelItem *> *)));
+            iDataProvider, SLOT(updateData(QList<IRQChannelItem *> *)));
     
     connect(iIsdsClient, SIGNAL(operationException(IRQError)),
             this, SLOT(operationException(IRQError)));
@@ -417,21 +305,10 @@ void IRStationsView::connectToIsdsClient()
 void IRStationsView::disconnectIsdsClient()
 {
     disconnect(iIsdsClient, SIGNAL(channelItemsChanged(QList<IRQChannelItem *> *)),
-               iChannelModel, SLOT(updateData(QList<IRQChannelItem *> *)));
+               iDataProvider, SLOT(updateData(QList<IRQChannelItem *> *)));
     
     disconnect(iIsdsClient, SIGNAL(operationException(IRQError)),
                this, SLOT(operationException(IRQError)));
-}
-
-void IRStationsView::convertAnother()
-{
-    iConvertTimer->stop();
-    int leftCount = iIconIndexArray.count();
-    
-    if(0 != leftCount)
-    {
-        startConvert(iIconIndexArray[0]);   
-    }
 }
 
 void IRStationsView::connectTimeOut()

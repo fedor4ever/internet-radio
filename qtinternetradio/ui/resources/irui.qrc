@@ -1,12 +1,15 @@
 <!DOCTYPE RCC><RCC version="1.0">
 
-<qresource>
-    <file>layout/abstractlistviewbase.docml</file>
-    <file>layout/searchchannelsview.docml</file>
-    <file>layout/openwebaddressview.docml</file>
-    <file>layout/nowplayingview.docml</file>
-    <file>layout/stationdetailsview.docml</file>    
-    <file>layout/termsconsview.docml</file>
+<qresource prefix="/">
+    <file alias="layout/abstractlistviewbase.docml">layout/abstractlistviewbase.docml.bin</file>
+    <file alias="layout/searchchannelsview.docml">layout/searchchannelsview.docml.bin</file>
+    <file alias="layout/openwebaddressview.docml">layout/openwebaddressview.docml.bin</file>
+    <file alias="layout/nowplayingview.docml">layout/nowplayingview.docml.bin</file>
+    <file alias="layout/stationdetailsview.docml">layout/stationdetailsview.docml.bin</file>    
+    <file alias="layout/termsconsview.docml">layout/termsconsview.docml.bin</file>
+</qresource>    
+    
+<qresource>    
     <file>layout/customizer.hbpushbutton.widgetml</file>
     <file>layout/pushbutton.css</file>
 </qresource>

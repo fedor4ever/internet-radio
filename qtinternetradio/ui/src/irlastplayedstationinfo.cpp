@@ -23,8 +23,9 @@
 
 #include "irqisdsdatastructure.h"
 #include "irlastplayedstationinfo.h"
+#include "irquid3.hrh"
 
-const QString KFileName("C:\\Private\\E28364bb\\lastPlayed.dat");
+const QString KFileName(QString("C:\\Private\\")+QString(STR_UID3_INTERNET_RADIO_10_1_EXE)+QString("\\lastPlayed.dat"));
 
 IRLastPlayedStationInfo::IRLastPlayedStationInfo() : iLastPlayedStation(NULL), iUpdated(false),
                                                      iConnectedFrom(EIRQIsds)

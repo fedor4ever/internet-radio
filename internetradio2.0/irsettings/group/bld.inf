@@ -21,11 +21,11 @@ ARMV5 WINSCW
 
 PRJ_EXPORTS
 // Cenrep
-../../cenrep/2000b499.txt                          /epoc32/data/z/private/10202be9/2000b499.txt
-../../cenrep/2000b499.txt                          /epoc32/release/winscw/udeb/z/private/10202be9/2000b499.txt
-../../cenrep/2000b499.txt                          /epoc32/release/winscw/urel/z/private/10202be9/2000b499.txt
+../../cenrep/2002ffac.txt                          /epoc32/data/z/private/10202be9/2002ffac.txt
+../../cenrep/2002ffac.txt                          /epoc32/release/winscw/udeb/z/private/10202be9/2002ffac.txt
+../../cenrep/2002ffac.txt                          /epoc32/release/winscw/urel/z/private/10202be9/2002ffac.txt
 #ifdef __WINS__
-../../cenrep/2000b499.txt  		        /epoc32/winscw/c/private/10202be9/2000b499.txt
+../../cenrep/2002ffac.txt  		        /epoc32/winscw/c/private/10202be9/2002ffac.txt
 #endif
 
 prj_mmpfiles

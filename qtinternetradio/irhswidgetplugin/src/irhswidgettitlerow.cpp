@@ -28,6 +28,7 @@
 #include "irhswidgettitlerow.h"
 #include "irservicedef.h"
 #include "irhswidgetuiloader.h"
+#include "irqlogger.h"
 
 // Constants
 static const QString KIrHsWidgetTitleRowDocML       = ":/resource/irhswidgettitlerow.docml";
@@ -46,16 +47,19 @@ IrHsWidgetTitleRow::IrHsWidgetTitleRow(QGraphicsItem *aParent, Qt::WindowFlags a
     mStationLogo(NULL), 
     mStationName(NULL)
 {
+    LOG_METHOD;
     loadUi();
     grabGesture(Qt::TapGesture);
 }
 
 IrHsWidgetTitleRow::~IrHsWidgetTitleRow()
 {
+    LOG_METHOD;
 }
 
 void IrHsWidgetTitleRow::loadUi()
 {
+    LOG_METHOD;
     IRHsWidgetUiLoader loader;
     loader.load(KIrHsWidgetTitleRowDocML);
 
@@ -77,6 +81,7 @@ void IrHsWidgetTitleRow::loadUi()
 
 void IrHsWidgetTitleRow::setDefaultTitle()
 {
+    LOG_METHOD;
 #ifdef SUBTITLE_STR_BY_LOCID 
     mStationName->setPlainText(hbTrId("txt_ir_list_internet_radio"));
 #else
@@ -86,6 +91,8 @@ void IrHsWidgetTitleRow::setDefaultTitle()
 
 void IrHsWidgetTitleRow::setStationName(const QString& aStationName)
 {
+    LOG_METHOD;
+    LOG_FORMAT("aStationName = %s", STRING2CHAR(aStationName));
     if (mStationName->plainText() != aStationName)
     {
         mStationName->setPlainText(aStationName);
@@ -94,6 +101,7 @@ void IrHsWidgetTitleRow::setStationName(const QString& aStationName)
     
 void IrHsWidgetTitleRow::loadStationLogo()
 {
+    LOG_METHOD;
     QSettings settings(KIrSettingOrganization, KIrSettingApplication);
     if (settings.value(KIrSettingStationLogo).canConvert<QPixmap>())
     {
@@ -101,18 +109,21 @@ void IrHsWidgetTitleRow::loadStationLogo()
         QPixmap newLogoPixmap = 
              logoPixmap.scaled(QSize(KIrHsWidgetLogoSize,KIrHsWidgetLogoSize),Qt::KeepAspectRatio);
         QIcon logoQIcon(newLogoPixmap);
-        HbIcon logoHbIcon(logoQIcon);            
+        HbIcon logoHbIcon(logoQIcon); 
+        LOG("station logo loaded succesfully");
         mStationLogo->setIcon(logoHbIcon);
     }  
 }
 
 void IrHsWidgetTitleRow::setDefaultLogo()
 {
+    LOG_METHOD;
     mStationLogo->setIcon(KDefaultStationLogo);
 }
 
 void IrHsWidgetTitleRow::gestureEvent(QGestureEvent *aEvent)
 {
+    LOG_METHOD;
     HbTapGesture *tapGesture = qobject_cast<HbTapGesture *>(aEvent->gesture(Qt::TapGesture));
     if (!tapGesture)
     {
@@ -122,6 +133,7 @@ void IrHsWidgetTitleRow::gestureEvent(QGestureEvent *aEvent)
     if (Qt::GestureFinished == tapGesture->state()
         && HbTapGesture::Tap == tapGesture->tapStyleHint())
     {
+        LOG("emit titleRowClicked()");
         emit titleRowClicked();
     }
 }
@@ -131,6 +143,7 @@ void IrHsWidgetTitleRow::gestureEvent(QGestureEvent *aEvent)
 //
 void IrHsWidgetTitleRow::changeEvent(QEvent *event)
 {
+    LOG_METHOD;
     if (HbEvent::ThemeChanged == event->type())
     {
         // get the text color from theme and 

@@ -72,7 +72,18 @@ IrAbstractListViewBase::IrAbstractListViewBase(IRApplication *aApplication, TIRV
 #else
     setTitle("Internet radio");      
 #endif
-   
+
+    initMenu();
+    initContentWidget();
+    initScrollBar();
+    initToolBar();
+    
+    connect(iListView, SIGNAL(activated(const QModelIndex&)), this, SLOT(clickItem(const QModelIndex&)));
+    connect(iListView, SIGNAL(longPressed(HbAbstractViewItem *,const QPointF&)), this, SLOT(listViewLongPressed(HbAbstractViewItem *,const QPointF&)));
+    connect(iPlayController, SIGNAL(metaDataAvailable(IRQMetaData*)), this, SLOT(metaDataAvailable(IRQMetaData*)));
+    connect(iPlayController, SIGNAL(playingStopped()), this, SLOT(removeBanner()));
+    connect(getViewManager(), SIGNAL(orientationChanged(Qt::Orientation)),
+            this, SLOT(handleOrientationChanged(Qt::Orientation)));
 }
 
 IrAbstractListViewBase::~IrAbstractListViewBase()
@@ -215,11 +226,6 @@ TIRHandleResult IrAbstractListViewBase::handleCommand(TIRViewCommand aCommand, T
 {
     Q_UNUSED(aReason);
     TIRHandleResult ret = EIR_DoDefault;
-
-    if (!initCompleted())
-    {
-        return ret;
-    }
     
     switch (aCommand)
     {
@@ -258,26 +264,6 @@ void IrAbstractListViewBase::updateView()
 void IrAbstractListViewBase::handleOrientationChanged(Qt::Orientation aOrientation)
 {
     updateBanner(aOrientation);
-}
-
-void IrAbstractListViewBase::lazyInit()
-{
-    if (!initCompleted())
-    {
-        IRBaseView::lazyInit();
-        
-        initMenu();
-        initContentWidget();
-        initScrollBar();
-        initToolBar();
-        
-        connect(iListView, SIGNAL(activated(const QModelIndex&)), this, SLOT(clickItem(const QModelIndex&)));
-        connect(iListView, SIGNAL(longPressed(HbAbstractViewItem *,const QPointF&)), this, SLOT(listViewLongPressed(HbAbstractViewItem *,const QPointF&)));
-        connect(iPlayController, SIGNAL(metaDataAvailable(IRQMetaData*)), this, SLOT(metaDataAvailable(IRQMetaData*)));
-        connect(iPlayController, SIGNAL(playingStopped()), this, SLOT(removeBanner()));
-        connect(getViewManager(), SIGNAL(orientationChanged(Qt::Orientation)),
-                this, SLOT(handleOrientationChanged(Qt::Orientation)));
-    }
 }
 
 void IrAbstractListViewBase::collectionsActionClicked()

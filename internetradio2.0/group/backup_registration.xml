@@ -5,10 +5,10 @@
             <include_file name = "cacheDb.db"/>
             <include_file name = "iSdsResponse.xml"/>
             <include_file name = "Session"/>
+            <include_file name = "NmsLog"/>
             <include_file name = "RadioReport.xml"/>
             <include_file name = "LogUsage.gz"/>
 			<include_file name = "songhistoryDb.db"/>
-            <include_file name = "irsettings_backed_up.ini"/>
         </passive_backup> 
       <proxy_data_manager sid="0x10202BE9"/>
 	<restore requires_reboot = "no"/> 

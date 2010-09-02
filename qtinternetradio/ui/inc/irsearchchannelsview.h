@@ -52,9 +52,7 @@ private: //functions
     void switch2InitState();  
     void loadLayout();
     void handleItemSelected();    
-    void normalInit();
     void initMenu();
-    void lazyInit();
     void startConvert(int aIndex);   
     void initTimer();
     bool eventFilter(QObject *object, QEvent *event);
@@ -74,6 +72,7 @@ private slots: //slots
     void presetLogoDownload(IRQPreset* aPreset);
     void presetLogoDownloadError();
     void hideVkb();
+    void showVkb();
 
 public slots:    
     //this slot is used to back to previouse view or minimize the search widget

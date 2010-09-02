@@ -23,10 +23,6 @@
 #include "irrecognizer.h"
 
 // CONSTANTS
-//voilate PC Lint Warning 569: Loss of information (initialization) 
-//(32 bits to 31 bits)
-// Uid of the recogniser
-//const TUid KUidIRRecognizer={0x2000B499}
 
 // If the file name length > 4, the file extension might be valid                  
 const TInt KPlsFileExtensionsMightBeValid = 4;  

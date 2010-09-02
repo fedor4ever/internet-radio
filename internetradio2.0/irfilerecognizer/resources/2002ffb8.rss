@@ -17,10 +17,11 @@
 
 
 #include <registryinfo.rh>
+#include "iruid3.hrh"
 
 RESOURCE REGISTRY_INFO r_registry
 {
-    dll_uid = 0x2000B4A9; // should match name of this file
+    dll_uid = UID3_IRFILERECOGNIZER_DLL; // should match name of this file
     interfaces =
     {
         INTERFACE_INFO
@@ -30,7 +31,7 @@ RESOURCE REGISTRY_INFO r_registry
             {
                 IMPLEMENTATION_INFO
                 {
-                    implementation_uid = 0x2000B4DE; // unique implementation uid
+                    implementation_uid = UID3_IRFILERECOGNIZER_DLL_IMPLEMENTATION_UID; // unique implementation uid
                     version_no = 1;
                     display_name = "IRFileRecognizer";
                     default_data = "";

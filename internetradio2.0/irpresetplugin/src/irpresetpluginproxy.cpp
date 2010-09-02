@@ -18,12 +18,13 @@
 #include <implementationproxy.h>
 
 #include "irpresetimpl.h"
+#include "iruid3.hrh"
 
 // The implementation proxy table that lists all interfaces and 
 // their implementations contained within this plugin.
 const TImplementationProxy KIRPresetPluginImplementationTable[] =
     {
-    IMPLEMENTATION_PROXY_ENTRY( 0x10009DC1, CIRPresetImpl:: NewL) 
+    IMPLEMENTATION_PROXY_ENTRY( UID3_IRPRESETPLUGIN_DLL_IMPLEMENTATION_UID, CIRPresetImpl:: NewL) 
     };
 
 

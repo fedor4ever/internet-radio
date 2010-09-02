@@ -39,11 +39,14 @@ IRCategoryView::IRCategoryView(IRApplication* aApplication, TIRViewId aViewId)
     setViewParameter(EIRViewPara_Genre);
     setFlag(EViewFlag_ClearStackWhenActivate|EViewFlag_StickyViewEnabled);
     
-    //if this view is not starting view, finish all initialization in constructor
-    if (getViewManager()->views().count() > 0)
-    {
-        normalInit();
-    }
+    iModel = new IRCategoryModel(this);
+    iListView->setModel(iModel);
+    
+    connect(iModel, SIGNAL(dataChanged()), this, SLOT(dataChanged()));
+    
+    connect(iNetworkController, SIGNAL(networkRequestNotified(IRQNetworkEvent)), this,
+        SLOT(networkRequestNotified(IRQNetworkEvent)));
+
 }
 
 /*
@@ -60,12 +63,7 @@ IRCategoryView::~IRCategoryView()
  * see also    : IRBaseView::handleCommand
  */
 TIRHandleResult IRCategoryView::handleCommand(TIRViewCommand aCommand, TIRViewCommandReason aReason)
-{
-    if (!initCompleted())
-    {
-        return EIR_DoDefault;
-    }
-    
+{    
     Q_UNUSED(aReason);
     TIRHandleResult ret = IrAbstractListViewBase::handleCommand(aCommand, aReason);
     
@@ -450,33 +448,3 @@ void IRCategoryView::setCheckedAction()
     }
 }
 
-void IRCategoryView::lazyInit()
-{  
-    if (!initCompleted())
-    {
-        normalInit();
-
-        //initialization from handleCommand()
-        handleCommand(EIR_ViewCommand_TOBEACTIVATED, EIR_ViewCommandReason_Show);
-        handleCommand(EIR_ViewCommand_ACTIVATED, EIR_ViewCommandReason_Show);
-        
-        emit applicationReady();
-    }
-}
-
-void IRCategoryView::normalInit()
-{
-    if (!initCompleted())
-    {
-        IrAbstractListViewBase::lazyInit();
-        iModel = new IRCategoryModel(this);
-        iListView->setModel(iModel);
-
-        connect(iModel, SIGNAL(dataChanged()), this, SLOT(dataChanged()));
-
-        connect(iNetworkController, SIGNAL(networkRequestNotified(IRQNetworkEvent)), this,
-                SLOT(networkRequestNotified(IRQNetworkEvent)));
-    
-        setInitCompleted(true);
-    }
-}

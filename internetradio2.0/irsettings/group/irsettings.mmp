@@ -21,7 +21,7 @@
 
 TARGET              irsettings.dll
 TARGETTYPE          DLL
-UID                 0x1000008D 0x2000B4A3
+UID                 0x1000008D 0x2002FFAE
 
 
 VENDORID            VID_DEFAULT

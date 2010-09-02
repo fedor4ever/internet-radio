@@ -53,6 +53,10 @@ private:
     bool eventFilter(QObject *object, QEvent *event);
     void hideVkb();
 
+private:
+    // from HbWidgetBase
+    void gestureEvent(QGestureEvent *aEvent);
+    
 private slots:
     // play this station
     void play();

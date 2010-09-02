@@ -1085,7 +1085,7 @@ EXPORT_C void CIRReportGenerator::UpdateNmsChannelID( TInt aChanneldID )
 
 // ---------------------------------------------------------------------------
 // Function: WriteNmsLogData
-// gathers Nmslog data and writes to XML file
+// gathers NmsLog data and writes to XML file
 // ---------------------------------------------------------------------------
 //
 void CIRReportGenerator::WriteNmsLogData(TInt aIndex)

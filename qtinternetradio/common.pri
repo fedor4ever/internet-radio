@@ -17,6 +17,7 @@
 #DEFINES += ADV_ENABLED
 DEFINES += HS_WIDGET_ENABLED
 #DEFINES += STATISTIC_REPORT_TEST_ENABLED
+#DEFINES += TERMS_CONDITIONS_VIEW_ENABLED
 
 # ##########################################################
 # Logging flag definitions

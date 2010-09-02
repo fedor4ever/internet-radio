@@ -28,7 +28,6 @@ IRTermsConsView::IRTermsConsView(IRApplication* aApplication, TIRViewId aViewId)
 {
     // This view need not to be stacked.
     setFlag(EViewFlag_UnStackable);
-    setInitCompleted(true);
     initViewContents();            
 }
 

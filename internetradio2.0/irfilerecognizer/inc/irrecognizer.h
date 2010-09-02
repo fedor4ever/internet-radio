@@ -20,9 +20,10 @@
 #define IRRECOGNIZER_H
 
 #include <apmrec.h>
+#include "iruid3.hrh"
 
-const TInt KIRRecognizerImplementationUid = 0x2000B4DE;
-const TUid KIRRecognizerDllUid = {0x2000B4A9};
+const TInt KIRRecognizerImplementationUid = UID3_IRFILERECOGNIZER_DLL_IMPLEMENTATION_UID;
+const TUid KIRRecognizerDllUid = {UID3_IRFILERECOGNIZER_DLL};
 /**
  * Recognizer plug-in for .Pls files.
  * 

@@ -313,7 +313,7 @@ private:
     
     /**
     * Function: WriteNmsLogData
-    * gathers Nmslog data and writes to XML file
+    * gathers NmsLog data and writes to XML file
     * @param position of the log in the log data array
     */      
     void WriteNmsLogData( TInt aIndex );

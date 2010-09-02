@@ -19,7 +19,7 @@
 
 TARGET        irnetworkcontroller.dll
 TARGETTYPE    dll
-UID           0x1000008d 0x2000B4A2
+UID           0x1000008d 0x2002FFB0
 
 PAGED
 

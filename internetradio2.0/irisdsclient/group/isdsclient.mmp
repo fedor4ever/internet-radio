@@ -19,7 +19,7 @@
 
 TARGET        isdsclientinterface.dll
 TARGETTYPE    dll
-UID           0x1000008d 0x2000B49E
+UID           0x1000008d 0x2002FFB7
 
 PAGED
 

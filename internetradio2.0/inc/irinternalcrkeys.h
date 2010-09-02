@@ -20,9 +20,10 @@
 #define IRINTERNALCRKEYS_H
 
 #include <e32cmn.h>
+#include "iruid3.hrh"
 
-/** The UID of the category we use. Must be the same as Visual Radio's UID3 (SID). */
-const TUid KCRUidInternetRadio = { 0x2000B499};
+/** The UID of the category we use. Must be the same as Internet Radio's UID3 (SID). */
+const TUid KCRUidInternetRadio = { UID3_INTERNET_RADIO_10_1_EXE};
 
 // Keys Definition
 const TUint32 KIRFavoritesMaxNum                        = { 0x00000001 };

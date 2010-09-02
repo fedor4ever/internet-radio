@@ -19,6 +19,8 @@
 #define IRSERVICEDEF_H
 
 #include <QString>
+#include "irquid3.hrh"
+
 
 // For settings via QSetting
 static const QString KIrSettingOrganization = "nokia.s60.mymex";
@@ -30,7 +32,7 @@ static const QString KIrSettingStationLogoAvailable  = "lastplayedinfo/station_l
  
 
 // For P&S XQSettingsManager
-const long int KInternetRadioPSUid = 0xE28364bb;   // Internet Radio's UID3
+const long int KInternetRadioPSUid = UID3_INTERNET_RADIO_10_1_EXE;   // Internet Radio's UID3
 const unsigned long int KInternetRadioStartupKey = 0x00000035;  // a empty slot in internetradio2.0\include\irpubsubkeys.h
 
 

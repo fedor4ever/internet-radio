@@ -30,10 +30,6 @@
 #include <hbframeitem.h>
 #endif
 
-#ifdef STATISTIC_REPORT_TEST_ENABLED
-#include <hbmenu.h>
-#endif
-    
 #include "irviewmanager.h"
 #include "irapplication.h"
 #include "irplaycontroller.h"
@@ -77,6 +73,10 @@ static const QString KStationColor("qtc_lcd_content_normal");
 static const QString KLcdGraphics("qtg_fr_lcd");
 #endif
 
+#ifdef STATISTIC_REPORT_TEST_ENABLED    
+static const int KDummySongRecognitionUid = 0xE4EF7D71;
+static const int KDummyMusicStoreUid = 0xE609761B;
+#endif
 
 static void saveStationLogo(const QPixmap &aStationLogo);
 
@@ -88,7 +88,6 @@ IRNowPlayingView::IRNowPlayingView(IRApplication* aApplication, TIRViewId aViewI
     iStatisticsReporter(NULL),
     iStationShare(NULL),
     iPlayStopAction(NULL),
-    iLaunchActionNeeded(false),
     iLogoDownloadState(EIdle),    
     iSongNameLabel(NULL),
     iSongNameMarquee(NULL),
@@ -105,13 +104,25 @@ IRNowPlayingView::IRNowPlayingView(IRApplication* aApplication, TIRViewId aViewI
 #endif
 {
     LOG_METHOD;
+    
+    iLaunchActionNeeded = (0 == getViewManager()->views().count()); // this is the starting view
+        
     initialize();
     
-    //if this view is not starting view, finish all initialization in constructor
-    if (getViewManager()->views().count() > 0)
-    {
-        normalInit();
-    }
+    iStatisticsReporter = IRQStatisticsReporter::openInstance();
+        
+    connect(iPlayController, SIGNAL(metaDataAvailable(IRQMetaData*)), this, SLOT(updateMetaData(IRQMetaData*)));
+    connect(iPlayController, SIGNAL(playingStarted()), this, SLOT(handlePlayStarted()));
+    connect(iPlayController, SIGNAL(playingStopped()), this, SLOT(handlePlayStopped()));
+
+    connect(iNetworkController, SIGNAL(networkRequestNotified(IRQNetworkEvent)),
+            this, SLOT(handleNetworkEvent(IRQNetworkEvent)));
+    connect(iApplication->getMediaKeyObserver(), SIGNAL(playPausePressed()), 
+            this, SLOT(handlePlayPauseMediaKey()));
+    connect(iApplication->getMediaKeyObserver(), SIGNAL(stopPressed()), 
+            this, SLOT(handleStopMediaKey()));
+    connect( getViewManager(), SIGNAL( orientationChanged(Qt::Orientation) ),
+             this, SLOT( handleOrientationChanged(Qt::Orientation) ) );
     
     setFlag(EViewFlag_StickyViewEnabled);
 }
@@ -150,10 +161,10 @@ void IRNowPlayingView::initialize()
     initWidget();    
 #ifdef SUBTITLE_STR_BY_LOCID
     setTitle(hbTrId("txt_irad_title_internet_radio"));
-         
 #else
     setTitle("Internet radio");      
 #endif
+    handleOrientationChanged(getViewManager()->orientation());
 }
 
 /*
@@ -192,17 +203,7 @@ void IRNowPlayingView::initMenu()
     connect(shareStationAction, SIGNAL(triggered()), this, SLOT(handleShareStationAction()));
     connect(settings, SIGNAL(triggered()), this, SLOT(handleSettingAction()));
     connect(exitAction, SIGNAL(triggered()), iApplication, SIGNAL(quit()));  
-    connect(songRecAction, SIGNAL(triggered()), this, SLOT(handleIdentifySongAction()));    
-    
-#ifdef STATISTIC_REPORT_TEST_ENABLED
-    HbAction *dummySongIdentifyAction = menu()->addAction("Dummy Identify Song");
-    HbAction *dummyGoToNmsAction = menu()->addAction("Dummy Go to Music Store");
-    HbAction *dummyFindInNmsAction = menu()->addAction("Dummy Find in Music Store");
-    
-    connect(dummySongIdentifyAction, SIGNAL(triggered()), this, SLOT(handleDummySongIdentify()));   
-    connect(dummyGoToNmsAction, SIGNAL(triggered()), this, SLOT(handleDummyGoToNms()));
-    connect(dummyFindInNmsAction, SIGNAL(triggered()), this, SLOT(handleDummyFindInNms()));    
-#endif
+    connect(songRecAction, SIGNAL(triggered()), this, SLOT(handleIdentifySongAction()));
 }
 
 /*
@@ -235,6 +236,8 @@ void IRNowPlayingView::initWidget()
     iStationName->setPlainText("");
     updateSongName(QString(""));
     iArtistName->setPlainText("");    
+    
+    connect(iSongNameLabel, SIGNAL(geometryChanged()), this, SLOT(handleGeometryChanged()));
     
     iArtistName->setTextColor(HbColorScheme::color(KArtistColor));
     iSongNameLabel->setTextColor(HbColorScheme::color(KSongColor));
@@ -396,10 +399,6 @@ TIRHandleResult IRNowPlayingView::handleCommand(TIRViewCommand aCommand, TIRView
 {
     LOG_METHOD;
 	LOG_FORMAT("aCommand = %d", (int)aCommand);
-    if (!initCompleted())
-    {
-        return EIR_NoDefault;
-    }
     
     Q_UNUSED(aReason);
     TIRHandleResult ret = EIR_DoDefault;
@@ -460,48 +459,6 @@ void IRNowPlayingView::launchAction()
     iLaunchActionNeeded = false;
 }
 
-void IRNowPlayingView::lazyInit()
-{
-    LOG_METHOD;
-    iLaunchActionNeeded = true;
-    
-    if (!initCompleted())
-    {       
-        normalInit();
-        
-        //initization from handleCommand()
-        handleCommand(EIR_ViewCommand_TOBEACTIVATED, EIR_ViewCommandReason_Show);
-        handleCommand(EIR_ViewCommand_ACTIVATED, EIR_ViewCommandReason_Show);
-        
-        emit applicationReady();
-    }
-}
-
-void IRNowPlayingView::normalInit()
-{
-    LOG_METHOD;
-    if (!initCompleted())
-    {
-        IRBaseView::lazyInit();
-        
-        iStatisticsReporter = IRQStatisticsReporter::openInstance();
-            
-        connect(iPlayController, SIGNAL(metaDataAvailable(IRQMetaData*)), this, SLOT(updateMetaData(IRQMetaData*)));
-        connect(iPlayController, SIGNAL(playingStarted()), this, SLOT(handlePlayStarted()));
-        connect(iPlayController, SIGNAL(playingStopped()), this, SLOT(handlePlayStopped()));
-
-        connect(iNetworkController, SIGNAL(networkRequestNotified(IRQNetworkEvent)),
-                this, SLOT(handleNetworkEvent(IRQNetworkEvent)));
-        connect(iApplication->getMediaKeyObserver(), SIGNAL(playPausePressed()), 
-                this, SLOT(handlePlayPauseMediaKey()));
-        connect(iApplication->getMediaKeyObserver(), SIGNAL(stopPressed()), 
-                this, SLOT(handleStopMediaKey()));
-        connect( getViewManager(), SIGNAL( orientationChanged(Qt::Orientation) ),
-                 this, SLOT( handleOrientationChanged(Qt::Orientation) ) );
-        
-        setInitCompleted(true);
-    }
-}
 
 void IRNowPlayingView::updateForLauchAction()
 {
@@ -709,8 +666,11 @@ void IRNowPlayingView::handleOrientationChanged(Qt::Orientation aOrientation)
     }
     // re-load only update the size of the widget, the rect of the widget will get updated only after re-layout.
     updateGeometry();
-    QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
-    // re-select between label and marquee.
+}
+
+void IRNowPlayingView::handleGeometryChanged()
+{
+    LOG_METHOD;
     updateSongName(iSongNameLabel->plainText());
 }
 
@@ -777,39 +737,64 @@ void IRNowPlayingView::handleStopMediaKey()
 void IRNowPlayingView::handleMusicStoreAction()
 {
     LOG_METHOD;
+   
     if(!iFindinNmsAllowed)
     {
+#ifdef STATISTIC_REPORT_TEST_ENABLED    
+    if(IRQUtility::launchAppByUid(KDummyMusicStoreUid))
+    {
+        iStatisticsReporter->logNmsEvent(IRQStatisticsReporter::EIRNmsLaunch,iPlayController->getNowPlayingPreset()->presetId);
+    }
+#else // STATISTIC_REPORT_TEST_ENABLED
 #ifdef SUBTITLE_STR_BY_LOCID
         popupNote(hbTrId("txt_irad_info_not_allowed_by_this_station"), HbMessageBox::MessageTypeInformation);
-#else
+#else  // SUBTITLE_STR_BY_LOCID
         popupNote(hbTrId("Not allowed by station"), HbMessageBox::MessageTypeInformation);        
-#endif
+#endif // SUBTITLE_STR_BY_LOCID
+#endif // STATISTIC_REPORT_TEST_ENABLED        
         return;        
     }
     
     if(!iSongNameAvailable)
     {
+#ifdef STATISTIC_REPORT_TEST_ENABLED    
+    if(IRQUtility::launchAppByUid(KDummyMusicStoreUid))
+    {
+        iStatisticsReporter->logNmsEvent(IRQStatisticsReporter::EIRNmsLaunch,iPlayController->getNowPlayingPreset()->presetId);
+    }
+#else // STATISTIC_REPORT_TEST_ENABLED        
 #ifdef SUBTITLE_STR_BY_LOCID
         popupNote(hbTrId("txt_irad_info_no_song_info"), HbMessageBox::MessageTypeInformation);
-#else
+#else // SUBTITLE_STR_BY_LOCID
         popupNote(hbTrId("No song info"), HbMessageBox::MessageTypeInformation);        
-#endif        
+#endif // SUBTITLE_STR_BY_LOCID
+#endif // STATISTIC_REPORT_TEST_ENABLED        
         return;        
     }
     
-    // Need to log the find song in NMS event, iStatisticsReporter->logNmsEvent(IRQStatisticsReporter::EIRNmsFind,channelId); 
+#ifdef STATISTIC_REPORT_TEST_ENABLED    
+    if(IRQUtility::launchAppByUid(KDummyMusicStoreUid))
+    {
+        iStatisticsReporter->logNmsEvent(IRQStatisticsReporter::EIRNmsFind,iPlayController->getNowPlayingPreset()->presetId);
+    }
+#else // STATISTIC_REPORT_TEST_ENABLED     
 #ifdef SUBTITLE_STR_BY_LOCID
     popupNote(hbTrId("txt_irad_info_music_store_not_available"), HbMessageBox::MessageTypeInformation);
-#else
+#else  // SUBTITLE_STR_BY_LOCID
     popupNote(hbTrId("Music store not ready"), HbMessageBox::MessageTypeInformation);    
-#endif
+#endif // SUBTITLE_STR_BY_LOCID
+#endif // STATISTIC_REPORT_TEST_ENABLED 
 }
 
 void IRNowPlayingView::handleIdentifySongAction()
 {
     LOG_METHOD;
+#ifdef STATISTIC_REPORT_TEST_ENABLED    
+    if(IRQUtility::launchAppByUid(KDummySongRecognitionUid))
+#else
     if(IRQUtility::launchAppByUid(iSettings->getSongRecognitionAppUid()))
-    {
+#endif         
+    {       
         iStatisticsReporter->logSongRecogEvent();
     }
 }
@@ -944,28 +929,7 @@ void IRNowPlayingView::openAdvLink()
     IRQUtility::openAdvLink(iAdvUrl);
 }
 #endif
-
-#ifdef STATISTIC_REPORT_TEST_ENABLED
-void IRNowPlayingView::handleDummySongIdentify()
-{
-    iStatisticsReporter->logSongRecogEvent();   
-    popupNote("Identify Song ...", HbMessageBox::MessageTypeInformation);
-}
-
-void IRNowPlayingView::handleDummyGoToNms()
-{
-    iStatisticsReporter->logNmsEvent(IRQStatisticsReporter::EIRNmsLaunch,iPlayController->getNowPlayingPreset()->presetId);     
-    popupNote("Go to Music Store ...", HbMessageBox::MessageTypeInformation);
-}
-
-void IRNowPlayingView::handleDummyFindInNms()
-{
-    iStatisticsReporter->logNmsEvent(IRQStatisticsReporter::EIRNmsFind,iPlayController->getNowPlayingPreset()->presetId);  
-    popupNote("Find in Music Store ...", HbMessageBox::MessageTypeInformation);
-}
-
-#endif
-    
+   
 void IRNowPlayingView::loadStationLogo()
 {
     LOG_METHOD;
