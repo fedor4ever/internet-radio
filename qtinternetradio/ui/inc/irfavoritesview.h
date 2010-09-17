@@ -31,9 +31,6 @@ class IRFavoritesView : public IrAbstractListViewBase
 
 public:
     ~IRFavoritesView();
-    
-signals:
-    void applicationReady();
 
 protected:
     IRFavoritesView(IRApplication *aApplication, TIRViewId aViewId);

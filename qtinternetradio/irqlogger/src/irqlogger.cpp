@@ -52,7 +52,7 @@ void SymbianLogger::writeLog( const QString& aMsg )
 // ============================================================================
 // MethodLogger Defenition
 // ============================================================================
-#ifdef LOGGING_ENABLED
+#if defined(LOGGING_ENABLED) && !defined(QT_NO_DEBUG)
 
 const char* KLogEnter = "--> %s";
 const char* KLogExit = "<-- %s";
@@ -82,7 +82,7 @@ MethodLogger::~MethodLogger()
     }
 }
 
-#else // LOGGING_ENABLED
+#else // LOGGING_ENABLED && QT_NO_DEBUG
 
 MethodLogger::MethodLogger( const char* aFunction ) :
     iFunction( aFunction )
@@ -93,7 +93,7 @@ MethodLogger::~MethodLogger()
 {
 }
 
-#endif // LOGGING_ENABLED
+#endif // LOGGING_ENABLED && QT_NO_DEBUG
 
 
 // ============================================================================
@@ -102,7 +102,7 @@ MethodLogger::~MethodLogger()
 QFile gDebugFile;
 bool  gFilterByLogMarker = false;
 
-#if defined LOGGING_ENABLED && defined TRACE_TO_FILE && !defined COMBINE_WITH_ENGINE_LOGGER
+#if defined LOGGING_ENABLED && defined TRACE_TO_FILE && !defined COMBINE_WITH_ENGINE_LOGGER && !defined(QT_NO_DEBUG)
 
 FileLogger::FileLogger(const QString& aFileName, bool aFilterByMarker)
 {
@@ -114,7 +114,7 @@ FileLogger::~FileLogger()
     uninstallMessageHandler();
 }
 
-#else // LOGGING_ENABLED && TRACE_TO_FILE && !COMBINE_WITH_ENGINE_LOGGER
+#else // LOGGING_ENABLED && TRACE_TO_FILE && !COMBINE_WITH_ENGINE_LOGGER && QT_NO_DEBUG
 
 FileLogger::FileLogger(const QString& aFileName, bool aFilterByMarker)
 {
@@ -126,7 +126,7 @@ FileLogger::~FileLogger()
 {
 }
 
-#endif // LOGGING_ENABLED && TRACE_TO_FILE && !COMBINE_WITH_ENGINE_LOGGER
+#endif // LOGGING_ENABLED && TRACE_TO_FILE && !COMBINE_WITH_ENGINE_LOGGER && QT_NO_DEBUG
 
 void FileLogger::installMessageHandler( const QString& aFileName, bool aFilterByMarker )
 {

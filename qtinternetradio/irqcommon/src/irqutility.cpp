@@ -14,11 +14,6 @@
 * Description:
 *
 */
-#include <QString>
-#include <QByteArray>
-#include <QFile>
-#include <QTextStream>
-#include <QStringList>
 
 #include <xqsettingsmanager.h>
 #include <xqsettingskey.h>
@@ -69,9 +64,7 @@ void IRQUtility::convertCIRIsdsPreset2IRQPrest(const CIRIsdsPreset& aCIRIsdsPres
   aQIRPreset.advertisementInUse  = QString::fromUtf16(aCIRIsdsPreset.GetAdvertisementInUse().Ptr(),aCIRIsdsPreset.GetAdvertisementInUse().Length());
   
   aQIRPreset.imgUrl  = QString::fromUtf16(aCIRIsdsPreset.GetImgUrl().Ptr(), aCIRIsdsPreset.GetImgUrl().Length());   
-  aQIRPreset.logoData.Close();
-  TRAP_IGNORE(aQIRPreset.logoData.CreateL(aCIRIsdsPreset.GetLogoData()));
-  
+  aQIRPreset.logoData = QByteArray((const char*)aCIRIsdsPreset.GetLogoData().Ptr(), aCIRIsdsPreset.GetLogoData().Length());
   aQIRPreset.musicStoreStatus  = QString::fromUtf16(aCIRIsdsPreset.GetMusicStoreStatus().Ptr(), aCIRIsdsPreset.GetMusicStoreStatus().Length());
   aQIRPreset.clearChannelServerList();
   
@@ -139,7 +132,6 @@ void IRQUtility::convertIRQPreset2CIRIsdsPreset(const IRQPreset& aQIRPreset, CIR
   
   TPtrC16 musicStoreStatus(reinterpret_cast<const TUint16*>(aQIRPreset.musicStoreStatus.utf16()));
   TRAP_IGNORE(aCIRIsdsPreset.SetMusicStoreStatusL(musicStoreStatus));   
-  TRAP_IGNORE(aCIRIsdsPreset.SetLogoDataL(aQIRPreset.logoData));
 
   TRAP_IGNORE(appendURLL(aQIRPreset, aCIRIsdsPreset));    
 }

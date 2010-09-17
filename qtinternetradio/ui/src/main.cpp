@@ -15,14 +15,11 @@
 *
 */
 
-#include <hbapplication.h>
 #include <hbdevicemessagebox.h>
-#include <QLocalSocket>
 #include <hbsplashscreen.h> 
 #include <hbtranslator.h> 
 
-#include <xqserviceutil.h>
-
+#include "irhbapplication.h"
 #include "irviewmanager.h"
 #include "irapplication.h"
 #include "irmemorycollector.h"
@@ -45,7 +42,7 @@ int main(int argc, char* argv[])
     installLogDir();    
     INSTALL_MESSAGE_HANDLER;   
   
-    HbApplication app(argc, argv, Hb::NoSplash);
+    IRHbApplication app(argc, argv, Hb::NoSplash);
     HbTranslator* translator = new HbTranslator();
     Q_ASSERT( NULL != translator );
     translator->loadCommon(); 
@@ -70,6 +67,7 @@ int main(int argc, char* argv[])
     IRApplication *irapp = new IRApplication(mainWindow, systemEventHandler);    
     IRMemoryCollector mc(irapp);
     
+    app.initMattiAutomation();
     if(!mainWindow->isExiting())
     {
         result =  app.exec();                  

@@ -196,11 +196,10 @@ void IRChannelDataProvider::presetLogoDownload(IRQPreset* aPreset)
     delete iLogoPreset;            
     iLogoPreset = aPreset;    
 
-    if (iLogoPreset->logoData != KNullDesC8)
+    if (iLogoPreset->logoData.size() > 0)
     {         
-        QPixmap tempMap;  
-        const unsigned char * logoData = iLogoPreset->logoData.Ptr();     
-        bool ret = tempMap.loadFromData(logoData, iLogoPreset->logoData.Length());
+        QPixmap tempMap;     
+        bool ret = tempMap.loadFromData((const unsigned char*)iLogoPreset->logoData.constData(), iLogoPreset->logoData.size());
        
         if( ret )
         {            

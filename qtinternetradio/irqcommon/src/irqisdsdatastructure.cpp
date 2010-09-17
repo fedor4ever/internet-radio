@@ -40,7 +40,6 @@ IRQPreset::IRQPreset():uniqID(0),type(0),presetId(0),
 IRQPreset::~IRQPreset()
 {
     urlArray.clear();
-    logoData.Close();
 }
 
 IRQPreset& IRQPreset::operator =(const IRQPreset& aOther)
@@ -67,8 +66,7 @@ IRQPreset& IRQPreset::operator =(const IRQPreset& aOther)
     this->genreName = aOther.genreName;
     this->shortDesc = aOther.shortDesc;
     this->description = aOther.description;
-    this->logoData.Close();
-    this->logoData.Create(aOther.logoData);
+    this->logoData = aOther.logoData;
     this->musicStoreStatus = aOther.musicStoreStatus;
     this->lastModified = aOther.lastModified;
     this->countryCode = aOther.countryCode;

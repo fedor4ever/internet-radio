@@ -45,6 +45,12 @@ const TInt KBufSize = 10;
 const TUid KUidHelixController        = { 0x101F8514 }; // Helix Video controller UID
 const TInt KLogbufferLenth = KLogBufferSize/2 - 1;
 
+// Since the supported formats gotten from Helix don't include aac & aacp while it
+// does support them, we add them here.
+_LIT( KIRDPAacMimeType, "audio/aac" );
+_LIT( KIRDPAacpMimeType, "audio/aacp" );
+_LIT( KComma, "," );
+
 // ---------------------------------------------------------------------------
 // CIRHttpDataProvider::CIRHttpDataProvider(MIRHttpDataProviderObserver&
 // aObserver):iObserver(aObserver),iRunning(EFalse)
@@ -793,7 +799,6 @@ void CIRHttpDataProvider::BuildHeadersL(const CIRHttpRequestData &aRequestInfo)
                             }
                         else
                             {
-                            _LIT(KComma,",");
                             audioMIMEs.Append( KComma );
                             }
                         tempD++;
@@ -804,6 +809,13 @@ void CIRHttpDataProvider::BuildHeadersL(const CIRHttpRequestData &aRequestInfo)
             }
         };
     
+    // Since the supported formats gotten from Helix don't include aac & aacp while it
+    // does support them, we add them here.
+    audioMIMEs.Append( KIRDPAacMimeType );
+    audioMIMEs.Append( KComma );
+    audioMIMEs.Append( KIRDPAacpMimeType );
+    audioMIMEs.Append( KComma );
+
     // Set the X-Nokia-iRAPP-Accept header
     TBuf8<KNokiaIrAppAcceptMaxLength> xNokiaIrAppAccept;
     _LIT(KXNokiaIrAppAccept,"X-Nokia-iRAPP-Accept");

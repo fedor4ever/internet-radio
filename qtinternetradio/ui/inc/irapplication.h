@@ -99,7 +99,6 @@ public:
     
 signals:
     void quit();
-    void applicationReady();
     
 private slots:
     //connect to signal 'networkEventNotified' from IRQNetworkController

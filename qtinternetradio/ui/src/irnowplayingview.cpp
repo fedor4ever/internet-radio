@@ -15,6 +15,7 @@
 *
 */
 #include <QPixmap>
+#include <hbmenu.h>
 #include <hbaction.h>
 #include <hblabel.h>
 #include <hbmarqueeitem.h>
@@ -204,6 +205,17 @@ void IRNowPlayingView::initMenu()
     connect(settings, SIGNAL(triggered()), this, SLOT(handleSettingAction()));
     connect(exitAction, SIGNAL(triggered()), iApplication, SIGNAL(quit()));  
     connect(songRecAction, SIGNAL(triggered()), this, SLOT(handleIdentifySongAction()));
+    
+    if(iApplication->isEmbeddedInstance())
+    {
+        HbMenu *viewMenu = menu();
+        disconnect(openWebAddressAction, SIGNAL(triggered()), this, SLOT(handleGoToStationAction()));
+        disconnect(settings, SIGNAL(triggered()), this, SLOT(handleSettingAction()));
+        disconnect(songRecAction, SIGNAL(triggered()), this, SLOT(handleIdentifySongAction()));
+        viewMenu->removeAction(openWebAddressAction);
+        viewMenu->removeAction(settings);
+        viewMenu->removeAction(songRecAction);
+    }
 }
 
 /*
@@ -537,9 +549,8 @@ void IRNowPlayingView::handleLogoDownloaded(IRQPreset* aPreset)
     
  
     
-    const unsigned char * logoRawData = aPreset->logoData.Ptr();
     QPixmap logoPixmap;
-    if( logoPixmap.loadFromData(logoRawData, aPreset->logoData.Length()) )
+    if( logoPixmap.loadFromData((const unsigned char*)aPreset->logoData.constData(), aPreset->logoData.size()) )
     {
         if( EDownloadLogo == iLogoDownloadState )
         {		
@@ -836,6 +847,7 @@ void IRNowPlayingView::handleAddToFavAction()
     int retValue = iFavorites->addPreset(*nowPlayingPreset);
     HbNotificationDialog *add2FavNote = new HbNotificationDialog();
     add2FavNote->setModal(true);
+    add2FavNote->setTimeout(HbPopup::ConfirmationNoteTimeout);
     add2FavNote->setAttribute(Qt::WA_DeleteOnClose);
     switch (retValue)
     {

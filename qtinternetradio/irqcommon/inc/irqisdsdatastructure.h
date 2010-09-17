@@ -111,8 +111,7 @@ public:
    QString countryName;//preset country of origin      
    QString lastModified;//preset last modified     
    QString musicStoreStatus;//musicStoreEnabled value
-   //QByteArray logoData;//Logo Data
-   RBuf8   logoData;
+   QByteArray logoData;//Logo Data
    QString description;//channel description       
    QString shortDesc;//channel short desription    
    QString genreName;//channel genre name 

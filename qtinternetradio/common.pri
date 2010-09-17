@@ -24,7 +24,7 @@ DEFINES += HS_WIDGET_ENABLED
 # ##########################################################
 
 # Enable logging in release builds
-# LOGGING_FLAGS += LOGGING_ENABLED
+LOGGING_FLAGS += LOGGING_ENABLED
 
 # Combines Ui and Engine logs
 #  LOGGING_FLAGS += COMBINE_WITH_ENGINE_LOGGER

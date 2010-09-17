@@ -46,7 +46,9 @@
 // DEBUG SETTINGS:
 // To enable /adjust debug output, modify values ONLY in this section
 /////////////////////////////////////////////////////////////////////
-//#define IRDEBUG_LOGGING_ENABLED
+#ifndef NDEBUG
+#define IRDEBUG_LOGGING_ENABLED
+#endif
 //#define IRDEBUG_TRACE_TO_FILE
 
 

@@ -30,9 +30,6 @@ public:
 	~IRCategoryView();
 	 
     void loadCategory(IRQIsdsClient::IRQIsdsClientInterfaceIDs aCategory);
-    
-signals:
-    void applicationReady();
         
 protected:
     IRCategoryView(IRApplication* aApplication, TIRViewId aViewId);

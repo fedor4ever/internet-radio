@@ -382,6 +382,11 @@ void IRCategoryView::cancelRequest()
     {
         getViewManager()->activateView(EIRView_MainView);
     }
+    if((getViewManager()->currentViewId() == EIRView_MainView) || (getViewManager()->currentViewId() == EIRView_FavoritesView))
+    {
+        IRBaseView *baseView = static_cast<IRBaseView*>(getViewManager()->currentView());
+        baseView->updateView();
+    }
 }
 
 /*
@@ -406,6 +411,11 @@ void IRCategoryView::operationException(IRQError aError)
         iListView->model()->rowCount() == 0)
     {
         getViewManager()->activateView(EIRView_MainView);
+    }
+    if((getViewManager()->currentViewId() == EIRView_MainView) || (getViewManager()->currentViewId() == EIRView_FavoritesView))
+    {
+        IRBaseView *baseView = static_cast<IRBaseView*>(getViewManager()->currentView());
+        baseView->updateView();
     }
 }
 

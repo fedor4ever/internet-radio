@@ -63,3 +63,4 @@
 "\epoc32\release\armv5\urel\irqstatisticsreporter.dll"    - "!:\sys\bin\irqstatisticsreporter.dll"
 "\epoc32\release\armv5\urel\irqsystemeventhandler.dll"    - "!:\sys\bin\irqsystemeventhandler.dll"
 "\epoc32\release\armv5\urel\irqlogger.dll"    - "!:\sys\bin\irqlogger.dll"
+"\epoc32\release\armv5\urel\irdb.dll"    - "!:\sys\bin\irdb.dll"

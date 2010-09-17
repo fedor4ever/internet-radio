@@ -27,9 +27,6 @@ class IRMainView : public IrAbstractListViewBase
 	Q_OBJECT
 public:
 	~IRMainView();
-
-signals:
-    void applicationReady();
 	    
 protected:
     //only friend class IRViewManager can create this view

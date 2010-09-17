@@ -40,9 +40,6 @@ class IRNowPlayingView : public IRBaseView
 
 public:
     ~IRNowPlayingView();
-
-signals:
-    void applicationReady();
         
 protected:
     IRNowPlayingView(IRApplication* aApplication, TIRViewId aViewId);

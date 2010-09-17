@@ -33,6 +33,7 @@ file=ABI_DIR\BUILD_DIR\irqnwkinfoobserver.dll      SHARED_LIB_DIR\irqnwkinfoobse
 file=ABI_DIR\BUILD_DIR\irqstatisticsreporter.dll     SHARED_LIB_DIR\irqstatisticsreporter.dll
 file=ABI_DIR\BUILD_DIR\irqsystemeventhandler.dll     SHARED_LIB_DIR\irqsystemeventhandler.dll
 file=ABI_DIR\BUILD_DIR\irqlogger.dll               SHARED_LIB_DIR\irqlogger.dll
+file=ABI_DIR\BUILD_DIR\irdb.dll                    SHARED_LIB_DIR\irdb.dll
 
 data=DATAZ_\PRIVATE\10003A3F\IMPORT\APPS\internet_radio_10_1_reg.rsc     Private\10003a3f\import\apps\internet_radio_10_1_reg.rsc
  

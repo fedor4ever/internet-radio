@@ -26,7 +26,7 @@ static const char* KLogMarker = "[QtInternetRadio]";
 static const char* KTraceOutputFile = "c:/logs/internetradio/iruilog.txt";
 #define FILTER_BY_LOGMARKER true
 
-#ifdef LOGGING_ENABLED
+#if defined(LOGGING_ENABLED) && !defined(QT_NO_DEBUG)
 
 #ifdef COMBINE_WITH_ENGINE_LOGGER
     #define WRITELOG(msg) \
@@ -101,7 +101,7 @@ static const char* KTraceOutputFile = "c:/logs/internetradio/iruilog.txt";
         } \
     }
 
-#else // LOGGING_ENABLED
+#else // LOGGING_ENABLED && QT_NO_DEBUG
     #define LOG(string)
     #define STRING2CHAR(qstring)
     #define LOG_FORMAT(fmt,args...)
@@ -110,7 +110,7 @@ static const char* KTraceOutputFile = "c:/logs/internetradio/iruilog.txt";
     #define LOG_ASSERT(cond,expr)
     #define LOG_SLOT_CALLER
     #define INSTALL_MESSAGE_HANDLER
-#endif // LOGGING_ENABLED
+#endif // LOGGING_ENABLED && QT_NO_DEBUG
 
 
 

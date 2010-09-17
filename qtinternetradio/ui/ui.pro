@@ -136,7 +136,8 @@ HEADERS += inc/irapplication.h \
            inc/irplaylist.h \
            inc/irsearchresultdb.h \
            inc/irfileviewservice.h \
-           inc/irplayingbanner.h
+           inc/irplayingbanner.h \
+           inc/irhbapplication.h
            
 #source files list
 SOURCES += main.cpp  \
@@ -176,7 +177,8 @@ SOURCES += main.cpp  \
            irplaylist.cpp \
            irsearchresultdb.cpp \
            irfileviewservice.cpp \
-           irplayingbanner.cpp
+           irplayingbanner.cpp \
+           irhbapplication.cpp
 
 #docml      
 DOCML += resources/layout/abstractlistviewbase.docml \

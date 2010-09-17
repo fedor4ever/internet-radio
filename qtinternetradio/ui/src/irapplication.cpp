@@ -648,8 +648,6 @@ void IRApplication::initApp()
         } 
     }
 #endif
-
-    emit applicationReady();
 }
 
 bool IRApplication::event(QEvent* e)

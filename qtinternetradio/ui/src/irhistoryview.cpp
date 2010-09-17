@@ -293,11 +293,10 @@ void IRHistoryView::presetLogoDownload(IRQPreset* aPreset)
     delete iLogoPreset;             
     iLogoPreset = aPreset;
      
-    if (iLogoPreset->logoData != KNullDesC8)
+    if (iLogoPreset->logoData.size() > 0)
     {
-        const unsigned char * logoData = iLogoPreset->logoData.Ptr();
         QPixmap tempMap;
-        bool ret = tempMap.loadFromData(logoData,iLogoPreset->logoData.Length());
+        bool ret = tempMap.loadFromData((const unsigned char*)iLogoPreset->logoData.constData(), iLogoPreset->logoData.size());
         if( ret )
         {
             QIcon convertIcon(tempMap);
@@ -384,6 +383,7 @@ void IRHistoryView::addContextAction()
 
     HbNotificationDialog *add2FavNote = new HbNotificationDialog();
     add2FavNote->setModal(true);
+    add2FavNote->setTimeout(HbPopup::ConfirmationNoteTimeout);
     add2FavNote->setAttribute(Qt::WA_DeleteOnClose);
         
     switch (retValue)
