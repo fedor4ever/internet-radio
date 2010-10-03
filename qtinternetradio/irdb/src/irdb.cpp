@@ -41,11 +41,16 @@
 #define IRDB_CID_UNEXISTED (0x11)
 #define IRDB_CID_USER_DEFINE (0xF0000000)
 
+#define INS_CHANNELINFO_FRM_SRHVIEW (0x00) 
+#define INS_IMG_FRM_SRHVIEW         (0x01)
+#define INS_SEARCHRLT_FRM_SRHVIEW   (0x02)
+#define UPD_CHANNELINFO_FRM_SRHVIEW (0x03) 
+#define UPD_IMG_FRM_SRHVIEW         (0x04)
 
 IRDB* IRDB::mpIRDBInstance = NULL;
 QMutex IRDB::mMutex;
 
-IRDB::IRDB(): m_RefCnt(0)
+IRDB::IRDB(): m_RefCnt(0),iIRQuery2(NULL)
 {
 }
 
@@ -149,15 +154,16 @@ bool IRDB::createIRTable()
 \
     <<TRI_INSERT_IRBUFF<<TRI_UPDATE_IRBUFF \
     <<TRI_INSERT_SEARCHRLT<<TRI_DELETE_SEARCHRLT \
-    <<TRI_INSERT_CHANNELINFO<<TRI_UPDATE_CHANNELINFO<<TRI_DELETE_CHANNELINFO \
+    <<TRI_UPDATE_CHANNELINFO<<TRI_DELETE_CHANNELINFO \
     <<TRI_INSERT_CHANNELHISTORY<<TRI_DELETE_CHANNELHISTORY \
     <<TRI_INSERT_ADVERTISEMENT<<TRI_UPDATE_ADVERTISEMENT \
+    <<TRI_UPDATE_IMG \
 \
     <<TRI_INSERT_SONGHISTORY<<TRI_UPDATE_SONGHISTORY<<TRI_DELETE_SONGHISTORY \
     <<TRI_INSERT_FAVORITES<<TRI_UPDATE_FAVORITES<<TRI_DELETE_FAVORITES \
 \
     <<IRVIEW_CHANNELINFO1<<IRVIEW_CHANNELINFO<<IRVIEW_CHANNELHISTORY<<IR_VIEW_SRH_USERCID \
-    <<IRVIEW_FAVORITES<<IRVIEW_SEARCHRLT<<IRVIEW_SONGHISTORY ;
+    <<IRVIEW_FAVORITES<<IRVIEW_SEARCHRLT<<IRVIEW_SONGHISTORY<<IR_VIEW_ALL ;
 
 
     for(int i = 0; i<sqlList.size();i++)
@@ -206,14 +212,15 @@ IRDBCHAR IRDB::chgRowIRDB(QString aInsSqlStr,
                           uint* const retCid,
                           const QString& aCondSqlStr, 
                           const QString& condUserCidStr, 
-                          const QList<QByteArray>* apImgList) 
+                          const QList<QByteArray>* apImgList,
+                          const int logoType) 
 {
     IRDBCHAR ret = IRDB_ERR_NONE;
     //channelId value 0 don't be used in CIRDB;
     uint channelId = 0;                     
     //sql string for search cid according to nickname and url; 
     QString strSrhCid = IRDBSrhUserCid + condUserCidStr;
-    QString strSrhDataSet = IRDBSrhCIdFrmView + aCondSqlStr;
+    QString strSrhDataSet = IRDBSrhCIdFrmChannelInfo + aCondSqlStr;
     
     //initialize the channelId for application level;
     if(retCid)
@@ -326,7 +333,7 @@ IRDBCHAR IRDB::chgRowIRDB(QString aInsSqlStr,
         * for the synchoronization concern, the m_sqlDB can't be closed until all the process is compeleted;    
         * m_sqlDB.close();
         */
-         ret = chgRowIRDB(aInsSqlStr, aUpdSqlStr, channelId, aCondSqlStr, apImgList,  true);
+         ret = chgRowIRDB(aInsSqlStr, aUpdSqlStr, channelId, aCondSqlStr, apImgList, logoType, true);
     }
 /*    else
     {
@@ -345,6 +352,7 @@ IRDBCHAR IRDB::chgRowIRDB(const QString& aInsSqlStr,
                           const uint& channelId, 
                           const QString& aCondSqlStr, 
                           const QList<QByteArray>* apImgList,
+                          const int logoType,
                           bool bPreHandle)
 {
     IRDBCHAR ret = IRDB_ERR_NONE;
@@ -410,8 +418,25 @@ IRDBCHAR IRDB::chgRowIRDB(const QString& aInsSqlStr,
             else
             {            
                 iIRQuery.prepare(aUpdSqlStr);
-                iIRQuery.bindValue(strBLogo, apImgList->at(bLogoInsert));
-                iIRQuery.bindValue(strSLogo, apImgList->at(sLogoInsert));
+                //when there are both big and small logo, first insert blogo and next insert slogo is required;
+                if(IRDB_BOTH_LOGO == logoType)
+                {
+                    iIRQuery.bindValue(strBLogo, apImgList->at(bLogo)); 
+                    iIRQuery.bindValue(strSLogo, apImgList->at(sLogo));                
+                }
+                else
+                {
+                    if( IRDB_BIG_LOGO == logoType&IRDB_BOTH_LOGO )
+                    {
+                        iIRQuery.bindValue(strBLogo, apImgList->at(0));                
+                    }
+                    if(IRDB_SMALL_LOGO == logoType&IRDB_BOTH_LOGO)
+                    {
+                        iIRQuery.bindValue(strSLogo, apImgList->at(0));
+                    }
+                
+                }
+                
                 if(false == iIRQuery.exec())
                 {
                     ret = IRDB_ERR_UPDATE;
@@ -432,8 +457,25 @@ IRDBCHAR IRDB::chgRowIRDB(const QString& aInsSqlStr,
         else
         {
             iIRQuery.prepare(aInsSqlStr);
-            iIRQuery.bindValue(strBLogo, apImgList->at(bLogoInsert));
-            iIRQuery.bindValue(strSLogo, apImgList->at(sLogoInsert));
+            //when there are both big and small logo, first insert blogo and next insert slogo is required;
+            if(IRDB_BOTH_LOGO == logoType)
+            {
+                iIRQuery.bindValue(strBLogo, apImgList->at(bLogo)); 
+                iIRQuery.bindValue(strSLogo, apImgList->at(sLogo));                
+            }
+            else
+            {
+                if( IRDB_BIG_LOGO == logoType&IRDB_BOTH_LOGO )
+                {
+                    iIRQuery.bindValue(strBLogo, apImgList->at(0));                
+                }
+                if(IRDB_SMALL_LOGO == logoType&IRDB_BOTH_LOGO)
+                {
+                    iIRQuery.bindValue(strSLogo, apImgList->at(0));
+                }
+            
+            }
+            
             if(false == iIRQuery.exec())
             {
                 ret = IRDB_ERR_UPDATE;
@@ -517,6 +559,94 @@ IRDBCHAR IRDB::chgRowSongHistory(const QString& aInsSqlStr,
     
 }
 
+IRDBCHAR IRDB::handleRstFromSrhView(const uint& channelId, const QStringList& aSqlList, bool bBegin)
+{
+    QString strIsCIDExist = IRDBSrhCIdCntFrmChannelInfo + QString::number(channelId);
+    IRDBCHAR ret = IRDB_ERR_NONE;
+    
+    if(0 == channelId)
+    {
+        return IRDB_CID_UNEXISTED;
+    }    
+    if(true == bBegin)
+    {
+        if(false == openIRDBConnection())
+        {
+            return IRDB_ERR_OPEN;   
+        }
+        iIRQuery2 = new QSqlQuery(m_sqlDB);
+    }
+    
+  
+    
+    //iIRQuery.clear();
+    if(false == iIRQuery2->exec(strIsCIDExist))
+    {
+            ret = IRDB_ERR_SELECT; 
+    }
+    else
+    {
+        iIRQuery2->next();  
+        if(0 != iIRQuery2->value(0).toInt())
+        {
+            ret = IRDB_CID_EXISTED;
+        }
+    } 
+    
+    if(IRDB_CID_EXISTED == ret)
+    {
+        ret = IRDB_ERR_NONE;
+        if( false == iIRQuery2->exec(aSqlList.value(INS_SEARCHRLT_FRM_SRHVIEW)) )
+        {
+            ret = IRDB_ERR_INSERT;
+        }
+        //the update string should be excute;
+        if(false == iIRQuery2->exec(aSqlList.value(UPD_CHANNELINFO_FRM_SRHVIEW)))
+        {
+            ret = IRDB_ERR_UPDATE;
+        }
+        if(false == iIRQuery2->exec(aSqlList.value(UPD_IMG_FRM_SRHVIEW)))
+        {
+            ret = IRDB_ERR_UPDATE;
+        }
+    }
+    else if( IRDB_ERR_NONE == ret)
+    {
+        if( false == iIRQuery2->exec(aSqlList.value(INS_CHANNELINFO_FRM_SRHVIEW)) )
+        {
+            ret = IRDB_ERR_INSERT;
+        }
+        else
+        {
+            if(false == iIRQuery2->exec(aSqlList.value(INS_IMG_FRM_SRHVIEW)))
+            {
+                ret = IRDB_ERR_INSERT;
+            }else
+            {
+                if ( false == iIRQuery2->exec(aSqlList.value(INS_SEARCHRLT_FRM_SRHVIEW)) )
+                {
+                    ret = IRDB_ERR_INSERT;
+                }
+            }
+            
+        }
+    }
+
+    return ret ;      
+    
+}
+
+
+void IRDB::closeIRDBConnection()
+{
+    if( NULL != iIRQuery2)
+    {
+        iIRQuery2->clear();
+        delete iIRQuery2;
+        iIRQuery2 = NULL;	
+    }
+    m_sqlDB.close();
+}
 
 IRDBCHAR IRDB::isChannelIdExisted(uint channelId)
 {
@@ -721,7 +851,11 @@ IRDBCHAR IRDB::selectRowIRDB(IRDBWrapper* const apWrapper, const QString& aCondS
     return ret; 
 }
 
-IRDBCHAR IRDB::selectRow(IRDBWrapper* const apWrapper, const QString& aCondStr, QList<QVariant*>* pDataSet)
+IRDBCHAR IRDB::selectRow(IRDBWrapper* const apWrapper, 
+                         const QString& aCondStr, 
+                         QList<QVariant*>* pDataSet,
+                         int aBegin,
+                         int aEnd)
 {
     IRDBCHAR ret = IRDB_ERR_NONE;   
     
@@ -730,9 +864,12 @@ IRDBCHAR IRDB::selectRow(IRDBWrapper* const apWrapper, const QString& aCondStr, 
         ret = IRDB_ERR_SELECT;      
     }
     
-    if(false == openIRDBConnection())
-    {
-        return IRDB_ERR_OPEN;   
+    if(0 == aBegin)
+    {    
+        if(false == openIRDBConnection())
+        {
+            return IRDB_ERR_OPEN;   
+        }
     }
  
     QSqlQuery iIRQuery(m_sqlDB);  
@@ -755,9 +892,13 @@ IRDBCHAR IRDB::selectRow(IRDBWrapper* const apWrapper, const QString& aCondStr, 
             ret = IRDB_ERR_WRAPPER;
     } 
         
+    
 
-    iIRQuery.clear();
-    m_sqlDB.close();
+    if(aBegin == aEnd)
+    {
+        iIRQuery.clear();
+        m_sqlDB.close();
+    }
  
     return ret; 
 }
@@ -824,7 +965,10 @@ IRDBCHAR IRDB::resetUrlInfo(const QStringList& aInsSqlList, const uint& channelI
 /*
 * only update imgUrl, imgLocalFile in img table; 
 */
-IRDBCHAR IRDB::updRowImg(const uint& channelId, const QString& updSqlStr, QList<QByteArray>* apImgList)
+IRDBCHAR IRDB::updRowImg(const uint& channelId, 
+                         const QString& updSqlStr, 
+                         QList<QByteArray>* apImgList, 
+                         const int logoType)
 {
     QString strIsCIDExist = IRDBSrhCIdCntFrmChannelInfo + QString::number(channelId) +";";    
     IRDBCHAR ret = IRDB_ERR_NONE;   
@@ -858,8 +1002,24 @@ IRDBCHAR IRDB::updRowImg(const uint& channelId, const QString& updSqlStr, QList<
         else
         {            
             iIRQuery.prepare(updSqlStr);
-            iIRQuery.bindValue(strBLogo, apImgList->at(bLogoInsert));
-            iIRQuery.bindValue(strSLogo, apImgList->at(sLogoInsert));
+            //when there are both big and small logo, first insert blogo and next insert slogo is required;
+            if(IRDB_BOTH_LOGO == logoType)
+            {
+                iIRQuery.bindValue(strBLogo, apImgList->at(bLogo)); 
+                iIRQuery.bindValue(strSLogo, apImgList->at(sLogo));                
+            }
+            else
+            {
+                if( IRDB_BIG_LOGO == logoType&IRDB_BOTH_LOGO )
+                {
+                    iIRQuery.bindValue(strBLogo, apImgList->at(0));                
+                }
+                if(IRDB_SMALL_LOGO == logoType&IRDB_BOTH_LOGO)
+                {
+                    iIRQuery.bindValue(strSLogo, apImgList->at(0));
+                }
+            
+            }
             if(false == iIRQuery.exec())
             {
                 ret = IRDB_ERR_UPDATE;

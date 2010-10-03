@@ -1,32 +1,10 @@
 EXPORTS
 	?makePresetUserDefined@IRQFavoritesDB@@QAEHHH@Z @ 1  NONAME ; int IRQFavoritesDB::makePresetUserDefined(int, int)
-	?staticMetaObject@IRQFavoritesDB@@2UQMetaObject@@B @ 2  NONAME ; struct QMetaObject const IRQFavoritesDB::staticMetaObject
-	?addPreset@IRQFavoritesDB@@QAEHABVIRQPreset@@@Z @ 3  NONAME ; int IRQFavoritesDB::addPreset(class IRQPreset const &)
-	?getPresets@IRQFavoritesDB@@QBEPAV?$QList@PAVIRQPreset@@@@XZ @ 4  NONAME ; class QList<class IRQPreset *> * IRQFavoritesDB::getPresets(void) const
-	?emptyPresetCount@IRQFavoritesDB@@QBEHXZ @ 5  NONAME ; int IRQFavoritesDB::emptyPresetCount(void) const
-	?searchPreset@IRQFavoritesDB@@QAEHHH@Z @ 6  NONAME ; int IRQFavoritesDB::searchPreset(int, int)
-	?deletePreset@IRQFavoritesDB@@QAEHH@Z @ 7  NONAME ; int IRQFavoritesDB::deletePreset(int)
-	?maxPresetCount@IRQFavoritesDB@@QAEHXZ @ 8  NONAME ; int IRQFavoritesDB::maxPresetCount(void)
-	??1IRQFavoritesDB@@UAE@XZ @ 9  NONAME ; IRQFavoritesDB::~IRQFavoritesDB(void)
-	?qt_metacall@IRQFavoritesDB@@UAEHW4Call@QMetaObject@@HPAPAX@Z @ 10  NONAME ; int IRQFavoritesDB::qt_metacall(enum QMetaObject::Call, int, void * *)
-	?increasePlayedTimes@IRQFavoritesDB@@QAEXABVIRQPreset@@@Z @ 11  NONAME ; void IRQFavoritesDB::increasePlayedTimes(class IRQPreset const &)
-	?getPreviousPreset@IRQFavoritesDB@@QAEHH@Z @ 12  NONAME ; int IRQFavoritesDB::getPreviousPreset(int)
-	?trUtf8@IRQFavoritesDB@@SA?AVQString@@PBD0@Z @ 13  NONAME ; class QString IRQFavoritesDB::trUtf8(char const *, char const *)
-	??_EIRQFavoritesDB@@UAE@I@Z @ 14  NONAME ; IRQFavoritesDB::~IRQFavoritesDB(unsigned int)
-	?getMoveStatus@IRQFavoritesDB@@QAE_NXZ @ 15  NONAME ; bool IRQFavoritesDB::getMoveStatus(void)
-	?replaceUserDefinedPreset@IRQFavoritesDB@@QAEHABVIRQPreset@@@Z @ 16  NONAME ; int IRQFavoritesDB::replaceUserDefinedPreset(class IRQPreset const &)
-	?trUtf8@IRQFavoritesDB@@SA?AVQString@@PBD0H@Z @ 17  NONAME ; class QString IRQFavoritesDB::trUtf8(char const *, char const *, int)
-	?getNextPreset@IRQFavoritesDB@@QAEHH@Z @ 18  NONAME ; int IRQFavoritesDB::getNextPreset(int)
-	?metaObject@IRQFavoritesDB@@UBEPBUQMetaObject@@XZ @ 19  NONAME ; struct QMetaObject const * IRQFavoritesDB::metaObject(void) const
-	?tr@IRQFavoritesDB@@SA?AVQString@@PBD0H@Z @ 20  NONAME ; class QString IRQFavoritesDB::tr(char const *, char const *, int)
-	?replacePreset@IRQFavoritesDB@@QAEHABVIRQPreset@@@Z @ 21  NONAME ; int IRQFavoritesDB::replacePreset(class IRQPreset const &)
-	?getUniqId@IRQFavoritesDB@@QBEHH@Z @ 22  NONAME ; int IRQFavoritesDB::getUniqId(int) const
-	?addPreset@IRQFavoritesDB@@QAEHABVQString@@0@Z @ 23  NONAME ; int IRQFavoritesDB::addPreset(class QString const &, class QString const &)
-	?presetChanged@IRQFavoritesDB@@IAEXHHW4PSReason@1@@Z @ 24  NONAME ; void IRQFavoritesDB::presetChanged(int, int, enum IRQFavoritesDB::PSReason)
-	?tr@IRQFavoritesDB@@SA?AVQString@@PBD0@Z @ 25  NONAME ; class QString IRQFavoritesDB::tr(char const *, char const *)
-	?setMoveStatus@IRQFavoritesDB@@QAEX_N@Z @ 26  NONAME ; void IRQFavoritesDB::setMoveStatus(bool)
-	?qt_metacast@IRQFavoritesDB@@UAEPAXPBD@Z @ 27  NONAME ; void * IRQFavoritesDB::qt_metacast(char const *)
-	?getStaticMetaObject@IRQFavoritesDB@@SAABUQMetaObject@@XZ @ 28  NONAME ; struct QMetaObject const & IRQFavoritesDB::getStaticMetaObject(void)
-	??0IRQFavoritesDB@@QAE@XZ @ 29  NONAME ; IRQFavoritesDB::IRQFavoritesDB(void)
-        ?renamePreset@IRQFavoritesDB@@QAEHABVIRQPreset@@ABVQString@@@Z @ 30  NONAME ; int IRQFavoritesDB::renamePreset(class IRQPreset const &, class QString const &)
+	?addPreset@IRQFavoritesDB@@QAEHABVIRQPreset@@@Z @ 2  NONAME ; int IRQFavoritesDB::addPreset(class IRQPreset const &)
+	?getPresets@IRQFavoritesDB@@QBEPAV?$QList@PAVIRQPreset@@@@XZ @ 3  NONAME ; class QList<class IRQPreset *> * IRQFavoritesDB::getPresets(void) const
+	?deletePreset@IRQFavoritesDB@@QAEHABVIRQPreset@@@Z @ 4  NONAME ; int IRQFavoritesDB::deletePreset(class IRQPreset const &)
+	??1IRQFavoritesDB@@QAE@XZ @ 5  NONAME ; IRQFavoritesDB::~IRQFavoritesDB(void)
+	?replacePreset@IRQFavoritesDB@@QAEXABVIRQPreset@@@Z @ 6  NONAME ; void IRQFavoritesDB::replacePreset(class IRQPreset const &)
+	?renamePreset@IRQFavoritesDB@@QAEHABVIRQPreset@@ABVQString@@@Z @ 7  NONAME ; int IRQFavoritesDB::renamePreset(class IRQPreset const &, class QString const &)
+	??0IRQFavoritesDB@@QAE@XZ @ 8  NONAME ; IRQFavoritesDB::IRQFavoritesDB(void)
 

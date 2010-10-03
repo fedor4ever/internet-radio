@@ -19,10 +19,10 @@
 #define IRSONGHISTORYMODEL_H_
 
 #include <QAbstractItemModel>
-
-class IRQSongHistoryEngine;
+ 
 class IRQSongInfo;
 class IRQMetaData;
+class songHistoryWrapper;
 
 class IRSongHistoryModel : public QAbstractListModel
 {
@@ -47,9 +47,9 @@ private:
     void getAllList();
 
 private:
-    QList<IRQSongInfo *> mSongHistoryList;
-    IRQSongHistoryEngine *mHistoryEngine;  
+    QList<IRQSongInfo *> mSongHistoryList;     
     Qt::Orientation mOrientation;
+    songHistoryWrapper *mHistoryWrapper;
 };
 
 #endif 

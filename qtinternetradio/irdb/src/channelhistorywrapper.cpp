@@ -75,8 +75,7 @@ bool channelHistoryWrapper::getIRTableCB(QSqlQuery& aIRDataSet, QList<QVariant*>
     return true;
 }
 
-uint channelHistoryWrapper::srhChannelId(QString& condUserCidStr,
-                                         const columnMap* const condAND,
+uint channelHistoryWrapper::srhChannelId(const columnMap* const condAND,
                                          const columnMap* const condOR)
 {
     uint srhCID = 0;
@@ -90,12 +89,13 @@ uint channelHistoryWrapper::srhChannelId(QString& condUserCidStr,
     {
         srhCID = (condOR->value(channelId)).toUInt();         
     }
-
+#if 0 
     if(srhCID)
     {
         return srhCID ;
     }
 
+   
     //channelId column is false
     //only one case, go to station view, channelUrl and channelNickName
     //search channelId according to urlinof and channelNickName;
@@ -104,14 +104,22 @@ uint channelHistoryWrapper::srhChannelId(QString& condUserCidStr,
     {
         if( ( !(condAND->value(channelUrl).isEmpty())  )&&( !(condAND->value(channelNickName).isEmpty()) ) )
         {
+            QString escStr;
+        
             srhStr = "where "+ colNameView[channelUrl] + " = ";
-            srhStr = srhStr + "'" + condAND->value(channelUrl) + "' AND " ;
+            escStr = condAND->value(channelUrl);
+            escStr.replace('\'', "\'\'");
+            srhStr = srhStr + "'" + escStr + "' AND " ;
+
             srhStr = srhStr + colNameView[channelNickName] + " = ";
-            srhStr = srhStr + "'" + condAND->value(channelNickName) + "'";
+            escStr = condAND->value(channelNickName);
+            escStr.replace('\'', "\'\'");
+            srhStr = srhStr + "'" + escStr + "'";
         }
         condUserCidStr = srhStr;
     }
-          
+#endif
+    
     return srhCID;
 }
 
@@ -136,19 +144,29 @@ bool channelHistoryWrapper::putChannelHistory(const columnMap* const RowData,
     columnMap* const RowDataAppend = const_cast<columnMap*>(RowData);
     QList<QByteArray>* pImgList = NULL;
     bool ret = true;
+    int logoType = 0;
 
 
-    if( NULL == RowData )
+    if( ( NULL == RowData )&&(NULL == logoData) )
     {
         return false;
     }
-
-    if(RowData->isEmpty())
+    
+    if(RowData)
     {
-        return false;
+        if(RowData->isEmpty())
+        {
+            return false;
+        }
     }
 
-
+    if(logoData)
+    {
+        if(logoData->isEmpty())
+        {
+            return false;
+        }      
+    }
     if( (NULL != condAND)&&(NULL != condOR) )
     {
         return false;
@@ -170,11 +188,6 @@ bool channelHistoryWrapper::putChannelHistory(const columnMap* const RowData,
         }
     }
     
-    if(cidUserDefined)
-    {
-        *cidUserDefined = 0;	
-    }
-    
     insSqlStr = "insert into IRBuff ";   
     updSqlStr = "update IRBuff set ";
     RowDataAppend->insert(opt, QString::number(IRDB_OPT_INSERT));    
@@ -183,8 +196,8 @@ bool channelHistoryWrapper::putChannelHistory(const columnMap* const RowData,
     if(NULL != logoData)
     {
         pImgList = new QList<QByteArray>();
-        combinePutStr(RowDataAppend, colNameView, insSqlStr, updSqlStr, logoData, pImgList); 
-        *pImgList=logoData->values();
+        combinePutStr(RowDataAppend, colNameView, insSqlStr, updSqlStr, logoData, pImgList, &logoType); 
+        //*pImgList=logoData->values();
     
     }
     else
@@ -194,22 +207,22 @@ bool channelHistoryWrapper::putChannelHistory(const columnMap* const RowData,
                                         
     if( (NULL == condAND)&&(NULL == condOR) )
     {
-        uCid = srhChannelId(condUserCidStr,RowData);
+        uCid = srhChannelId(RowData);
     }
     else //here it must be "update" operation; condition string 
     {
-        uCid = srhChannelId(condUserCidStr,condAND, condOR);
+        uCid = srhChannelId(condAND, condOR);
         combineCondStr(condAND, condOR, colNameView, condSqlStr);
     }
 
     if(uCid)
     {
         //updSqlStr += condSqlStr;
-        m_pIRDB->chgRowIRDB(insSqlStr, updSqlStr, uCid, condSqlStr, pImgList)? ret = false:true;
+        m_pIRDB->chgRowIRDB(insSqlStr, updSqlStr, uCid, condSqlStr, pImgList, logoType)? ret = false:true;
     }
     else //here deliver the updSqlstr and condSqlStr seperately.
     {
-        m_pIRDB->chgRowIRDB(insSqlStr, updSqlStr, cidUserDefined, condSqlStr, condUserCidStr, pImgList)?ret = false:true;
+        m_pIRDB->chgRowIRDB(insSqlStr, updSqlStr, cidUserDefined, condSqlStr, condUserCidStr, pImgList, logoType)?ret = false:true;
     }  
     
     if(pImgList)
@@ -248,7 +261,7 @@ QList<QVariant*>* channelHistoryWrapper::getChannelHistory(const columnMap* cons
         }
     }
 
-    sltSqlStr = "select * from IRView_channelinfo ";
+    sltSqlStr = "select * from IRVIEW_CHANNELHISTORY ";
     combineGetStr(condAND, condOR, colNameView,sltSqlStr);
     pDataSet = new QList<QVariant*>();
     if( m_pIRDB->selectRow(this, sltSqlStr, pDataSet) )

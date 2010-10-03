@@ -26,11 +26,6 @@
 #include <HbColorScheme>
 #include <HbEvent>
 
-#ifdef NOWPLAYING_VIEW_OPTION_B
-#include <hbframedrawer.h>
-#include <hbframeitem.h>
-#endif
-
 #include "irviewmanager.h"
 #include "irapplication.h"
 #include "irplaycontroller.h"
@@ -70,13 +65,11 @@ static const QString KArtistColor("qtc_lcd_content_normal");
 static const QString KSongColor("qtc_lcd_content_normal");
 static const QString KStationColor("qtc_lcd_content_normal");
 
-#ifdef NOWPLAYING_VIEW_OPTION_B
-static const QString KLcdGraphics("qtg_fr_lcd");
-#endif
-
 #ifdef STATISTIC_REPORT_TEST_ENABLED    
-static const int KDummySongRecognitionUid = 0xE4EF7D71;
-static const int KDummyMusicStoreUid = 0xE609761B;
+static const int KDummySongRecognitionUid   = 0xE4EF7D71;
+static const int KIRMusicStoreUid           = 0xE609761B;
+#else
+static const int KIRMusicStoreUid           = 0;
 #endif
 
 static void saveStationLogo(const QPixmap &aStationLogo);
@@ -255,17 +248,7 @@ void IRNowPlayingView::initWidget()
     iSongNameLabel->setTextColor(HbColorScheme::color(KSongColor));
     iSongNameMarquee->setTextColor(HbColorScheme::color(KSongColor));
     iStationName->setTextColor(HbColorScheme::color(KStationColor));
-    
-#ifdef NOWPLAYING_VIEW_OPTION_B
-	HbWidget * viewContainer = qobject_cast<HbWidget *> (iLoader.findObject(VIEW_CONTAINER));
-    HbFrameDrawer* drawer = new HbFrameDrawer(KLcdGraphics, HbFrameDrawer::NinePieces);
-    HbFrameItem* backgroundItem = new HbFrameItem(drawer, viewContainer);
-    if (backgroundItem)
-    {
-        viewContainer->setBackgroundItem(backgroundItem);
-    }
-#endif
-    
+ 
 #ifdef ADV_ENABLED
     iAdvImage = qobject_cast<HbLabel *> (iLoader.findObject( NOW_PLAYING_VIEW_OBJECT_ADVERTISEMENT_IMAGE));
     iAdvImage->setIcon(HbIcon(KDefaultStationLogo));
@@ -285,7 +268,7 @@ void IRNowPlayingView::updateWidgets()
     
     if(iPlayController->getNowPlayingPreset())
     {
-        iStationName->setPlainText(iPlayController->getNowPlayingPreset()->name);
+        iStationName->setPlainText(iPlayController->getNowPlayingPreset()->nickName);
     }
     loadStationLogo();
 }
@@ -481,7 +464,7 @@ void IRNowPlayingView::updateForLauchAction()
     if (playList && 1 == playList->getNumberOfEntries())
     {
         IRQPreset *preset = playList->getPresetForEntry(0);
-        iStationName->setPlainText(preset->name);
+        iStationName->setPlainText(preset->nickName);
         iFindinNmsAllowed = (0 == preset->musicStoreStatus.compare("yes",Qt::CaseInsensitive));
 #ifdef HS_WIDGET_ENABLED            
         iPlayController->reloadNowplayingPreset(preset,false,EIRQAdhocExternal);
@@ -503,7 +486,7 @@ void IRNowPlayingView::updateForLauchAction()
             IRQPreset *lastPreset = lastPlayedStationInfo->getLastPlayedStation();
             if (lastPreset)
             {
-                iStationName->setPlainText(lastPreset->name); 
+                iStationName->setPlainText(lastPreset->nickName); 
                 iFindinNmsAllowed = (0 == lastPreset->musicStoreStatus.compare("yes",Qt::CaseInsensitive));
             }
             else
@@ -748,53 +731,59 @@ void IRNowPlayingView::handleStopMediaKey()
 void IRNowPlayingView::handleMusicStoreAction()
 {
     LOG_METHOD;
-   
-    if(!iFindinNmsAllowed)
+
+    if (!IRQUtility::findAppByUid(KIRMusicStoreUid))  // if no music store, coming soon is shown.
     {
-#ifdef STATISTIC_REPORT_TEST_ENABLED    
-    if(IRQUtility::launchAppByUid(KDummyMusicStoreUid))
-    {
-        iStatisticsReporter->logNmsEvent(IRQStatisticsReporter::EIRNmsLaunch,iPlayController->getNowPlayingPreset()->presetId);
-    }
-#else // STATISTIC_REPORT_TEST_ENABLED
 #ifdef SUBTITLE_STR_BY_LOCID
-        popupNote(hbTrId("txt_irad_info_not_allowed_by_this_station"), HbMessageBox::MessageTypeInformation);
-#else  // SUBTITLE_STR_BY_LOCID
-        popupNote(hbTrId("Not allowed by station"), HbMessageBox::MessageTypeInformation);        
-#endif // SUBTITLE_STR_BY_LOCID
-#endif // STATISTIC_REPORT_TEST_ENABLED        
-        return;        
+        popupNote(hbTrId("txt_irad_info_music_store_not_available"), HbMessageBox::MessageTypeInformation);
+#else
+        popupNote(hbTrId("Service Coming Soon"), HbMessageBox::MessageTypeInformation);    
+#endif        
+        return;
     }
     
-    if(!iSongNameAvailable)
-    {
-#ifdef STATISTIC_REPORT_TEST_ENABLED    
-    if(IRQUtility::launchAppByUid(KDummyMusicStoreUid))
-    {
-        iStatisticsReporter->logNmsEvent(IRQStatisticsReporter::EIRNmsLaunch,iPlayController->getNowPlayingPreset()->presetId);
+    bool launchResult = false;
+    if (iFindinNmsAllowed && iSongNameAvailable)
+    {       
+        // TODO : launch music store with search result page
+        launchResult = IRQUtility::launchAppByUid(KIRMusicStoreUid);
+        if (launchResult)        
+        {
+            if (iPlayController->getNowPlayingPreset()->type)
+            {
+                iStatisticsReporter->logNmsEvent(IRQStatisticsReporter::EIRNmsFind,iPlayController->getNowPlayingPreset()->presetId);
+            }
+            else
+            {            
+                iStatisticsReporter->logNmsEvent(IRQStatisticsReporter::EIRNmsFind,0);
+            }
+        }
     }
-#else // STATISTIC_REPORT_TEST_ENABLED        
-#ifdef SUBTITLE_STR_BY_LOCID
-        popupNote(hbTrId("txt_irad_info_no_song_info"), HbMessageBox::MessageTypeInformation);
-#else // SUBTITLE_STR_BY_LOCID
-        popupNote(hbTrId("No song info"), HbMessageBox::MessageTypeInformation);        
-#endif // SUBTITLE_STR_BY_LOCID
-#endif // STATISTIC_REPORT_TEST_ENABLED        
-        return;        
+    else
+    {
+        // TODO : lunch music store with homepage  
+        launchResult = IRQUtility::launchAppByUid(KIRMusicStoreUid);
+        if (launchResult)        
+        {
+            if (iPlayController->getNowPlayingPreset()->type)
+            {
+                iStatisticsReporter->logNmsEvent(IRQStatisticsReporter::EIRNmsLaunch,iPlayController->getNowPlayingPreset()->presetId);
+            }
+            else
+            {            
+                iStatisticsReporter->logNmsEvent(IRQStatisticsReporter::EIRNmsLaunch,0);
+            }
+        }        
     }
     
-#ifdef STATISTIC_REPORT_TEST_ENABLED    
-    if(IRQUtility::launchAppByUid(KDummyMusicStoreUid))
-    {
-        iStatisticsReporter->logNmsEvent(IRQStatisticsReporter::EIRNmsFind,iPlayController->getNowPlayingPreset()->presetId);
-    }
-#else // STATISTIC_REPORT_TEST_ENABLED     
+    if (!launchResult)
+    {        
 #ifdef SUBTITLE_STR_BY_LOCID
-    popupNote(hbTrId("txt_irad_info_music_store_not_available"), HbMessageBox::MessageTypeInformation);
-#else  // SUBTITLE_STR_BY_LOCID
-    popupNote(hbTrId("Music store not ready"), HbMessageBox::MessageTypeInformation);    
-#endif // SUBTITLE_STR_BY_LOCID
-#endif // STATISTIC_REPORT_TEST_ENABLED 
+        popupNote(hbTrId("txt_irad_info_music_store_not_available"), HbMessageBox::MessageTypeInformation);
+#else
+        popupNote(hbTrId("Music store not ready"), HbMessageBox::MessageTypeInformation);    
+#endif
+    }
 }
 
 void IRNowPlayingView::handleIdentifySongAction()

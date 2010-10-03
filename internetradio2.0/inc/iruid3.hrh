@@ -20,7 +20,7 @@
 #define	__IRUID3_H__
 
 //Duplicate with : 
-//irquid3.hrh	\qtinternetradio\irqcommon\inc
+//irquid3.hrh	/qtinternetradio/irqcommon/inc
 #define UID3_INTERNET_RADIO_10_1_EXE        0x2002FFAC
 
 #define UID3_IRSETTINGS_DLL                 0x2002FFAE

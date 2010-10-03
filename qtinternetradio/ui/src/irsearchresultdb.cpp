@@ -15,31 +15,22 @@
 *
 */
 
-#include <QFile>
-#include <QSqlQuery>
-#include <QSqlRecord> 
-#include <QSqlDatabase>
 #include <QVariant>
- 
 
+#include "searchrltwrapper.h"
 #include "irsearchresultdb.h"
 #include "irqisdsdatastructure.h"
 
+const int KTruncateSize = 255;
 
-IRSearchResultDB::IRSearchResultDB()
+IRSearchResultDB::IRSearchResultDB() : iSearchRltWrapper(NULL)
 {
-    createDBConnection();
+    iSearchRltWrapper = new searchRltWrapper();
 }
 
 IRSearchResultDB::~IRSearchResultDB()
 {
-    if (iDB->isOpen())
-    {
-        iDB->close();
-    }        
-    
-    delete iDB;
-    iDB = NULL;
+    delete iSearchRltWrapper;
 }
 
  
@@ -52,42 +43,43 @@ IRQError IRSearchResultDB::cacheChannelList(QList<IRQChannelItem*> *aChannelList
         return EIRQErrorBadParameter;
     }
     
-    if( iDB->isOpen() )
+    if( iSearchRltWrapper )
     {
         clearCache();
-        
+
+        //create column struct of table;
+        columnMap* pColMap = new columnMap();
+        QString num, name, imageURL, shortDescription;
+        int chnlID;
+        bool initFlag = true;
         for(int i=0; i<aChannelList->count(); i++)
         {
             IRQChannelItem* insertItem = aChannelList->at(i);
-            QString name = insertItem->channelName;
-            int channelID = insertItem->channelID;
-            QString imageURL = insertItem->imageURL;
-            QString description = insertItem->shortDescription;
+            name = insertItem->channelName;
+            chnlID = insertItem->channelID;
+            num.setNum(chnlID);
+            imageURL = insertItem->imageURL;
+            shortDescription = insertItem->shortDescription;
             
             //if some data overflows, we just skip it.note that
             //the VARCHAR is word-based, so here we use the real size 
-            if( name.size()>= 256 || imageURL.size() >= 256 || description.size() >= 256 )
-            {
-                continue;
-            }            
+            name.truncate(KTruncateSize);
+            imageURL.truncate(KTruncateSize);
+            shortDescription.truncate(KTruncateSize);
+
+            pColMap->clear();
+            pColMap->insert(channelId, num);
+            pColMap->insert(channelName, name);
+            pColMap->insert(imgUrl, imageURL);
+            pColMap->insert(shortDesc, shortDescription);
+
+            iSearchRltWrapper->addSearchRlt(pColMap, initFlag);
+            initFlag = false;
             
-            QSqlQuery query;
-            bool result;
-            
-            result = query.prepare("INSERT INTO searchresult (name, channelID, imageURL, description) "
-                "VALUES (:name, :channelID, :imageURL, :description)");
-            query.bindValue(":name", name);
-            query.bindValue(":channelID",channelID);
-            query.bindValue(":imageURL", imageURL);
-            query.bindValue(":description", description);
-            
-            result = query.exec();
-            if( !result )
-            {
-                ret = EIRQErrorServiceUnavailable;
-                break;
-            }
         }
+        
+        iSearchRltWrapper->addSearchRltFinished();
+        delete pColMap;
     }
     else
     {
@@ -99,44 +91,52 @@ IRQError IRSearchResultDB::cacheChannelList(QList<IRQChannelItem*> *aChannelList
 
 QList<IRQChannelItem*> *IRSearchResultDB::getCahcedChannelList()
 {
-    if( !iDB->isOpen() )
+    if( !iSearchRltWrapper )
     {
         return NULL;
     }
-    
+
+    QList<QVariant*>* searchRlt = NULL;
     QList<IRQChannelItem*> *channelList = new QList<IRQChannelItem*>();
-    QSqlQuery query("SELECT * FROM searchresult");
-    QSqlRecord rec = query.record();
-    int nameCol = rec.indexOf("name");
-    int channelIDCol = rec.indexOf("channelID");
-    int imageURLCol = rec.indexOf("imageURL");
-    int descriptionCol = rec.indexOf("description");     
-    
-    while(query.next())
+    searchRlt = iSearchRltWrapper->getSearchRlt(NULL, NULL);
+
+    if (NULL == searchRlt)
+    {
+        return channelList;
+    }
+
+    for(int i = 0; i < searchRlt->size(); i++)
     {
         IRQChannelItem *oneItem = new IRQChannelItem();
-        oneItem->channelName = query.value(nameCol).toString();
-        oneItem->channelID = query.value(channelIDCol).toInt();
-        oneItem->imageURL = query.value(imageURLCol).toString();
-        oneItem->shortDescription = query.value(descriptionCol).toString();
+        oneItem->channelName = (*( searchRlt->at(i) + channelName) ).toString();
+        oneItem->channelID = (*( searchRlt->at(i) + channelId)).toUInt();
+        oneItem->imageURL = (*( searchRlt->at(i) + imgUrl) ).toString();
+        oneItem->shortDescription = (*( searchRlt->at(i) + shortDesc) ).toString();
         channelList->append(oneItem);
     }
-    
+
+    while(false == searchRlt->isEmpty())
+    {
+        delete []searchRlt->takeFirst();
+    }
+    searchRlt->clear();
+    delete searchRlt;
+    searchRlt = NULL;
+
     return channelList;    
 }
   
 IRQError IRSearchResultDB::clearCache()
 {
     IRQError ret = EIRQErrorNone;
-    if( !iDB->open())
+    if( !iSearchRltWrapper)
     {
         ret = EIRQErrorServiceUnavailable;
     }
     else
     { 
-        QSqlQuery query("DELETE FROM searchresult");         
-        bool ret = query.exec();
-        if( !ret )
+        bool retval = iSearchRltWrapper->deleteSearchRlt(NULL, NULL);
+        if (!retval)
         {
             ret = EIRQErrorServiceUnavailable;
         }
@@ -144,37 +144,3 @@ IRQError IRSearchResultDB::clearCache()
     
     return ret;
 }
-
-void IRSearchResultDB::createDBConnection()
-{ 
-    bool created = QFile::exists("searchresult.dat");    
-    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");     
-    iDB = new QSqlDatabase(db);
-
-    iDB->setDatabaseName("searchresult.dat");
-
-    if (!iDB->open())
-    {         
-        return;
-    }
-     
-
-    if (!created)
-    {
-        bool dbResult = false;
-        QSqlQuery query;         
-        //note: the VARCHAR is word-based but not byte-based. and 255 
-        //means 255 unicode words.
-        dbResult = query.exec("CREATE TABLE searchresult ("
-            "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-            "name VARCHAR(255) NOT NULL, "
-            "channelID INTEGER, "
-            "imageURL VARCHAR(255), "
-            "description VARCHAR(255) NOT NULL)");
-
-        if (!dbResult)
-        {             
-            return;
-        }
-    } 
-} 

@@ -108,8 +108,9 @@ IRQPreset* IRPlayList::getPresetForEntry(int aIndex)
         
         preset->insertChannelServer(server);
         preset->name = item->title();
-        preset->description = item->file();
-        preset->shortDesc = item->file();
+        preset->nickName = item->title();
+        preset->description = "";
+        preset->shortDesc = "";
         preset->type = 0;
         preset->uniqID = 0;
         preset->presetId = 0;

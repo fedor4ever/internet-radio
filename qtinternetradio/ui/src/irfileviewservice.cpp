@@ -15,17 +15,20 @@
 *
 */
 #include <xqserviceutil.h>
+#include <xqsharablefile.h>
 
 #include "irfileviewservice.h"
 #include "irplaylist.h"
 #include "irapplication.h"
 #include "irqsettings.h"
+#include "irqlogger.h"
 
 #define INTERNETRADIO_SERVICE_NAME "internet_radio_10_1.com.nokia.symbian.IFileView"
 
 IRFileViewService::IRFileViewService(IRApplication *aApplication) : XQServiceProvider(INTERNETRADIO_SERVICE_NAME),
 iApplication(aApplication), iPlayList(NULL)
 {
+    LOG_METHOD;
     if (XQServiceUtil::isService())
     {
         //Publishes all public slots on this object
@@ -45,6 +48,7 @@ IRPlayList* IRFileViewService::getPlayList() const
 
 void IRFileViewService::view(const QString &aFileName)
 {
+    LOG_METHOD;
     if (NULL == iPlayList)
     {
         iPlayList = new IRPlayList;
@@ -69,7 +73,10 @@ void IRFileViewService::view(const QString &aFileName)
     }
 }
 
-void IRFileViewService::view(const XQSharableFile &/*aSharableFile*/)
+void IRFileViewService::view(const XQSharableFile &aSharableFile)
 {
-
+    LOG_METHOD;
+    QString name = aSharableFile.fileName();
+    LOG(STRING2CHAR(name));
+    view(name);
 }

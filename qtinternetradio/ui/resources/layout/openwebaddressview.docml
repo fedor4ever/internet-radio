@@ -25,7 +25,7 @@
                     <string locid="txt_common_button_play_audio" name="text"/>
                     <string name="state" value="normal"/>
                 </widget>
-                <contentsmargins bottom="var(hb-param-margin-gene-screen)" left="var(hb-param-margin-gene-screen)" right="var(hb-param-margin-gene-screen)" top="var(hb-param-margin-gene-screen)"/>
+                <contentsmargins bottom="0un" left="0un" right="0un" top="0un"/>
                 <layout type="anchor">
                     <anchoritem dst="dataForm" dstEdge="TOP" spacing="0un" src="" srcEdge="TOP"/>
                     <anchoritem dst="dataForm" dstEdge="LEFT" spacing="0un" src="" srcEdge="LEFT"/>

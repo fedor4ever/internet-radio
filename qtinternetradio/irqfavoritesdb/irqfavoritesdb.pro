@@ -24,19 +24,11 @@ defFilePath = ..
 MOC_DIR = moc
 DEPENDPATH = src
 
-INCLUDEPATH += ../../internetradio2.0/irfavoritesdb/inc \
-               ../../internetradio2.0/ircommon/inc \
-               ../../internetradio2.0/irpresetplugin/inc  \
-               ../irqcommon/inc \
-               ../../presetserver/include \
-               ../../presetserver/clientinc \
-               ../../presetserver/serverinc
+INCLUDEPATH += ../irqcommon/inc \
+               ../irdb/inc
                
-               
-LIBS += -lirdatastructures \
-        -lirfavoritesdb \
-        -lirqutility \
-        -lpsclient100
+LIBS += -lirdb \
+        -lirqutility
 
 symbian{
   TARGET.UID3 = 0x2002FFBC
@@ -47,13 +39,11 @@ symbian{
 
 #header files list
 HEADERS += inc/irqfavoritesdb.h  \
-           inc/irqfavoritesdb_p.h \
            inc/irqfavoritesdbexporter.h
            
 
 #source files list
-SOURCES += irqfavoritesdb.cpp \
-           irqfavoritesdb_p.cpp
+SOURCES += irqfavoritesdb.cpp
 
 SYMBIAN_PLATFORMS = WINSCW ARMV5
 

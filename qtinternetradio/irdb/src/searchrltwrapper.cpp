@@ -15,6 +15,7 @@
 
 #include <QSqlQuery>
 #include <QVariant>
+#include <QStringList>
 #include "searchrltwrapper.h"
 #include "irdb.h"
 
@@ -25,6 +26,199 @@ searchRltWrapper::searchRltWrapper()
 searchRltWrapper::~searchRltWrapper()
 {
 } 
+
+void searchRltWrapper::combineSqlStr(const uint &cid,
+                                     const columnMap* const RowData, 
+                                     QStringList &sqlList)
+{
+    columnMap::const_iterator it;
+    QString insSqlstrCnlInfo = "insert into channelInfo( ";
+    QString insSqlstrImg     = "insert into img( ";
+    QString insSqlstrSrhRlt  = "insert into searchrlt( "; 
+    QString escStr;
+    QString condStr = " where channelId ='" + QString::number(cid) + "' ";
+
+    bool FstOfStatementCnl = true;
+    bool FstOfStatementImg = true;
+
+    it = RowData->begin();
+    while(it != RowData->end())
+    {
+        if(channelId == it.key()) 
+        {
+            if(false == FstOfStatementCnl)
+            {
+                insSqlstrCnlInfo += ", ";                
+            }
+        
+            if(false == FstOfStatementImg)
+            {
+                insSqlstrImg += ", ";                
+            } 
+            
+            insSqlstrCnlInfo += colNameView[it.key()];
+            insSqlstrImg += colNameView[it.key()];
+            insSqlstrSrhRlt += colNameView[it.key()];
+            FstOfStatementCnl = false;
+            FstOfStatementImg = false;
+        }
+        
+        if( (channelName == it.key()) ||(shortDesc == it.key()) )
+        {
+            if(false == FstOfStatementCnl)
+            {
+                insSqlstrCnlInfo += ", ";                
+            }
+            
+            insSqlstrCnlInfo += colNameView[it.key()];
+            FstOfStatementCnl = false;
+        }
+        
+        if(imgUrl == it.key())
+        {
+            if(false == FstOfStatementImg)
+            {
+                insSqlstrImg += ", ";                
+            }
+            
+            insSqlstrImg += colNameView[it.key()];
+            FstOfStatementImg = false;
+        }
+
+        ++it;
+    }
+    
+    insSqlstrCnlInfo += ") values(";
+    insSqlstrImg += ") values(";
+    insSqlstrSrhRlt += ") values(";
+    FstOfStatementCnl = true;
+    FstOfStatementImg = true;
+        
+    it = RowData->begin();
+    while(it != RowData->end())
+    {
+        //here for escape char,
+        escStr = it.value();
+        escStr.replace('\'', "\'\'");
+
+        if(channelId == it.key()) 
+        {
+            if(false == FstOfStatementCnl)
+            {
+                insSqlstrCnlInfo += ", ";                
+            }
+            
+            if(false == FstOfStatementImg)
+            {
+                insSqlstrImg += ", ";                
+            }
+            
+            insSqlstrCnlInfo  = insSqlstrCnlInfo + "'"+ escStr+ "'";
+            insSqlstrImg      = insSqlstrImg + "'"+ escStr+ "'";
+            insSqlstrSrhRlt   = insSqlstrSrhRlt + "'"+ escStr+ "'";
+            FstOfStatementCnl = false;
+            FstOfStatementImg = false;
+        }
+        
+        if( (channelName == it.key()) ||(shortDesc == it.key()) )
+        {
+            if(false == FstOfStatementCnl)
+            {
+                insSqlstrCnlInfo += ", ";                
+            }
+        
+            insSqlstrCnlInfo = insSqlstrCnlInfo + "'"+ escStr+ "'";
+            FstOfStatementCnl = false;                
+        }
+
+        if(imgUrl == it.key())
+        {
+            if(false == FstOfStatementImg)
+            {
+                insSqlstrImg += ", ";                
+            }
+        
+            insSqlstrImg = insSqlstrImg + "'"+ escStr+ "'";
+            FstOfStatementImg = false;                  
+        }            
+          
+        ++it;
+    
+    }    
+    
+    insSqlstrImg += ") ";
+    insSqlstrCnlInfo += ") ";
+    insSqlstrSrhRlt += ") ";
+    
+    QString updSqlStrCnlInfo = "update channelInfo set ";
+    QString updSqlStrCnlImg = "update img set ";
+    //part two, create update string;
+    FstOfStatementCnl = true;
+    FstOfStatementImg = true;
+    
+    it = RowData->begin();
+     
+    while( it != RowData->end())
+    {
+            //here for escape char,
+        escStr = it.value();
+        escStr.replace('\'', "\'\'");
+        if( (channelName == it.key()) ||(shortDesc == it.key()) )
+        {
+            if(false == FstOfStatementCnl)
+            {
+                updSqlStrCnlInfo += ", ";
+            }
+            updSqlStrCnlInfo = updSqlStrCnlInfo + colNameView[it.key()] + "=" + "'" + escStr + "'";
+            FstOfStatementCnl = false;
+        }
+        if(imgUrl == it.key())
+        {
+            updSqlStrCnlImg = updSqlStrCnlImg + colNameView[it.key()] + "=" + "'" + escStr + "'";
+        }  
+
+        ++it;
+    }
+    updSqlStrCnlInfo += condStr;
+    updSqlStrCnlImg  += condStr;
+    sqlList<<insSqlstrCnlInfo<<insSqlstrImg<<insSqlstrSrhRlt<<updSqlStrCnlInfo<<updSqlStrCnlImg ;
+    
+    return;
+}
+
+
+bool searchRltWrapper::addSearchRlt(const columnMap* const RowData, bool bOpt)
+{
+    uint uCid = 0;
+    QStringList sqlStrList;
+    
+    if( NULL == RowData )
+    {
+        return false;
+    }
+
+    if(RowData->isEmpty())
+    {
+        return false;
+    }
+    uCid = srhChannelId(RowData);
+    
+    if(0 == uCid)
+    {
+        return false;
+    }
+    
+    combineSqlStr(uCid, RowData, sqlStrList);
+    
+    return m_pIRDB->handleRstFromSrhView(uCid, sqlStrList, bOpt)? false:true;
+          
+}
+
+void searchRltWrapper::addSearchRltFinished()
+{
+    m_pIRDB->closeIRDBConnection();
+    return;
+}
 
 /*
 * this fuction don't suport "update" operation for mutliple records ;
@@ -46,6 +240,7 @@ bool searchRltWrapper::putSearchRlt(const columnMap* const RowData,
     columnMap* const RowDataAppend = const_cast<columnMap*>(RowData);
     QList<QByteArray>* pImgList = NULL;
     bool ret = true;
+    int logoType = 0;
     
     if( NULL == RowData )
     {
@@ -87,7 +282,7 @@ bool searchRltWrapper::putSearchRlt(const columnMap* const RowData,
     if(NULL != logoData)
     {
         pImgList = new QList<QByteArray>();
-        combinePutStr(RowDataAppend, colNameView, insSqlStr, updSqlStr, logoData, pImgList); 
+        combinePutStr(RowDataAppend, colNameView, insSqlStr, updSqlStr, logoData, pImgList, &logoType); 
     
     }
     else
@@ -97,22 +292,22 @@ bool searchRltWrapper::putSearchRlt(const columnMap* const RowData,
     
     if( (NULL == condAND)&&(NULL == condOR) )
     {
-        uCid = srhChannelId(condUserCidStr,RowData);
+        uCid = srhChannelId(RowData);
     }
     else //here it must be "update" operation; condition string 
     {
-        uCid = srhChannelId(condUserCidStr,condAND, condOR);
+        uCid = srhChannelId(condAND, condOR);
         combineCondStr(condAND, condOR, colNameView,condSqlStr);
     }
 
     if(uCid)
     {
         //updSqlStr += condSqlStr;
-        m_pIRDB->chgRowIRDB(insSqlStr, updSqlStr, uCid, condSqlStr, pImgList)? ret = false:true;
+        m_pIRDB->chgRowIRDB(insSqlStr, updSqlStr, uCid, condSqlStr, pImgList, logoType)? ret = false:true;
     }
     else //here deliver the updSqlstr and condSqlStr seperately.
     {
-        m_pIRDB->chgRowIRDB(insSqlStr, updSqlStr, NULL, condSqlStr, condUserCidStr, pImgList)?ret = false:true;
+        m_pIRDB->chgRowIRDB(insSqlStr, updSqlStr, NULL, condSqlStr, condUserCidStr, pImgList, logoType)?ret = false:true;
     }    
 
     if(pImgList)
@@ -212,8 +407,7 @@ bool searchRltWrapper::getIRTableCB(QSqlQuery& aIRDataSet, QList<QVariant*>* pDa
     return true;
 }
 
-uint searchRltWrapper::srhChannelId(QString& condUserCidStr,
-                                    const columnMap* const condAND,
+uint searchRltWrapper::srhChannelId(const columnMap* const condAND,
                                     const columnMap* const condOR)
 {
     uint srhCID = 0;
@@ -227,7 +421,7 @@ uint searchRltWrapper::srhChannelId(QString& condUserCidStr,
     {
         srhCID = (condOR->value(channelId)).toUInt();         
     }
-
+#if 0
     if(srhCID)
     {
         return srhCID ;
@@ -248,7 +442,7 @@ uint searchRltWrapper::srhChannelId(QString& condUserCidStr,
         }
         condUserCidStr = srhStr;
     }
-          
+#endif          
     return srhCID;
 }
 

@@ -28,6 +28,8 @@ public:
 public:
     /*
     * RowData:        [direction: in]table row value;
+    *                 reminder, channelUrl and bitrate can't be input from here;
+    *                 if the enum of channelUrl or bitrate is used here, return false;
     * cidUserDefined: [direction: out] return the channelid allocated by IRDB, 
     *                                  the channelId is a user-defined channelId;
     * logoMap: [direction: in]the logo rowData will be inserted into irdb via this structure;
@@ -75,13 +77,11 @@ private:
 private:
     /*
     * search channelId according to parameter;
-    * condUserCidStr:[direction: in]specific condition(where) string for user-define uid;
     * condAND:       [direction: in]condition for search channelHistory, it is AND relationship in every pair;
     * condOR:        [direction: in]condition for search channelHistory, it is OR  relationship in every pair;
     * uint:          return channelId;
     */    
-    uint srhChannelId(QString& condUserCidStr,
-                      const columnMap* const condAND,
+    uint srhChannelId(const columnMap* const condAND = NULL,
                       const columnMap* const condOR = NULL);
 
 };

@@ -27,6 +27,14 @@ public:
 
 public:
     /*
+    * RowData: [direction: in] table row value
+    * bOpt:    [direction: in] true = the db connection should be open;
+    */
+    bool addSearchRlt(const columnMap* const RowData, 
+                      bool bOpt = true);    
+    
+    void addSearchRltFinished();
+    /*
     * RowData: [direction: in]table row value;
     * condAND: [direction: in]condition for search searchRlt, it is AND relationship in every pair;
     * condOR:  [direction: in]condition for search searchRlt, it is OR  relationship in every pair;
@@ -69,10 +77,17 @@ private:
     * condOR:        [direction: in]condition for search channelHistory, it is OR  relationship in every pair;
     * uint:          return channelId;
     */    
-    uint srhChannelId(QString& condUserCidStr,
-                      const columnMap* const condAND,
+    uint srhChannelId(const columnMap* const condAND = NULL,
                       const columnMap* const condOR = NULL);
-
+    /*
+    * create QString List for handle(insert/update) the data come from search view
+    * channelId: [direction: in] channel id;
+    * RowData:   [direction: in] input data;
+    * sqlList:   [direction: out] return sql string; 
+    */
+    void combineSqlStr(const uint& channelId,
+                       const columnMap* const RowData, 
+                       QStringList& sqlList);
 };
 
 #endif

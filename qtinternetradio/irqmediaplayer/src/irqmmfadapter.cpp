@@ -45,6 +45,7 @@ IRQMMFAdapter::IRQMMFAdapter() :
     ,iQMetaData(NULL)
     ,iPrepareTimer(NULL), iStereoEffect(NULL)
 {
+    LOG_METHOD;
     iPlayState = EStopped;
 }
 
@@ -56,6 +57,7 @@ IRQMMFAdapter::IRQMMFAdapter() :
 //
 IRQMMFAdapter::~IRQMMFAdapter()
 {
+    LOG_METHOD;
     destroyPlayer();
 
     delete iQMetaData;
@@ -87,11 +89,13 @@ void IRQMMFAdapter::playStation(const QString &aUrl, int aApId)
     TRAPD(error, playL(aUrl, aApId));
     if (NULL == iQMetaData)
     {
+        LOG("Error Occured(EIRQErrorOutOfMemory)");
         emit errorOccured(EIRQErrorOutOfMemory);
     }
 
     if (KErrNone != error)
     {
+        LOG_FORMAT("Error Occured = %d", (int)error);
         emit errorOccured(EIRQPlayerErrorGeneral);
     }
 }
@@ -103,6 +107,8 @@ void IRQMMFAdapter::playStation(const QString &aUrl, int aApId)
 //
 void IRQMMFAdapter::playL(const QString &aUrl, int aApId)
 {
+    LOG_METHOD;
+    
     // Save stream Url
     if (NULL == iQMetaData)
     {
@@ -128,6 +134,7 @@ void IRQMMFAdapter::playL(const QString &aUrl, int aApId)
     stop();
 
     // Open url
+    LOG("CVideoPlayerUtility::OpenUrlL(stationUrl, aApId, KNullDesC8, KUidController)");
     iVideoPlayer->OpenUrlL(stationUrl, aApId, KNullDesC8, KUidController);
     iPlayState = EOpenning;
 }
@@ -140,8 +147,11 @@ void IRQMMFAdapter::playL(const QString &aUrl, int aApId)
 //
 void IRQMMFAdapter::stop()
 {
+    LOG_METHOD;
+    
     if (iVideoPlayer && EStopped != iPlayState)
     {
+        LOG("Stop the prepare timeout timer");
         if (iPrepareTimer)
         {
             if (iPrepareTimer->IsActive())
@@ -150,6 +160,8 @@ void IRQMMFAdapter::stop()
             }
         }
 
+        LOG("CVideoPlayerUtility::Stop()");
+        LOG("CVideoPlayerUtility::Close()");
         iVideoPlayer->Stop();
         iVideoPlayer->Close();
         iPlayState = EStopped;
@@ -165,6 +177,7 @@ void IRQMMFAdapter::stop()
 void IRQMMFAdapter::setVolume(int aVolume)
 {
     LOG_METHOD;
+    
     if (iVideoPlayer && iPlayState > EOpenning)
     {
         // aVolume is a percentage
@@ -178,9 +191,11 @@ void IRQMMFAdapter::setVolume(int aVolume)
         }
         int volume = aVolume*iVideoPlayer->MaxVolume()/KVolumeMaxPercentage;
 
+        LOG_FORMAT("CVideoPlayerUtility::SetVolumeL(%d)", volume);
         TRAPD(error, iVideoPlayer->SetVolumeL(volume));
         if (KErrNone != error)
         {
+            LOG_FORMAT("Error Occured = %d", (int)error);
             emit errorOccured(EIRQPlayerErrorGeneral);
         }
     }
@@ -194,6 +209,8 @@ void IRQMMFAdapter::setVolume(int aVolume)
 //
 int IRQMMFAdapter::getVolume()
 {
+    LOG_METHOD;
+    
     int volume = KVolumeMinPercentage;
 
     if (iVideoPlayer && iPlayState > EOpenning)
@@ -217,6 +234,7 @@ void* IRQMMFAdapter::getPlayerInstance()
 
 void IRQMMFAdapter::enableStereoEffect()
 {
+    LOG_METHOD;
     if (IRQPlayerAdapterInterface::EPlaying != iPlayState)
     {
         return;
@@ -227,6 +245,7 @@ void IRQMMFAdapter::enableStereoEffect()
 
 void IRQMMFAdapter::disableStereoEffect()
 {
+    LOG_METHOD;
     if (iStereoEffect)
     {
         if (iStereoEffect->IsEnabled())
@@ -234,6 +253,7 @@ void IRQMMFAdapter::disableStereoEffect()
             TRAPD(error, iStereoEffect->DisableL());
             if (KErrNone != error)
             {
+                LOG_FORMAT("Error Occured = %d", (int)error);
                 emit errorOccured(EIRQPlayerErrorSetStereoFailed);
             }
             delete iStereoEffect;
@@ -264,6 +284,7 @@ void IRQMMFAdapter::MvpuoOpenComplete(TInt aError)
         }
 
         // Prepare to playback
+        LOG("CVideoPlayerUtility::Prepare()");
         iVideoPlayer->Prepare();
         iPlayState = EConnecting;
 
@@ -276,9 +297,11 @@ void IRQMMFAdapter::MvpuoOpenComplete(TInt aError)
         TTimeIntervalMicroSeconds32 interval(KConnectingTime);
         iPrepareTimer->Start(interval,interval,
                              TCallBack(IRQMMFAdapter::isPrepareCompleted,this));
+        LOG_FORMAT("Start the prepare timeout timer = %d sec", (int)interval.Int()/1000000);
     }
     else
     {
+        LOG_FORMAT("Error Occured = %d", (int)aError);
         emit errorOccured(EIRQPlayerErrorConnectingFailed);
     }
 }
@@ -294,6 +317,7 @@ void IRQMMFAdapter::MvpuoPrepareComplete(TInt aError)
 {
     LOG_METHOD;
     // Cancel the previous request if pending
+    LOG("Stop the prepare timeout timer");
     if (iPrepareTimer->IsActive())
     {
         iPrepareTimer->Cancel();
@@ -315,21 +339,25 @@ void IRQMMFAdapter::MvpuoPrepareComplete(TInt aError)
         }
 
         // Send signal ConnectionEstablished
+        LOG_FORMAT("bit rate = %d", iQMetaData->getBitrate());
         emit connectionEstablished(iQMetaData->getBitrate());
 
         // Set specific event to get meta data from player
         setMetadataEventConfig();
 
         // Start playback
+        LOG("CVideoPlayerUtility::Play()");
         iVideoPlayer->Play();
         iPlayState = EBuffering;
     }
     else if (KErrServerBusy == aError)
     {
+        LOG("Error Occured(EIRQPlayerErrorServerFull)");
         emit errorOccured(EIRQPlayerErrorServerFull);
     }
     else
     {
+        LOG_FORMAT("Error Occured = %d", (int)aError);
         emit errorOccured(EIRQPlayerErrorConnectingFailed);
     }
 }
@@ -347,6 +375,7 @@ void IRQMMFAdapter::MvpuoPlayComplete(TInt aError)
     LOG_METHOD;
     if (KErrNone != aError)
     {
+        LOG_FORMAT("Error Occured = %d", (int)aError);
         emit errorOccured(EIRQPlayerErrorGeneral);
     }
 }
@@ -360,39 +389,55 @@ void IRQMMFAdapter::MvpuoPlayComplete(TInt aError)
 void IRQMMFAdapter::MvpuoEvent(TMMFEvent const & aEvent)
 {
     LOG_METHOD;
-    LOG_FORMAT( "aevent is %d", (int)aEvent);
     if (KMMFEventCategoryVideoPlayerGeneralError == aEvent.iEventType)
     {
+        LOG("Event Type = KMMFEventCategoryVideoPlayerGeneralError");
         switch (aEvent.iErrorCode)
         {
             case KErrHardwareNotAvailable:
+                LOG("Event Error Code = KErrHardwareNotAvailable");
+                emit errorOccured(EIRQPlayerErrorAudioDeviceLost);
+                break;                
             case KErrMMAudioDevice:
                 // Higher priority application has taken over the
                 // audio device. --> Do stop.
+                LOG("Event Error Code = KErrMMAudioDevice");
                 emit errorOccured(EIRQPlayerErrorAudioDeviceLost);
                 break;
             case KErrDisconnected:
+                LOG("Event Error Code = KErrDisconnected");
                 emit errorOccured(EIRQPlayerErrorConnectionLost);
                 break;
-            case KErrTimedOut:    
+            case KErrTimedOut:  
+                LOG("Event Error Code = KErrTimedOut");  
                 emit errorOccured(EIRQPlayerErrorTimeOut);
                 break;
-            case KErrServerBusy:    
+            case KErrServerBusy:  
+                LOG("Event Error Code = KErrServerBusy");  
                 emit errorOccured(EIRQPlayerErrorServerFull);
                 break;                                            
             default:
+                LOG_FORMAT("Event Error Code = %d", (int)aEvent.iErrorCode);
                 emit errorOccured(EIRQPlayerErrorGeneral);			
                 break;
         }
     }
     else if (KMMFRefreshMetaData == aEvent.iEventType)
     {
+        LOG("Event Type = KMMFRefreshMetaData");
+        LOG_FORMAT( "Event Error Code = %d", (int)aEvent.iErrorCode);
         // Get refreshed meta data
         TRAPD(error, getRefreshedMetaDataL(aEvent.iErrorCode));
         if (KErrNone != error)
         {
+            LOG_FORMAT("Get MetaData Error Occured = %d", (int)error);
             emit errorOccured(EIRQPlayerErrorGeneral);
         }
+    }
+    else
+    {
+        LOG_FORMAT("Event Type = %d", (int)aEvent.iEventType.iUid);
+        LOG_FORMAT("Event Error Code = %d", (int)aEvent.iErrorCode);
     }
 }
 
@@ -404,6 +449,7 @@ void IRQMMFAdapter::MvpuoEvent(TMMFEvent const & aEvent)
 //
 void IRQMMFAdapter::MvpuoFrameReady(CFbsBitmap& aFrame,TInt aError)
 {
+    LOG_METHOD;
     Q_UNUSED(aFrame);
     Q_UNUSED(aError);
 }
@@ -420,15 +466,18 @@ void IRQMMFAdapter::MvloLoadingStarted()
     // Get buffering progress and send it to application
     int percentageComplete = 0;
 
+    LOG("CVideoPlayerUtility::GetVideoLoadingProgressL()");
     TRAPD(error, iVideoPlayer->GetVideoLoadingProgressL(percentageComplete));
 
     if (KErrNone == error)
     {
         // Send signal to UpdateProgress
+        LOG_FORMAT("Loading Percentage Complete = %d", percentageComplete);
         emit percentageBuffered(percentageComplete);
     }
     else
     {
+        LOG_FORMAT("Error Occured = %d", (int)error);
         emit errorOccured(EIRQPlayerErrorGeneral);
     }
 }
@@ -458,6 +507,7 @@ void IRQMMFAdapter::getRefreshedMetaDataL(TInt index)
     LOG_METHOD;
     if (iQMetaData)
     {
+        LOG("CVideoPlayerUtility::MetaDataEntryL()");
         CMMFMetaDataEntry* pMetadataEntry = iVideoPlayer->MetaDataEntryL(index);
 
         QString entryName = QString::fromUtf16(pMetadataEntry->Name().Ptr(),
@@ -493,9 +543,13 @@ void IRQMMFAdapter::getRefreshedMetaDataL(TInt index)
 //
 void IRQMMFAdapter::createPlayerL()
 {
+    LOG_METHOD;
+    
+    LOG("CVideoPlayerUtility::NewL()");
     // Create player instance
     iVideoPlayer = CVideoPlayerUtility2::NewL(*this,KAudioPriorityAudioPlaybackStreaming ,
                                              (TMdaPriorityPreference)KAudioPrefRealOneStreaming);
+    LOG("CVideoPlayerUtility::RegisterForVideoLoadingNotification()");
     // Register loading notification
     iVideoPlayer->RegisterForVideoLoadingNotification(*this);
 }
@@ -507,6 +561,7 @@ void IRQMMFAdapter::createPlayerL()
 //
 void IRQMMFAdapter::destroyPlayer()
 {
+    LOG_METHOD;
     delete iVideoPlayer;
     iVideoPlayer = NULL;
 }
@@ -518,10 +573,12 @@ void IRQMMFAdapter::destroyPlayer()
 //
 void IRQMMFAdapter::setMetadataEventConfig()
 {
+    LOG_METHOD;
     TMMFMessageDestinationPckg  destinationPckg(KUidInterfaceMMFControllerMetadataEventMsg);
     TPckgBuf<TBool>             metadataEventPckg(EMMFEnableMetadataEvent);
 
     //  Enable meta data event.
+    LOG("CVideoPlayerUtility::CustomCommandSync(EMMFSetMetadataEventConfig)");
     iVideoPlayer->CustomCommandSync(destinationPckg,
                                     EMMFSetMetadataEventConfig,
                                     metadataEventPckg,
@@ -535,6 +592,8 @@ void IRQMMFAdapter::setMetadataEventConfig()
 //
 TInt IRQMMFAdapter::isPrepareCompleted(TAny* aPtr)
 {
+    LOG_METHOD;
+    LOG("Prepare timeout timer call back function");
     IRQMMFAdapter* self = static_cast<IRQMMFAdapter*>(aPtr);
     if (self)
     {
@@ -551,6 +610,7 @@ TInt IRQMMFAdapter::isPrepareCompleted(TAny* aPtr)
 void IRQMMFAdapter::checkPrepare()
 {
     LOG_METHOD;
+    LOG("Stop the prepare timeout timer");
     if (iPrepareTimer->IsActive())
     {
         // Cancel the previous request if pending
@@ -559,6 +619,7 @@ void IRQMMFAdapter::checkPrepare()
 
     if (EConnecting == iPlayState)
     {
+        LOG("Error Occured(EIRQPlayerErrorConnectingFailed)");
         emit errorOccured(EIRQPlayerErrorConnectingFailed);
         stop();
     }

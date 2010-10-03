@@ -34,7 +34,7 @@ class IRStationDetailsView : public IRBaseView
 public:
     ~IRStationDetailsView();
     void setDetails();
-    void setDetails(IRQPreset * aPreset);
+    void setDetails(const IRQPreset * aPreset);
     
 protected:
     IRStationDetailsView(IRApplication* aApplication, TIRViewId aViewId);

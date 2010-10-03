@@ -22,8 +22,8 @@
 #include "irqisdsdatastructure.h"
 #include "irqisdsclient.h"
 #include "irsearchresultdb.h"
+#include "iruidefines.h"
 
-const int KBitmapSize = 59;
 const int KDownloadLogoInterval = 10; //msec
 
 IRChannelDataProvider::IRChannelDataProvider(QObject *aParent) : HgDataProviderModel(aParent),

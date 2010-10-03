@@ -116,6 +116,19 @@
             <bool name="visible" value="FALSE"/>
         </widget>
     </section>
+    
+    <section name="section_add_toolbar">
+        <widget name="ext-IrAbstractListViewBase" type="HbView">
+            <widget name="toolbar" role="HbView:toolBar" type="HbToolBar">
+                <enums name="orientation" value="Horizontal"/>
+                <ref object="genres" role="HbToolBar:addAction"/>
+                <ref object="collections" role="HbToolBar:addAction"/>
+                <ref object="favorites" role="HbToolBar:addAction"/>
+                <ref object="search" role="HbToolBar:addAction"/>
+            </widget>
+        </widget>
+    </section>
+        
     <metadata activeUIState="Common ui state" display="NHD portrait" unit="un">
         <uistate name="Common ui state" sections="#common"/>
         <uistate name="with_playingbanner" sections="#common section_with_playingbanner"/>

@@ -13,11 +13,10 @@
 # Description:
 
 #DEFINES += USE_TEST_ISDS_SERVER
-#DEFINES += NOWPLAYING_VIEW_OPTION_B
 #DEFINES += ADV_ENABLED
 DEFINES += HS_WIDGET_ENABLED
+DEFINES += SUBTITLE_STR_BY_LOCID
 #DEFINES += STATISTIC_REPORT_TEST_ENABLED
-#DEFINES += TERMS_CONDITIONS_VIEW_ENABLED
 
 # ##########################################################
 # Logging flag definitions
@@ -33,3 +32,8 @@ LOGGING_FLAGS += LOGGING_ENABLED
 #  LOGGING_FLAGS += TRACE_TO_FILE
 
 DEFINES += $$LOGGING_FLAGS
+
+# ##########################################################
+# PlatSim flag definitions
+# ##########################################################
+#DEFINES += PLATSIM_DEBUG_CONF

@@ -69,6 +69,7 @@ public:
                         const uint& channelId, 
                         const QString& aCondSqlStr, 
                         const QList<QByteArray>* apImgList = NULL,
+                        const int logoType = 0,
                         bool bPreHandle = false);
     /*
     * action is invoked from view of go to station;     
@@ -85,7 +86,8 @@ public:
                         uint* const cidRet = NULL,
                         const QString& condStr = NULL, 
                         const QString& condUserCidStr = NULL,
-                        const QList<QByteArray>* apImgList = NULL);
+                        const QList<QByteArray>* apImgList = NULL,
+                        const int logoType = 0);
    
     /*
     * this fuction is used while synchronization data with iSDS side;  
@@ -163,9 +165,21 @@ public:
     */
     IRDBCHAR updRowImg(const uint& channelId,
                        const QString& updSqlStr,
-                       QList<QByteArray>* apImgList = NULL);    
+                       QList<QByteArray>* apImgList = NULL,
+                       const int logotype = 0);    
 
 public:
+    /*
+    *  handle request from search view;
+    *  aSqlList, sql string list, this list is provided by wrapper level;
+    *  bBegin,   if bBeging is true,it will invoke the operation of open db's connection.
+    */
+    IRDBCHAR handleRstFromSrhView(const uint& channelId, const QStringList& aSqlList, bool bBegin=true);
+   
+    /*
+    * call this function after call handleRstFromSrhView;
+    */
+    void closeIRDBConnection();
     /*
     * DELETE rows in
     * channelHistory, searchRlt, songHistory, favorites, advertisement;
@@ -174,13 +188,15 @@ public:
     IRDBCHAR deleteRow(const QString& aDltSqlStr);
     
     /*
-    * DELETE rows in
-    * channelHistory, searchRlt, songHistory, favorites, advertisement;
-    * rows in img, channelInfo and urlInfo can't be removed directly.
+    * select rows from IRDB
+    * aBegin, aBegin is 0, will invoke the action of open db connection;
+    * aBegin == aEnd, will invoke the action of close db connection;
     */
     IRDBCHAR selectRow(IRDBWrapper* const apWrapper, 
                        const QString& aSltSqlStr,
-                       QList<QVariant*>* pDataSet);    
+                       QList<QVariant*>* pDataSet,
+                       int aBegin = 0,
+                       int aEnd = 0);    
  
 public:
     /*
@@ -229,7 +245,7 @@ private:
     * search channelid from channelInfo table; 
     */
     IRDBCHAR isChannelIdExisted(uint channelId);    
- 
+    
 private:
     //IRDB Instance
     QSqlDatabase m_sqlDB;
@@ -242,6 +258,9 @@ private:
     
     // The static instance  
     static IRDB* mpIRDBInstance; 
+    
+    //for data batch handle  
+    QSqlQuery* iIRQuery2;
    
 };    
 

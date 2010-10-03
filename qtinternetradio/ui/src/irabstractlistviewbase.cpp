@@ -49,7 +49,7 @@ IrAbstractListViewBase::IrAbstractListViewBase(IRApplication *aApplication, TIRV
       iArtistSongName(NULL),
       iHeadingLabel(NULL),
       iCollectionsAction(NULL), iFavoritesAction(NULL),
-      iGenresAction(NULL), iSearchAction(NULL),iConvertTimer(NULL),
+      iGenresAction(NULL), iSearchAction(NULL),
       iViewParameter(EIRViewPara_InvalidId)
 {
     // Create widget hierarchy
@@ -310,7 +310,7 @@ void IrAbstractListViewBase::updateBanner(Qt::Orientation aOrientation)
             //set the banner text as station name
             IRQPreset *nowPlayingPreset = iPlayController->getNowPlayingPreset();
             Q_ASSERT(nowPlayingPreset);
-            addBanner(nowPlayingPreset->name, false);
+            addBanner(nowPlayingPreset->nickName, false);
         }
     }
     else
@@ -322,7 +322,7 @@ void IrAbstractListViewBase::updateBanner(Qt::Orientation aOrientation)
 void IrAbstractListViewBase::addBanner(const QString &aText, const bool &aMetaDataFlag)
 {
     iLoader.load(ABSTRACT_LIST_VIEW_BASE_LAYOUT_FILENAME, ABSTRACT_LIST_VIEW_BASE_WITH_PLAYINGBANNER_SECTION);
-    iStationName->setPlainText(iPlayController->getNowPlayingPreset()->name);
+    iStationName->setPlainText(iPlayController->getNowPlayingPreset()->nickName);
     if (aMetaDataFlag)
     {
         iArtistSongName->setText(aText);

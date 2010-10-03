@@ -26,8 +26,7 @@ file=ABI_DIR\BUILD_DIR\irqnetworkcontroller.dll    SHARED_LIB_DIR\irqnetworkcont
 file=ABI_DIR\BUILD_DIR\irqisdsclient.dll           SHARED_LIB_DIR\irqisdsclient.dll
 file=ABI_DIR\BUILD_DIR\irqmediaplayer.dll          SHARED_LIB_DIR\irqmediaplayer.dll
 file=ABI_DIR\BUILD_DIR\irqutility.dll              SHARED_LIB_DIR\irqutility.dll
-file=ABI_DIR\BUILD_DIR\irqfavorites.dll            SHARED_LIB_DIR\irqfavorites.dll
-file=ABI_DIR\BUILD_DIR\irqsongHistory.dll          SHARED_LIB_DIR\irqsonghistory.dll
+file=ABI_DIR\BUILD_DIR\irqfavorites.dll            SHARED_LIB_DIR\irqfavorites.dll 
 file=ABI_DIR\BUILD_DIR\irqsettings.dll             SHARED_LIB_DIR\irqsettings.dll
 file=ABI_DIR\BUILD_DIR\irqnwkinfoobserver.dll      SHARED_LIB_DIR\irqnwkinfoobserver.dll
 file=ABI_DIR\BUILD_DIR\irqstatisticsreporter.dll     SHARED_LIB_DIR\irqstatisticsreporter.dll
@@ -36,5 +35,7 @@ file=ABI_DIR\BUILD_DIR\irqlogger.dll               SHARED_LIB_DIR\irqlogger.dll
 file=ABI_DIR\BUILD_DIR\irdb.dll                    SHARED_LIB_DIR\irdb.dll
 
 data=DATAZ_\PRIVATE\10003A3F\IMPORT\APPS\internet_radio_10_1_reg.rsc     Private\10003a3f\import\apps\internet_radio_10_1_reg.rsc
+
+data=ZSYSTEM\install\ir3_qtinternetradio_stub.sis    system\install\ir3_qtinternetradio_stub.sis
  
 #endif

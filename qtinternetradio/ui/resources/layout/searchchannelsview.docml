@@ -5,17 +5,20 @@
     </object>
     <widget name="ext-IRSearchChannelsView" type="HbView">
         <widget name="content" role="HbView:widget" type="HbWidget">
-            <contentsmargins bottom="0un" left="0un" right="0un" top="0un"/>           
+            <contentsmargins bottom="0un" left="0un" right="0un" top="0un"/>
+            <widget name="headingText" type="HbGroupBox">
+                <sizepolicy horizontalPolicy="Expanding" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
+                <sizehint height="expr(var(hb-param-text-height-secondary)+2*var(hb-param-margin-gene-middle-vertical))" type="PREFERRED"/>
+                <fontspec name="fontSpec" role="Secondary" textheight="var(hb-param-text-height-secondary)"/>
+            </widget>
             <widget name="search_listview" type="HbListView">                 
             </widget>
-            
             <widget name="search_panel" type="HbSearchPanel">
                 <bool name="progressive" value="FALSE"/>
             </widget>
-            
-            <real name="z" value="0"/>
             <layout orientation="Vertical" type="linear">
-                <contentsmargins bottom="0un" left="0un" right="0un" top="0un"/>                
+                <contentsmargins bottom="0un" left="0un" right="0un" top="0un"/>
+                <linearitem itemname="headingText" spacing="0un"/>
                 <linearitem itemname="search_listview" spacing="0un"/>                
                 <linearitem itemname="search_panel" spacing="0un"/>
             </layout>

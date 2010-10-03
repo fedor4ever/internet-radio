@@ -16,7 +16,7 @@
  */
 #include <hbmessagebox.h>
 #include <QTimer>
-#ifdef Q_CC_NOKIAX86
+#ifdef PLATSIM_DEBUG_CONF
 #include <QFile>
 #include <QTextStream>
 #endif
@@ -30,19 +30,22 @@
 #include "irviewmanager.h"
 #include "irqisdsdatastructure.h"
 #include "irlastplayedstationinfo.h"
-#include "irqnetworkcontroller.h" 
-#include "irqsonghistoryengine.h"
+#include "irqnetworkcontroller.h"  
 #include "irqmetadata.h"
 #include "irqsettings.h"
 #include "irqfavoritesdb.h"
 #include "irqstatisticsreporter.h"
 #include "irenummapper.h" 
 #include "irqlogger.h"
+#include "irdbwrapper.h"
+#include "urlinfowrapper.h"
+#include "channelhistorywrapper.h"
+#include "songhistorywrapper.h"
 #ifdef HS_WIDGET_ENABLED
 #include "irservicedef.h"
 #endif
 
-#ifdef Q_CC_NOKIAX86
+#ifdef PLATSIM_DEBUG_CONF
 void getRadioServerAddress(QString & aUrl);
 #endif
 
@@ -103,8 +106,7 @@ IRPlayController::IRPlayController(IRApplication* aApplication) :
     iConnectedFromBackup(EIRQIsds),
     iStationLogoAvailable(false),
     iStationLogoAvailableBackup(false),
-    iMetaData(NULL),
-    iSongHistoryEngine(NULL),
+    iMetaData(NULL),   
     iPlayState(EIdle),
     iResuming(false),
     iTryingBitrate(0),
@@ -112,7 +114,10 @@ IRPlayController::IRPlayController(IRApplication* aApplication) :
     iRealBitrate(0),
     iLastError(EIRQErrorNone),
     iStopReason(EIRQUnknownTermination),
-    iErrorNote(NULL)
+    iErrorNote(NULL),
+    iDbWrapper(NULL),
+    iHistoryWrapper(NULL),
+    iUrlInfoWrapper(NULL)
 {
     // use the last played station to initiliaze the backup value.
     // can regard the player is bootup, and initilize its LCD screen with last played station info if available.
@@ -141,11 +146,11 @@ IRPlayController::IRPlayController(IRApplication* aApplication) :
     
     connectSignalSlot(); 
     iStatisticsReporter = IRQStatisticsReporter::openInstance();
+ 
 	
-	if( !iApplication->isEmbeddedInstance() )
-    {
-        iSongHistoryEngine = IRQSongHistoryEngine::openInstance();
-    }
+    iDbWrapper = new IRDBWrapper();
+    iHistoryWrapper = new channelHistoryWrapper();
+    iUrlInfoWrapper = new urlInfoWrapper();
 }
 
 /*
@@ -169,17 +174,21 @@ IRPlayController::~IRPlayController()
     iErrorNote = NULL;
 
     saveStationLogoFlag(iStationLogoAvailable);
-	
-    if (iSongHistoryEngine)
-    {
-        iSongHistoryEngine->closeInstance();
-        iSongHistoryEngine = NULL;
-    }
+ 
     
     if (iStatisticsReporter)
     {
         iStatisticsReporter->closeInstance();
     }
+    
+    delete iDbWrapper;
+    iDbWrapper = NULL;
+    
+    delete iHistoryWrapper;
+    iHistoryWrapper = NULL;
+    
+    delete iUrlInfoWrapper;
+    iUrlInfoWrapper = NULL;
 }
 
 /*
@@ -249,7 +258,7 @@ QString IRPlayController::getFirstTryUrl(IRQPreset *aPreset)
     if (iUrlArray)
     {
         firstTryUrl = iUrlArray->at(0);
-#ifdef Q_CC_NOKIAX86
+#ifdef PLATSIM_DEBUG_CONF
         firstTryUrl = "http://172.28.205.171:8000";
         getRadioServerAddress(firstTryUrl);
 #endif
@@ -265,15 +274,30 @@ QString IRPlayController::getFirstTryUrl(IRQPreset *aPreset)
 void IRPlayController::resume()
 {
     qDebug("IRPlayController::resume(), Entering");
-    if (iMediaPlayer && (EStopped == iPlayState))
+    if (iMediaPlayer && (EStopped == iPlayState) && iNowPlayingPreset)
     {
         iResuming = true;
-        
-        if (iLastPlayedUrl != "")
+
+		//Check whether quality settings have been changed.
+        QString firstTryUrl = getFirstTryUrl(iNowPlayingPreset);
+        if (firstTryUrl.isEmpty())
         {
-            qDebug("IRPlayController::resume(), iLastPlayedUrl is not empty, doPlay()");
-            doPlay(iLastPlayedUrl);
+            return;
         }
+		else if( firstTryUrl==iLastPlayedUrl )
+		{
+			qDebug("IRPlayController::resume(), play by iLastPlayedUrl, doPlay()");
+		
+            doPlay(iLastPlayedUrl);
+		}
+		else
+		{
+			iLastPlayedUrlBackup = iLastPlayedUrl;
+			iLastPlayedUrl = firstTryUrl;
+			
+			qDebug("IRPlayController::resume(), play by new url, doPlay()");
+			doPlay(firstTryUrl);
+		}       
     }
     qDebug("IRPlayController::resume(), Exiting");
 }
@@ -397,6 +421,23 @@ void IRPlayController::endSession(IRQTerminatedType aStopReason)
         }
         iStatisticsReporter->sessionEnded(MAP_TO_ENGINE_TerminationType(aStopReason));
     }
+}
+
+void IRPlayController::saveSong2DB(const IRQMetaData& aMetaData, const IRQPreset& aPreset)
+{
+    if( iApplication->isEmbeddedInstance() ) 
+    {
+        return;
+    }
+    
+    songHistoryWrapper songs;    
+    columnMap map;
+    
+    map.insert(channelId, QString::number(aPreset.presetId));
+    map.insert(songName, aMetaData.getSongName());
+    map.insert(artistName, aMetaData.getArtistName());
+    
+    songs.putSongHistory(&map);     
 }
 
 /*
@@ -586,8 +627,6 @@ void IRPlayController::connectionEstablished(int aBitrate)
         if (iTryingBitrate != iRealBitrate)
         {
             iNowPlayingPreset->setUrlBitrate(0,iRealBitrate);
-            //when bitrate is available, it should be written to favorites db
-            iApplication->getFavoritesDB()->replaceUserDefinedPreset(*iNowPlayingPreset);
             iTryingBitrate = iRealBitrate;
         }
     }
@@ -698,32 +737,29 @@ void IRPlayController::updateProgress(int aProgress)
         iPlayState = EPlaying;
         iApplication->stopLoadingAnimation();
 
-        iApplication->getViewManager()->activateView(EIRView_PlayingView);
+        iApplication->getViewManager()->activateView(EIRView_PlayingView);  
+
+        emit playingStarted();
+        
+        // Save the station information to database iNowPlayingPreset
+        saveStation2DB(iNowPlayingPreset);
         if( !iApplication->isEmbeddedInstance() )
         {
             //update last played station
             IRLastPlayedStationInfo *lastPlayedStationInfo = iApplication->getLastPlayedStationInfo();
             lastPlayedStationInfo->updateLastPlayedStation(iNowPlayingPreset,iConnectedFrom);
-            lastPlayedStationInfo->commitLastPlayedStation();
-        }        
-
-        //increase the played times of current preset
-        iApplication->getFavoritesDB()->increasePlayedTimes(*iNowPlayingPreset);
-
-        emit playingStarted();
-
-        // if the metadata is available, show it.
-        emit metaDataAvailable(iMetaData);
-        
-        if( !iApplication->isEmbeddedInstance() )
-        {
-            // Save the station information to database
-            IRQMetaData tmpMetaData;
-            tmpMetaData.setBitrate(iRealBitrate);
-            tmpMetaData.setStreamUrl(iLastPlayedUrl);
-            iSongHistoryEngine->handleMetaDataReceived(tmpMetaData, *iNowPlayingPreset);            
+            lastPlayedStationInfo->commitLastPlayedStation();         
         }
 
+        // if the metadata is available, show it. here, preset->nickName is already available
+        emit metaDataAvailable(iMetaData);
+
+        //save the metadata to the db
+        if( NULL != iMetaData )
+        {
+            saveSong2DB(*iMetaData,*iNowPlayingPreset);            
+        }
+        
         // open stereo defaultly
         iMediaPlayer->enableStereoEffect();
     }
@@ -745,21 +781,16 @@ void IRPlayController::fetchVolume(int &aVolume)
  */
 void IRPlayController::handleMetaDataReceived(IRQMetaData& aIRmetaData)
 {
-    iMetaData = &aIRmetaData;
-    //TO DO: there maybe a potential bug when the user cancel the play, 	
-    if ((aIRmetaData.getSongName().trimmed() != "")
-            || (aIRmetaData.getArtistName().trimmed() != ""))
-    {
-        //when we are play the musicplayer and get the metadata from lower layer, we save the 
-        //song's metadata into the db.  After we save it to db, we emit the next signal to notify the UI         
-        iSongHistoryEngine->handleSongMetaDataReceived(*iMetaData,
-                *iNowPlayingPreset);  
-    }   
+    //when we get metadata, we just update the member but not save to song history db for 
+    //if the preset is user-defined, we do not get the preset ID in current.
+    //just after the 100 percent progress, the play state will be playing
+    iMetaData = &aIRmetaData;    
 
     if (EPlaying == iPlayState)
     {
         // This signal will cause addBanner() work. Sometimes the metadata will come before
         // the buffering is 100%, we need to avoid to show playing banner before 100% buffering.
+        saveSong2DB(*iMetaData, *iNowPlayingPreset);  
         emit metaDataAvailable(iMetaData);        
     }    
 }
@@ -927,25 +958,120 @@ void IRPlayController::doPlay(const QString aUrl)
 void IRPlayController::startSession()
 {
 	iGetServerResult = false;
-
-    int channelId = 0;
-    if(iNowPlayingPreset)
-    {
-        channelId = iNowPlayingPreset->presetId;
-    }
 	      
     if(iStatisticsReporter)
     {
-        iStatisticsReporter->sessionStarted(channelId,MAP_TO_ENGINE_ConnectedFrom(iConnectedFrom));
+        if (iNowPlayingPreset && iNowPlayingPreset->type) // for isds station, use the channel id
+        {
+            iStatisticsReporter->sessionStarted(iNowPlayingPreset->presetId,MAP_TO_ENGINE_ConnectedFrom(iConnectedFrom));
+        }
+        else // for user defined station, use 0 as channel id instead of the id generated from IRDB
+        {
+            iStatisticsReporter->sessionStarted(0,MAP_TO_ENGINE_ConnectedFrom(iConnectedFrom));
+        }
     }
 }
 
-#ifdef _DEBUG
-int IRPlayController::bitrateTrying() const
+void IRPlayController::saveStation2DB(IRQPreset *aPreset)
 {
-    return iTryingBitrate;
+    if (NULL == aPreset)
+    {
+        return;
+    }
+    
+    columnMap stationInfoSet;
+    
+    stationInfoSet.insert(channelName,aPreset->name);
+    
+    if (aPreset->nickName.isEmpty())
+    {
+        aPreset->nickName = aPreset->name;
+    }
+    stationInfoSet.insert(channelNickName,aPreset->nickName);
+
+    if (aPreset->type) // isds station
+    {
+        stationInfoSet.insert(channelId, QString::number(aPreset->presetId));
+    }
+    else
+    {
+        // for user defined station, should query its existence at first
+        // if not, since putHistoryInfo() does NOT allow url info, same user defined station
+        // can only have name and nick name info, which will leads to two different channel id generated.
+        QString userDefinedUrl;
+        if (EIRQErrorNone == aPreset->getChannelUrlAt(0,userDefinedUrl))
+        {
+            stationInfoSet.insert(channelUrl,userDefinedUrl);
+            stationInfoSet.insert(channelType,QString::number(aPreset->type));
+            QList<uint> *channelIdList = iDbWrapper->getChannelId(&stationInfoSet);
+            if (channelIdList && (channelIdList->count() > 0))
+            {
+                aPreset->presetId = channelIdList->at(0);
+                stationInfoSet.insert(channelId, QString::number(channelIdList->at(0)));
+                
+            }
+            if (channelIdList)
+            {
+                channelIdList->clear();
+                delete channelIdList;
+                channelIdList = NULL;
+            }
+            stationInfoSet.remove(channelType);
+            stationInfoSet.remove(channelUrl);
+        }
+    }
+
+    stationInfoSet.insert(genreName, aPreset->genreName);
+    stationInfoSet.insert(genreId, aPreset->genreId);
+    stationInfoSet.insert(languageName, aPreset->languageName);
+    stationInfoSet.insert(languageCode, aPreset->languageCode);
+    
+    stationInfoSet.insert(countryName, aPreset->countryName);
+    stationInfoSet.insert(countryCode, aPreset->countryCode);
+    stationInfoSet.insert(description, aPreset->description);
+    stationInfoSet.insert(shortDesc, aPreset->shortDesc);
+    
+    stationInfoSet.insert(lastModified, aPreset->lastModified);
+    stationInfoSet.insert(musicStoreStatus, aPreset->musicStoreStatus);
+    
+    stationInfoSet.insert(imgUrl, aPreset->imgUrl);
+    
+    stationInfoSet.insert(advertisementUrl, aPreset->advertisementUrl);
+    stationInfoSet.insert(advertisementInUse, aPreset->advertisementInUse);
+
+    // should remove url and channel type before put, otherwise false will be returned
+    stationInfoSet.remove(channelUrl);
+    stationInfoSet.remove(channelType);
+    
+    bool ret = false;
+    if (aPreset->type) // isds station
+    {
+        ret = iHistoryWrapper->putChannelHistory(&stationInfoSet);
+    }
+    else // fetch the channel id for user defined station, generated by DB
+    {
+        uint generatedChannelId = 0;
+        ret = iHistoryWrapper->putChannelHistory(&stationInfoSet,&generatedChannelId);
+        aPreset->presetId = generatedChannelId;
+    }
+    
+    if ((false == ret)||(0 == aPreset->presetId))
+    {
+        return;
+    }
+    
+    columnUrlInfoInsertMap urlInfoSet;
+    QString url;
+    unsigned int bitrate;
+    for (int i=0; i < aPreset->getChannelURLCount(); i++)
+    {
+        aPreset->getChannelUrlAt(i,url);
+        aPreset->getChannelBitrate(i,bitrate);
+        urlInfoSet.insert(url,bitrate);
+    }
+    
+    iUrlInfoWrapper->resetUrlInfo(&urlInfoSet, aPreset->presetId);
 }
-#endif 
 
 void saveStationLogoFlag(bool aIsStationLogoAvailable)
 {
@@ -956,7 +1082,7 @@ void saveStationLogoFlag(bool aIsStationLogoAvailable)
 }
 
 //get IP address configuration of test radio server
-#ifdef Q_CC_NOKIAX86
+#ifdef PLATSIM_DEBUG_CONF
 void getRadioServerAddress(QString & aUrl)
 {
     QFile file("C:\\data\\QTIRConfigure.txt");

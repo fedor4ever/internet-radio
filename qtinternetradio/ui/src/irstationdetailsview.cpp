@@ -52,9 +52,9 @@ IRStationDetailsView::~IRStationDetailsView()
 /*
  * Description : update the station information.
  */
-void IRStationDetailsView::setDetails(IRQPreset * aPreset)
+void IRStationDetailsView::setDetails(const IRQPreset * aPreset)
 {
-    iStationName->setPlainText(aPreset->name);
+    iStationName->setPlainText(aPreset->nickName);
     iGenres->setPlainText(aPreset->genreName);
     iLanguage->setPlainText(aPreset->languageName);
     iCountry->setPlainText(aPreset->countryName);
@@ -80,7 +80,7 @@ void IRStationDetailsView::setDetails(IRQPreset * aPreset)
 void IRStationDetailsView::setDetails()
 {
     IRQPreset *nowPlayingPreset = iPlayController->getNowPlayingPreset();
-    iStationName->setPlainText(nowPlayingPreset->name);
+    iStationName->setPlainText(nowPlayingPreset->nickName);
     iGenres->setPlainText(nowPlayingPreset->genreName);
     iLanguage->setPlainText(nowPlayingPreset->languageName);
     iCountry->setPlainText(nowPlayingPreset->countryName);

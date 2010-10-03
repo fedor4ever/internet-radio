@@ -35,9 +35,14 @@ public:
     */     
     bool resetUrlInfo(const columnUrlInfoInsertMap* const RowData,
                       const uint& channelId);    
-
+    /*
+    * aBegin, aBegin is 0, will invoke the action of open db connection;
+    * aBegin == aEnd, will invoke the action of close db connection;
+    */
     QList<QVariant*>* getUrlInfo(const columnMap* const condAND = NULL,  
-                                 const columnMap* const condOR = NULL);
+                                 const columnMap* const condOR = NULL,
+                                 int aBegin = 0,
+                                 int aEnd = 0);
 
 private:
     /*

@@ -14,15 +14,16 @@
 * Description:
 *
 */
-#include <hbglobal.h>
-
+#include <hbglobal.h> 
 #include "irqsonghistoryinfo.h"
-#include "irqsonghistoryengine.h"
 #include "irsonghistorymodel.h"
+#include "songhistorywrapper.h"
+#include "irdbviewstruct.h"
 
-IRSongHistoryModel::IRSongHistoryModel(QObject *aParent) : QAbstractListModel(aParent)
-{     
-    mHistoryEngine = IRQSongHistoryEngine::openInstance();
+IRSongHistoryModel::IRSongHistoryModel(QObject *aParent) : QAbstractListModel(aParent),
+                                                           mHistoryWrapper(NULL)
+{   
+    mHistoryWrapper = new songHistoryWrapper();
     getAllList();
 }
 
@@ -31,13 +32,9 @@ IRSongHistoryModel::~IRSongHistoryModel()
     while (!mSongHistoryList.isEmpty())
     {
         delete mSongHistoryList.takeFirst();
-    }
+    }   
     
-    if (mHistoryEngine)
-    {
-        mHistoryEngine->closeInstance();
-        mHistoryEngine = NULL;
-    }
+    delete mHistoryWrapper;
 }
 
 int IRSongHistoryModel::rowCount(const QModelIndex &aParent) const
@@ -118,15 +115,14 @@ void IRSongHistoryModel::clearList()
     {
         IRQSongInfo *firstItem = mSongHistoryList.takeFirst();
         delete firstItem;
-    }
-
-    mHistoryEngine->clearAllSongHistory();
+    }    
+    mHistoryWrapper->deleteSongHistory();
 
     emit modelChanged();
 }
 
 bool IRSongHistoryModel::checkSongHistoryUpdate()
-{     
+{   
     getAllList();    
     return true;
 }
@@ -134,8 +130,42 @@ bool IRSongHistoryModel::checkSongHistoryUpdate()
 
 void IRSongHistoryModel::getAllList()
 {
-    mHistoryEngine->getAllSongHistory(mSongHistoryList);
+    
+    QList<QVariant*> *dataSet = mHistoryWrapper->getSongHistory();
+    int dataCount = 0;
+    
+    if( NULL != dataSet )
+    {
+        dataCount = dataSet->count();
+    }
 
+    while (!mSongHistoryList.isEmpty())
+    {
+        IRQSongInfo *firstItem = mSongHistoryList.takeFirst();
+        delete firstItem;
+    }
+     
+    QString stationsName, songsName, artistsName, status, channelsID;
+
+    if (0 < dataCount)
+    {
+        for (int i = 0; i < dataCount; ++i)
+        {
+            IRQSongInfo *songInfo = new IRQSongInfo();
+            QVariant *row = dataSet->at(i);
+            stationsName = row[channelNickName].toString();
+            songsName = row[songName].toString();
+            artistsName = row[artistName].toString();
+            status = row[musicStoreStatus].toString();
+            channelsID = row[channelId].toString();
+            songInfo->setAllInfo(stationsName, songsName, artistsName, status, channelsID);
+
+            delete[] row;
+            mSongHistoryList.append(songInfo);
+        }
+    }
+
+    delete dataSet;
     emit modelChanged();
 }
 
@@ -146,14 +176,28 @@ void IRSongHistoryModel::setOrientation(Qt::Orientation aOrientation)
 
 bool IRSongHistoryModel::deleteOneItem(int aIndex)
 {
-    bool ret = mHistoryEngine->deleteOneSongHistoryItem(aIndex);
+    if( aIndex < 0 || aIndex >= mSongHistoryList.count() )
+    {
+        return false;
+    }
+    
+    IRQSongInfo *currentItem = mSongHistoryList.at(aIndex);   
+     
+    columnMap map;
+    map.insert(songName, currentItem->getSongName());
+    map.insert(artistName, currentItem->getArtistName());
+    map.insert(channelId, currentItem->getChannelID());
 
+    bool ret = mHistoryWrapper->deleteSongHistory(&map);
+    
     if( !ret )
     {
         return false;                
     }
     
     beginRemoveRows(QModelIndex(), aIndex, aIndex);
+    //delete the current item to avoid memory leaking
+    delete currentItem;
     mSongHistoryList.removeAt(aIndex);
     endRemoveRows(); 
     

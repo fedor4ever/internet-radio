@@ -15,11 +15,14 @@
 *
 */
 #include <QtAlgorithms>
-#include <hbicon.h>
+#include <HbIcon>
+#include <QTimer>
 
 #include "irqfavoritesdb.h"
 #include "irqisdsdatastructure.h"
 #include "irfavoritesmodel.h"
+#include "irqisdsclient.h"
+#include "irlogoprovider.h"
 
 IRFavoritesModel::IRFavoritesModel(IRQFavoritesDB *aFavoritesDb, QObject *aParent) 
                                   : QAbstractListModel(aParent), iFavoritesDb(aFavoritesDb),
@@ -30,6 +33,13 @@ IRFavoritesModel::IRFavoritesModel(IRQFavoritesDB *aFavoritesDb, QObject *aParen
         iPresetsList = aFavoritesDb->getPresets();
     }
     
+    iIsdsClient = IRQIsdsClient::openInstance();
+    iLogoProvider = new IRLogoProvider(iIsdsClient);
+    
+    iTimer = new QTimer;
+    iTimer->setInterval(10);
+    connect(iTimer, SIGNAL(timeout()), this, SLOT(downloadNextLogo()));
+    
     iStationLogo = new HbIcon("qtg_large_internet_radio");
 }
 
@@ -38,6 +48,14 @@ IRFavoritesModel::~IRFavoritesModel()
     delete iStationLogo;
     clearPresetList();
     clearAndDestroyLogos();
+    
+    delete iLogoProvider;
+    if (iIsdsClient)
+    {
+        iIsdsClient->closeInstance();
+        iIsdsClient = NULL;
+    }
+    delete iTimer;
 }
 
 IRQPreset* IRFavoritesModel::getPreset(int aIndex) const
@@ -114,7 +132,7 @@ QVariant IRFavoritesModel::data(const QModelIndex &aIndex, int aRole) const
         QVariantList list;
         int row = aIndex.row();
 
-        QString primaryText = iPresetsList->at(row)->name;
+        QString primaryText = iPresetsList->at(row)->nickName;
         list.append(primaryText);
         QString secondaryText = iPresetsList->at(row)->shortDesc;
         
@@ -158,6 +176,7 @@ bool IRFavoritesModel::checkFavoritesUpdate()
     clearPresetList();
     clearAndDestroyLogos();
     iPresetsList = iFavoritesDb->getPresets();
+    updateIconIndexArray();
     emit modelChanged();
     return true;
 }
@@ -171,42 +190,6 @@ void IRFavoritesModel::clearAndDestroyLogos()
         iLogos[i] = NULL;
     }
     iLogos.clear();
-}
-
-void IRFavoritesModel::clearFavoriteDB()
-{
-    if (NULL == iPresetsList)
-    {
-        return;
-    }
-    
-    int presetSize = iPresetsList->count();
-
-    if(!presetSize)
-    {
-    	return;
-    }
-
-    int uniqId = 0;
-    
-    while(presetSize--)
-    {
-        uniqId = iFavoritesDb->getUniqId(presetSize);
-        
-        //There is the probability that the return value<0, so I added this judgment.
-        if(uniqId < 0 )
-        {
-        	//if here, the Id, which is mapped to preset's item, can't be found. 
-        	//jump out from while 
-        	break; 
-        }
-        iFavoritesDb->deletePreset(uniqId);
-    	
-    }
-
-    clearPresetList();
-    clearAndDestroyLogos();
-    emit modelChanged();
 }
 
 void IRFavoritesModel::clearPresetList()
@@ -231,8 +214,14 @@ bool IRFavoritesModel::deleteOneFavorite(int aIndex)
         return false;
     }
     
+    if (!iIconIndexArray.empty())
+    {
+        iIsdsClient->isdsLogoDownCancelTransaction();
+        iTimer->stop();
+    }  
+    
     IRQPreset *preset = iPresetsList->at(aIndex);        
-    int ret = iFavoritesDb->deletePreset(preset->uniqID);
+    int ret = iFavoritesDb->deletePreset(*preset);
     if ( 0 != ret )
     {
         return false;
@@ -249,6 +238,14 @@ bool IRFavoritesModel::deleteOneFavorite(int aIndex)
     }
     iLogos.removeAt(aIndex);
     endRemoveRows();
+    
+    updateIconIndexArray();
+    
+    if (!iIconIndexArray.empty())
+    {
+        iTimer->start();
+    }   
+    
     return true;    
 }
 
@@ -259,6 +256,12 @@ bool IRFavoritesModel::deleteMultiFavorites(const QModelIndexList &aIndexList)
         return true;
     }
 
+    if (!iIconIndexArray.empty())
+    {
+        iIsdsClient->isdsLogoDownCancelTransaction();
+        iTimer->stop();
+    }
+    
     int index = 0;
     bool retVal = true;
     QList<int> indexToBeDelete;
@@ -273,7 +276,8 @@ bool IRFavoritesModel::deleteMultiFavorites(const QModelIndexList &aIndexList)
             continue;
         }
         
-        if (0 != iFavoritesDb->deletePreset(iPresetsList->at(index)->uniqID))
+        IRQPreset *preset = iPresetsList->at(index);
+        if (0 != iFavoritesDb->deletePreset(*preset) )
         {
             retVal = false;
             continue;
@@ -302,6 +306,13 @@ bool IRFavoritesModel::deleteMultiFavorites(const QModelIndexList &aIndexList)
         endRemoveRows();         
     }
 
+    updateIconIndexArray();
+    
+    if (!iIconIndexArray.empty())
+    {
+        iTimer->start();
+    }
+    
     return retVal;    
 }
 
@@ -309,7 +320,68 @@ void IRFavoritesModel::updateFavoriteName(int aIndex, const QString &aNewName)
 {
     if (aIndex >= 0 && aIndex < iPresetsList->count())
     {
-        iPresetsList->at(aIndex)->name = aNewName;
+        iPresetsList->at(aIndex)->nickName = aNewName;
         emit dataChanged(index(aIndex), index(aIndex));
     }
+}
+
+void IRFavoritesModel::startDownloadingLogo()
+{
+    iLogoProvider->activate(this, SLOT(logoData(const QByteArray&)));
+    iTimer->start();
+}
+
+void IRFavoritesModel::stopDownloadingLogo()
+{
+    iIsdsClient->isdsLogoDownCancelTransaction();
+    iTimer->stop();
+    iIconIndexArray.clear();
+    iLogoProvider->deactivate();
+}
+
+void IRFavoritesModel::downloadNextLogo()
+{
+    iTimer->stop();
+    int leftCount = iIconIndexArray.count();
+
+    if (0 != leftCount)
+    {
+         iLogoProvider->getLogo(iPresetsList->at(iIconIndexArray[0]));
+    }
+}
+
+void IRFavoritesModel::logoData(const QByteArray &aLogoData)
+{
+    if (aLogoData.size() > 0)
+    {
+        QPixmap tempMap;
+        bool ret = tempMap.loadFromData((const unsigned char*)aLogoData.constData(), aLogoData.size());
+        if( ret )
+        {
+            QIcon convertIcon(tempMap);
+            HbIcon *hbIcon = new HbIcon(convertIcon);
+            int index = iIconIndexArray[0];
+            setLogo(hbIcon, index);  
+        }
+    }
+    
+    iIconIndexArray.removeAt(0);
+    int leftCount = iIconIndexArray.count();
+    if( leftCount > 0 )
+    {
+        iTimer->start();  
+    }
+}
+
+void IRFavoritesModel::updateIconIndexArray()
+{
+    iIconIndexArray.clear();
+    
+    for (int i = 0; i < rowCount(); ++i)
+    {
+        if (getImgUrl(i) != "" && !isLogoReady(i))
+        {
+            iIconIndexArray.append(i);
+        }
+    } 
 }

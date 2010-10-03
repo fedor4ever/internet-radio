@@ -19,9 +19,9 @@
 #define IRSEARCHRESULTDB_H
  
 #include "irqenums.h"
- 
-class QSqlDatabase; 
+
 class IRQChannelItem;
+class searchRltWrapper;
 
 class IRSearchResultDB 
 {	
@@ -35,11 +35,8 @@ public:
 	//caller needs to release the memory
 	QList<IRQChannelItem*> * getCahcedChannelList();	
 	IRQError clearCache();
-    
-private:		
-    void createDBConnection();    
-		
+
 private:
-	  QSqlDatabase         *iDB;
+    searchRltWrapper         *iSearchRltWrapper;
 };
 #endif//IRSEARCHRESULTDB_H

@@ -19,6 +19,7 @@
 #include <hbaction.h>
 #include <hbicon.h>
 #include <QTimer> 
+#include <QVariant>
 
 #include "irviewmanager.h"
 #include "irapplication.h" 
@@ -31,12 +32,16 @@
 #include "irqsettings.h"
 #include "irqutility.h"
 #include "iruidefines.h"
+#include "irdbwrapper.h"
+#include "irqisdsdatastructure.h"
 
 const QString KActionSearchInMusicStoreName("SearchInMusicStore");
 const QString KActionDeleteName("Delete");
 
-#ifdef STATISTIC_REPORT_TEST_ENABLED    
-static const int KDummyMusicStoreUid = 0xE609761B;
+#ifdef STATISTIC_REPORT_TEST_ENABLED
+static const int KIRMusicStoreUid           = 0xE609761B;
+#else
+static const int KIRMusicStoreUid           = 0;
 #endif
 
 //                                         public functions
@@ -133,61 +138,85 @@ TIRHandleResult IRSongHistoryView::handleCommand(TIRViewCommand aCommand,
  */
 void IRSongHistoryView::handleItemSelected()
 {     
-    // TODO : NEED preset id related to the song
-    int index = iListView->currentIndex().row();
-    IRQSongInfo *hisInfo = iModel->getSongHistoryInfo(index); 
-
-    if( hisInfo && ( 0 != hisInfo->getMusicshopStatus().compare("yes",Qt::CaseInsensitive) ) )
+    if (!IRQUtility::findAppByUid(KIRMusicStoreUid))  // if no music store, coming soon is shown.
     {
-#ifdef STATISTIC_REPORT_TEST_ENABLED
-        if(IRQUtility::launchAppByUid(KDummyMusicStoreUid))
-        {
-            iStatisticsReporter->logNmsEvent(IRQStatisticsReporter::EIRNmsLaunch,0);
-        }    
-#else // STATISTIC_REPORT_TEST_ENABLED        
 #ifdef SUBTITLE_STR_BY_LOCID
-        popupNote(hbTrId("txt_irad_info_not_allowed_by_this_station"), HbMessageBox::MessageTypeInformation);
-#else  // SUBTITLE_STR_BY_LOCID
-        popupNote(hbTrId("Not allowed by station"), HbMessageBox::MessageTypeInformation);        
-#endif // SUBTITLE_STR_BY_LOCID
-#endif // STATISTIC_REPORT_TEST_ENABLED 
+        popupNote(hbTrId("txt_irad_info_music_store_not_available"), HbMessageBox::MessageTypeInformation);
+#else
+        popupNote(hbTrId("Service Coming Soon"), HbMessageBox::MessageTypeInformation);    
+#endif        
         return;
     }
     
-    if( (NULL == hisInfo) ||    
-        ( hisInfo->getSongName().isEmpty() &&  
-          hisInfo->getArtistName().isEmpty()
-        )
-      )
+    IRQSongInfo *hisInfo = iModel->getSongHistoryInfo(iListView->currentIndex().row()); 
+    int presetType = 0; // user defined
+    
+    IRDBWrapper irDb;
+    columnMap selectCriteriaSet;
+    selectCriteriaSet.insert(channelId,hisInfo->getChannelID());
+    
+    QList<QVariant*>* dataSet = NULL;
+    dataSet = irDb.getIRDB(&selectCriteriaSet);
+    
+    if (dataSet && (dataSet->size()>0))
     {
-#ifdef STATISTIC_REPORT_TEST_ENABLED
-        // TODO : have to save preset id related to the song
-        if(IRQUtility::launchAppByUid(KDummyMusicStoreUid))
+        presetType = (*(dataSet->at(0) + channelType)).toInt(); 
+    }    
+    
+    if (dataSet)
+    {
+        while(false == dataSet->isEmpty())
         {
-            iStatisticsReporter->logNmsEvent(IRQStatisticsReporter::EIRNmsLaunch,0);
-        }    
-#else // STATISTIC_REPORT_TEST_ENABLED         
-#ifdef SUBTITLE_STR_BY_LOCID
-        popupNote(hbTrId("txt_irad_info_no_song_info"), HbMessageBox::MessageTypeInformation);
-#else  // SUBTITLE_STR_BY_LOCID
-        popupNote(hbTrId("No song info"), HbMessageBox::MessageTypeInformation);        
-#endif // SUBTITLE_STR_BY_LOCID
-#endif // STATISTIC_REPORT_TEST_ENABLED 
-        return;
+            delete []dataSet->takeFirst();
+        }
+        dataSet->clear();
+        
+        delete dataSet;
+        dataSet = NULL;        
     }
-
-#ifdef STATISTIC_REPORT_TEST_ENABLED    
-    if(IRQUtility::launchAppByUid(KDummyMusicStoreUid))
+    
+    bool launchResult = false;
+    if( hisInfo && ( 0 != hisInfo->getMusicshopStatus().compare("yes",Qt::CaseInsensitive) ) )
     {
-        iStatisticsReporter->logNmsEvent(IRQStatisticsReporter::EIRNmsFind,0);
+        // TODO : launch music store with search result page
+        launchResult = IRQUtility::launchAppByUid(KIRMusicStoreUid);
+        if (launchResult)        
+        {
+            if (presetType)
+            {
+                iStatisticsReporter->logNmsEvent(IRQStatisticsReporter::EIRNmsFind,iPlayController->getNowPlayingPreset()->presetId);
+            }
+            else
+            {            
+                iStatisticsReporter->logNmsEvent(IRQStatisticsReporter::EIRNmsFind,0);
+            }
+        }
     }
-#else // STATISTIC_REPORT_TEST_ENABLED 
+    else
+    {
+        // TODO : lunch music store with homepage  
+        launchResult = IRQUtility::launchAppByUid(KIRMusicStoreUid);
+        if (launchResult)        
+        {
+            if (presetType)
+            {
+                iStatisticsReporter->logNmsEvent(IRQStatisticsReporter::EIRNmsLaunch,iPlayController->getNowPlayingPreset()->presetId);
+            }
+            else
+            {            
+                iStatisticsReporter->logNmsEvent(IRQStatisticsReporter::EIRNmsLaunch,0);
+            }
+        }          
+    }
+    
+    if (!launchResult)
+    {        
 #ifdef SUBTITLE_STR_BY_LOCID
-    popupNote(hbTrId("txt_irad_info_music_store_not_available"), HbMessageBox::MessageTypeInformation);
-#else  // SUBTITLE_STR_BY_LOCID
-    popupNote(hbTrId("Music store not ready"), HbMessageBox::MessageTypeInformation);    
-#endif // SUBTITLE_STR_BY_LOCID
-#endif // STATISTIC_REPORT_TEST_ENABLED
+        popupNote(hbTrId("txt_irad_info_music_store_not_available"), HbMessageBox::MessageTypeInformation);
+#else
+        popupNote(hbTrId("Music store not ready"), HbMessageBox::MessageTypeInformation);    
+#endif
+    }    
 }
    
 

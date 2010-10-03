@@ -74,6 +74,7 @@ IRQPreset& IRQPreset::operator =(const IRQPreset& aOther)
     this->languageCode = aOther.languageCode;
     this->languageName = aOther.languageName;
     this->name = aOther.name;
+    this->nickName = aOther.nickName;
     this->presetId = aOther.presetId;
     this->type = aOther.type;
     this->iChannelUrlCount = aOther.iChannelUrlCount;
@@ -88,7 +89,7 @@ void IRQPreset::internalize(QDataStream &aStream)
     aStream>>languageCode>>languageName 
            >>countryCode>>countryName
            >>genreName>>genreId
-           >>name>>lastModified
+           >>name>>nickName>>lastModified
            >>advertisementUrl>>advertisementInUse
            >>imgUrl>>description>>shortDesc
            >>musicStoreStatus;
@@ -109,7 +110,7 @@ void IRQPreset::externalize(QDataStream &aStream) const
     aStream<<languageCode<<languageName
            <<countryCode<<countryName
            <<genreName<<genreId
-           <<name<<lastModified
+           <<name<<nickName<<lastModified
            <<advertisementUrl<<advertisementInUse
            <<imgUrl<<description<<shortDesc
            <<musicStoreStatus;

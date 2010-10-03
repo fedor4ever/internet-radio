@@ -120,7 +120,7 @@ QList<QVariant*>* favoritesWrapper::getFavorites(const columnMap* const condAND,
     }
 
     combineGetStr(condAND, condOR, colNameView, sltSqlStr);
-    sltSqlStr = sltSqlStr + " order by FavSeq desc ";
+//    sltSqlStr = sltSqlStr + " order by FavSeq desc ";
     pDataSet = new QList<QVariant*>();
     if( m_pIRDB->selectRow(this, sltSqlStr, pDataSet) )
     {

@@ -321,7 +321,7 @@ void IRViewManager::switchToNextView(IRBaseView *aView)
             (EIRView_StationDetailsView == viewToHide->id())
           )
         {
-            setCurrentView(aView,true,Hb::ViewSwitchUseAltEvent); 
+            setCurrentView(aView,true,Hb::ViewSwitchUseAltEvent | Hb::ViewSwitchCachedFullScreen); 
         }
         else
         {

@@ -20,13 +20,13 @@
 #include "irqevent.h"
 #include "irbaseview.h"
 #include "irqenums.h"
- 
+
+class HbGroupBox;
 class HbListView;
 class HbSearchPanel;
 class HbAction;
 class IrChannelModel; 
 class IRQPreset;
-class QTimer;
 
 class IRSearchChannelsView : public IRBaseView
 {
@@ -53,8 +53,8 @@ private: //functions
     void loadLayout();
     void handleItemSelected();    
     void initMenu();
-    void startConvert(int aIndex);   
-    void initTimer();
+    void resetHeadingText();
+    
     bool eventFilter(QObject *object, QEvent *event);
     
 private slots: //slots
@@ -67,10 +67,6 @@ private slots: //slots
     void clickItem(const QModelIndex&);    
     //for playing a channel in the search result list
     void presetResponse(IRQPreset *aPreset);  
-    //to start the convertion 
-    void convertAnother();
-    void presetLogoDownload(IRQPreset* aPreset);
-    void presetLogoDownloadError();
     void hideVkb();
     void showVkb();
 
@@ -86,6 +82,7 @@ private: // members
         ESearch_Loading //loading means searching or buffering.
     };    
     
+    HbGroupBox          *iHeadingLabel;
     HbListView          *iListView;
     QString              iKeyText;
     
@@ -95,10 +92,8 @@ private: // members
     IrChannelModel      *iChannelModel;
     //the object is created by IsdsClient, but application is responsible for free
     IRQPreset           *iPreset;
-    IRQPreset           *iLogoPreset;     
-    QTimer              *iConvertTimer;
-    QList<int>           iIconIndexArray;
-    IRQSettings          *iSettings;    
+    IRQSettings         *iIRSettings;
+    bool                 iFirstTime;
     friend class IRViewManager;
 };
 #endif //IRSEARCHCHANNELSVIEW_H

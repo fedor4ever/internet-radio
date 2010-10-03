@@ -23,7 +23,6 @@
 class HbSelectionDialog;
 class IRFavoritesModel;
 class IRStationShare;
-class IRQPreset;
 
 class IRFavoritesView : public IrAbstractListViewBase 
 {
@@ -41,9 +40,6 @@ protected:
 private slots:
     void deleteFavorites();        
     void networkRequestNotified(IRQNetworkEvent aEvent);    
-    void convertAnother();
-    void presetLogoDownload(IRQPreset* aPreset);
-    void presetLogoDownloadError();	
     void modelChanged();
     void actionClicked(HbAction *aAction);
     void renameConfirmed(HbAction *aAction);
@@ -59,18 +55,14 @@ private:
     void setCheckedAction();
     void handleItemSelected();
     void prepareMenu();
-    void startConvert(int aIndex); 
     void shareContextAction();
     void deleteContextAction();
     void renameContextAction();
     void detailsContextAction();
-    void updateIconIndexArray();
     void popupDeleteContextConfirmMessageBox();
     
     //from base view 
     void listViewLongPressed(HbAbstractViewItem *aItem, const QPointF& aCoords);
-    
-    void initToolBar();
     
 private:
     
@@ -78,9 +70,6 @@ private:
     IRFavoritesModel  *iModel;
     HbSelectionDialog *iMultiDeleteDialog;
     HbAction          *iMultiDeleteAction;
-    //the following are used to support the img
-    QList<int>         iIconIndexArray;
-    IRQPreset         *iLogoPreset;
     
     friend class IRViewManager;
 };

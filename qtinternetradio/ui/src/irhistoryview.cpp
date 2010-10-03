@@ -18,8 +18,6 @@
 #include <hbmenu.h>
 #include <hbaction.h>
 #include <hbnotificationdialog.h>
-#include <QPixmap>
-#include <QTimer>
 
 #include "irviewmanager.h"
 #include "irapplication.h"
@@ -28,16 +26,13 @@
 #include "irhistoryview.h"
 #include "irqisdsdatastructure.h"
 #include "irhistorymodel.h"
-#include "irqsonghistoryinfo.h"
 #include "irqnetworkcontroller.h" 
-#include "irqutility.h"
 #include "irqenums.h"
 #include "irqfavoritesdb.h"
 #include "irstationdetailsview.h"
 #include "iruidefines.h"
 
 
-const int KBitmapSize = 59;
 const QString KActionAddName("Add");
 const QString KActionDeleteName("Delete");
 const QString KActionDetailsName("Details");
@@ -48,8 +43,7 @@ const QString KActionDetailsName("Details");
  * Description : constructor
  */
 IRHistoryView::IRHistoryView(IRApplication *aApplication, TIRViewId aViewId) :
-    IrAbstractListViewBase(aApplication, aViewId), iClearHistoryAction(NULL),
-    iLogoPreset(NULL)
+    IrAbstractListViewBase(aApplication, aViewId), iClearHistoryAction(NULL)
 {   
     iModel = new IRHistoryModel(this);
     iListView->setModel(iModel);
@@ -61,14 +55,10 @@ IRHistoryView::IRHistoryView(IRApplication *aApplication, TIRViewId aViewId) :
     iClearHistoryAction = new HbAction(hbTrId("Clear list"), menu());    
 #endif
     
-    iConvertTimer = new QTimer(this);
-    iConvertTimer->setInterval(10);
-    
     connect(iClearHistoryAction, SIGNAL(triggered()), this, SLOT(popupClearHistoryConfirmMessageBox()));
     connect(iNetworkController, SIGNAL(networkRequestNotified(IRQNetworkEvent)),
     this, SLOT(networkRequestNotified(IRQNetworkEvent)));
     connect(iModel, SIGNAL(modelChanged()), this, SLOT(modelChanged()));
-    connect(iConvertTimer, SIGNAL(timeout()), this, SLOT(convertAnother()));
 }
 void IRHistoryView::popupClearHistoryConfirmMessageBox()
 {
@@ -83,8 +73,6 @@ void IRHistoryView::popupClearHistoryConfirmMessageBox()
  */
 IRHistoryView::~IRHistoryView()
 {
-    delete iLogoPreset;
-    iLogoPreset = NULL; 
 }
 
 /*
@@ -98,7 +86,6 @@ TIRHandleResult IRHistoryView::handleCommand(TIRViewCommand aCommand,
 {
     Q_UNUSED(aReason);
     TIRHandleResult ret = IrAbstractListViewBase::handleCommand(aCommand, aReason);
-    int leftCount = 0;
     
     switch (aCommand)
     {
@@ -109,33 +96,12 @@ TIRHandleResult IRHistoryView::handleCommand(TIRViewCommand aCommand,
         break;
                 
     case EIR_ViewCommand_ACTIVATED:
-        connect(iIsdsClient, SIGNAL(presetLogoDownloaded(IRQPreset* )),
-                this, SLOT(presetLogoDownload(IRQPreset* )));
-        connect(iIsdsClient, SIGNAL(presetLogoDownloadError()),
-                this, SLOT(presetLogoDownloadError()));
-        
-        leftCount = iIconIndexArray.count();
-        if( leftCount > 0 )
-        {
-            iConvertTimer->start();
-        }
+        iModel->startDownloadingLogo();
         ret = EIR_NoDefault;
         break;
 
     case EIR_ViewCommand_DEACTIVATE:
-
-        iModel->clearAndDestroyLogos();
-        iConvertTimer->stop();
-        iIsdsClient->isdsLogoDownCancelTransaction();     
-        
-        //iIconIndexArray must be cleared, because timer call back convertAnother() might be
-        //called after view is deactivated. In that case, iModel->getImgURL(aIndex); will crash
-        iIconIndexArray.clear();
-
-        disconnect(iIsdsClient, SIGNAL(presetLogoDownloaded(IRQPreset*)),
-                   this, SLOT(presetLogoDownload(IRQPreset* )));
-        disconnect(iIsdsClient, SIGNAL(presetLogoDownloadError()),
-                   this, SLOT(presetLogoDownloadError()));
+        iModel->stopDownloadingLogo();
         ret = EIR_NoDefault;
         break;
 
@@ -156,24 +122,21 @@ TIRHandleResult IRHistoryView::handleCommand(TIRViewCommand aCommand,
 void IRHistoryView::handleItemSelected()
 {
     int index = iListView->currentIndex().row();
-    IRQSongHistoryInfo *hisInfo = iModel->getHistoryInfo(index);
-    if (NULL == hisInfo)
+    IRQPreset *preset = iModel->getHistoryInfo(index);
+    if (NULL == preset)
     {
         return;
     }
 
-    IRQPreset preset;
-    convertStationHistory2Preset(*hisInfo, preset);
-    
-    if (hisInfo->getChannelType())
+    if (preset->type)
     {
         // channel from isds server
-        iPlayController->connectToChannel(&preset, EIRQHistoryIsds);
+        iPlayController->connectToChannel(preset, EIRQHistoryIsds);
     }
     else
     {
         // user defined channel
-        iPlayController->connectToChannel(&preset,EIRQHistoryAdhoc);
+        iPlayController->connectToChannel(preset,EIRQHistoryAdhoc);
     }
 }
 
@@ -183,7 +146,7 @@ void IRHistoryView::itemAboutToBeSelected(bool &aNeedNetwork)
     aNeedNetwork =  true;
     
     int index = iListView->currentIndex().row();
-    iPlayController->setConnectingStationName(iModel->getHistoryInfo(index)->getChannelName()); 
+    iPlayController->setConnectingStationName(iModel->getHistoryInfo(index)->nickName); 
 }
 #endif
 
@@ -220,19 +183,7 @@ void IRHistoryView::showHistory()
     if (iModel->checkHistoryUpdate())
     {
         iListView->reset();
-        iListView->setCurrentIndex(iModel->index(0));
-
-        //because we get all the history refreshed, so clear the icon array.
-        iIconIndexArray.clear();
-
-        //initialize the iconindices
-        for (int i = 0; i < iModel->rowCount(); ++i)
-        {
-            if (iModel->getImageUrl(i) != "")
-            {
-                iIconIndexArray.append(i);
-            }
-        }  
+        iListView->setCurrentIndex(iModel->index(0)); 
     }
 }
 
@@ -247,10 +198,7 @@ void IRHistoryView::clearAllList(HbAction *aAction)
     {
         if (aAction == dialog->actions().at(0))
         {
-            iIconIndexArray.clear();
-            iModel->clearAllList();
-            iConvertTimer->stop();
-            iIsdsClient->isdsLogoDownCancelTransaction();
+            iModel->clearAllHistory();
             iListView->reset();
         }
     }    
@@ -269,78 +217,6 @@ void IRHistoryView::prepareMenu()
         viewMenu->insertAction(settingAction, iClearHistoryAction);
     }
 } 
-
-void IRHistoryView::startConvert(int aIndex)
-{
-    QString url = iModel->getImageUrl(aIndex);
-
-    IRQPreset tempPreset;
-    tempPreset.imgUrl = url;
-    tempPreset.type = IRQPreset::EIsds;
-    iIsdsClient->isdsLogoDownSendRequest(&tempPreset, 0, KBitmapSize, KBitmapSize);
-}
-
-//if the logo is downloaded ok
-void IRHistoryView::presetLogoDownload(IRQPreset* aPreset)
-{
-    if (NULL == aPreset)
-    {
-        presetLogoDownloadError();
-        return;
-    }
-
- 
-    delete iLogoPreset;             
-    iLogoPreset = aPreset;
-     
-    if (iLogoPreset->logoData.size() > 0)
-    {
-        QPixmap tempMap;
-        bool ret = tempMap.loadFromData((const unsigned char*)iLogoPreset->logoData.constData(), iLogoPreset->logoData.size());
-        if( ret )
-        {
-            QIcon convertIcon(tempMap);
-            HbIcon *hbIcon = new HbIcon(convertIcon);
-            int index = iIconIndexArray[0];
-            iModel->setLogo(hbIcon, index);
-            iIconIndexArray.removeAt(0);
-            int leftCount = iIconIndexArray.count();
-            if( leftCount > 0 )
-            {
-                iConvertTimer->start();  
-            }
-            return;
-        }           
-    } 
- 
-    presetLogoDownloadError();
-}
-
- 
-
-//if the logo download fails
-void IRHistoryView::presetLogoDownloadError()
-{
-    // if the logo download fails, try to download the next
-    iIconIndexArray.removeAt(0);
-    int leftCount = 0;
-    leftCount = iIconIndexArray.count();
-    if( leftCount > 0 )
-    {
-        iConvertTimer->start();
-    }    
-}
-
-void IRHistoryView::convertAnother()
-{     
-    iConvertTimer->stop();
-    int leftCount = iIconIndexArray.count();
-
-    if (0 != leftCount)
-    {
-        startConvert(iIconIndexArray[0]);
-    }
-}
 
 void IRHistoryView::modelChanged()
 {
@@ -376,10 +252,8 @@ void IRHistoryView::actionClicked(HbAction *aAction)
 void IRHistoryView::addContextAction()
 {        
     QModelIndex current = iListView->currentIndex();     
-    IRQSongHistoryInfo * currentInfo = iModel->getHistoryInfo(current.row());
-    IRQPreset preset;
-    convertStationHistory2Preset(*currentInfo, preset);   
-    int retValue = iFavorites->addPreset(preset);
+    IRQPreset * preset = iModel->getHistoryInfo(current.row());
+    int retValue = iFavorites->addPreset(*preset);
 
     HbNotificationDialog *add2FavNote = new HbNotificationDialog();
     add2FavNote->setModal(true);
@@ -427,7 +301,7 @@ void IRHistoryView::addContextAction()
 void IRHistoryView::deleteContextAction()
 {
     int current = iListView->currentIndex().row();     
-    bool ret = iModel->deleteOneItem(current);     
+    bool ret = iModel->deleteHistory(current);     
     if( !ret )
 	  {
 #ifdef SUBTITLE_STR_BY_LOCID
@@ -440,13 +314,10 @@ void IRHistoryView::deleteContextAction()
 void IRHistoryView::detailsContextAction()
 {   
     int selectedItemIndex = iListView->currentIndex().row();
-    IRQSongHistoryInfo *channelDetailInfo = iModel->getHistoryInfo(selectedItemIndex);
-
-    IRQPreset channelPreset;
-    convertStationHistory2Preset(*channelDetailInfo, channelPreset);
+    IRQPreset *channelPreset = iModel->getHistoryInfo(selectedItemIndex);
 
     IRStationDetailsView *stationDetailsView = static_cast<IRStationDetailsView*>(getViewManager()->getView(EIRView_StationDetailsView, true));    
-    stationDetailsView->setDetails(&channelPreset);
+    stationDetailsView->setDetails(channelPreset);
 
     getViewManager()->activateView(EIRView_StationDetailsView);
 }
@@ -482,25 +353,6 @@ void IRHistoryView::listViewLongPressed(HbAbstractViewItem *aItem, const QPointF
     
     contextMenu->setPreferredPos(aCoords);
     contextMenu->open();
-}
-
-void IRHistoryView::convertStationHistory2Preset(const IRQSongHistoryInfo& aHistoryInfo, IRQPreset& aPreset)
-{
-    IRQChannelServerURL url;
-    url.serverName = aHistoryInfo.getChannelName();
-    url.url = aHistoryInfo.getStreamUrl();
-    url.bitrate = aHistoryInfo.getBitrate();
-    aPreset.name = aHistoryInfo.getChannelName();
-    aPreset.insertChannelServer(url);
-    aPreset.type = aHistoryInfo.getChannelType();
-    aPreset.presetId = aHistoryInfo.getChannelId();
-    aPreset.shortDesc = aHistoryInfo.getChannelDesc();  
-    aPreset.imgUrl = aHistoryInfo.getImageUrl();
-    aPreset.genreName = aHistoryInfo.getGenreName();
-    aPreset.countryName = aHistoryInfo.getCountryName();
-    aPreset.languageName = aHistoryInfo.getLanguageName();
-    aPreset.description = aHistoryInfo.getChannelDesc();
-    aPreset.musicStoreStatus = aHistoryInfo.getMusicStoreStatus();
 }
 
  

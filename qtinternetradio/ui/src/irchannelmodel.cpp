@@ -15,16 +15,31 @@
 *
 */
 
-#include <hbicon.h>
+#include <HbIcon>
+#include <QTimer>
 
 #include "irchannelmodel.h"
 #include "irqisdsdatastructure.h"
 #include "irsearchresultdb.h"
+#include "irqisdsclient.h"
+#include "irlogoprovider.h"
 
 IrChannelModel::IrChannelModel(QObject *aParent): QAbstractListModel(aParent)
                                                 , iChannelList(NULL),iDB(NULL)
 {
-    iStationLogo = new HbIcon("qtg_large_internet_radio");   
+    iIsdsClient = IRQIsdsClient::openInstance();
+    iLogoProvider = new IRLogoProvider(iIsdsClient);
+    
+    iTimer = new QTimer;
+    iTimer->setInterval(10);
+    connect(iTimer, SIGNAL(timeout()), this, SLOT(downloadNextLogo()));
+    
+    iStationLogo = new HbIcon("qtg_large_internet_radio");
+
+    if( NULL == iDB )
+    {
+        iDB = new IRSearchResultDB();
+    }
 }
 
 IrChannelModel::~IrChannelModel()
@@ -36,11 +51,21 @@ IrChannelModel::~IrChannelModel()
     
     clearAndDestroyLogos();
 
+    stopDownloadingLogo();
+
     if( iDB )
     {
         delete iDB;
         iDB = NULL;
     }
+
+    delete iLogoProvider;
+    if (iIsdsClient)
+    {
+        iIsdsClient->closeInstance();
+        iIsdsClient = NULL;
+    }
+    delete iTimer;
 }
 
 int IrChannelModel::rowCount(const QModelIndex &aParent) const
@@ -53,18 +78,6 @@ int IrChannelModel::rowCount(const QModelIndex &aParent) const
         count = iChannelList->count();
     }
     return count;
-}
-
-QString IrChannelModel::imageUrl(int aRow)
-{
-    if (iChannelList)
-    {
-        return iChannelList->at(aRow)->imageURL;
-    }
-    else
-    {
-        return "";
-    }
 }
 
 void IrChannelModel::setLogo(HbIcon *aIcon, int aIndex)
@@ -119,37 +132,29 @@ QVariant IrChannelModel::data(const QModelIndex &aIndex, int aRole) const
     }
 }
 
-void IrChannelModel::updateData(QList<IRQChannelItem*> *aPushItemsList)
+void IrChannelModel::updateData(QList<IRQChannelItem*> *aPushItemsList, bool bInit)
 {
     if (iChannelList != aPushItemsList)
     {
         clearAndDestroyItems();
         iChannelList = aPushItemsList;
     }
+    if(false == bInit)
+    {
+        save2Cache();
+    
+    }
     
     clearAndDestroyLogos();
-    
+
+    updateIconIndexArray();
+
     emit dataAvailable();
 }
 
 void IrChannelModel::initWithCache()
 {
-    if( NULL == iDB )
-    {
-        iDB = new IRSearchResultDB();
-    }
-    
-    QList<IRQChannelItem*> *channelList = iDB->getCahcedChannelList();
-   
-    if( NULL == channelList )
-    {
-        //some error happens
-        return;
-    }
-    
-    clearAndDestroyItems();
-    clearAndDestroyLogos();
-    iChannelList = channelList;    
+    updateData(iDB->getCahcedChannelList(), true);
 }
 
 void IrChannelModel::save2Cache()
@@ -178,7 +183,8 @@ void IrChannelModel::cleanupDatabase()
     clearAndDestroyItems();
     clearAndDestroyLogos();
     iDB->clearCache();
-    
+    iIconIndexArray.clear();
+
     emit dataAvailable();
 }
 
@@ -202,5 +208,77 @@ void IrChannelModel::clearAndDestroyItems()
         }
         delete iChannelList;
         iChannelList = NULL;
+    }
+}
+
+void IrChannelModel::startDownloadingLogo()
+{
+    iLogoProvider->activate(this, SLOT(logoData(const QByteArray&)));
+    iTimer->start();
+}
+
+void IrChannelModel::stopDownloadingLogo()
+{
+    iIsdsClient->isdsLogoDownCancelTransaction();
+    iTimer->stop();
+    iLogoProvider->deactivate();
+}
+
+void IrChannelModel::downloadNextLogo()
+{
+    iTimer->stop();
+    int leftCount = iIconIndexArray.count();
+
+    if (0 != leftCount)
+    {
+         int row = iIconIndexArray[0];
+         IRQPreset preset;
+         preset.name = iChannelList->at(row)->channelName;
+         preset.shortDesc = iChannelList->at(row)->shortDescription;
+         preset.type = IRQPreset::EIsds;
+         preset.presetId = iChannelList->at(row)->channelID;
+		 preset.imgUrl = iChannelList->at(row)->imageURL;
+         iLogoProvider->getLogo(&preset);
+    }
+}
+
+void IrChannelModel::logoData(const QByteArray &aLogoData)
+{
+    if (aLogoData.size() > 0)
+    {
+        QPixmap tempMap;
+        bool ret = tempMap.loadFromData((const unsigned char*)aLogoData.constData(), aLogoData.size());
+        if( ret )
+        {
+            QIcon convertIcon(tempMap);
+            HbIcon *hbIcon = new HbIcon(convertIcon);
+            int index = iIconIndexArray[0];
+            setLogo(hbIcon, index);  
+        }
+    }
+    
+    iIconIndexArray.removeAt(0);
+    int leftCount = iIconIndexArray.count();
+    if( leftCount > 0 )
+    {
+        iTimer->start();  
+    }
+}
+
+void IrChannelModel::updateIconIndexArray()
+{
+    iIconIndexArray.clear();
+    
+    for (int i = 0; i < rowCount(); ++i)
+    {
+        if (iChannelList->at(i)->imageURL != "" && !iLogos.contains(i))
+        {
+            iIconIndexArray.append(i);
+        }
+    }
+
+    if (iIconIndexArray.size() > 0)
+    {
+        startDownloadingLogo();
     }
 }

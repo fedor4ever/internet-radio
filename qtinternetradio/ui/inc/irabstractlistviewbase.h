@@ -104,7 +104,6 @@ protected:
 	HbAction      *iFavoritesAction;
 	HbAction      *iGenresAction;
 	HbAction      *iSearchAction;
-	QTimer        *iConvertTimer;
 
     TIRViewParameter iViewParameter;	
 };

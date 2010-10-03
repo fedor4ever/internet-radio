@@ -23,6 +23,9 @@
 class IRQPreset;
 class IRQFavoritesDB;
 class HbIcon;
+class IRLogoProvider;
+class IRQIsdsClient;
+class QTimer;
 
 class IRFavoritesModel : public QAbstractListModel
 {    
@@ -42,25 +45,35 @@ public:
     bool isLogoReady(int aIndex) const;
     bool checkFavoritesUpdate();
     
-    void clearFavoriteDB();
     void clearAndDestroyLogos();
     bool deleteOneFavorite(int aIndex);  
     bool deleteMultiFavorites(const QModelIndexList &aIndexList);
     
     void updateFavoriteName(int aIndex, const QString &aNewName);
     
+    void startDownloadingLogo();
+    void stopDownloadingLogo();
+    
 signals:
     void modelChanged();
     
+private slots:
+    void downloadNextLogo();
+    void logoData(const QByteArray &aLogoData);
     
 private:
     void clearPresetList();
+    void updateIconIndexArray();
     
 private:
     IRQFavoritesDB    *iFavoritesDb;
     QList<IRQPreset*> *iPresetsList;
     HbIcon            *iStationLogo;
     QList<HbIcon*>    iLogos;
+    QList<int>         iIconIndexArray;
+    IRQIsdsClient *iIsdsClient;
+    IRLogoProvider *iLogoProvider;
+    QTimer *iTimer;
 };
 
 #endif

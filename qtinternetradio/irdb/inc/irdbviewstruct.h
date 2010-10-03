@@ -29,10 +29,14 @@
 typedef QMap<uint, QString>  columnMap;
 typedef QMap<uint, QByteArray> logoMap;
 
-enum EColumnLogo{bLogoInsert, sLogoInsert};
+enum EColumnLogo{bLogo, sLogo};
 const QString colNameLogo[] = {"bIcon", "sIcon"};
 const QString strBLogo = ":bIcon";
 const QString strSLogo = ":sIcon";
+
+const int IRDB_BOTH_LOGO = 0x03;// both logo, big and small is in logodata;
+const int IRDB_BIG_LOGO = 0x01; //big logo is in logodata;
+const int IRDB_SMALL_LOGO = 0x02; //small logo is in logodata
 
 const int IRDB_ALL_COLUMN = 25;
 const int IRDB_OPT_INSERT = 1;
@@ -51,7 +55,7 @@ enum EColumnView{channelId,        channelName,   channelNickName,
                  lastModified,     channelType,   musicStoreStatus, 
                  imgUrl,           bLogoGet, sLogoGet,   
                  advertisementUrl, advertisementInUse, expiration,
-                 songName, artistName, channelUrl, opt, dataSource};
+                 songName, artistName, channelUrl, bitRate, opt, dataSource};
 
 const QString colNameView[] = {"channelId",        "channelName",       "channelNickName",  
                                "genreName",        "genreId",           "languageName",     "languageCode",  
@@ -59,7 +63,7 @@ const QString colNameView[] = {"channelId",        "channelName",       "channel
                                "lastModified",     "channelType",       "musicStoreStatus", 
                                "imgUrl",           "bIcon",            "sIcon",     
                                "advertisementUrl", "advertisementInUse", "expiration",
-                               "songName", "artistName", "channelUrl", "opt", "dataSource"};
+                               "songName", "artistName", "channelUrl", "bitRate", "opt", "dataSource"};
 
 //flag of data belong to channelHistory;
 const int DATA_OF_CHANNELHISTORY = 1;

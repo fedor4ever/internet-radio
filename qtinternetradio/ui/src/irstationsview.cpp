@@ -137,7 +137,7 @@ void IRStationsView::itemAboutToBeSelected(bool &aNeedNetwork)
     aNeedNetwork =  true;
     
     int index = iListView->currentIndex().row();
-    iPlayController->setConnectingStationName(iDataProvider->getChannelItemByIndex(index)->channelName);
+    iPlayController->setConnectingStationName(iDataProvider->getChannelItemByIndex(index)->channelName,true);
 }
 #endif
 

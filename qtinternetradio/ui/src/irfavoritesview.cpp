@@ -20,8 +20,6 @@
 #include <hbmenu.h>
 #include <hbgroupbox.h>
 #include <hbselectiondialog.h>
-#include <QPixmap>
-#include <QTimer>
 #include <HbInputDialog>
 #include <hbscrollbar.h>
 #include <HbLineEdit>
@@ -40,7 +38,6 @@
 #include "iruidefines.h"
 #include "irstationshare.h"
 #include "irstationdetailsview.h"
-const int KBitmapSize = 59;
 
 const QString KActionShareName("Share");
 const QString KActionDeleteName("Delete");
@@ -57,23 +54,17 @@ IRFavoritesView::IRFavoritesView(IRApplication *aApplication, TIRViewId aViewId)
                                  : IrAbstractListViewBase(aApplication, aViewId),
                                    iStationShare(NULL),
                                    iMultiDeleteDialog(NULL),
-                                   iMultiDeleteAction(NULL),
-                                   iLogoPreset(NULL)
+                                   iMultiDeleteAction(NULL)
 {    
     setFlag(EViewFlag_ClearStackWhenActivate|EViewFlag_StickyViewEnabled);
-    
-	initToolBar();
+    iLoader.load(ABSTRACT_LIST_VIEW_BASE_LAYOUT_FILENAME, ABSTRACT_LIST_VIEW_BASE_ADD_TOOLBAR_SECTION);
+
     iModel = new IRFavoritesModel(iFavorites, this);
     iListView->setModel(iModel);
-    
-    iConvertTimer = new QTimer(this);
-    iConvertTimer->setInterval(10);
-    
+        
     connect(iModel, SIGNAL(modelChanged()), this, SLOT(modelChanged()));
     connect(iNetworkController, SIGNAL(networkRequestNotified(IRQNetworkEvent)),
             this, SLOT(networkRequestNotified(IRQNetworkEvent))); 
-    connect(iConvertTimer, SIGNAL(timeout()), this, SLOT(convertAnother()));
-
 }
 
 /*
@@ -81,9 +72,6 @@ IRFavoritesView::IRFavoritesView(IRApplication *aApplication, TIRViewId aViewId)
  */
 IRFavoritesView::~IRFavoritesView()
 {
-    delete iLogoPreset;
-    iLogoPreset = NULL;
-    
     delete iMultiDeleteDialog;
     iMultiDeleteDialog = NULL; 
     
@@ -96,7 +84,6 @@ TIRHandleResult IRFavoritesView::handleCommand(TIRViewCommand aCommand, TIRViewC
     Q_UNUSED(aReason);
     
     TIRHandleResult ret = IrAbstractListViewBase::handleCommand(aCommand, aReason);
-    int leftCount = 0;
     
     switch (aCommand)
     {
@@ -106,17 +93,7 @@ TIRHandleResult IRFavoritesView::handleCommand(TIRViewCommand aCommand, TIRViewC
         break;
                 
     case EIR_ViewCommand_ACTIVATED:        
-        connect(iIsdsClient, SIGNAL(presetLogoDownloaded(IRQPreset* )),
-                this, SLOT(presetLogoDownload(IRQPreset* )));
-        connect(iIsdsClient, SIGNAL(presetLogoDownloadError()),
-                this, SLOT(presetLogoDownloadError()));
-        
-        leftCount = iIconIndexArray.count();
-        if( leftCount > 0 )
-        {
-            iConvertTimer->start();
-        }
-        
+        iModel->startDownloadingLogo();
         getViewManager()->saveScreenShot();
         ret = EIR_NoDefault;
         break;
@@ -124,17 +101,7 @@ TIRHandleResult IRFavoritesView::handleCommand(TIRViewCommand aCommand, TIRViewC
     case EIR_ViewCommand_DEACTIVATE:        		 
         
         iModel->clearAndDestroyLogos();
-        iConvertTimer->stop();
-        iIsdsClient->isdsLogoDownCancelTransaction();
-        //iIconIndexArray must be cleared, because timer call back convertAnother() might be
-        //called after view is deactivated. In that case, iModel->getImgURL(aIndex); will crash
-        iIconIndexArray.clear();
-        
-        disconnect(iIsdsClient, SIGNAL(presetLogoDownloaded(IRQPreset*)),
-                   this, SLOT(presetLogoDownload(IRQPreset* )));
-        disconnect(iIsdsClient, SIGNAL(presetLogoDownloadError()),
-                   this, SLOT(presetLogoDownloadError()));
-
+        iModel->stopDownloadingLogo();
         ret = EIR_NoDefault;
         break;
 
@@ -258,75 +225,6 @@ void IRFavoritesView::prepareMenu()
     }
 }
 
-void IRFavoritesView::startConvert(int aIndex)
-{     
-    QString url = iModel->getImgUrl(aIndex);
-    
-    IRQPreset tempPreset;
-    tempPreset.imgUrl = url;
-    tempPreset.type = IRQPreset::EIsds;
-
-    iIsdsClient->isdsLogoDownSendRequest(&tempPreset, 0, KBitmapSize, KBitmapSize); 
-}
-
-//if the logo is downloaded ok
-void IRFavoritesView::presetLogoDownload(IRQPreset* aPreset)
-{
-    if (NULL == aPreset)
-    {
-        presetLogoDownloadError();
-        return;
-    }
-
-    delete iLogoPreset;
-    iLogoPreset = aPreset;
-
-    if (iLogoPreset->logoData.size() > 0)
-    {
-        QPixmap tempMap;
-        bool ret = tempMap.loadFromData((const unsigned char*)iLogoPreset->logoData.constData(), iLogoPreset->logoData.size());
-        if( ret )
-        {
-            QIcon convertIcon(tempMap);
-            HbIcon *hbIcon = new HbIcon(convertIcon);
-            int index = iIconIndexArray[0];
-            iModel->setLogo(hbIcon, index);
-            iIconIndexArray.removeAt(0);
-            int leftCount = iIconIndexArray.count();
-            if( leftCount > 0 )
-            {
-                iConvertTimer->start();  
-            }            
-            return;             
-        }        
-    }    
-    
-    presetLogoDownloadError();
-}
-
-//if the logo download fails
-void IRFavoritesView::presetLogoDownloadError()
-{
-    iIconIndexArray.removeAt(0);
-    int leftCount = 0;
-    leftCount = iIconIndexArray.count();
-    if( leftCount > 0 )
-    {
-        iConvertTimer->start();
-    }    
-}
-
-void IRFavoritesView::convertAnother()
-{
-    iConvertTimer->stop();
-    int leftCount = iIconIndexArray.count();
-
-    if (0 != leftCount)
-    {
-        startConvert(iIconIndexArray[0]);
-    }
-}
-
 void IRFavoritesView::modelChanged()
 {
 #ifdef SUBTITLE_STR_BY_LOCID
@@ -335,7 +233,6 @@ void IRFavoritesView::modelChanged()
     QString headingStr = hbTrId("Favorites") + " (" + QString::number(iModel->rowCount()) + ")";
 #endif
     setHeadingText(headingStr);
-    updateIconIndexArray();
     
     iListView->reset();
     iListView->setCurrentIndex(iModel->index(0));
@@ -349,12 +246,6 @@ void IRFavoritesView::deleteDialogClosed(HbAction *aAction)
         QModelIndexList selectedIndexes = iMultiDeleteDialog->selectedModelIndexes();
         if (!selectedIndexes.empty())
         {
-            if (!iIconIndexArray.empty())
-            {
-                iIsdsClient->isdsLogoDownCancelTransaction();
-                iConvertTimer->stop();
-            }
-            
             if(!iModel->deleteMultiFavorites(selectedIndexes))
             {
 #ifdef SUBTITLE_STR_BY_LOCID
@@ -364,18 +255,12 @@ void IRFavoritesView::deleteDialogClosed(HbAction *aAction)
 #endif
             }
 
-            updateIconIndexArray();
 #ifdef SUBTITLE_STR_BY_LOCID
             QString headingStr = hbTrId("txt_irad_subtitle_favorites") + " (" + QString::number(iModel->rowCount()) + ")";
 #else
             QString headingStr = hbTrId("Favorites") + " (" + QString::number(iModel->rowCount()) + ")";
 #endif
             setHeadingText(headingStr);  
-			
-            if (!iIconIndexArray.empty())
-            {
-                iConvertTimer->start();
-            }
         }
     }   
 }
@@ -463,20 +348,6 @@ void IRFavoritesView::shareContextAction()
     iStationShare->shareStations(*iModel->getPreset(current));    
 }
 
-void IRFavoritesView::updateIconIndexArray()
-{
-    iIconIndexArray.clear();
-    
-    for (int i = 0; i < iModel->rowCount(); ++i)
-    {
-        if (iModel->getImgUrl(i) != "" 
-            && !iModel->isLogoReady(i))
-        {
-            iIconIndexArray.append(i);
-        }
-    }    
-}
-
 void IRFavoritesView::renameContextAction()
 {
     int current = iListView->currentIndex().row();
@@ -489,9 +360,9 @@ void IRFavoritesView::renameContextAction()
     dlg->setPromptText(hbTrId("Rename"));
 #endif
     HbLineEdit* lineEdit = dlg->lineEdit();
-    lineEdit->setMaxLength(256);
+    lineEdit->setMaxLength(KMaxLineEditLength);
     dlg->setInputMode(HbInputDialog::TextInput);
-    dlg->setValue(preset->name);   
+    dlg->setValue(preset->nickName);   
     dlg->setAttribute(Qt::WA_DeleteOnClose);
     dlg->open(this, SLOT(renameConfirmed(HbAction*)));
 }
@@ -509,16 +380,9 @@ void IRFavoritesView::detailsContextAction()
 
 void IRFavoritesView::deleteContextAction()
 {
-    if (!iIconIndexArray.empty())
-    {
-        iIsdsClient->isdsLogoDownCancelTransaction();
-        iConvertTimer->stop();
-    }  
-    
     int current = iListView->currentIndex().row();    
     if (iModel->deleteOneFavorite(current))
     {
-        updateIconIndexArray();
 #ifdef SUBTITLE_STR_BY_LOCID
         QString headingStr = hbTrId("txt_irad_subtitle_favorites") + " (" + QString::number(iModel->rowCount()) + ")";
 #else
@@ -533,12 +397,7 @@ void IRFavoritesView::deleteContextAction()
 #else
         popupNote(hbTrId("Operation failed"), HbMessageBox::MessageTypeWarning);        
 #endif
-    }
-    
-    if (!iIconIndexArray.empty())
-    {
-        iConvertTimer->start();
-    }    
+    } 
 }
 
 void IRFavoritesView::renameConfirmed(HbAction *aAction)
@@ -586,16 +445,6 @@ void IRFavoritesView::renameConfirmed(HbAction *aAction)
             }  
         }
     }
-}
-
-void IRFavoritesView::initToolBar()
-{
-    //add HbActions to the toolbar, the HbActions have been created in IrAbstractListViewBase
-    HbToolBar *viewToolBar = toolBar();
-    viewToolBar->addAction(iGenresAction);
-    viewToolBar->addAction(iCollectionsAction);
-    viewToolBar->addAction(iFavoritesAction);
-    viewToolBar->addAction(iSearchAction);
 }
 
 void IRFavoritesView::popupDeleteContextConfirmMessageBox()

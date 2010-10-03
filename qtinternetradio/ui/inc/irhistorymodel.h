@@ -19,9 +19,13 @@
 
 #include <QAbstractItemModel>
 
-class IRQSongHistoryEngine;
-class IRQSongHistoryInfo;
 class HbIcon;
+class IRQPreset;
+class channelHistoryWrapper;
+class urlInfoWrapper;
+class IRLogoProvider;
+class IRQIsdsClient;
+class QTimer;
 
 class IRHistoryModel : public QAbstractListModel
 {
@@ -33,25 +37,43 @@ public:
     int rowCount(const QModelIndex &aParent = QModelIndex()) const;
     QVariant data(const QModelIndex &aIndex, int aRole = Qt::DisplayRole) const;
     
-    IRQSongHistoryInfo* getHistoryInfo(int aIndex);
-    void clearAllList();
+    IRQPreset* getHistoryInfo(int aIndex);
+    void clearAllHistory();
     bool checkHistoryUpdate();
-    void clearAndDestroyLogos();
-    QString getImageUrl(int aRow) const;
-    void setLogo(HbIcon *aIcon, int aIndex);
-    bool deleteOneItem(int aIndex);
+    bool deleteHistory(int aIndex);
+    
+    void startDownloadingLogo();
+    void stopDownloadingLogo();    
     
 signals:
     void modelChanged();   
 
+private slots:
+    void downloadNextLogo();
+    void logoData(const QByteArray &aLogoData);
+    
 private:
-    void getAllList();
-
+    void refreshModel();
+    void clearModel();
+    
+    void clearAndDestroyLogos();
+    QString getImageUrl(int aRow) const;
+    void setLogo(HbIcon *aIcon, int aIndex);
+		
+    bool isLogoReady(int aIndex) const;
+    void updateIconIndexArray();
+    
 private:
-    QList<IRQSongHistoryInfo *> iHistoryList;
-    IRQSongHistoryEngine *iHistoryEngine;
-    QMap<int, HbIcon*>     iLogos;
-    HbIcon *iStationLogo;
+    QList<IRQPreset *>      iHistoryList;
+    channelHistoryWrapper  *iHistoryEngine;
+    urlInfoWrapper         *iUrlInfoWrapper;
+    QList<HbIcon*>          iLogos;
+    HbIcon                 *iStationLogo;
+    
+    QList<int>              iIconIndexArray;
+    IRQIsdsClient          *iIsdsClient;
+    IRLogoProvider         *iLogoProvider;
+    QTimer                 *iTimer;    
 };
 
 #endif /* IRHISTORYMODEL_H_ */

@@ -59,10 +59,10 @@ INCLUDEPATH += inc \
                ../irqcommon/inc \
                ../irqstatisticsreporter/inc \
                ../irqfavoritesdb/inc \
-               ../irqnetworkcontroller/inc \
-               ../irqsonghistory/inc \
+               ../irqnetworkcontroller/inc \                
                ../irqsettings/inc    \                
-               ../irqlogger/inc \                      
+               ../irqlogger/inc \       
+               ../irdb/inc \               
                ../irqsystemeventhandler/inc
 
 CONFIG += hb service
@@ -74,8 +74,7 @@ LIBS += -lirqnetworkcontroller \
         -lirqisdsclient \
         -lirqmediaplayer \
         -lirqutility \
-        -lirqfavorites \
-        -lirqsonghistory \
+        -lirqfavorites \      
         -lirqsettings \	    
         -lremconcoreapi \
         -lremconinterfacebase \
@@ -86,6 +85,7 @@ LIBS += -lirqnetworkcontroller \
         -lxqsettingsmanager \
         -lxqservice \
         -lxqserviceutil \
+        -lirdb \
         -lhgcacheproxymodel
         	
 symbian{
@@ -137,7 +137,10 @@ HEADERS += inc/irapplication.h \
            inc/irsearchresultdb.h \
            inc/irfileviewservice.h \
            inc/irplayingbanner.h \
-           inc/irhbapplication.h
+           inc/irhbapplication.h \
+           inc/irlogoprovider.h \
+	   inc/irqsonghistoryinfo.h
+          
            
 #source files list
 SOURCES += main.cpp  \
@@ -178,7 +181,10 @@ SOURCES += main.cpp  \
            irsearchresultdb.cpp \
            irfileviewservice.cpp \
            irplayingbanner.cpp \
-           irhbapplication.cpp
+           irhbapplication.cpp \
+           irlogoprovider.cpp \
+           irqsonghistoryinfo.cpp
+            
 
 #docml      
 DOCML += resources/layout/abstractlistviewbase.docml \

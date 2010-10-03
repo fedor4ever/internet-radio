@@ -38,7 +38,7 @@
 #include "irqenums.h"
 #include "iruidefines.h"
 #include "irqsettings.h"
-static const int MAX_URL_CHARACTOR_NUMBER = 255;
+
 static const int MAX_DATA_FORM_NUMBER_ROWS = 4;
 static const int MIN_DATA_FORM_NUMBER_ROWS = 1;
 
@@ -101,7 +101,7 @@ IROpenWebAddressView::IROpenWebAddressView(IRApplication* aApplication, TIRViewI
     connect(iPlayButton, SIGNAL(released()), this, SLOT(play()));
     HbStyleLoader::registerFilePath(OPEN_WEB_ADDRESS_VIEW_PUSH_BUTTON_CSS);
     HbStyleLoader::registerFilePath(OPEN_WEB_ADDRESS_VIEW_PUSH_BUTTON_WIDGETML);
-
+    
     connect(iNetworkController, SIGNAL(networkRequestNotified(IRQNetworkEvent)),
     this, SLOT(networkRequestNotified(IRQNetworkEvent)));
 
@@ -115,8 +115,8 @@ IROpenWebAddressView::~IROpenWebAddressView()
 {
     if (iSettings)
     {
-        iSettings->setManuallyInputtedStationUrl(iUrl->contentWidgetData(QString("text")).toString());
-        iSettings->setManuallyInputtedStationName(iName->contentWidgetData(QString("text")).toString());    
+        iSettings->setManuallyInputtedStationUrl(iUrlEditorPtr->text());
+        iSettings->setManuallyInputtedStationName(iNameEditorPtr->text());    
         iSettings->closeInstance();
     }
 }
@@ -196,13 +196,13 @@ void IROpenWebAddressView::initDetails()
  */
 void IROpenWebAddressView::initUrlAndName()
 {
-    QString temp = iUrl->contentWidgetData(QString("text")).toString();
+    QString temp = iUrlEditorPtr->text();
     if (0 == temp.size())
     {
         iUrl->setContentWidgetData(QString("text"), QString("http://"));
     }
 
-    temp = iName->contentWidgetData(QString("text")).toString();
+    temp = iNameEditorPtr->text();
     if (0 == temp.size())
     {
 #ifdef SUBTITLE_STR_BY_LOCID
@@ -223,7 +223,7 @@ void IROpenWebAddressView::initDataForm()
 #else
     iUrl = new HbDataFormModelItem(HbDataFormModelItem::TextItem, hbTrId("Station address"));
 #endif     
-    iUrl->setContentWidgetData("maxLength",MAX_URL_CHARACTOR_NUMBER);
+    iUrl->setContentWidgetData("maxLength", KMaxLineEditLength);
     if (Qt::Horizontal == getViewManager()->orientation())
     {
         iUrl->setContentWidgetData("maxRows", MIN_DATA_FORM_NUMBER_ROWS);
@@ -237,7 +237,7 @@ void IROpenWebAddressView::initDataForm()
     iName = new HbDataFormModelItem(
             HbDataFormModelItem::TextItem, hbTrId("Station name"));    
 #endif
-    iName->setContentWidgetData("maxLength", MAX_URL_CHARACTOR_NUMBER);
+    iName->setContentWidgetData("maxLength", KMaxLineEditLength);
     if (Qt::Horizontal == getViewManager()->orientation())
     {
         iName->setContentWidgetData("maxRows", MIN_DATA_FORM_NUMBER_ROWS);
@@ -313,7 +313,7 @@ bool IROpenWebAddressView::initPreset(IRQPreset &aPreset)
 {
     IRQChannelServerURL server;
 
-    server.url = iUrl->contentWidgetData(QString("text")).toString();
+    server.url = iUrlEditorPtr->text();
     server.url.remove(" ");
 
     // check the URL
@@ -329,7 +329,7 @@ bool IROpenWebAddressView::initPreset(IRQPreset &aPreset)
 
     // Give it an initial value, supposed to be 32 kbps.
     server.bitrate = 32;
-    server.serverName = iName->contentWidgetData(QString("text")).toString();
+    server.serverName = iNameEditorPtr->text();
     if (0 == server.serverName.size())
     {
 #ifdef SUBTITLE_STR_BY_LOCID
@@ -341,8 +341,7 @@ bool IROpenWebAddressView::initPreset(IRQPreset &aPreset)
 
     aPreset.insertChannelServer(server);
     aPreset.name = server.serverName;
-    aPreset.description = hbTrId("txt_irad_info_added_station_description");
-    aPreset.shortDesc = aPreset.description;
+    aPreset.description = "";
     aPreset.type = 0;     
     aPreset.presetId = 0;
     aPreset.uniqID = 0;
@@ -395,9 +394,9 @@ bool IROpenWebAddressView::eventFilter(QObject *object, QEvent *event)
         && event->type() == QEvent::FocusIn )
     {
 #ifdef SUBTITLE_STR_BY_LOCID
-        if(hbTrId("txt_irad_info_unnamed_station") == iName->contentWidgetData(QString("text")).toString())
+        if(hbTrId("txt_irad_info_unnamed_station") == iNameEditorPtr->text())
 #else
-        if(hbTrId("Unnamed station") == iName->contentWidgetData(QString("text")).toString())            
+        if(hbTrId("Unnamed station") == iNameEditorPtr->text())            
 #endif
         {
             iName->setContentWidgetData(QString("text"), QString(""));

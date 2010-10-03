@@ -64,7 +64,7 @@ void IRLastPlayedStationInfo::commitLastPlayedStation()
     
 #ifdef HS_WIDGET_ENABLED	
     QSettings settings(KIrSettingOrganization, KIrSettingApplication);
-    settings.setValue(KIrSettingStationName,iLastPlayedStation->name);
+    settings.setValue(KIrSettingStationName,iLastPlayedStation->nickName);
 #endif
     
     QFile file(KFileName);

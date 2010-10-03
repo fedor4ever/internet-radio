@@ -38,13 +38,19 @@ public:
     * If all parameters are default, all cid rows in IRDB will return;
     * condAND: condition for search IRDB, it is AND relationship in every pair;
     * condOR: condition for search IRDB, it is OR  relationship in every pair;
+    * here below enum can be input as condition(condAND or condOR):
+    * channelId,        channelName,   channelNickName,  
+      genreName,        genreId,       languageName, languageCode,  
+      countryName,      countryCode,   description,  shortDesc,    
+      lastModified,     channelType,   musicStoreStatus, 
+      imgUrl,           
+      advertisementUrl, advertisementInUse, expiration,
+      channelUrl, bitRate;
     */                       
     QList<uint>* getChannelId(const columnMap* const condAND = NULL,  
                               const columnMap* const condOR  = NULL);
 
-friend class IRDB;
 
-protected:
     /*
     * If all parameters are default, all rows in IRDB will return;
     * condAND: condition for search IRDB, it is AND relationship in every pair;
@@ -52,6 +58,8 @@ protected:
     */                       
     QList<QVariant*>* getIRDB(const columnMap* const condAND = NULL,  
                               const columnMap* const condOR  = NULL);
+
+    friend class IRDB;
 
 protected:
     /*
@@ -80,7 +88,8 @@ protected:
                        QString& insSqlStr, 
                        QString& updSqlStr,
                        const logoMap* const logoData = NULL,
-                       QList<QByteArray>* logoArrayList = NULL);
+                       QList<QByteArray>* logoArrayList = NULL,
+                       int* logoType = NULL);
     
     /*
     * create sql select string according to the input condAND and condOR;

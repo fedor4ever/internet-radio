@@ -79,6 +79,7 @@ void IrServiceClient::closeInstance()
         if (0 == mRef)
         {
             delete mInstatnce;
+            mInstatnce = NULL;
         }
         mMutex.unlock();
     }

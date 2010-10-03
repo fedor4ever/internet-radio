@@ -15,7 +15,6 @@
 *
 */
 
-#include <qtimer.h>
 #include <hblistview.h>
 #include <hbsearchpanel.h>
 #include <hbaction.h>
@@ -40,22 +39,18 @@
 #include "irplaycontroller.h"
 #include "irqlogger.h"
 #include "irqsettings.h"
- 
-const uint KBitmapSize = 59;
 
 IRSearchChannelsView::IRSearchChannelsView(IRApplication* aApplication,
         TIRViewId aViewId): IRBaseView(aApplication, aViewId),
-        iListView(NULL),iSearchPanelWidget(NULL),iSearchState(ESearch_init),
-        iChannelModel(NULL),iPreset(NULL),iLogoPreset(NULL),
-        iConvertTimer(NULL) 
+        iHeadingLabel(NULL),iListView(NULL),iSearchPanelWidget(NULL),iSearchState(ESearch_init),
+        iChannelModel(NULL),iPreset(NULL),iFirstTime(true)
 {
     LOG_METHOD;
-    iSettings = IRQSettings::openInstance();    
+    iIRSettings = IRQSettings::openInstance();    
     loadLayout();
     connectWidget();  
     switch2InitState();       
     initMenu();        
-    initTimer();
 }
 
 void IRSearchChannelsView::initMenu()
@@ -66,25 +61,14 @@ void IRSearchChannelsView::initMenu()
     connect(exitAction, SIGNAL(triggered()), iApplication, SIGNAL(quit()));
 }
 
-void IRSearchChannelsView::initTimer()
-{     
-    LOG_METHOD;
-    iConvertTimer = new QTimer(this);
-    iConvertTimer->setInterval(10); 
-    
-    connect(iConvertTimer, SIGNAL(timeout()), this, SLOT(convertAnother()));
-}
-
- 
-
 IRSearchChannelsView::~IRSearchChannelsView()
 {   
     LOG_METHOD;
     
-    if (iSettings)
+    if (iIRSettings)
     {
-        iSettings->setSearchText(iKeyText);
-        iSettings->closeInstance();
+        iIRSettings->setSearchText(iKeyText);
+        iIRSettings->closeInstance();
     }    
     
     if( iPreset != NULL )
@@ -92,18 +76,6 @@ IRSearchChannelsView::~IRSearchChannelsView()
         delete iPreset;
         iPreset = NULL;
     }
-    
-    if( iLogoPreset != NULL )
-    {
-        delete iLogoPreset;
-        iLogoPreset = NULL;
-    }
-    
-    if( NULL != iChannelModel )
-    {
-        iChannelModel->save2Cache();
-    }
- 
 }
 
 void IRSearchChannelsView::loadLayout()
@@ -118,9 +90,11 @@ void IRSearchChannelsView::loadLayout()
     iLoader.setObjectTree( roots );
     iLoader.load(SEARCH_CHANNELS_VIEW_LAYOUT_FILENAME);   
     
+    iHeadingLabel = qobject_cast<HbGroupBox *>(iLoader.findWidget(SEARCH_CHANNELS_VIEW_HEADINGTEXT_WIDGET));
+    
     iSearchPanelWidget = qobject_cast<HbSearchPanel *>(iLoader.findWidget(SEARCH_CHANNELS_VIEW_SEARCHPANEL_WIDGET));    
     QString searchText;
-    iSettings->getSearchText(searchText);
+    iIRSettings->getSearchText(searchText);
     iKeyText = searchText;
     iSearchPanelWidget->setCriteria(searchText);
    
@@ -132,9 +106,7 @@ void IRSearchChannelsView::loadLayout()
     iListView->setVerticalScrollBarPolicy(HbScrollArea::ScrollBarAsNeeded);
     
     iChannelModel = new IrChannelModel(this);
-    iChannelModel->initWithCache();
     iListView->setModel(iChannelModel);
-    scrollbar->setValue(0.0);    
     
     iListView->installEventFilter(this);
           
@@ -165,13 +137,7 @@ void IRSearchChannelsView::connectIsdsClient()
     connect(iIsdsClient, SIGNAL(operationException(IRQError)),
             this, SLOT(operationException(IRQError)));   
     connect(iIsdsClient, SIGNAL(presetResponse(IRQPreset *)),
-            this, SLOT(presetResponse(IRQPreset *)));    
-    connect(iIsdsClient, SIGNAL(presetLogoDownloaded(IRQPreset* )),
-            this, SLOT(presetLogoDownload(IRQPreset* )));     
-    connect(iIsdsClient, SIGNAL(presetLogoDownloadError()),
-            this, SLOT(presetLogoDownloadError()));
-    
-   
+            this, SLOT(presetResponse(IRQPreset *)));
 }
 
 void IRSearchChannelsView::disconnectIsdsClient()
@@ -183,10 +149,6 @@ void IRSearchChannelsView::disconnectIsdsClient()
             SLOT(operationException(IRQError))); 
     disconnect(iIsdsClient, SIGNAL(presetResponse(IRQPreset *)),
                        this, SLOT(presetResponse(IRQPreset *)));
-    disconnect(iIsdsClient, SIGNAL(presetLogoDownloaded(IRQPreset*)),
-                       this, SLOT(presetLogoDownload(IRQPreset* )));
-    disconnect(iIsdsClient, SIGNAL(presetLogoDownloadError()),
-                       this, SLOT(presetLogoDownloadError()));  
 }
 
 void IRSearchChannelsView::switch2InitState()
@@ -201,7 +163,7 @@ void IRSearchChannelsView::switch2LoadingState()
     LOG_METHOD;
     iSearchPanelWidget->clearFocus();
     iListView->setFocus();
-    iSearchState = ESearch_Loading; 
+    iSearchState = ESearch_Loading;
     iApplication->startLoadingAnimation(this, SLOT(minimizeSearchPanel()));
 }
 
@@ -243,7 +205,9 @@ void IRSearchChannelsView::networkRequestNotified(IRQNetworkEvent aEvent)
         if(EIR_UseNetwork_StartSearch == getUseNetworkReason())
         {
             Q_ASSERT( !iKeyText.isEmpty() );
-            iIsdsClient->isdsSearchRequest(iKeyText);             
+            iChannelModel->stopDownloadingLogo();    
+            switch2LoadingState();
+            iIsdsClient->isdsSearchRequest(iKeyText);
         }
         else if( EIR_UseNetwork_SelectItem == getUseNetworkReason() )
         {            
@@ -281,11 +245,10 @@ void IRSearchChannelsView::searchTextAlready(const QString& aSearchCriteria)
     if( ESearch_Loading == iSearchState )
     {
         iIsdsClient->isdsCancelRequest();            
-        iConvertTimer->stop();
-        iIsdsClient->isdsLogoDownCancelTransaction();
     }
- 
-    
+
+    iChannelModel->stopDownloadingLogo();
+
     setUseNetworkReason(EIR_UseNetwork_NoReason);    
     switch2LoadingState();
     iIsdsClient->isdsSearchRequest(iKeyText);    
@@ -295,16 +258,17 @@ void IRSearchChannelsView::operationException(IRQError aError)
 {        
     LOG_METHOD;
     switch2InitState();
-    
+
     QString errStr;    
     switch(aError)
     {
     case EIRQErrorNotFound:
-#ifdef SUBTITLE_STR_BY_LOCID 
+#ifdef SUBTITLE_STR_BY_LOCID
         errStr = hbTrId("txt_irad_info_no_matching_station_found");
 #else
-        errStr = hbTrId("No matching station found");        
+        errStr = hbTrId("No matching station found");
 #endif
+        iChannelModel->cleanupDatabase();
         break;
     default:
 #ifdef SUBTITLE_STR_BY_LOCID
@@ -316,7 +280,6 @@ void IRSearchChannelsView::operationException(IRQError aError)
     }
     
     popupNote(errStr, HbMessageBox::MessageTypeWarning);     
-    iChannelModel->cleanupDatabase();
 }
 
 void IRSearchChannelsView::clickItem(const QModelIndex&)
@@ -345,28 +308,17 @@ void IRSearchChannelsView::presetResponse(IRQPreset *aPreset)
     LOG_METHOD;
     delete iPreset;
     iPreset = aPreset;
-    
+
     if (iPreset)
     {
         iPlayController->connectToChannel(iPreset,EIRQIsds);
     }
 }
 
-void IRSearchChannelsView::convertAnother()
-{
-    LOG_METHOD;
-    iConvertTimer->stop();
-    int leftCount = iIconIndexArray.count();
-    
-    if( leftCount > 0 )
-    { 
-        startConvert(iIconIndexArray[0]);   
-    }
-}
- 
 void IRSearchChannelsView::dataChanged()
 {
     LOG_METHOD;
+    resetHeadingText();
     switch2InitState();      
     iListView->reset();
     if( iChannelModel->rowCount() )
@@ -377,98 +329,16 @@ void IRSearchChannelsView::dataChanged()
     
     //we move the focus to the listview and the search panel will
     //hide the virtual keyboard at the same time
-    iListView->setFocus();            
-    
-    iIconIndexArray.clear();
-    //initialize the iconindices
-    for (int i = 0; i < iChannelModel->rowCount(); ++i)
-    {
-        if (iChannelModel->imageUrl(i) != "")
-        {            
-            iIconIndexArray.append(i);
-        }
-    }
-    
-    if( iIconIndexArray.count() > 0 )
-    {
-        iConvertTimer->start();        
-    }   
+    iListView->setFocus();
 }
 
-void IRSearchChannelsView::startConvert(int aIndex)
+void IRSearchChannelsView::resetHeadingText()
 {
-    LOG_METHOD;
-    QString url = iChannelModel->imageUrl(aIndex);
- 
-    IRQPreset tempPreset;
-    tempPreset.imgUrl = url;
-    tempPreset.type = IRQPreset::EIsds;
-    
-    bool cached = iIsdsClient->isdsIsLogoCached(&tempPreset, KBitmapSize, KBitmapSize);
-    
-    if( !cached )
-    {
-        bool network = iNetworkController->getNetworkStatus();
-        //if the network is not ready, some exception happens and we don't get the logos
-        //for they are not so important.
-        if( !network )
-        {             
-            return;
-        }       
-    }
-    
-    iIsdsClient->isdsLogoDownSendRequest(&tempPreset, 0, KBitmapSize, KBitmapSize); 
-}
-
-//if the logo is downloaded ok
-void IRSearchChannelsView::presetLogoDownload(IRQPreset* aPreset)
-{
-    LOG_METHOD;
-    if( NULL == aPreset )
-    {
-        presetLogoDownloadError();
-        return;
-    } 
-    
- 
-    delete iLogoPreset;            
-    iLogoPreset = aPreset;    
-
-    if (iLogoPreset->logoData.size() > 0)
-    {         
-        QPixmap tempMap;      
-        bool ret = tempMap.loadFromData((const unsigned char*)iLogoPreset->logoData.constData(), iLogoPreset->logoData.size());
-        QIcon convertIcon(tempMap);
-       
-        if( ret )
-        {            
-            HbIcon *hbIcon = new HbIcon(convertIcon);
-            int index = iIconIndexArray[0];
-            iChannelModel->setLogo(hbIcon, index);
-            iIconIndexArray.removeAt(0);     
-            int leftCount = iIconIndexArray.count(); 
-            if( leftCount > 0 )
-            {
-                iConvertTimer->start();  
-            }             
-            return;
-        }     
-    }    
-    
-    presetLogoDownloadError(); 
-}
-
-//if the logo download fails
-void IRSearchChannelsView::presetLogoDownloadError()
-{
-    LOG_METHOD;
-    // if the logo download fails, try to download the next
-    iIconIndexArray.removeAt(0);
-    int leftCount = iIconIndexArray.count();
-    if( leftCount > 0 )
-    {
-        iConvertTimer->start();
-    }     
+#ifdef SUBTITLE_STR_BY_LOCID
+    iHeadingLabel->setHeading(hbTrId("txt_irad_subtitle_search_results") + " (" + QString::number(iChannelModel->rowCount()) + ")");         
+#else
+    iHeadingLabel->setHeading(hbTrId("Search results") + " (" + QString::number(iChannelModel->rowCount()) + ")");  
+#endif 
 }
 
 void IRSearchChannelsView::minimizeSearchPanel()
@@ -476,10 +346,8 @@ void IRSearchChannelsView::minimizeSearchPanel()
     LOG_METHOD;
     if( ESearch_Loading == iSearchState )
     {
-        iPlayController->cancelBuffering(); 
         iIsdsClient->isdsCancelRequest();
-        iConvertTimer->stop();
-        iIsdsClient->isdsLogoDownCancelTransaction();
+        iChannelModel->stopDownloadingLogo();
         switch2InitState();      
     }
     
@@ -509,8 +377,7 @@ TIRHandleResult IRSearchChannelsView::handleCommand(TIRViewCommand aCommand,
     
     switch (aCommand)
     {   
-    case EIR_ViewCommand_ACTIVATED:         
-        iIconIndexArray.clear();        
+    case EIR_ViewCommand_ACTIVATED:             
         iListView->clearFocus();
         iSearchPanelWidget->setFocusDelegation(FocusDelegationFirstChild);  
         iSearchPanelWidget->setFocus();        
@@ -520,13 +387,21 @@ TIRHandleResult IRSearchChannelsView::handleCommand(TIRViewCommand aCommand,
             showVkb();
         }
         connectIsdsClient();
+        if (iFirstTime)
+        {
+            iChannelModel->initWithCache();
+            iFirstTime = false;
+        }
+        else
+        {
+            iChannelModel->startDownloadingLogo();
+        }
         break;
         
     case EIR_ViewCommand_DEACTIVATE:     
         disconnectIsdsClient();
         iIsdsClient->isdsCancelRequest();            
-        iConvertTimer->stop();
-        iIsdsClient->isdsLogoDownCancelTransaction();
+        iChannelModel->stopDownloadingLogo();
         switch2InitState();
         break;
 

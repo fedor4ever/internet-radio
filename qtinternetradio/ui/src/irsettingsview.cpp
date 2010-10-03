@@ -29,9 +29,8 @@
 IRSettingsView::IRSettingsView(IRApplication *aApplication, TIRViewId aViewId) :
     IRBaseView(aApplication, aViewId), iForm(NULL),iModel(NULL)
 {
-    
     setFlag(EViewFlag_UnStackable);
-    
+    setTitle(hbTrId("txt_irad_title_internet_radio"));
     initView();
 }
 
@@ -42,6 +41,7 @@ IRSettingsView::~IRSettingsView()
 void IRSettingsView::initView()
 {
     QGraphicsLinearLayout *layout = new QGraphicsLinearLayout(Qt::Vertical, this);
+    layout->setContentsMargins(0, 0, 0, 0);
     setLayout(layout);
 
     HbGroupBox * titleText = new HbGroupBox();

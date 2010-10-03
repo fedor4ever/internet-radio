@@ -163,7 +163,7 @@ bool songHistoryWrapper::deleteSongHistory(const columnMap* const condAND,
 QList<QVariant*>* songHistoryWrapper::getSongHistory(const columnMap* const condAND,  
                                                      const columnMap* const condOR)
 {
-    QString sltSqlStr = "select * from songHistory ";
+    QString sltSqlStr = "select * from IRVIEW_SONGHISTORY ";
     QList<QVariant*>* pDataSet = NULL;
     
     if( (NULL != condAND)&&(NULL != condOR) )
@@ -188,7 +188,7 @@ QList<QVariant*>* songHistoryWrapper::getSongHistory(const columnMap* const cond
     }
 
     combineGetStr(condAND, condOR, colNameView, sltSqlStr);
-    sltSqlStr = sltSqlStr + " order by songPlaySeq desc ";
+    
     pDataSet = new QList<QVariant*>();
     if( m_pIRDB->selectRow(this, sltSqlStr, pDataSet) )
     {

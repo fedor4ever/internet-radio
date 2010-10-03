@@ -25,10 +25,13 @@
 class IRApplication;
 class IRQMediaPlayer;
 class IRQPreset;
-class IRQMetaData;
-class IRQSongHistoryEngine;
+class IRQMetaData; 
 class IRQStatisticsReporter;
 class HbMessageBox;
+class IRDBWrapper;
+class channelHistoryWrapper;
+class urlInfoWrapper;
+
 /**
  * This class is a wrapper for IRQMediaPlayer.
  */
@@ -106,10 +109,6 @@ public:
     IRQMetaData * getMetaData() const;
     
     IRQTerminatedType getStopReason() const;
-    
-#ifdef _DEBUG
-    int bitrateTrying() const;
-#endif 
 
 signals:
     // emitted when meta data is available
@@ -165,7 +164,10 @@ private:
 	
 	void startSession();
 	void endSession(IRQTerminatedType aStopReason);
-
+	
+	void saveSong2DB(const IRQMetaData& aMetaData, const IRQPreset& aPreset);
+    void saveStation2DB(IRQPreset *aPreset);
+	
 private:
     IRApplication *iApplication;
     IRQMediaPlayer *iMediaPlayer;
@@ -190,8 +192,7 @@ private:
     bool  iStationLogoAvailableBackup;            
     
     // reference of IRQMediaPlayer meta data        
-    IRQMetaData *iMetaData;
-    IRQSongHistoryEngine *iSongHistoryEngine;
+    IRQMetaData *iMetaData;    
 
     EPlayState iPlayState;
     
@@ -218,6 +219,10 @@ private:
     IRQTerminatedType iStopReason;
     
     HbMessageBox *iErrorNote;
+    
+    IRDBWrapper             *iDbWrapper;
+    channelHistoryWrapper   *iHistoryWrapper;
+    urlInfoWrapper          *iUrlInfoWrapper;        
 };
 
 #endif  //IRPLAYCONTROLLER_H

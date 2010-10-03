@@ -35,32 +35,35 @@ bool imgWrapper::updateImg(const columnMap* const RowData,
     QString updSqlStr;
     QList<QByteArray>* pImgList = NULL;
     bool ret = true;
+    int logoType;
     
     if(!channelId)
     {
         return false;	
     }
 
-    if( NULL == RowData )
+    if( ( NULL == RowData )&&(NULL ==logoData) )
     {
         return false;
     }
+    if(RowData)
+    {
+        if(RowData->isEmpty())
+        {
+            return false;
+        }
 
-    if(RowData->isEmpty())
-    {
-        return false;
-    }
-
-    if( true != (RowData->value(channelId)).isEmpty() )
-    {
-        return false;
-    }
+        if( true != (RowData->value(channelId)).isEmpty() )
+        {
+            return false;
+        }
+    }    
 
     updSqlStr = "update img set ";
     if(NULL != logoData)
      {
          pImgList = new QList<QByteArray>();
-         combinePutStr(RowData, colNameView, insSqlStr, updSqlStr, logoData, pImgList); 
+         combinePutStr(RowData, colNameView, insSqlStr, updSqlStr, logoData, pImgList, &logoType); 
      
      }
      else
@@ -71,7 +74,7 @@ bool imgWrapper::updateImg(const columnMap* const RowData,
     //create insSqlstr and updSqlStr in advance;
     updSqlStr = updSqlStr + "where channelId = " + QString::number(channelId);
     
-    m_pIRDB->updRowImg(channelId, updSqlStr, pImgList)? ret = false:true;
+    m_pIRDB->updRowImg(channelId, updSqlStr, pImgList, logoType)? ret = false:true;
     if(pImgList)
     {
         delete pImgList;
@@ -84,7 +87,7 @@ bool imgWrapper::updateImg(const columnMap* const RowData,
 QList<QVariant*>* imgWrapper::getImg(const columnMap* const condAND,  
                                    const columnMap* const condOR)
 {
-    QString sltSqlStr = "select * from IRVIEW_channelinfo ";
+    QString sltSqlStr = "select * from img ";
     QList<QVariant*>* pDataSet = NULL;
     
     if( (NULL != condAND)&&(NULL != condOR) )

@@ -60,6 +60,7 @@ static const char* ABSTRACT_LIST_VIEW_BASE_NO_PLAYINGBANNER_SECTION    = "sectio
 static const char* ABSTRACT_LIST_VIEW_BASE_WITH_PLAYINGBANNER_SECTION  = "section_with_playingbanner";
 static const char* ABSTRACT_LIST_VIEW_BASE_NO_TOOLBAR_SECTION          = "section_no_toolbar_with_heading";
 static const char* ABSTRACT_LIST_VIEW_BASE_WITH_TOOLBAR_SECTION        = "section_with_toolbar_no_heading";
+static const char* ABSTRACT_LIST_VIEW_BASE_ADD_TOOLBAR_SECTION         = "section_add_toolbar";
 
 // OpenWebAddressView -- Object Name
 static const char* OPEN_WEB_ADDRESS_VIEW_OBJECT_VIEW                       = "ext-IRQOpenWebAddressView";
@@ -70,7 +71,7 @@ static const char* OPEN_WEB_ADDRESS_VIEW_OBJECT_PLAY_BUTTON                = "pl
 static const char* SEARCH_CHANNELS_VIEW_OBJECT_VIEW                   = "ext-IRSearchChannelsView"; 
 static const char* SEARCH_CHANNELS_VIEW_SEARCHPANEL_WIDGET            = "search_panel";
 static const char* SEARCH_CHANNELS_VIEW_SEARCHLISTVIEW_WIDGET         = "search_listview";
- 
+static const char* SEARCH_CHANNELS_VIEW_HEADINGTEXT_WIDGET            = "headingText";
 
 // IRNowplayingView  -- Object Name
 static const char* NOW_PLAYING_VIEW_OBJECT_NAME                       = "ext-nowplayingview"; 
@@ -118,5 +119,8 @@ static const QString KNowPlayingBannerColorPressed = "qtc_multimedia_trans_press
 static const QString KNowPlayingBannerColorNormal = "qtc_multimedia_trans_normal";
 
 #define LOADING_ANIMATION_ICON_SIZE 50
+
+const int KBitmapSize = 59;
+const int KMaxLineEditLength = 255;
 
 #endif /* IRUIDEFINES_H_ */

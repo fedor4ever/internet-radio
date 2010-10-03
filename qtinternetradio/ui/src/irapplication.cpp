@@ -690,40 +690,13 @@ TIRHandleResult IRApplication::handleConnectionEstablished()
     return retVal;
 }
 
-#ifdef TERMS_CONDITIONS_VIEW_ENABLED 
-void IRApplication::handleTermsConsAccepted()
-{
-    LOG_METHOD;
-    iSettings->reSetFlagTermsAndConditions();
-    IRBaseView * termsConsView = iViewManager->getView(EIRView_TermsConsView);
-    iViewManager->removeView(termsConsView);
-    termsConsView->deleteLater();
-    
-    iViewManager->activateView(iStartingViewId); 
-    QEvent* initEvent = new QEvent(iInitEvent);
-    QCoreApplication::postEvent(this, initEvent, Qt::HighEventPriority); 	 
-}
-#endif
-
 void IRApplication::launchStartingView(TIRViewId aViewId)
 {
     LOG_METHOD;
     iStartingViewId = aViewId;
-#ifdef TERMS_CONDITIONS_VIEW_ENABLED     
-    bool isFirstTimeUsage = false;
-    iSettings->isFlagTermsAndConditions(isFirstTimeUsage);
-    
-    if(isFirstTimeUsage)
-    {
-        iViewManager->activateView(EIRView_TermsConsView);  
-    }
-    else
-#endif    
-    {
-        iViewManager->activateView(iStartingViewId);
-        QEvent* initEvent = new QEvent(iInitEvent);
-        QCoreApplication::postEvent(this, initEvent, Qt::HighEventPriority);         
-    }
+    iViewManager->activateView(iStartingViewId);
+    QEvent* initEvent = new QEvent(iInitEvent);
+    QCoreApplication::postEvent(this, initEvent, Qt::HighEventPriority);
     
     iAppFullyStarted = true;
 }

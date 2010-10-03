@@ -17,7 +17,8 @@
 TEMPLATE = subdirs
 BLD_INF_RULES.prj_exports += "$${LITERAL_HASH}include <platform_paths.hrh>" \
                              "rom/qtinternetradio.iby  CORE_APP_LAYER_IBY_EXPORT_PATH(qtinternetradio.iby)" 
-
+# stub sis
+BLD_INF_RULES.prj_exports += "./rom/ir3_qtinternetradio_stub.sis       /epoc32/data/z/system/install/ir3_qtinternetradio_stub.sis"
  
 exists($${OS_LAYER_PLATFORM_EXPORT_PATH(qt/translations/internet_radio_10_1*.ts)}) {
        BLD_INF_RULES.prj_exports += "rom/qtinternetradio_resources.iby LANGUAGE_APP_LAYER_IBY_EXPORT_PATH(qtinternetradio_resources.iby)"  
@@ -35,8 +36,7 @@ SUBDIRS = irqlogger \
           irqfavoritesdb \
           irqisdsclient \
           irqmediaplayer \
-          irqnetworkcontroller \
-          irqsonghistory \
+          irqnetworkcontroller \          
           irqnwkinfoobserver \
           irqstatisticsreporter \
           irhswidgetplugin \

@@ -132,13 +132,15 @@ void IRDBWrapper::combinePutStr(const columnMap* const RowData,
                                 QString& insSqlStr, 
                                 QString& updSqlStr,
                                 const logoMap* const logoData,
-                                QList<QByteArray>* logoArrayList)
+                                QList<QByteArray>* logoArrayList,
+                                int* logoType)
 {
     bool bContinue = false;
     columnMap::const_iterator it;
     logoMap::const_iterator itLogoMap;
     QString escStr;
     insSqlStr += "(";
+    
     
     if(NULL != RowData)
     {
@@ -159,6 +161,14 @@ void IRDBWrapper::combinePutStr(const columnMap* const RowData,
     
     if(NULL != logoData)
     {
+        if(logoType)
+        {
+            *logoType = 0x00; //
+        }
+        else
+        {
+            return;
+        }
         itLogoMap = logoData->begin();
         while(itLogoMap != logoData->end())
         {
@@ -166,7 +176,15 @@ void IRDBWrapper::combinePutStr(const columnMap* const RowData,
             {
                      insSqlStr += ",";  
             }
- 
+            if(bLogo ==itLogoMap.key())
+            {
+                *logoType += IRDB_BIG_LOGO;
+            }
+            if(sLogo ==itLogoMap.key())
+            {
+                *logoType += IRDB_SMALL_LOGO;
+            }
+             
             insSqlStr += colNameLogo[itLogoMap.key()];
             ++itLogoMap;        
         }
@@ -195,6 +213,7 @@ void IRDBWrapper::combinePutStr(const columnMap* const RowData,
 
     if(NULL != logoData)
     {
+      
         itLogoMap = logoData->begin();
         while(itLogoMap != logoData->end())
         {
@@ -202,6 +221,7 @@ void IRDBWrapper::combinePutStr(const columnMap* const RowData,
             {
                  insSqlStr += ",";  
             }
+            
             insSqlStr = insSqlStr + " :"+colNameLogo[itLogoMap.key()];
             *logoArrayList<<itLogoMap.value();
 
@@ -239,6 +259,7 @@ void IRDBWrapper::combinePutStr(const columnMap* const RowData,
     
     if(NULL != logoData)
     {
+
         itLogoMap = logoData->begin();
         while(itLogoMap != logoData->end())
         {
@@ -247,7 +268,7 @@ void IRDBWrapper::combinePutStr(const columnMap* const RowData,
                  updSqlStr += ",";  
             }
 
-            updSqlStr = updSqlStr + colNameLogo[itLogoMap.key()] + "=:"+colNameLogo[itLogoMap.key()];
+            updSqlStr = updSqlStr + colNameLogo[itLogoMap.key()] + "=:"+colNameLogo[itLogoMap.key()] + " ";
             ++itLogoMap;        
         }
     }    
@@ -264,6 +285,7 @@ void IRDBWrapper::combineCondStr(const columnMap* const condAND,
 {
     bool bDone = false;
     columnMap::const_iterator it;
+    QString escStr;
     
     if(NULL != condAND)
     {
@@ -279,8 +301,9 @@ void IRDBWrapper::combineCondStr(const columnMap* const condAND,
                 {
                     condSqlStr += " AND ";
                 }
-                
-                condSqlStr = condSqlStr + pArryColName[it.key()] + "=" + "'" + it.value()+ "'" ;
+                escStr = it.value();
+                escStr.replace('\'', "\'\'");
+                condSqlStr = condSqlStr + pArryColName[it.key()] + "=" + "'" + escStr + "'" ;
                     
                 ++it;
             }
@@ -307,7 +330,8 @@ void IRDBWrapper::combineCondStr(const columnMap* const condAND,
                 {
                     condSqlStr += " OR ";
                 }
-                
+                escStr = it.value();
+                escStr.replace('\'', "\'\'");
                 condSqlStr = condSqlStr + pArryColName[it.key()] + "=" + "'" + it.value()+ "'" ;
                 ++it;
              }               

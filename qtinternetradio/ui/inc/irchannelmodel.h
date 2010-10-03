@@ -23,6 +23,9 @@
 class HbIcon;
 class IRQChannelItem;
 class IRSearchResultDB;
+class IRLogoProvider;
+class IRQIsdsClient;
+class QTimer;
 
 class IrChannelModel : public QAbstractListModel
 {
@@ -34,29 +37,39 @@ public:
 
     int rowCount(const QModelIndex &aParent = QModelIndex()) const;
     QVariant data(const QModelIndex &aIndex, int aRole = Qt::DisplayRole) const;
-    QString imageUrl(int aRow);
-    void setLogo(HbIcon *aIcon, int aIndex);
     void initWithCache();    
     void save2Cache();
     //not take ownership
     IRQChannelItem * getChannelItemByIndex(int aIndex); 
     void cleanupDatabase();
-    void clearAndDestroyLogos();
-    
+    void startDownloadingLogo();
+    void stopDownloadingLogo();
+
 public slots:
-    void updateData(QList<IRQChannelItem*> *aPushItemsList);
+    void updateData(QList<IRQChannelItem*> *aPushItemsList, bool bInit=false);
 
 signals:
     void dataAvailable();
 
+private slots:
+    void downloadNextLogo();
+    void logoData(const QByteArray &aLogoData);
+
 private:
+    void clearAndDestroyLogos();
     void clearAndDestroyItems();
+    void updateIconIndexArray();
+    void setLogo(HbIcon *aIcon, int aIndex);
     
 private:
     QList<IRQChannelItem*> *iChannelList;
-    QMap<int, HbIcon*>     iLogos;
-    HbIcon *iStationLogo;
-    IRSearchResultDB *iDB;
+    QMap<int, HbIcon*>      iLogos;
+    HbIcon                 *iStationLogo;
+    IRSearchResultDB       *iDB;
+    QList<int>              iIconIndexArray;
+    IRQIsdsClient          *iIsdsClient;
+    IRLogoProvider         *iLogoProvider;
+    QTimer                 *iTimer;
 };
 
 #endif

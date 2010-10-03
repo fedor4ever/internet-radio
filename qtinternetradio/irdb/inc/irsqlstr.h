@@ -20,7 +20,7 @@
 
 const QString IRDBName = "IRDB.db";
 
-#ifdef Q_CC_NOKIAX86
+#ifdef PLATSIM_DEBUG_CONF
     const QString IRDBFile = IRDBName;
 #else
     const QString IRDBFile = "c:\\private\\2002FFAC\\IRDB.db";    
@@ -31,8 +31,9 @@ const QString IRDBName = "IRDB.db";
 const QString IRDBConnectionName("IR");
 const QString IRDBSrhCIdCntFrmChannelInfo("select count(channelId) from channelInfo where channelId =");
 const QString IRDBSrhCIdCntFrmFavorites("select count(channelId) from favorites where channelId =");
-const QString IRDBSrhCIdFrmView("select channelid from IRVIEW_CHANNELINFO ");
-const QString IRDBSrhAllFrmView("select * from IRVIEW_CHANNELINFO ");
+const QString IRDBSrhCIdFrmChannelInfo("select channelid from IRVIEW_CHANNELINFO ");
+const QString IRDBSrhCIdFrmView("select channelId from IRVIEW_ALL ");
+const QString IRDBSrhAllFrmView("select * from IRVIEW_ALL ");
 const QString IRDBInsertIRBuff("insert into IRBuff (channelid, datasource, opt) values("); 
 const QString IRDBSrhCIdCntFrmSongHistory("select count(channelId) from songHistory where songName =");
 const QString IRDBSrhCIdCntFrmChannelHistory("select count(channelId) from channelHistory where channelId =");
@@ -82,7 +83,7 @@ const QString CREATE_TABEL_IRBUFF("CREATE TABLE [IRBuff] (   \
 [description] nvarchar(255),   \
 [shortDesc] nvarchar(255),   \
 [lastModified] datetime DEFAULT (datetime(current_timestamp,'localtime')),   \
-[musicStoreStatus] numeric(1) DEFAULT (1),   \
+[musicStoreStatus] nvarchar(6),   \
 [imgUrl] nvarchar(255),   \
 [bIcon] BLOB,    \
 [sIcon] BLOB,    \
@@ -298,6 +299,11 @@ SET \
 refCnt = refCnt+1 \
 where channelId = new.channelId; \
 \
+UPDATE channelInfo \
+SET channelType = 0 \
+WHERE channelId = new.channelID \
+AND new.channelID >= 4026531840; \
+\
 delete from channelHistory \
 where channelLatestPlayTime = ( select min(channelLatestPlayTime) from channelHistory) \
 AND (select count(*) from channelHistory)> 100; \
@@ -354,6 +360,11 @@ SET refCnt = refCnt+1 \
 where \
 channelId = new.channelId;  \
   \
+UPDATE channelInfo \
+SET channelType = 0 \
+WHERE channelId = new.channelID \
+AND new.channelID >= 4026531840; \
+\
 delete from searchRlt \
 where SID = ( select min(SID) from searchRlt) AND (select count(*) from searchRlt)> 100; \
 \
@@ -389,7 +400,7 @@ const QString CREATE_TABEL_CHANNELINFO("CREATE TABLE channelInfo( \
 [channelName] nvarchar(255) ,\
 [channelNickName] nvarchar(255) ,\
 [genreName] nvarchar(255) ,\
-[genreId] nvarchar(64)),     \
+[genreId] nvarchar(64),\
 [languageName] nvarchar(255) ,\
 [languageCode] nvarchar(8) ,\
 [countryName] nvarchar(255) ,\
@@ -398,24 +409,10 @@ const QString CREATE_TABEL_CHANNELINFO("CREATE TABLE channelInfo( \
 [shortDesc] nvarchar(255) ,\
 [lastModified] datetime DEFAULT (datetime(current_timestamp,'localtime')), \
 [channelType] numeric(1) DEFAULT (1) ,\
-[musicStoreStatus] numeric(1) NOT NULL ,\
+[musicStoreStatus] nvarchar(6) ,\
 [refCnt] numeric(1) DEFAULT (0));");
 
 
-/*
-* Define for channelInfo Insert trigger;
-* the refCnt default value is 1;
-*/
-const QString TRI_INSERT_CHANNELINFO("CREATE TRIGGER [TRI_INSERT_channelInfo] \
-AFTER INSERT ON [channelInfo] FOR EACH ROW \
-BEGIN \
-\
-UPDATE channelInfo \
-SET channelType = 0 \
-WHERE channelId = new.channelID \
-AND new.channelID > 4294967295;  \
-\
-END;");
 
 
 /*
@@ -461,6 +458,21 @@ const QString CREATE_TABEL_IMG("CREATE TABLE [img] (  \
 [bIcon] BLOB,    \
 [sIcon] BLOB); ");
 
+/*
+* Definition for trigger img table;
+* when imgurl is updated(old.value isn't same with new.value),
+* the logo info in database will be remvoed;
+*/
+const QString TRI_UPDATE_IMG("CREATE TRIGGER [IRI_UPDATE_img] \
+AFTER UPDATE \
+ON [img] \
+FOR EACH ROW \
+BEGIN \
+update img \
+set sIcon = NULL, bIcon = NULL \
+where new.imgurl <> old.imgurl; \
+\
+END; ");
 
 
 /**************************************************
@@ -562,7 +574,7 @@ AND channelId = new.channelId \
 AND artistName = new.artistName; \
  \
 delete from songHistory   \
-where songPlaySeq = ( select min(songPlaySeq) from searchRlt)    \
+where songPlaySeq = ( select min(songPlaySeq) from songHistory)    \
 AND (select count(*) from songHistory)> 100;   \
 END;");
 
@@ -702,32 +714,46 @@ const QString IRVIEW_CHANNELHISTORY(" Create  View [IRVIEW_channelHistory] As \
 select \
 IRView_channelinfo.* \
 from \
-channelHistory LEFT JOIN IRView_channelinfo ON channelHistory.[channelId] = IRView_channelinfo.[channelID] ");
+channelHistory \
+LEFT JOIN \
+IRView_channelinfo ON channelHistory.[channelId] = IRView_channelinfo.[channelID] \
+order by channelHistory.[channelLatestPlayTime] desc ");
 
 const QString IRVIEW_FAVORITES(" Create  View [IRVIEW_favorites] As \
 select \
-IRView_channelinfo.*, favorites.[FavSeq] \
+IRView_channelinfo.* \
 from \
-favorites LEFT JOIN IRView_channelinfo ON favorites.[channelId] = IRView_channelinfo.[channelID] ");
+favorites LEFT JOIN IRView_channelinfo ON favorites.[channelId] = IRView_channelinfo.[channelID] \
+order by favorites.[FavSeq] desc ");
 
 
 const QString IRVIEW_SEARCHRLT(" Create  View [IRVIEW_searchRlt] As \
 select \
 IRView_channelinfo.* \
 from \
-searchRlt LEFT JOIN IRView_channelinfo ON searchRlt.[channelId] = IRView_channelinfo.[channelID] ");
+searchRlt LEFT JOIN IRView_channelinfo ON searchRlt.[channelId] = IRView_channelinfo.[channelID] \
+order by searchRlt.[channelLatestSrhTime] asc ");
 
 const QString IRVIEW_SONGHISTORY("Create  View [IRVIEW_songHistory] As \
 select \
-IRView_channelinfo.*, songHistory.[songName], songHistory.[artistName], songHistory.[songPlaySeq] \
+IRView_channelinfo.*, songHistory.[songName], songHistory.[artistName] \
 from \
-songHistory LEFT JOIN IRView_channelinfo ON songHistory.[channelId] = IRView_channelinfo.[channelID] ");
+songHistory LEFT JOIN IRView_channelinfo ON songHistory.[channelId] = IRView_channelinfo.[channelID] \
+order by songHistory.[songPlaySeq] desc ");
 
 
 const QString IR_VIEW_SRH_USERCID(" CREATE VIEW [IR_VIEW_SRH_USERCID] As \
 select channelinfo.[channelID], channelNickName, channelUrl, bitRate \
 FROM channelinfo LEFT JOIN urlInfo ON channelinfo.channelID = urlInfo.channelID ");
 
+
+const QString IR_VIEW_ALL("Create  View [IRVIEW_ALL] As  \
+select \
+IRView_channelinfo.*,urlInfo.[channelUrl],  urlInfo.[bitRate] \
+from \
+IRView_channelInfo \
+LEFT JOIN \
+urlinfo ON IRView_channelinfo.[channelID] = urlInfo.[channelID] ");
 
 /**************************************************
 * define for drop IRDB VIEW, TABLE AND TRIGGER

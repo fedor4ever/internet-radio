@@ -77,7 +77,9 @@ void urlInfoWrapper::combineInsertStr(const columnUrlInfoInsertMap* const RowDat
 }
 
 QList<QVariant*>* urlInfoWrapper::getUrlInfo(const columnMap* const condAND,  
-                                             const columnMap* const condOR)
+                                             const columnMap* const condOR,
+                                             int aBegin,
+                                             int aEnd)
 {
     QString sltSqlStr = "select channelUrl, channelId, bitRate from urlInfo ";
     QList<QVariant*>* pDataSet = NULL;
@@ -105,7 +107,7 @@ QList<QVariant*>* urlInfoWrapper::getUrlInfo(const columnMap* const condAND,
 
     combineGetStr(condAND, condOR, colNameView, sltSqlStr);
     pDataSet = new QList<QVariant*>(); 
-    if( m_pIRDB->selectRow(this, sltSqlStr, pDataSet) )
+    if( m_pIRDB->selectRow(this, sltSqlStr, pDataSet, aBegin, aEnd) )
     {
         delete pDataSet;
         pDataSet = NULL;

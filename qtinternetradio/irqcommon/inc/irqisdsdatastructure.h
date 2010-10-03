@@ -40,7 +40,7 @@ public:
    QString shortDescription;
    QString imageURL;
    //added for cache search
-   int     channelID;
+   uint     channelID;
 };
 
 class IRQChannelServerURL
@@ -103,8 +103,9 @@ public:
    int uniqID; //unique id generated for the preset saved at favourite
    
    int type; //0 for user defined 1 for isds type.
-   int presetId;//isds generated preset id
-   QString name; //preset name        
+   uint presetId;//isds generated preset id
+   QString name; //preset name   
+   QString nickName;     
    QString languageCode;//preset language code
    QString languageName; // preset language
    QString countryCode;//preset country of origin code     

@@ -92,8 +92,9 @@ void IRPlsView::handleItemSelected()
     IRQPreset preset;
     preset.insertChannelServer(server);
     preset.name = iPlsModel->getTitle(currentRow);
-    preset.description = iPlsModel->getFile(currentRow);
-    preset.shortDesc = iPlsModel->getFile(currentRow);
+    preset.nickName = iPlsModel->getTitle(currentRow);
+    preset.description = "";
+    preset.shortDesc = "";
     preset.type = 0;
     preset.uniqID = 0;
     preset.presetId = 0;
